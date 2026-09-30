@@ -167,8 +167,8 @@ footer{color:#64748b}footer a{color:#4f46e5}
 .cx .stat b{grid-area:v;font-size:1.65rem;font-weight:700;letter-spacing:-.02em}
 
 /* tương thích với nút Material 3 ở style.css */
-#cms .btn{color:#fff;height:auto;min-height:40px;padding:8px 18px;border-radius:10px}
+#cms .btn{color:#fff;border:1px solid transparent;backdrop-filter:none;height:auto;min-height:40px;padding:8px 18px;border-radius:10px}
 #cms .btn.sm{min-height:34px;padding:5px 12px}
 #cms .btn.ghost,#cms .btn.ghost:hover{color:var(--fg)}
-#cms .btn.ok{color:#fff}
+#cms .btn.ok{color:#fff;background:#16a34a}#cms .btn.bad{color:#fff;background:#dc2626}
 #cms .btn .i{margin-left:0}
