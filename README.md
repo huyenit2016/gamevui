@@ -26,3 +26,5 @@ GV.register({
 ```
 
 Kỷ lục, danh sách yêu thích, ghi chú… được lưu trong `localStorage` của trình duyệt.
+
+Demo: https://huyenit2016.github.io/gamevui/
