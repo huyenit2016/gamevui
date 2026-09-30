@@ -29,6 +29,9 @@ Kỷ lục, danh sách yêu thích, ghi chú… được lưu trong `localStorag
 
 Demo: https://huyenit2016.github.io/gamevui/
 
+## 📚 Học tập
+Học ngoại ngữ (Anh · Nhật · Hàn · Trung, flashcard + đề kiểm tra tự động), Tạo khoá học & đề thi từ file CSV/JSON, Gia sư AI 1-1, Dịch giọng nói tự động, Phân tích cuộc họp (ghi âm), Lớp học 1-1 online (video + chat + bảng trắng). Xem `FIREBASE.md` (mục "Nhóm Học tập") để cấu hình AI / TURN.
+
 ## Quảng cáo & thống kê
 - Quảng cáo cấu hình trong `js/ads-config.js` (AdSense / banner tự chèn; để trống thì hiện banner giới thiệu game). Có sẵn `privacy.html` và `ads.txt` mẫu.
 - Đếm lượt truy cập theo IP (IP băm, không lưu IP gốc) hiển thị ở chân trang – xem `FIREBASE.md`.

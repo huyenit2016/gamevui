@@ -21,7 +21,7 @@ window.GV_FIREBASE = {
 (Các giá trị này công khai, không phải mật khẩu. Bảo mật nằm ở Rules bên dưới.)
 
 ## 3. Rules (Realtime Database → Rules → dán → Publish)
-Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Tiến lên, Ma sói, Cờ tướng, Cờ vua). **Mỗi khi repo cập nhật luật, hãy dán lại.** (Bản này có thêm quyền xoá phòng khi rời/đóng phòng và tự dọn phòng bỏ hoang quá 2 giờ.)
+Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Tiến lên, Ma sói, Cờ tướng, Cờ vua) và Lớp học 1-1 online. **Mỗi khi repo cập nhật luật, hãy dán lại.** (Bản này có thêm quyền xoá phòng khi rời/đóng phòng và tự dọn phòng bỏ hoang quá 2 giờ.)
 ```json
 {
   "rules": {
@@ -112,6 +112,67 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
           }
         }
       }
+    },
+    "calls": {
+      "$code": {
+        ".read": "auth != null",
+        ".validate": "$code.matches(/^[0-9]{4}$/)",
+        ".write": "auth != null && !newData.exists() && data.child('host').val() === auth.uid",
+        "host": {
+          ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
+        },
+        "hostName": {
+          ".write": "auth != null && root.child('calls').child($code).child('host').val() === auth.uid"
+        },
+        "title": {
+          ".write": "auth != null && root.child('calls').child($code).child('host').val() === auth.uid"
+        },
+        "lang": {
+          ".write": "auth != null && root.child('calls').child($code).child('host').val() === auth.uid"
+        },
+        "createdAt": {
+          ".write": "auth != null && root.child('calls').child($code).child('host').val() === auth.uid"
+        },
+        "guest": {
+          ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || data.val() === auth.uid || root.child('calls').child($code).child('host').val() === auth.uid)"
+        },
+        "guestName": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "offer": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "answer": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "ice": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "boardclr": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "cap": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "notes": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "board": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        },
+        "chat": {
+          ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('calls').child($code).child('guest').val() === auth.uid)"
+        }
+      }
+    },
+    "calllobby": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "at"
+      ],
+      "$code": {
+        ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || (!newData.exists() && data.child('at').val() < now - 7200000))"
+      }
     }
   }
 }
@@ -135,3 +196,11 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
 - Rời phòng sẽ xoá dữ liệu của bạn trong phòng; phòng trống/đóng bị xoá hẳn; phòng bỏ hoang quá 2 giờ tự bị dọn khi có người mở danh sách phòng. Chat giữ tối đa 50 tin, lịch sử tối đa 30 ván.
 - Nếu trước đây bạn đã chạy bản Lô tô online cũ, trong Firebase Console → Realtime Database → tab **Data** còn hai nhánh cũ `rooms` và `lobby`: hãy xoá thủ công (đã không dùng nữa).
 - **Đếm lượt truy cập:** mỗi lần mở web (mỗi phiên) cộng 1 vào `stats/total`; mỗi IP mới cộng 1 vào `stats/unique`. IP được băm SHA-256 và chỉ lưu 16 ký tự đầu, **không lưu IP gốc**. Nếu trình duyệt chặn dịch vụ lấy IP (api.ipify.org) thì tính theo mã thiết bị ẩn danh.
+
+## Nhóm Học tập
+- **Học ngoại ngữ / Tạo khoá học:** chạy hoàn toàn trên trình duyệt, không cần Firebase. Dữ liệu khoá học lưu trên máy (xuất JSON/CSV để sao lưu).
+- **Gia sư AI, Dịch giọng nói, Phân tích cuộc họp:** dùng khóa API của **chính bạn** (Claude / OpenAI / Gemini) nhập trong mục "Cài đặt AI". Khóa chỉ lưu trong trình duyệt (localStorage) và gửi thẳng tới nhà cung cấp AI; GameVui không nhận khóa. Không bao giờ ghi khóa vào mã nguồn. Không có khóa: Gia sư AI chuyển sang bot ôn từ vựng, Dịch dùng MyMemory (miễn phí, có giới hạn), Phân tích họp dùng bộ trích ý offline.
+- **Lớp học 1-1 online:** video đi trực tiếp giữa hai máy (WebRTC), Firebase chỉ làm "người mai mối" (`calls/`, `calllobby/`). Dữ liệu lớp bị xoá khi giáo viên kết thúc hoặc mất kết nối. Mạng chặn kết nối trực tiếp (4G/công ty) cần máy chủ TURN: tạo tài khoản miễn phí tại Metered / Cloudflare Calls / Xirsys rồi thêm vào `js/firebase-config.js`:
+```js
+window.GV_TURN = [{ urls: 'turn:ten-may-chu:443?transport=tcp', username: '...', credential: '...' }];
+```

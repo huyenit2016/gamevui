@@ -66,7 +66,7 @@
   function cardHTML(i, f, big) {
     const badge = NEW.includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT.includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
     return `<a class="card${big ? ' big' : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}">
-      <span class="tag">${i.cat === 'Nhiều người' ? '🌐 Online' : i.type === 'game' ? 'Game' : 'Tiện ích'}</span>${badge}
+      <span class="tag">${i.cat === 'Nhiều người' ? '🌐 Online' : i.cat === 'Học tập' ? '📚 Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích'}</span>${badge}
       <span class="fv" data-f="${i.id}" title="Yêu thích">${f.includes(i.id) ? '★' : '☆'}</span>
       <div class="ic">${i.icon}</div><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p>${big ? '<span class="play">Chơi ngay ▶</span>' : ''}
     </a>`;

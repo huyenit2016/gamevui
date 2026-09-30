@@ -10,3 +10,6 @@ window.GV_FIREBASE = {
   appId: "1:1079671806787:web:d00f0ad504a7a66285adf6",
   measurementId: "G-ZMNH49MGZB"
 };
+
+// (Tuỳ chọn) Máy chủ TURN cho Lớp học 1-1 khi mạng chặn kết nối trực tiếp – xem FIREBASE.md:
+// window.GV_TURN = [{ urls: 'turn:ten-may-chu:443?transport=tcp', username: '...', credential: '...' }];
