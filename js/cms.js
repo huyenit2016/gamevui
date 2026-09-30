@@ -12,6 +12,7 @@
 
   /* =============== ĐĂNG NHẬP / ĐĂNG KÝ =============== */
   function authView(msg) {
+    document.body.classList.remove('cms-app');
     root.innerHTML = `<div class="cx"><div class="card2 authbox"><h2 style="text-align:center">🔐 Đăng nhập GameVui</h2>
       <p class="hint" style="text-align:center">Khách vẫn chơi bình thường <b>không cần đăng nhập</b>. Đăng nhập để giao bài / nhận bài, đăng khoá học hoặc quản trị.</p>
       <div class="row"><button class="pbtn sel" data-m="in">Đăng nhập</button><button class="pbtn" data-m="up">Đăng ký</button><button class="pbtn" data-m="rs">Quên mật khẩu</button></div>
@@ -60,8 +61,15 @@
     clearTimers(); if (GV.cmsOff.length) GV.cmsOff.splice(0).forEach(f => { try { f(); } catch (e) {} });
     if (!A.user) return authView();
     const tabs = TABS.filter(t => t[2].includes(A.role)); if (!tabs.find(t => t[0] === tab)) tab = 'home';
-    root.innerHTML = `<div class="cx"><div class="card2 row" style="justify-content:space-between"><span style="font-size:1.1rem"><b>${A.ICON[A.role]} ${esc((A.profile && A.profile.name) || A.user.email)}</b> <span class="tag ${A.isAdmin ? 'ok' : ''}">${A.ROLES[A.role]}</span> ${A.profile && A.profile.requested ? `<span class="tag warn">đang chờ duyệt: ${A.ROLES[A.profile.requested]}</span>` : ''}<br><span class="hint">${esc(A.user.email)}</span></span><span class="row"><button class="btn ghost sm rr" title="Tải lại vai trò nếu admin vừa duyệt cho bạn">🔄 Cập nhật quyền</button><a class="btn ghost sm" href="./">🎮 Về GameVui</a><button class="btn ghost sm lo">Đăng xuất</button></span></div>
-      <div class="tabsx">${tabs.map(t => `<button data-t="${t[0]}" class="${t[0] === tab ? 'on' : ''}">${t[1]}<span class="badge" id="bd-${t[0]}" hidden></span></button>`).join('')}</div><div id="tabc"></div></div>`;
+    const nm = (A.profile && A.profile.name) || A.user.email, cur = tabs.find(t => t[0] === tab);
+    document.body.classList.add('cms-app');
+    root.innerHTML = `<div class="cx app"><div class="scrim"></div>
+      <aside class="sb"><div class="brand"><span class="lg">🎮</span><b>GameVui</b><small>CMS</small></div>
+        <nav class="tabsx">${tabs.map(t => `<button data-t="${t[0]}" class="${t[0] === tab ? 'on' : ''}">${t[1]}<span class="badge" id="bd-${t[0]}" hidden></span></button>`).join('')}</nav>
+        <div class="sbf"><div class="me"><span class="av">${esc(String(nm).trim().charAt(0).toUpperCase())}</span><span class="mi"><b>${esc(nm)}</b><em>${A.ICON[A.role]} ${A.ROLES[A.role]}${A.profile && A.profile.requested ? ` · chờ duyệt: ${A.ROLES[A.profile.requested]}` : ''}</em></span></div>
+          <div class="sba"><button class="rr" title="Tải lại vai trò nếu admin vừa duyệt cho bạn">🔄 Cập nhật quyền</button><a href="./">🎮 Về GameVui</a><button class="lo">↪ Đăng xuất</button></div></div></aside>
+      <section class="main"><div class="topbar"><button class="mbtn" aria-label="Mở menu">☰</button><h1>${cur ? cur[1] : ''}</h1><span class="tag ${A.isAdmin ? 'ok' : ''}">${A.ROLES[A.role]}</span></div><div id="tabc"></div></section></div>`;
+    const app = $('.app'); $('.mbtn').onclick = () => app.classList.toggle('open'); $('.scrim').onclick = () => app.classList.remove('open');
     $('.lo').onclick = () => A.signOut();
     $('.rr').onclick = () => recheck(true);
     $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', '#' + tab); panelView(); });
@@ -89,7 +97,7 @@
     if (A.isAdmin) {
       const [tot, uni, us] = await Promise.all([db().ref('stats/total').once('value'), db().ref('stats/unique').once('value'), db().ref('users').once('value')]);
       const u = Object.values(us.val() || {}), by = r => u.filter(x => (x.role || 'student') === r).length;
-      $('#stats', c).innerHTML = [['👁', tot.val() || 0, 'Lượt truy cập'], ['🌐', uni.val() || 0, 'Người dùng (IP)'], ['👥', u.length, 'Tài khoản'], ['🎓', by('teacher'), 'Giáo viên'], ['✍️', by('collab'), 'Cộng tác viên'], ['⏳', u.filter(x => x.requested).length, 'Chờ duyệt']].map(([i, n, l]) => `<div class="stat">${i}<b>${n}</b>${l}</div>`).join('');
+      $('#stats', c).innerHTML = [['👁', tot.val() || 0, 'Lượt truy cập'], ['🌐', uni.val() || 0, 'Người dùng (IP)'], ['👥', u.length, 'Tài khoản'], ['🎓', by('teacher'), 'Giáo viên'], ['✍️', by('collab'), 'Cộng tác viên'], ['⏳', u.filter(x => x.requested).length, 'Chờ duyệt']].map(([i, n, l]) => `<div class="stat"><span class="si">${i}</span><span class="sn">${l}</span><b>${n}</b></div>`).join('');
     }
   }
 
