@@ -103,8 +103,8 @@ main{flex:1;width:100%;max-width:1360px;margin:0 auto;padding:16px 32px 56px}
 .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
 .ticker,.float{display:none}
 .hart{position:relative;height:280px;z-index:1}
-.ht{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:150px;height:190px;border-radius:24px;color:#fff;text-align:center;background:radial-gradient(120% 100% at 30% 0,hsl(var(--h) 75% 52%/.7),transparent 62%),linear-gradient(160deg,hsl(var(--h) 50% 24%),hsl(calc(var(--h) + 30) 55% 11%));box-shadow:var(--e3),0 18px 36px rgba(0,0,0,.35);transition:transform .35s var(--ease)}
-.ht span{font-size:4rem;line-height:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.5))}.ht b{font-size:13px;font-weight:500;padding:0 10px}
+.ht{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:150px;height:190px;border-radius:24px;color:var(--md-on-surface);text-align:center;background:linear-gradient(150deg,hsl(var(--h) 95% 80%/.26),hsl(calc(var(--h) + 40) 90% 80%/.12)),color-mix(in srgb,var(--md-sc-low) 70%,transparent);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px hsl(var(--h) 90% 85%/.28),var(--e3);transition:transform .35s var(--ease)}
+.ht span{font-size:4rem;line-height:1;filter:drop-shadow(0 8px 10px rgba(0,0,0,.28))}.ht b{font-size:13px;font-weight:500;padding:0 10px}
 .ht.t0{left:6%;top:38px;transform:rotate(-9deg)}.ht.t1{left:30%;top:2px;transform:rotate(-2deg);z-index:2}.ht.t2{left:54%;top:40px;transform:rotate(7deg);z-index:1}.ht.t3{left:76%;top:82px;transform:rotate(14deg);width:132px;height:170px}
 .hart:hover .t0{transform:rotate(-12deg) translate(-6px,4px)}.hart:hover .t1{transform:rotate(-2deg) translateY(-8px)}.hart:hover .t2{transform:rotate(9deg) translate(6px,2px)}.hart:hover .t3{transform:rotate(17deg) translate(8px,6px)}
 
@@ -146,10 +146,10 @@ body.ingame .fab{display:none}
 .card::after{content:"";position:absolute;inset:0;background:var(--md-on-surface);opacity:0;transition:opacity .2s;pointer-events:none;border-radius:inherit}
 .card:hover::after{opacity:.06}.card:active::after{opacity:.1}
 .card .art{position:relative;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;isolation:isolate;border-radius:14px}
-.card .art .bg{position:absolute;inset:0;z-index:-1;transition:transform .5s var(--ease);background:radial-gradient(90% 80% at 25% 15%,hsl(var(--h) 80% 55%/.6),transparent 62%),radial-gradient(70% 60% at 85% 100%,hsl(calc(var(--h) + 50) 70% 45%/.35),transparent 70%),linear-gradient(155deg,hsl(var(--h) 45% 24%),hsl(calc(var(--h) + 30) 50% 12%))}
-.card .art::after{content:"";position:absolute;left:50%;bottom:12%;width:55%;height:14%;transform:translateX(-50%);border-radius:50%;background:rgba(0,0,0,.35);filter:blur(10px);z-index:-1}
-.card .ic{font-size:4.2rem;line-height:1;filter:drop-shadow(0 12px 14px rgba(0,0,0,.45));transition:transform .4s var(--ease)}
-:root[data-theme=light] .card .art .bg{background:radial-gradient(90% 80% at 25% 15%,hsl(var(--h) 90% 82%),transparent 62%),linear-gradient(155deg,hsl(var(--h) 70% 88%),hsl(calc(var(--h) + 30) 70% 76%))}
+.card .art .bg{position:absolute;inset:0;z-index:-1;transition:transform .5s var(--ease);border-radius:inherit;background:radial-gradient(85% 75% at 22% 12%,hsl(var(--h) 100% 68%/.42),transparent 64%),radial-gradient(70% 60% at 88% 100%,hsl(calc(var(--h) + 45) 100% 66%/.3),transparent 70%),linear-gradient(150deg,hsl(var(--h) 90% 70%/.22),hsl(calc(var(--h) + 40) 90% 70%/.12));box-shadow:inset 0 0 0 1px hsl(var(--h) 100% 78%/.28)}
+.card .art::after{content:"";position:absolute;left:50%;bottom:12%;width:55%;height:14%;transform:translateX(-50%);border-radius:50%;background:rgba(0,0,0,.22);filter:blur(10px);z-index:-1}
+.card .ic{font-size:4.2rem;line-height:1;filter:drop-shadow(0 10px 12px rgba(0,0,0,.28));transition:transform .4s var(--ease)}
+:root[data-theme=light] .card .art .bg{background:radial-gradient(85% 75% at 22% 12%,hsl(var(--h) 100% 88%/.85),transparent 62%),radial-gradient(70% 60% at 88% 100%,hsl(calc(var(--h) + 45) 100% 86%/.55),transparent 70%),linear-gradient(150deg,hsl(var(--h) 95% 90%/.7),hsl(calc(var(--h) + 40) 95% 92%/.5));box-shadow:inset 0 0 0 1px hsl(var(--h) 70% 70%/.28)}
 .card .body{display:flex;flex-direction:column;gap:2px;padding:12px 10px 10px;flex:1}
 .card .cat{font-size:12px;font-weight:500;letter-spacing:.5px;color:var(--md-primary)}
 .card h3{margin:0;font-size:1.0625rem;font-weight:500;letter-spacing:.01em;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -176,7 +176,8 @@ body.ingame .fab{display:none}
 /* "Chơi gần đây": danh sách ngang (Material list) */
 .rlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .rc{display:flex;align-items:center;gap:16px;padding:12px 16px 12px 12px;border-radius:16px;background:var(--md-sc-low);box-shadow:var(--e1);transition:box-shadow .2s,transform .2s var(--ease)}
-.rc .rt{display:grid;place-items:center;width:56px;height:56px;border-radius:14px;font-size:1.8rem;flex:0 0 auto;background:radial-gradient(90% 90% at 25% 15%,hsl(var(--h) 80% 55%/.55),transparent 65%),linear-gradient(155deg,hsl(var(--h) 45% 24%),hsl(calc(var(--h) + 30) 50% 12%))}
+.rc .rt{display:grid;place-items:center;width:56px;height:56px;border-radius:14px;font-size:1.8rem;flex:0 0 auto;background:linear-gradient(150deg,hsl(var(--h) 95% 80%/.22),hsl(calc(var(--h) + 40) 90% 80%/.1));box-shadow:inset 0 0 0 1px hsl(var(--h) 90% 85%/.22)}
+:root[data-theme=light] .rc .rt{background:linear-gradient(150deg,hsl(var(--h) 95% 88%/.9),hsl(calc(var(--h) + 40) 95% 92%/.6));box-shadow:inset 0 0 0 1px hsl(var(--h) 70% 70%/.28)}
 .rc .rx{min-width:0;flex:1}.rc .rx b{display:block;font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rc .rx small{color:var(--md-on-surface-var);font-size:14px}
 .rc .rp{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--t-p);border:1px solid var(--t-pb);color:var(--t-pt);transition:background .2s,border-color .2s}
 .rc:hover{box-shadow:var(--e2)}.rc:hover .rp{border-color:var(--md-primary);background:rgba(139,92,246,.3)}
