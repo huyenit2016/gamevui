@@ -10,6 +10,19 @@
   const getCfg = () => window.GV_FIREBASE || GV.store.get('fbcfg', null);
   const rowWon = (t, called) => t.some(row => row.filter(Boolean).every(n => called.has(n)));
 
+  // Giải thích lỗi Firebase bằng tiếng Việt dễ hiểu
+  function explain(e) {
+    const c = (e && (e.code || '')) + ' ' + (e && e.message || '');
+    if (/operation-not-allowed|admin-restricted/i.test(c)) return 'Chưa bật đăng nhập ẩn danh: Firebase → Authentication → Sign-in method → Anonymous → Enable.';
+    if (/PERMISSION_DENIED|permission/i.test(c)) return 'Firebase từ chối quyền ghi: hãy dán lại Rules mới trong FIREBASE.md rồi Publish.';
+    if (/unauthorized-domain/i.test(c)) return 'Tên miền chưa được cho phép: Authentication → Settings → Authorized domains → thêm huyenit2016.github.io.';
+    if (/TIMEOUT/.test(c)) return 'Không kết nối được Realtime Database (quá 12 giây). Kiểm tra databaseURL trong js/firebase-config.js khớp địa chỉ ở trang Realtime Database, và database đã được tạo.';
+    if (/api-key|invalid-api/i.test(c)) return 'apiKey không hợp lệ, kiểm tra lại js/firebase-config.js.';
+    if (/network/i.test(c)) return 'Lỗi mạng, thử lại sau.';
+    return 'Lỗi: ' + (e && e.message || e);
+  }
+  const timeout = (p, ms = 12000) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('TIMEOUT')), ms))]);
+
   let fbP = null;
   function fb() {
     if (fbP) return fbP;
@@ -17,7 +30,7 @@
       const cfg = getCfg(); if (!cfg || !cfg.databaseURL) throw new Error('Chưa có cấu hình Firebase');
       if (!window.firebase || !firebase.database) for (const s of SRC) await loadScript(s);
       if (!firebase.apps.length) firebase.initializeApp(cfg);
-      await firebase.auth().signInAnonymously();
+      await timeout(firebase.auth().signInAnonymously());
       return { db: firebase.database(), uid: firebase.auth().currentUser.uid, TS: firebase.database.ServerValue.TIMESTAMP };
     })();
     fbP.catch(() => { fbP = null; });
@@ -61,9 +74,9 @@
         <p class="msg">${err ? GV.esc(err) : ''}</p><p class="hint"><a href="#" class="rc">Đổi cấu hình Firebase</a></p></div>`;
         const name = () => { const n = $('.nm').value.trim(); if (!n) { $('.msg').textContent = 'Nhập tên của bạn trước nhé.'; $('.nm').focus(); return null; } GV.store.set('lo_name', n); return n; };
         const busy = t => { $('.msg').textContent = t; el.querySelectorAll('button').forEach(b => b.disabled = !!t); };
-        $('.mk').onclick = async () => { const n = name(); if (!n) return; const rn = $('.rn').value.trim() || ('Phòng của ' + n); GV.store.set('lo_room', $('.rn').value.trim()); busy('Đang tạo phòng…'); try { await createRoom(n, rn); } catch (e) { entry(e.message); } };
-        $('.jn').onclick = async () => { const n = name(); if (!n) return; const c = $('.cd').value.trim(); if (!/^\d{4}$/.test(c)) { $('.msg').textContent = 'Mã phòng gồm 4 chữ số.'; return; } busy('Đang vào phòng…'); try { await join(c, n); } catch (e) { entry(e.message); } };
-        $('.rl').onclick = async ev => { const b = ev.target.closest('[data-c]'); if (!b) return; const n = name(); if (!n) return; busy('Đang vào phòng…'); try { await join(b.dataset.c, n); } catch (e) { entry(e.message); } };
+        $('.mk').onclick = async () => { const n = name(); if (!n) return; const rn = $('.rn').value.trim() || ('Phòng của ' + n); GV.store.set('lo_room', $('.rn').value.trim()); busy('Đang tạo phòng…'); try { await createRoom(n, rn); } catch (e) { entry(explain(e)); } };
+        $('.jn').onclick = async () => { const n = name(); if (!n) return; const c = $('.cd').value.trim(); if (!/^\d{4}$/.test(c)) { $('.msg').textContent = 'Mã phòng gồm 4 chữ số.'; return; } busy('Đang vào phòng…'); try { await join(c, n); } catch (e) { entry(explain(e)); } };
+        $('.rl').onclick = async ev => { const b = ev.target.closest('[data-c]'); if (!b) return; const n = name(); if (!n) return; busy('Đang vào phòng…'); try { await join(b.dataset.c, n); } catch (e) { entry(explain(e)); } };
         watchList();
         $('.rc').onclick = ev => { ev.preventDefault(); GV.store.set('fbcfg', null); if (!window.GV_FIREBASE) showSetup(); else $('.msg').textContent = 'Cấu hình nằm trong js/firebase-config.js.'; };
       }
@@ -85,16 +98,18 @@
         const { db, uid, TS } = await fb();
         for (let i = 0; i < 12; i++) {
           const code = String(1000 + GV.rnd(9000));
-          const r = await db.ref(`rooms/${code}/host`).transaction(cur => cur === null ? uid : undefined);
-          if (r.committed) { await db.ref('rooms/' + code).update({ round: 1, status: 'lobby', createdAt: TS, name: roomName });
-            await db.ref('lobby/' + code).set({ name: roomName, hostName: name, status: 'lobby', count: 0, at: TS }); return join(code, name); }
+          const r = await timeout(db.ref(`rooms/${code}/host`).transaction(cur => cur === null ? uid : undefined));
+          if (r.committed) { await timeout(db.ref('rooms/' + code).update({ round: 1, status: 'lobby', createdAt: TS }));
+            // tên phòng + danh sách công khai: không bắt buộc (bỏ qua nếu Rules cũ chưa cho phép)
+            try { await timeout(db.ref('rooms/' + code).child('name').set(roomName)); await timeout(db.ref('lobby/' + code).set({ name: roomName, hostName: name, status: 'lobby', count: 0, at: TS })); } catch (e) { console.warn('lobby', e); }
+            return join(code, name); }
         }
         throw new Error('Không tạo được phòng, thử lại.');
       }
 
       async function join(code, name) {
         const { db, uid, TS } = await fb();
-        const snap = await db.ref(`rooms/${code}/host`).once('value');
+        const snap = await timeout(db.ref(`rooms/${code}/host`).once('value'));
         if (!snap.exists()) throw new Error('Không tìm thấy phòng ' + code);
         history.replaceState(null, '', '#/game/lotoonline/' + code);
         room(db, uid, TS, code, name);
