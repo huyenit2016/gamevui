@@ -70,6 +70,8 @@
   const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
 
   const tagOf = i => i.cat === 'Nhiều người' ? 'Online' : i.cat === 'Học tập' ? 'Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích';
+  // nhãn nút theo loại: game -> Chơi · học tập -> Học · tiện ích -> Dùng thử
+  const verbOf = (i, big) => i.cat === 'Học tập' ? [big ? 'Học ngay' : 'Học', 'cap'] : i.type === 'game' ? [big ? 'Chơi ngay' : 'Chơi', 'play'] : ['Dùng thử', 'sparkles'];
   // variant: '' thẻ thường · 'big' thẻ lớn · 'feat' thẻ nổi bật (chiếm 2x2 trong "Đang hot")
   function cardHTML(i, f, variant) {
     const badge = NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
@@ -77,11 +79,11 @@
     return `<a class="card${v ? ' ' + v : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${GV.esc(i.name)}">
       <div class="art"><span class="bg"></span><span class="ic" aria-hidden="true">${i.icon}</span>${badge}
         <span class="fv${on ? ' on' : ''}" data-f="${i.id}" role="button" tabindex="0" aria-pressed="${on}" aria-label="Yêu thích" title="Yêu thích">${GV.ic('star', 16, on)}</span></div>
-      <div class="body"><span class="cat">${tagOf(i)}</span><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p><span class="go">${GV.ic('play', 13, true)}${v ? 'Chơi ngay' : 'Chơi'}</span></div>
+      <div class="body"><span class="cat">${tagOf(i)}</span><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p><span class="go">${(([t, ic]) => GV.ic(ic, 14, ic === 'play') + t)(verbOf(i, !!v))}</span></div>
     </a>`;
   }
   // "Chơi gần đây": thẻ ngang gọn để khác hẳn "Đang hot"
-  const recentHTML = i => `<a class="rc" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="Tiếp tục: ${GV.esc(i.name)}"><span class="rt" aria-hidden="true">${i.icon}</span><span class="rx"><b>${GV.esc(i.name)}</b><small>${tagOf(i)}</small></span><span class="rp">${GV.ic('play', 14, true)}</span></a>`;
+  const recentHTML = i => `<a class="rc" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${verbOf(i)[0]}: ${GV.esc(i.name)}"><span class="rt" aria-hidden="true">${i.icon}</span><span class="rx"><b>${GV.esc(i.name)}</b><small>${tagOf(i)}</small></span><span class="rp">${GV.ic('play', 14, true)}</span></a>`;
 
   function renderHome() {
     const ng = GV.items.filter(i => i.type === 'game').length, online = GV.items.filter(i => i.cat === 'Nhiều người').length;

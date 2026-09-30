@@ -34,7 +34,7 @@
       return;
     }
     const h = HOUSE[GV.rnd(HOUSE.length)]; // banner giới thiệu game của GameVui
-    el.innerHTML = `<a class="house" href="${h.h}" style="--h:${h.c}"><span class="adl">Gợi ý cho bạn</span><b>${h.t}</b><span>${h.d}</span><em>Chơi ngay ▶</em></a>`;
+    el.innerHTML = `<a class="house" href="${h.h}" style="--h:${h.c}"><span class="adl">Gợi ý cho bạn</span><b>${h.t}</b><span>${h.d}</span><em>${h.h.includes("/tool/") ? "Dùng thử" : "Chơi ngay"}</em></a>`;
   }
   GV.ads = { hydrate(root) { if (!C().enabled) { (root || document).querySelectorAll('.ad').forEach(e => e.remove()); return; } (root || document).querySelectorAll('.ad:not([data-done])').forEach(fill); } };
 })();
