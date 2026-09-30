@@ -22,20 +22,19 @@
     for (let c = 0; c < 9; c++) { const p = GV.shuffle(colPool(c)); na.push(p.slice(0, ca[c])); nb.push(p.slice(ca[c])); }
     return [buildTicket(ca, na), buildTicket(cb, nb)];
   }
-  // 16 vé = 8 cặp; vé i và vé i+8 cùng màu (COLORS[i % 8]) nên không trùng số.
-  // k vé (k chẵn, tối đa 16) = k/2 cặp; vé i và vé i + k/2 cùng màu.
-  function makeTickets(k = 16) { const a = [], b = []; for (let i = 0; i < k / 2; i++) { const [x, y] = makePair(); a.push(x); b.push(y); } return a.concat(b); }
-  const COLORS = ['#d62828', '#f57c00', '#f2b700', '#7cb518', '#16a34a', '#1e88e5', '#7b1fa2', '#e91e8c'];
+  // 16 vé = 8 cặp; vé 2j và 2j+1 cùng màu nên không trùng số.
+  // k vé (k chẵn, tối đa 16) = k/2 cặp; vé 2j và vé 2j+1 cùng màu và nằm cạnh nhau.
+  function makeTickets(k = 16) { const a = [], b = []; for (let i = 0; i < k / 2; i++) { const [x, y] = makePair(); a.push(x); b.push(y); } const out = []; a.forEach((x, i) => out.push(x, b[i])); return out; }
+  const COLORS = ['#f4a9a9', '#f8c391', '#f6de86', '#cde595', '#96d8b0', '#a3cdf3', '#cbb0e8', '#f4aed2']; // pastel nhẹ
 
   // Vẽ danh sách vé (dùng chung cho bản chơi một máy và bản online)
   function ticketsHTML(tickets, called, won) {
-    const np = Math.max(1, tickets.length / 2);
     return tickets.map((t, i) => {
       const blocks = [0, 3, 6].map(g => `<div class="blk">${t.slice(g, g + 3).map(row => {
         const full = row.filter(n => n && called.has(n)).length === 4;
         return row.map(n => n ? `<div class="n ${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${n}</div>` : '<div></div>').join('');
       }).join('')}</div>`).join('');
-      return `<div class="tk ${won && won.has(i) ? 'win' : ''}" style="--tc:${COLORS[(i % np) % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
+      return `<div class="tk ${won && won.has(i) ? 'win' : ''}" style="--tc:${COLORS[(i >> 1) % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
     }).join('');
   }
 
@@ -57,16 +56,16 @@
   .l16 .vb button{padding:5px 10px;border:1px solid var(--line);background:var(--card2);color:var(--fg);border-radius:8px;cursor:pointer;margin-left:4px}
   .l16 .vb button.on{background:var(--acc);color:#fff}
   .l16 .tks{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-  .l16 .tk{--tc:#d62828;container-type:inline-size;background:#fff;color:#111;border:3px solid var(--tc);border-radius:8px;padding:6px}
+  .l16 .tk{--tc:#f4a9a9;--td:color-mix(in srgb,var(--tc) 55%,#4a3030);container-type:inline-size;background:#fff;color:#111;border:3px solid var(--td);border-radius:8px;padding:6px}
   .l16 .tk.win{box-shadow:0 0 0 4px #86efac,0 6px 20px #16a34a66;outline:3px solid #16a34a}
-  .l16 .tt{display:flex;justify-content:space-between;color:var(--tc);font-size:clamp(9px,3.4cqw,13px);font-weight:900;letter-spacing:.03em;padding:0 2px 4px}
-  .l16 .blk{display:grid;grid-template-columns:repeat(9,1fr);border-top:2px solid var(--tc);border-left:2px solid var(--tc)}
+  .l16 .tt{display:flex;justify-content:space-between;color:var(--td);font-size:clamp(9px,3.4cqw,13px);font-weight:900;letter-spacing:.03em;padding:0 2px 4px}
+  .l16 .blk{display:grid;grid-template-columns:repeat(9,1fr);border-top:2px solid var(--td);border-left:2px solid var(--td)}
   .l16 .blk+.blk{margin-top:2.2cqw}
-  .l16 .blk div{aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--tc);border-bottom:2px solid var(--tc);font-size:6.2cqw;font-weight:900;font-family:Impact,"Arial Narrow",Arial,sans-serif;background:var(--tc);cursor:default;user-select:none}
+  .l16 .blk div{aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--td);border-bottom:2px solid var(--td);font-size:6.2cqw;font-weight:900;font-family:Impact,"Arial Narrow",Arial,sans-serif;background:var(--tc);cursor:default;user-select:none}
   .l16 .blk div.n{background:#fff;color:#111;cursor:pointer}
   .l16 .blk div.n.c{background:#111;color:#fff;border-radius:30%;box-shadow:inset 0 0 0 2px #fff}
   .l16 .blk div.n.rw{box-shadow:inset 0 0 0 3px #ff9f43}
-  .l16 .tf{display:flex;justify-content:space-between;margin-top:4px;font-size:clamp(8px,2.8cqw,11px);color:var(--tc);font-weight:700}
+  .l16 .tf{display:flex;justify-content:space-between;margin-top:4px;font-size:clamp(8px,2.8cqw,11px);color:var(--td);font-weight:700}
   .l16 .modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50}
   .l16 .modal.show{display:flex}
   .l16 .mc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;text-align:center;min-width:280px;max-width:90vw}
