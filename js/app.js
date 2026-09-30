@@ -58,7 +58,11 @@
     return [...set];
   }
 
+  const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
+
   function renderHome() {
+    const ng = GV.items.filter(i => i.type === 'game').length;
+    $('#stats').textContent = `${ng} game · ${GV.items.length - ng} tiện ích · miễn phí, không cần cài đặt`;
     const chips = $('#chips');
     const list = cats();
     if (cat && !list.includes(cat)) cat = '';
@@ -69,7 +73,7 @@
       (!cat || i.cat === cat) &&
       (!q || (i.name + ' ' + i.desc + ' ' + i.cat).toLowerCase().includes(q)));
     $('#grid').innerHTML = items.map(i => `
-      <a class="card" href="#/${i.type}/${i.id}">
+      <a class="card" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}">
         <span class="tag">${i.type === 'game' ? 'Game' : 'Tiện ích'}</span>
         <span class="fv" data-f="${i.id}" title="Yêu thích">${f.includes(i.id) ? '★' : '☆'}</span>
         <div class="ic">${i.icon}</div><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p>
@@ -115,6 +119,11 @@
     $('#grid').addEventListener('click', e => {
       const f = e.target.closest('[data-f]');
       if (f) { e.preventDefault(); toggleFav(f.dataset.f); renderHome(); }
+    });
+    $('#theme').addEventListener('click', () => {
+      const d = document.documentElement, dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      d.dataset.theme = dark ? 'light' : 'dark';
+      try { localStorage.setItem('gv_theme', d.dataset.theme); } catch (e) {}
     });
     window.addEventListener('hashchange', route);
     route();

@@ -6,17 +6,23 @@
 <title>GameVui – Game &amp; Tiện ích online</title>
 <meta name="description" content="Kho game mini và tiện ích miễn phí, chạy ngay trên trình duyệt, không cần cài đặt.">
 <meta name="theme-color" content="#0f1222">
+<script>try{var t=localStorage.getItem("gv_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎮%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <header class="top">
   <a class="logo" href="#/">🎮 Game<b>Vui</b></a>
-  <input id="q" type="search" placeholder="Tìm game, tiện ích..." autocomplete="off">
+  <input id="q" type="search" placeholder="🔍 Tìm game, tiện ích..." autocomplete="off">
+  <button id="theme" class="icon-btn" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện">🌓</button>
 </header>
 
 <main>
   <section id="home">
+    <div class="hero">
+      <h1>Chơi vui, làm nhanh – <span>ngay trên trình duyệt</span></h1>
+      <p id="stats"></p>
+    </div>
     <nav class="tabs" id="tabs">
       <button data-t="all" class="on">Tất cả</button>
       <button data-t="game">🎮 Game</button>
