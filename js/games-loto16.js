@@ -23,20 +23,37 @@
     return [buildTicket(ca, na), buildTicket(cb, nb)];
   }
   // 16 vé = 8 cặp; vé 2j và 2j+1 cùng màu nên không trùng số.
-  // k vé (k chẵn, tối đa 16) = k/2 cặp; vé 2j và vé 2j+1 cùng màu và nằm cạnh nhau.
-  function makeTickets(k = 16) { const a = [], b = []; for (let i = 0; i < k / 2; i++) { const [x, y] = makePair(); a.push(x); b.push(y); } const out = []; a.forEach((x, i) => out.push(x, b[i])); return out; }
+  // k vé (1..16): ghép theo cặp cùng màu nằm cạnh nhau (vé 2j và 2j+1); k lẻ thì vé cuối chỉ có một mình một màu.
+  function makeTickets(k = 16) { k = Math.max(1, Math.min(16, k | 0)); const out = []; for (let i = 0; i < Math.ceil(k / 2); i++) out.push(...makePair()); return out.slice(0, k); }
   const COLORS = ['#f4a9a9', '#f8c391', '#f6de86', '#cde595', '#96d8b0', '#a3cdf3', '#cbb0e8', '#f4aed2']; // pastel nhẹ
 
   // Vẽ danh sách vé (dùng chung cho bản chơi một máy và bản online)
-  function ticketsHTML(tickets, called, won) {
+  function ticketsHTML(tickets, called, won, marked) {
+    // marked = Set('ticket:số') -> chế độ tự dò (người chơi tự bấm); không có -> tự tô theo số đã gọi
     return tickets.map((t, i) => {
       const blocks = [0, 3, 6].map(g => `<div class="blk">${t.slice(g, g + 3).map(row => {
-        const full = row.filter(n => n && called.has(n)).length === 4;
-        return row.map(n => n ? `<div class="n ${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${n}</div>` : '<div></div>').join('');
+        const isOn = n => marked ? marked.has(i + ':' + n) : called.has(n);
+        const full = row.filter(n => n && isOn(n)).length === 4;
+        return row.map(n => n ? `<div class="n ${isOn(n) ? 'c' : ''} ${full && !isOn(n) ? 'rw' : ''}" data-t="${i}" data-n="${n}">${n}</div>` : '<div></div>').join('');
       }).join('')}</div>`).join('');
       return `<div class="tk ${won && won.has(i) ? 'win' : ''}" style="--tc:${COLORS[(i >> 1) % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
     }).join('');
   }
+
+  // Đọc số: vi / en / ja (giọng của thiết bị)
+  const LANG = { vi: 'vi-VN', en: 'en-US', ja: 'ja-JP' };
+  function speak(n, lang) {
+    if (!LANG[lang] || !window.speechSynthesis) return;
+    try {
+      const u = new SpeechSynthesisUtterance(String(n)); u.lang = LANG[lang]; u.rate = .9;
+      const v = speechSynthesis.getVoices().find(v => v.lang.replace('_', '-').toLowerCase().startsWith(lang));
+      if (v) u.voice = v;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  // iOS chỉ cho đọc sau khi người dùng đã chạm: gọi hàm này trong sự kiện bấm nút
+  function unlockSpeech() { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) {} }
+  GV.lotoSpeak = speak; GV.lotoUnlock = unlockSpeech;
 
   const CSS = `
   .l16{width:100%;display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start;--red:#d62828;--gold:#f5c542}

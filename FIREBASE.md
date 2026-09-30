@@ -32,6 +32,7 @@ window.GV_FIREBASE = {
         "createdAt": { ".write": "auth != null && !data.exists()" },
         "name": { ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid" },
         "closed": { ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid" },
+        "history": { ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid" },
         "round": { ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid" },
         "status": { ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid" },
         "called": { ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid" },
@@ -53,6 +54,8 @@ window.GV_FIREBASE = {
 
 ## Cách chơi
 - Nhiều nhóm chơi song song: mỗi nhóm **Tạo phòng** riêng (đặt tên nhóm) → được mã 4 số. Phòng đang mở hiện trong danh sách ở màn hình đầu để mọi người bấm **Vào**; cũng có thể bấm **Chia sẻ** gửi link hoặc nhập mã. Chủ phòng có nút **Đóng phòng**.
-- Mọi người vào sảnh, chọn số vé (2/4/8/16; mỗi cặp cùng màu không trùng số). Chủ phòng bấm **Bắt đầu** rồi **Gọi số** hoặc **Tự động**.
-- Số đã gọi tự đánh dấu; ai đủ một hàng sẽ tự báo **KINH!** và cả phòng thấy ngay. Các máy khác tự kiểm tra lại vé nên báo gian sẽ không được tính.
+- Mọi người vào sảnh, chọn số vé (từ 1 đến 16; vé cùng màu nằm cạnh nhau và không trùng số). Chủ phòng bấm **Bắt đầu** rồi **Gọi số** hoặc **Tự động**.
+- Bạn tự dò: nghe số nào có trên vé thì bấm vào ô để đánh dấu. Đủ 5 số một hàng thì bấm **KINH!**; cả phòng thấy ngay và các máy tự kiểm tra lại vé nên báo gian sẽ không được tính.
+- Đọc số bằng tiếng Việt / English / 日本語 (chọn ở màn hình đầu hoặc trong phòng).
+- Bấm **Ván mới** thì kết quả ván trước được lưu vào **Lịch sử các ván**; chủ phòng có thể xoá từng ván hoặc **Xoá lịch sử kinh**.
 - Ai vào giữa ván chỉ xem, ván sau mới có vé. Chủ phòng thoát thì phòng dừng gọi số.

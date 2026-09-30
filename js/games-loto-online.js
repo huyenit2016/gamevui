@@ -40,7 +40,7 @@
   GV.register({
     id: 'lotoonline', type: 'game', cat: 'Gia đình', name: 'Lô tô online', icon: '🌐', desc: 'Chơi lô tô nhiều người qua mạng bằng mã phòng.',
     mount(el) {
-      let dead = false, unsub = null, timer = null, listOff = null;
+      let dead = false, unsub = null, timer = null, listOff = null, offVis = null;
       const $ = s => el.querySelector(s);
       const hashCode = () => (location.hash.match(/lotoonline\/(\d{4})/) || [])[1] || '';
 
@@ -66,13 +66,15 @@
         el.innerHTML = `<div class="tool" style="max-width:420px"><div class="big">🌐 Lô tô online</div>
         <label>Tên của bạn <input class="nm" maxlength="16" placeholder="Ví dụ: Huyền" style="width:100%" value="${GV.esc(GV.store.get('lo_name', ''))}"></label>
         <label>Tên phòng / nhóm <input class="rn" maxlength="24" placeholder="Ví dụ: Nhóm tối thứ 7" style="width:100%" value="${GV.esc(GV.store.get('lo_room', ''))}"></label>
+        <label>🔊 Đọc số bằng <select class="lg" style="width:100%">${[['vi', 'Tiếng Việt'], ['en', 'English'], ['ja', '日本語 (Nhật)'], ['off', 'Tắt']].map(([v, n]) => `<option value="${v}" ${v === GV.store.get('lo_lang', 'vi') ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
         <button class="btn mk">➕ Tạo phòng mới</button>
         <div class="hint">— hoặc vào phòng đang mở —</div>
         <div class="rl hint">Đang tải danh sách phòng…</div>
         <div class="hint">— hoặc nhập mã phòng —</div>
         <div class="row"><input class="cd" inputmode="numeric" maxlength="4" placeholder="Mã 4 số" style="width:120px;text-align:center;font-size:1.3rem" value="${code}"><button class="btn ghost jn">Vào phòng</button></div>
         <p class="msg">${err ? GV.esc(err) : ''}</p><p class="hint"><a href="#" class="rc">Đổi cấu hình Firebase</a></p></div>`;
-        const name = () => { const n = $('.nm').value.trim(); if (!n) { $('.msg').textContent = 'Nhập tên của bạn trước nhé.'; $('.nm').focus(); return null; } GV.store.set('lo_name', n); return n; };
+        $('.lg').onchange = e => { GV.store.set('lo_lang', e.target.value); GV.lotoUnlock(); GV.lotoSpeak(e.target.value === 'ja' ? 88 : 88, e.target.value); };
+        const name = () => { GV.lotoUnlock(); const n = $('.nm').value.trim(); if (!n) { $('.msg').textContent = 'Nhập tên của bạn trước nhé.'; $('.nm').focus(); return null; } GV.store.set('lo_name', n); return n; };
         const busy = t => { $('.msg').textContent = t; el.querySelectorAll('button').forEach(b => b.disabled = !!t); };
         $('.mk').onclick = async () => { const n = name(); if (!n) return; const rn = $('.rn').value.trim() || ('Phòng của ' + n); GV.store.set('lo_room', $('.rn').value.trim()); busy('Đang tạo phòng…'); try { await createRoom(n, rn); } catch (e) { entry(explain(e)); } };
         $('.jn').onclick = async () => { const n = name(); if (!n) return; const c = $('.cd').value.trim(); if (!/^\d{4}$/.test(c)) { $('.msg').textContent = 'Mã phòng gồm 4 chữ số.'; return; } busy('Đang vào phòng…'); try { await join(c, n); } catch (e) { entry(explain(e)); } };
@@ -120,94 +122,151 @@
         const ref = db.ref('rooms/' + code), me = ref.child('players/' + uid);
         me.child('online').onDisconnect().set(false);
         me.update({ name, online: true });
-        let lobbySig = '', R = null, k = +GV.store.get('lo_k', 4), auto = false, gen = 0, claimed = new Set(), seenWin = new Set(), lastLen = -1, myT = [], myRound = null;
+        let lobbySig = '', R = null, k = +GV.store.get('lo_k', 4), auto = false, nextAt = 0, wake = null, gen = 0, seenWin = new Set(), lastLen = -1,
+          myT = [], marked = new Set(), marksRound = null, lang = GV.store.get('lo_lang', 'vi'), lastValid = [], lastCs = new Set(), lastWon = new Set();
+        const marksKey = () => `lo_marks_${code}_${R.round}`;
+        const saveMarks = () => GV.store.set(marksKey(), [...marked]);
         el.innerHTML = `<style>${GV.lotoCSS}
           .l16 .code{font-size:2rem;font-weight:900;letter-spacing:.2em;color:var(--acc)}
           .l16 .pl{list-style:none;margin:8px 0 0;padding:0;font-size:14px}.l16 .pl li{padding:3px 0;border-bottom:1px solid var(--line)}
-          .l16 .wn{margin:6px 0 0;font-size:14px}</style>
+          .l16 .wn,.l16 .hs{margin:6px 0 0;font-size:13px}.l16 .hs details{border-bottom:1px solid var(--line);padding:4px 0}.l16 .hs summary{cursor:pointer}
+          .l16 .hs .x{cursor:pointer;color:var(--bad);margin-left:6px}.l16 .kmsg{font-weight:700;font-size:13px}</style>
         <div class="l16">
           <aside class="side">
             <section class="pn cur"><div class="lb rname">PHÒNG</div><div class="code">${code}</div>
               <div class="row"><button class="btn ghost share" style="padding:5px 12px">🔗 Chia sẻ</button><button class="btn ghost leave" style="padding:5px 12px">🚪 Rời</button></div>
               <div class="lb" style="margin-top:12px">SỐ VỪA GỌI</div><div class="no">--</div>
-              <div class="host" hidden><div class="row"><button class="btn start">▶ Bắt đầu ván</button><button class="btn draw">🎲 Gọi số</button><button class="btn ghost auto">⏯ Tự động</button></div>
-              <div class="row" style="margin-top:8px"><label>Tốc độ <select class="sp"><option value="5000">Chậm</option><option value="3500" selected>Vừa</option><option value="2000">Nhanh</option></select></label><button class="btn ghost nw" style="padding:5px 12px">🔄 Ván mới</button><button class="btn bad cl" style="padding:5px 12px">⛔ Đóng phòng</button></div></div>
-              <div class="row" style="margin-top:8px"><label><input type="checkbox" class="say"> 🔊 Đọc số</label></div>
+              <div class="host" hidden><div class="row"><button class="btn start">▶ Bắt đầu ván</button><button class="btn draw">🎲 Gọi số</button><button class="btn ghost auto">▶ Tự động</button></div>
+              <div class="row" style="margin-top:8px"><label>Tốc độ <select class="sp"><option value="6000">Chậm (6s)</option><option value="4000" selected>Vừa (4s)</option><option value="2500">Nhanh (2.5s)</option></select></label></div>
+              <div class="row"><label><input type="checkbox" class="stopk" checked> Dừng tự động khi có người kinh</label></div>
+              <div class="row" style="margin-top:6px"><button class="btn ghost nw" style="padding:5px 12px">🔄 Ván mới</button><button class="btn bad cl" style="padding:5px 12px">⛔ Đóng phòng</button></div><div class="hint cd" style="margin-top:4px"></div></div>
+              <div class="row" style="margin-top:8px"><label>🔊 <select class="lg">${[['vi', 'Tiếng Việt'], ['en', 'English'], ['ja', '日本語'], ['off', 'Tắt']].map(([v, n]) => `<option value="${v}" ${v === lang ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>
               <div class="st"></div></section>
             <section class="pn"><b>👥 Người chơi</b><ul class="pl"></ul></section>
-            <section class="pn"><b>🏆 Kinh</b><div class="wn">Chưa có ai.</div></section>
-            <section class="pn"><b>📜 Lịch sử</b><div class="hist"></div></section>
+            <section class="pn"><b>🏆 Kinh ván này</b><div class="wn">Chưa có ai.</div></section>
+            <section class="pn"><b>📚 Lịch sử các ván</b><div class="hs">Chưa có ván nào.</div><div class="host2" hidden style="margin-top:8px"><button class="btn ghost clh" style="padding:5px 12px">🗑 Xoá lịch sử kinh</button></div></section>
+            <section class="pn"><b>📜 Số đã gọi</b><div class="hist"></div></section>
             <section class="pn"><b>🔢 Bảng 1–90</b><div class="pool"></div></section>
           </aside>
-          <section><div class="head"><h3 class="ttl">🎫 Vé của bạn</h3><div class="kk"><label>Số vé <select class="k">${[2, 4, 8, 16].map(n => `<option ${n === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div></div>
+          <section><div class="head"><h3 class="ttl">🎫 Vé của bạn</h3><div class="row"><span class="kk"><label>Số vé <select class="k">${Array.from({ length: 16 }, (_, i) => i + 1).map(n => `<option ${n === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label></span><button class="btn ok kinh" hidden>🎉 KINH!</button></div></div>
+            <div class="kmsg"></div><div class="hint kh" hidden>Nghe số nào có trên vé thì bấm vào ô để dò. Đủ một hàng thì bấm KINH!</div>
             <div class="tks"></div></section>
           <div class="modal"><div class="mc"><div class="big">🎉 KINH!</div><h3 class="wt"></h3><button class="btn ok close">Tiếp tục</button></div></div>
         </div>`;
         const isHost = () => R && R.host === uid;
+        const renderTk = () => { $('.tks').innerHTML = myT.length ? GV.lotoTicketsHTML(myT, lastCs, lastWon, marked) : `<p class="hint">${R && R.status === 'playing' ? 'Ván đang chơi – bạn vào muộn nên chỉ xem. Ván sau sẽ có vé.' : 'Đang tạo vé…'}</p>`; };
 
         function newTickets() { // chỉ sinh vé khi phòng đang ở sảnh
-          const t = GV.lotoMakeTickets(k); myT = t; myRound = R.round;
-          me.update({ tickets: enc(t), k, round: R.round });
+          myT = GV.lotoMakeTickets(k); marked = new Set(); saveMarks();
+          me.update({ tickets: enc(myT), k, round: R.round });
         }
-        function draw1() {
-          const called = toList(R.called);
-          if (R.status !== 'playing' || called.length >= 90) { stopAuto(); return; }
-          const s = new Set(called), rest = []; for (let n = 1; n <= 90; n++) if (!s.has(n)) rest.push(n);
-          ref.child('called/' + called.length).set(rest[GV.rnd(rest.length)]);
-        }
-        function stopAuto() { auto = false; clearInterval(timer); }
-        function startAuto() { clearInterval(timer); auto = true; timer = setInterval(draw1, +$('.sp').value); }
 
+        /* ----- Gọi số (chủ phòng) ----- */
+        function draw1() {
+          if (!R || R.status !== 'playing' || toList(R.called).length >= 90) { stopAuto(); return; }
+          // transaction: chọn số + ghi trong một bước nên không bao giờ trùng số hoặc ghi đè khi bấm nhanh
+          ref.child('called').transaction(cur => {
+            const l = toList(cur); if (l.length >= 90) return;
+            const s = new Set(l), rest = []; for (let n = 1; n <= 90; n++) if (!s.has(n)) rest.push(n);
+            l.push(rest[GV.rnd(rest.length)]); return l;
+          }).catch(e => { $('.cd').textContent = explain(e); stopAuto(); });
+        }
+        const speed = () => +$('.sp').value;
+        function setAutoUI(msg) { $('.auto').textContent = auto ? '⏸ Dừng tự động' : '▶ Tự động'; if (msg !== undefined) $('.cd').textContent = msg; }
+        async function keepAwake() { try { if (navigator.wakeLock && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => wake = null); } } catch (e) {} }
+        function stopAuto(msg) { auto = false; clearInterval(timer); timer = null; try { wake && wake.release(); } catch (e) {} wake = null; if (!dead) setAutoUI(msg || ''); }
+        function startAuto() {
+          if (!R || R.status !== 'playing') return;
+          clearInterval(timer); auto = true; nextAt = Date.now() + speed(); keepAwake();
+          // kiểm tra mỗi 0,5s theo đồng hồ thật để không lệch khi trình duyệt bị làm chậm
+          timer = setInterval(() => {
+            if (!auto) return;
+            const left = nextAt - Date.now();
+            if (left <= 0) { nextAt = Date.now() + speed(); draw1(); } else $('.cd').textContent = `Tự động: số tiếp theo sau ${Math.ceil(left / 1000)}s`;
+          }, 500);
+          setAutoUI('Tự động: đang chạy');
+        }
+        document.addEventListener('visibilitychange', onVis); function onVis() { if (!document.hidden && auto) keepAwake(); }
+        offVis = () => document.removeEventListener('visibilitychange', onVis);
+
+        /* ----- Đồng bộ dữ liệu phòng ----- */
         function onVal(snap) {
           if (dead) return;
           R = snap.val();
           if (!R) { cleanup(); entry('Phòng đã bị xóa.'); return; }
           if (R.closed && R.host !== uid) { cleanup(); history.replaceState(null, '', '#/game/lotoonline'); entry('Chủ phòng đã đóng phòng.'); return; }
           $('.rname').textContent = (R.name || 'PHÒNG').toUpperCase();
-          const players = R.players || {}, mine = players[uid] || {}, called = toList(R.called), cs = new Set(called);
+          const players = R.players || {}, mine = players[uid] || {}, called = toList(R.called), cs = new Set(called), st = R.status;
+          if (marksRound !== R.round) { marksRound = R.round; marked = new Set(GV.store.get(marksKey(), [])); lastLen = called.length; }
           // vé của tôi
-          if (R.status === 'lobby') {
-            if (!mine.tickets || mine.round !== R.round || mine.k !== k) { if (!gen || gen !== R.round + '/' + k) { gen = R.round + '/' + k; newTickets(); } }
-            else { myT = dec(mine.tickets); myRound = R.round; }
+          if (st === 'lobby') {
+            if (!mine.tickets || mine.round !== R.round || mine.k !== k) { if (gen !== R.round + '/' + k) { gen = R.round + '/' + k; newTickets(); } }
+            else myT = dec(mine.tickets);
           } else myT = mine.tickets && mine.round === R.round ? dec(mine.tickets) : [];
-          // giao diện
-          $('.host').hidden = !isHost();
+          // giao diện chung
+          $('.host').hidden = $('.host2').hidden = !isHost();
           if (isHost() && !R.closed) { // đồng bộ danh sách phòng công khai
-            const cnt = Object.values(players).filter(p => p && p.online).length, sig = cnt + '/' + R.status;
-            if (sig !== lobbySig) { lobbySig = sig; db.ref('lobby/' + code).update({ count: cnt, status: R.status, at: TS }); }
+            const cnt = Object.values(players).filter(p => p && p.online).length, sig = cnt + '/' + st;
+            if (sig !== lobbySig) { lobbySig = sig; db.ref('lobby/' + code).update({ count: cnt, status: st, at: TS }); }
           }
-          const st = R.status;
           $('.start').hidden = st !== 'lobby'; $('.draw').hidden = $('.auto').hidden = st !== 'playing';
           $('.no').textContent = called.length ? pad(called[called.length - 1]) : '--';
-          $('.hist').innerHTML = called.slice().reverse().slice(0, 24).map((n, i) => `<span class="${i ? '' : 'lt'}">${pad(n)}</span>`).join('');
+          $('.hist').innerHTML = called.slice().reverse().slice(0, 30).map((n, i) => `<span class="${i ? '' : 'lt'}">${pad(n)}</span>`).join('') || '<span class="hint">Chưa gọi số nào</span>';
           $('.pool').innerHTML = Array.from({ length: 90 }, (_, i) => `<span class="${cs.has(i + 1) ? 'on' : ''}">${i + 1}</span>`).join('');
           $('.kk').hidden = st !== 'lobby';
-          // thắng
+          $('.kinh').hidden = $('.kh').hidden = !(st === 'playing' && myT.length);
+          // người kinh (mọi máy tự kiểm tra lại vé của người báo)
           const wins = Object.values(R.winners || {}).filter(w => w && w.round === R.round);
           const valid = wins.filter(w => { const p = players[w.uid]; const t = p && p.tickets && p.round === R.round ? dec(p.tickets)[w.idx] : null; return t && rowWon(t, cs); });
-          const won = new Set(valid.filter(w => w.uid === uid).map(w => w.idx));
+          lastValid = valid; lastCs = cs; lastWon = new Set(valid.filter(w => w.uid === uid).map(w => w.idx));
           $('.wn').innerHTML = valid.length ? valid.map(w => `🏆 <b>${GV.esc(w.name)}</b> – vé #${pad(w.idx + 1)} ✓`).join('<br>') : 'Chưa có ai.';
           $('.st').innerHTML = st === 'lobby' ? 'Đang chờ chủ phòng bắt đầu…' : `Đã gọi <b>${called.length}/90</b> số`;
           $('.pl').innerHTML = Object.entries(players).map(([id, p]) => `<li>${p.online ? '🟢' : '⚪'} ${GV.esc(p.name || '?')}${id === R.host ? ' 👑' : ''}${id === uid ? ' (bạn)' : ''} <span class="hint">${p.tickets && p.round === R.round ? p.k + ' vé' : 'xem'}</span>${valid.some(w => w.uid === id) ? ' 🏆' : ''}</li>`).join('');
-          $('.tks').innerHTML = myT.length ? GV.lotoTicketsHTML(myT, cs, won) : `<p class="hint">${st === 'playing' ? 'Ván đang chơi – bạn vào muộn nên chỉ xem. Ván sau sẽ có vé.' : 'Đang tạo vé…'}</p>`;
-          // âm thanh khi có số mới
-          if (lastLen >= 0 && called.length > lastLen) { const n = called[called.length - 1]; GV.beep(400 + n * 4, 90); if ($('.say').checked && window.speechSynthesis) try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(String(n)); u.lang = 'vi-VN'; u.rate = .9; speechSynthesis.speak(u); } catch (e) {} }
+          renderHistory();
+          renderTk();
+          // số mới: bíp + đọc
+          if (lastLen >= 0 && called.length > lastLen) { const n = called[called.length - 1]; GV.beep(400 + n * 4, 90); GV.lotoSpeak(n, lang); }
           lastLen = called.length;
-          // tự động báo kinh
-          if (st === 'playing') myT.forEach((t, i) => { const key = `${R.round}_${uid}_${i}`; if (!claimed.has(key) && rowWon(t, cs) && !(R.winners && R.winners[key])) { claimed.add(key); ref.child('winners/' + key).set({ uid, name, idx: i, round: R.round, n: called.length }); } });
-          // thông báo người mới kinh
-          valid.forEach(w => { const key = `${w.round}_${w.uid}_${w.idx}`; if (!seenWin.has(key)) { seenWin.add(key); $('.wt').textContent = `${w.name} kinh với vé #${pad(w.idx + 1)}!`; $('.modal').classList.add('show'); GV.beep(880, 350); if (isHost()) stopAuto(); } });
-          if (st === 'lobby') { stopAuto(); seenWin.clear(); claimed.clear(); }
+          // thông báo có người kinh
+          valid.forEach(w => {
+            const key = `${w.round}_${w.uid}_${w.idx}`;
+            if (!seenWin.has(key)) {
+              seenWin.add(key); $('.wt').textContent = `${w.name} kinh với vé #${pad(w.idx + 1)}!`; $('.modal').classList.add('show'); GV.beep(880, 350);
+              if (isHost() && auto && $('.stopk').checked) stopAuto('Đã tạm dừng vì có người kinh – bấm ▶ Tự động để chơi tiếp.');
+            }
+          });
+          if (st === 'lobby') { if (auto) stopAuto(); seenWin.clear(); }
+          if (st === 'playing' && called.length >= 90 && auto) stopAuto('Đã gọi hết 90 số.');
+        }
+        function renderHistory() {
+          const h = Object.values(R.history || {}).filter(Boolean).sort((a, b) => b.round - a.round);
+          $('.hs').innerHTML = h.length ? h.map(x => {
+            const w = toList(x.winners);
+            return `<details><summary>Ván ${x.round} · ${x.n} số · ${w.length ? '🏆 ' + w.map(z => GV.esc(z.name)).join(', ') : 'không ai kinh'}${isHost() ? ` <span class="x" data-h="${x.round}" title="Xoá ván này">✕</span>` : ''}</summary>
+              ${w.map(z => `🏆 ${GV.esc(z.name)} – vé #${pad(z.idx + 1)}${z.n ? ' (sau ' + z.n + ' số)' : ''}`).join('<br>')}${x.calls ? `<div class="hint" style="text-align:left">Thứ tự số: ${GV.esc(x.calls.split(',').join(' '))}</div>` : ''}</details>`;
+          }).join('') : 'Chưa có ván nào.';
         }
 
         ref.on('value', onVal);
         unsub = () => ref.off('value', onVal);
+
+        /* ----- Sự kiện ----- */
         $('.k').onchange = e => { k = +e.target.value; GV.store.set('lo_k', k); if (R) onVal({ val: () => R }); };
-        $('.start').onclick = () => { const ps = Object.values(R.players || {}).filter(p => p.tickets && p.round === R.round); if (!ps.length) return; ref.child('status').set('playing'); };
-        $('.draw').onclick = draw1;
-        $('.auto').onclick = () => auto ? stopAuto() : startAuto();
-        $('.sp').onchange = () => auto && startAuto();
-        $('.nw').onclick = () => { stopAuto(); ref.update({ round: (R.round || 1) + 1, status: 'lobby', called: null, winners: null }); };
+        $('.lg').onchange = e => { lang = e.target.value; GV.store.set('lo_lang', lang); GV.lotoUnlock(); GV.lotoSpeak(88, lang); };
+        $('.start').onclick = () => { GV.lotoUnlock(); const ps = Object.values(R.players || {}).filter(p => p.tickets && p.round === R.round); if (!ps.length) return; ref.child('status').set('playing'); };
+        $('.draw').onclick = () => { GV.lotoUnlock(); draw1(); };
+        $('.auto').onclick = () => { GV.lotoUnlock(); auto ? stopAuto() : startAuto(); };
+        $('.sp').onchange = () => { if (auto) nextAt = Date.now() + speed(); };
+        $('.nw').onclick = async () => {
+          stopAuto();
+          const called = toList(R.called);
+          if (called.length || lastValid.length) { // lưu kết quả ván vừa rồi vào lịch sử
+            try { await ref.child('history/' + R.round).set({ round: R.round, at: TS, n: called.length, calls: called.join(','), winners: lastValid.map(w => ({ name: w.name, idx: w.idx, n: w.n || 0 })) }); } catch (e) { console.warn('history', e); }
+          }
+          ref.update({ round: (R.round || 1) + 1, status: 'lobby', called: null, winners: null });
+        };
+        $('.clh').onclick = () => { if (confirm('Xoá toàn bộ lịch sử kinh của các ván trước?')) ref.child('history').remove(); };
+        $('.hs').onclick = e => { const r = e.target.dataset.h; if (r && isHost() && confirm('Xoá ván ' + r + ' khỏi lịch sử?')) { e.preventDefault(); ref.child('history/' + r).remove(); } else if (r) e.preventDefault(); };
         $('.cl').onclick = () => { if (!confirm('Đóng phòng? Mọi người sẽ bị đưa ra ngoài.')) return; stopAuto(); ref.child('closed').set(true).then(() => db.ref('lobby/' + code).remove()); cleanup(); history.replaceState(null, '', '#/game/lotoonline'); entry(); };
         $('.close').onclick = () => $('.modal').classList.remove('show');
         $('.leave').onclick = () => { cleanup(); me.child('online').set(false); history.replaceState(null, '', '#/game/lotoonline'); entry(); };
@@ -215,8 +274,27 @@
           const url = location.origin + location.pathname + '#/game/lotoonline/' + code;
           try { if (navigator.share) await navigator.share({ title: 'Lô tô online', text: 'Vào phòng lô tô ' + code, url }); else { await navigator.clipboard.writeText(url); $('.share').textContent = 'Đã chép ✓'; } } catch (e) {}
         };
+        // tự dò: người chơi bấm vào ô số
+        $('.tks').onclick = e => {
+          const c = e.target.closest('.n'); if (!c || !R || R.status !== 'playing') return;
+          const key = c.dataset.t + ':' + c.dataset.n;
+          marked.has(key) ? marked.delete(key) : marked.add(key);
+          saveMarks(); renderTk();
+        };
+        // bấm KINH: kiểm tra các ô đã dò của mình
+        $('.kinh').onclick = () => {
+          const cs = lastCs, msg = $('.kmsg'); let found = [], wrong = false, partial = false;
+          myT.forEach((t, i) => t.forEach(row => {
+            const nums = row.filter(Boolean), m = nums.filter(n => marked.has(i + ':' + n)).length;
+            if (m === nums.length) { if (nums.every(n => cs.has(n))) { if (!found.includes(i)) found.push(i); } else wrong = true; }
+            else if (m >= 4) partial = true;
+          }));
+          if (!found.length) { msg.style.color = 'var(--bad)'; msg.textContent = wrong ? '❌ Trong hàng có số CHƯA được gọi – bạn dò nhầm!' : partial ? '❌ Còn thiếu số ở hàng gần đủ.' : '❌ Chưa có hàng nào đủ 5 số đã dò.'; GV.beep(200, 200); return; }
+          msg.style.color = 'var(--ok)'; msg.textContent = '✅ Đã báo kinh!';
+          found.forEach(i => { const key = `${R.round}_${uid}_${i}`; if (!(R.winners && R.winners[key])) ref.child('winners/' + key).set({ uid, name, idx: i, round: R.round, n: toList(R.called).length }); });
+        };
       }
-      function cleanup() { if (unsub) unsub(); unsub = null; clearInterval(timer); try { speechSynthesis.cancel(); } catch (e) {} }
+      function cleanup() { if (unsub) unsub(); unsub = null; clearInterval(timer); timer = null; if (offVis) offVis(); offVis = null; try { speechSynthesis.cancel(); } catch (e) {} }
 
       entry();
       return () => { dead = true; cleanup(); };
