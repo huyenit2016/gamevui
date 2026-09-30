@@ -141,7 +141,7 @@
     if (GV.ads) { const a = document.querySelector('#view .ad'); if (a) { a.removeAttribute('data-done'); a.innerHTML = ''; GV.ads.hydrate($('#view')); } }
     store.set('recent', [item.id, ...store.get('recent', []).filter(x => x !== item.id)].slice(0, 8));
     try { cleanup = item.mount(stage) || null; }
-    catch (e) { console.error(e); stage.innerHTML = '<p class="msg">Có lỗi khi tải: ' + GV.esc(e.message) + '</p>'; }
+    catch (e) { console.error(e); stage.innerHTML = '<div class="msg" style="text-align:center">🤒 Ôi, chức năng này đang “đau bụng” một chút.<br><small>' + GV.esc(e.message) + '</small><br><br><button class="btn" onclick="location.reload()">🔄 Tải lại</button> <a class="btn ghost" href="#/">🏠 Về trang chủ</a></div>'; }
   }
 
   GV.rerender = () => { if (!$('#home').hidden) renderHome(); };
