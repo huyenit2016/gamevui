@@ -2,18 +2,19 @@
 (function () {
   let box = null;
   const ICON = { success: 'ok', info: 'info', warn: 'warn', error: 'err' }, ic = t => GV.ic ? GV.ic(ICON[t], 20) : '';
-  const CSS = `#toasts{position:fixed;right:14px;top:70px;z-index:9999;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 28px));pointer-events:none}
-  .toast{pointer-events:auto;position:relative;overflow:hidden;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--card);color:var(--fg);border:1px solid var(--line);box-shadow:0 14px 40px #0006;animation:tin .28s cubic-bezier(.2,.9,.3,1.2) both;backdrop-filter:blur(10px);font-size:14px;line-height:1.4}
-  .toast.out{animation:tout .22s ease-in forwards}
-  .toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--tc,#7C3AED)}
-  .toast.success{--tc:#22C55E}.toast.warn{--tc:#F59E0B}.toast.error{--tc:#EF4444}.toast.info{--tc:#06B6D4}
-  .toast .ti{font-size:18px;color:var(--tc);display:grid;place-items:center;line-height:0;padding-top:2px}.toast .tb{flex:1;padding-left:2px}.toast .tx{cursor:pointer;opacity:.6;background:none;border:0;color:inherit;font-size:16px}
-  .toast .ta{margin-top:6px;border:0;border-radius:8px;padding:4px 12px;background:var(--tc);color:#111;font-weight:800;cursor:pointer}
-  .toast .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--tc);opacity:.7;animation:tbar linear forwards}
-  @keyframes tin{from{opacity:0;transform:translateX(40px) scale(.96)}to{opacity:1;transform:none}}
-  @keyframes tout{to{opacity:0;transform:translateX(40px)}}
+  const CSS = `#toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;width:min(480px,calc(100vw - 24px));pointer-events:none}
+  .toast{pointer-events:auto;position:relative;overflow:hidden;display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--md-inverse-surface,#E6E1E5);color:var(--md-inverse-on-surface,#313033);box-shadow:0 3px 6px rgba(0,0,0,.3),0 6px 14px 4px rgba(0,0,0,.2);font-size:14px;letter-spacing:.25px;animation:tin .25s cubic-bezier(.2,0,0,1)}
+  .toast.out{animation:tout .2s ease-in forwards}
+  .toast .ti{flex:0 0 auto;display:grid;place-items:center;line-height:0;color:var(--tc)}
+  .toast.success{--tc:#1B6E3A}.toast.warn{--tc:#B26A00}.toast.error{--tc:#B3261E}.toast.info{--tc:#6750A4}
+  .toast .tb{flex:1;line-height:1.4}.toast .tx{cursor:pointer;opacity:.7;background:none;border:0;color:inherit;display:grid;place-items:center;padding:4px;border-radius:50%}.toast .tx:hover{opacity:1}
+  .toast .ta{margin-top:0;border:0;border-radius:20px;padding:6px 14px;background:transparent;color:var(--md-inverse-primary,#6750A4);font:inherit;font-weight:500;cursor:pointer}.toast .ta:hover{background:rgba(103,80,164,.14)}
+  .toast .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--tc);opacity:.6;animation:tbar linear forwards}
+  @keyframes tin{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes tout{to{opacity:0;transform:translateY(8px)}}
   @keyframes tbar{from{width:100%}to{width:0}}
-  @media(max-width:520px){#toasts{right:50%;transform:translateX(50%);top:64px}}`;
+  @media(min-width:600px){#toasts{left:104px;transform:none}}
+  @media(max-width:599px){#toasts{bottom:92px}}`;
   function ensure() {
     if (box) return box;
     const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);

@@ -5,24 +5,31 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GameVui – Game &amp; Tiện ích online</title>
 <meta name="description" content="Kho game mini và tiện ích miễn phí, chạy ngay trên trình duyệt, không cần cài đặt.">
-<meta name="theme-color" content="#09090B">
+<meta name="theme-color" content="#141316">
 <script>try{var t=localStorage.getItem("gv_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎮%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="m3">
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <header class="top">
   <div class="bar">
     <a class="logo" href="#/" aria-label="GameVui – trang chủ"><span class="lg"><i data-i="gamepad" data-s="20"></i></span><span class="lt">Game<b>Vui</b></span></a>
-    <nav class="nav" id="nav" aria-label="Điều hướng chính">
-      <button data-go="all">Trang chủ</button><button data-go="game">Game</button><button data-go="online">Chơi cùng bạn bè</button><button data-go="learn">Học tập</button><button data-go="tool">Tiện ích</button>
-    </nav>
+    
     <label class="search"><i data-i="search" data-s="16"></i><input id="q" type="search" placeholder="Tìm game, tiện ích…" autocomplete="off" aria-label="Tìm game hoặc tiện ích"></label>
     <a id="acct" class="acct" href="cms.html" aria-label="Tài khoản"><span class="av"><i data-i="user" data-s="16"></i></span><span class="an">Đăng nhập</span></a>
     <button id="theme" class="icon-btn" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối"><span class="sun"><i data-i="sun" data-s="18"></i></span><span class="moon"><i data-i="moon" data-s="18"></i></span></button>
   </div>
 </header>
+
+<nav class="rail" id="rail" aria-label="Điều hướng chính">
+  <button data-go="all"><span class="ind"><i data-i="home" data-s="24"></i></span><span class="lb">Trang chủ</span></button>
+  <button data-go="game"><span class="ind"><i data-i="gamepad" data-s="24"></i></span><span class="lb">Game</span></button>
+  <button data-go="online"><span class="ind"><i data-i="users" data-s="24"></i></span><span class="lb">Bạn bè</span></button>
+  <button data-go="learn"><span class="ind"><i data-i="cap" data-s="24"></i></span><span class="lb">Học tập</span></button>
+  <button data-go="tool"><span class="ind"><i data-i="wrench" data-s="24"></i></span><span class="lb">Tiện ích</span></button>
+</nav>
+
 
 <main>
   <div id="announce"></div>
@@ -64,16 +71,19 @@
 </main>
 
 <nav class="bnav" id="bnav" aria-label="Điều hướng nhanh">
-  <button data-go="all"><i data-i="home" data-s="22"></i><span>Trang chủ</span></button>
-  <button data-go="game"><i data-i="gamepad" data-s="22"></i><span>Game</span></button>
-  <button data-go="learn"><i data-i="cap" data-s="22"></i><span>Học tập</span></button>
-  <a id="acct2" href="cms.html"><i data-i="user" data-s="22"></i><span>Tài khoản</span></a>
+  <button data-go="all"><span class="ind"><i data-i="home" data-s="24"></i></span><span class="lb">Trang chủ</span></button>
+  <button data-go="game"><span class="ind"><i data-i="gamepad" data-s="24"></i></span><span class="lb">Game</span></button>
+  <button data-go="online"><span class="ind"><i data-i="users" data-s="24"></i></span><span class="lb">Bạn bè</span></button>
+  <button data-go="learn"><span class="ind"><i data-i="cap" data-s="24"></i></span><span class="lb">Học tập</span></button>
+  <a id="acct2" href="cms.html"><span class="ind"><i data-i="user" data-s="24"></i></span><span class="lb">Tài khoản</span></a>
 </nav>
+<button class="fab" id="fab" aria-label="Chơi ngẫu nhiên một game"><i data-i="shuffle" data-s="22"></i><span>Chơi ngẫu nhiên</span></button>
 <footer><div class="ad" data-slot="footer"></div><div id="visits" title="IP được băm, không lưu IP gốc"></div><span id="foot">GameVui – nơi bạn bè gặp nhau để chơi, học và cười thật nhiều 💛</span><div style="margin-top:6px"><a href="privacy.html">Chính sách quyền riêng tư</a> · <a href="cms.html">Quản trị / Đăng nhập</a></div></footer>
 
 <script src="js/ads-config.js"></script>
 <script src="js/app.js"></script>
 <script src="js/icons.js"></script>
+<script src="js/material.js"></script>
 <script src="js/toast.js"></script>
 <script src="js/ads.js"></script>
 <script src="js/games-arcade.js"></script>
