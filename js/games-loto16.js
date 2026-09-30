@@ -49,9 +49,9 @@
   .l16 .tt{display:flex;justify-content:space-between;color:var(--tc);font-size:clamp(9px,3.4cqw,13px);font-weight:900;letter-spacing:.03em;padding:0 2px 4px}
   .l16 .blk{display:grid;grid-template-columns:repeat(9,1fr);border-top:2px solid var(--tc);border-left:2px solid var(--tc)}
   .l16 .blk+.blk{margin-top:2.2cqw}
-  .l16 .blk div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--tc);border-bottom:2px solid var(--tc);font-size:5.4cqw;font-weight:900;font-family:Impact,"Arial Narrow",Arial,sans-serif;background:var(--tc);cursor:default;user-select:none}
+  .l16 .blk div{aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--tc);border-bottom:2px solid var(--tc);font-size:6.2cqw;font-weight:900;font-family:Impact,"Arial Narrow",Arial,sans-serif;background:var(--tc);cursor:default;user-select:none}
   .l16 .blk div.n{background:#fff;color:#111;cursor:pointer}
-  .l16 .blk div.n.c{background:#111;color:#fff;border-radius:50%;box-shadow:inset 0 0 0 2px #fff}
+  .l16 .blk div.n.c{background:#111;color:#fff;border-radius:30%;box-shadow:inset 0 0 0 2px #fff}
   .l16 .blk div.n.rw{box-shadow:inset 0 0 0 3px #ff9f43}
   .l16 .tf{display:flex;justify-content:space-between;margin-top:4px;font-size:clamp(8px,2.8cqw,11px);color:var(--tc);font-weight:700}
   .l16 .modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50}
