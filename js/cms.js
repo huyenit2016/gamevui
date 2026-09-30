@@ -196,8 +196,8 @@
     const ids = (window.GV_REGISTRY || []), chips = ids.map(i => `<span data-id="${i.id}" title="${esc(i.name)}">${i.icon} ${i.id}</span>`).join('');
     const csv = a => (a || []).join(', ');
     c.innerHTML = `<div class="card2"><h2>⚙️ Cấu hình web (tự động áp dụng cho mọi khách)</h2>
-      <div class="grid2"><div><h3>Trang chủ</h3><label class="f">Nhãn nhỏ phía trên tiêu đề</label><input class="w pill" value="${esc(cur.pill ?? '✨ Mới: Cờ vua · Cờ tướng · Ma sói · Uno online')}">
-        <label class="f">Khẩu hiệu – phần đầu</label><input class="w lead" value="${esc(cur.heroLead ?? 'Rủ hội chơi liền tay,')}"><label class="f">Khẩu hiệu – phần nhấn màu</label><input class="w grad" value="${esc(cur.heroGrad ?? 'không tải – không lag – không drama')}"><label class="f">Emoji cuối</label><input class="w emo" value="${esc(cur.heroEmoji ?? '🔥')}">
+      <div class="grid2"><div><h3>Trang chủ</h3><label class="f">Nhãn nhỏ phía trên tiêu đề</label><input class="w pill" value="${esc(cur.pill ?? 'Game mới • Chơi ngay')}">
+        <label class="f">Khẩu hiệu – phần đầu</label><input class="w lead" value="${esc(cur.heroLead ?? 'Chơi vui mỗi ngày.')}"><label class="f">Khẩu hiệu – phần nhấn màu</label><input class="w grad" value="${esc(cur.heroGrad ?? 'Không cần cài đặt.')}"><label class="f">Emoji cuối</label><input class="w emo" value="${esc(cur.heroEmoji ?? '')}">
         <label class="f">Câu ở chân trang</label><input class="w foot" value="${esc(cur.footer ?? 'GameVui – nơi bạn bè gặp nhau để chơi, học và cười thật nhiều 💛')}"></div>
         <div><h3>Bật / tắt & nổi bật</h3><label class="f">Mục "🔥 Đang hot" (id, cách nhau dấu phẩy; để trống = mặc định)</label><textarea class="w hot" style="min-height:60px">${esc(csv(cur.hot))}</textarea>
         <label class="f">Mục gắn nhãn NEW</label><textarea class="w nw" style="min-height:60px">${esc(csv(cur.nw))}</textarea>

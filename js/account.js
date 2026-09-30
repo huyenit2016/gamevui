@@ -59,7 +59,7 @@
   function applySite(c) {
     if (!c) return;
     if (c.pill != null && $('#pill')) $('#pill').textContent = c.pill;
-    if ($('#htitle') && (c.heroLead != null || c.heroGrad != null)) $('#htitle').innerHTML = `${esc(c.heroLead != null ? c.heroLead : 'Rủ hội chơi liền tay,')} <span class="grad">${esc(c.heroGrad != null ? c.heroGrad : 'không tải – không lag – không drama')}</span> ${esc(c.heroEmoji != null ? c.heroEmoji : '🔥')}`;
+    if ($('#htitle') && (c.heroLead != null || c.heroGrad != null)) $('#htitle').innerHTML = `${esc(c.heroLead != null ? c.heroLead : 'Chơi vui mỗi ngày.')} <span class="grad">${esc(c.heroGrad != null ? c.heroGrad : 'Không cần cài đặt.')}</span> ${esc(c.heroEmoji != null ? c.heroEmoji : '')}`;
     if (c.footer != null && $('#foot')) $('#foot').textContent = c.footer;
     if (Array.isArray(c.hot)) GV.cfg.hot = c.hot.filter(Boolean);
     if (Array.isArray(c.nw)) GV.cfg.nw = c.nw.filter(Boolean);

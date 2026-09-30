@@ -70,15 +70,18 @@
   const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
 
   const tagOf = i => i.cat === 'Nhiều người' ? 'Online' : i.cat === 'Học tập' ? 'Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích';
-  function cardHTML(i, f, big) {
+  // variant: '' thẻ thường · 'big' thẻ lớn · 'feat' thẻ nổi bật (chiếm 2x2 trong "Đang hot")
+  function cardHTML(i, f, variant) {
     const badge = NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
-    const on = f.includes(i.id);
-    return `<a class="card${big ? ' big' : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${GV.esc(i.name)}">
-      <div class="art"><span class="ic" aria-hidden="true">${i.icon}</span><span class="tag">${tagOf(i)}</span>${badge}
+    const on = f.includes(i.id), v = variant === true ? 'big' : (variant || '');
+    return `<a class="card${v ? ' ' + v : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${GV.esc(i.name)}">
+      <div class="art"><span class="bg"></span><span class="ic" aria-hidden="true">${i.icon}</span>${badge}
         <span class="fv${on ? ' on' : ''}" data-f="${i.id}" role="button" tabindex="0" aria-pressed="${on}" aria-label="Yêu thích" title="Yêu thích">${GV.ic('star', 16, on)}</span></div>
-      <div class="body"><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p><span class="go">${GV.ic('play', 13, true)}${big ? 'Chơi ngay' : 'Chơi'}</span></div>
+      <div class="body"><span class="cat">${tagOf(i)}</span><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p><span class="go">${GV.ic('play', 13, true)}${v ? 'Chơi ngay' : 'Chơi'}</span></div>
     </a>`;
   }
+  // "Chơi gần đây": thẻ ngang gọn để khác hẳn "Đang hot"
+  const recentHTML = i => `<a class="rc" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="Tiếp tục: ${GV.esc(i.name)}"><span class="rt" aria-hidden="true">${i.icon}</span><span class="rx"><b>${GV.esc(i.name)}</b><small>${tagOf(i)}</small></span><span class="rp">${GV.ic('play', 14, true)}</span></a>`;
 
   function renderHome() {
     const ng = GV.items.filter(i => i.type === 'game').length, online = GV.items.filter(i => i.cat === 'Nhiều người').length;
@@ -95,16 +98,17 @@
     const showcase = tab === 'all' && !cat && !q;
     // khu nổi bật (chỉ hiện ở màn hình chính, chưa lọc)
     const hot = HOT().map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i));
-    $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.map(i => cardHTML(i, f, true)).join('');
+    $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.slice(0, 9).map((i, k) => cardHTML(i, f, k === 0 ? 'feat' : '')).join('');
     const rec = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean).slice(0, 8);
-    $('#recentwrap').hidden = !showcase || !rec.length; $('#recent').innerHTML = rec.map(i => cardHTML(i, f, true)).join('');
-    $('.ticker').hidden = !showcase;
+    $('#recentwrap').hidden = !showcase || !rec.length; $('#recent').innerHTML = rec.map(recentHTML).join('');
+    $('.ticker').hidden = true;
+    const ha = $('#heroart'); if (ha) ha.innerHTML = (hot.length ? hot : GV.items).slice(0, 4).map((i, k) => `<a class="ht t${k}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" tabindex="-1"><span>${i.icon}</span><b>${GV.esc(i.name)}</b></a>`).join('');
     let html;
     if (showcase) {
       const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), learn = items.filter(i => i.cat === 'Học tập'), tools = items.filter(i => i.type === 'tool' && i.cat !== 'Học tập');
-      const sec = (ic, t, arr) => arr.length ? `<h2 class="sec span">${GV.ic(ic, 20)}${t} <small>${arr.length}</small></h2>` + arr.map(i => cardHTML(i, f)).join('') : '';
+      const sec = (ic, t, arr, sub) => arr.length ? `<div class="sech span"><h2 class="sec">${GV.ic(ic, 22)}${t} <small>${arr.length}</small></h2>${sub ? `<p class="secsub">${sub}</p>` : ''}</div>` + arr.map(i => cardHTML(i, f)).join('') : '';
       const adSlot = '<div class="ad span" data-slot="inline"></div>';
-      html = sec('users', 'Chơi cùng bạn bè (online)', multi) + adSlot + sec('cap', 'Học tập – ngoại ngữ, AI, họp & dịch', learn) + sec('gamepad', 'Game giải trí', games) + adSlot + sec('wrench', 'Tiện ích hằng ngày', tools);
+      html = sec('users', 'Chơi cùng bạn bè', multi, 'Tạo phòng, gửi mã và chơi cùng nhau') + adSlot + sec('cap', 'Học tập', learn, 'Ngoại ngữ, trợ lý AI, phiên dịch và lớp học 1-1') + sec('gamepad', 'Game giải trí', games, 'Giải trí nhanh, chơi một mình hoặc thử thách kỷ lục') + adSlot + sec('wrench', 'Tiện ích hằng ngày', tools, 'Công cụ nhỏ – dùng là có ích');
     } else html = items.map(i => cardHTML(i, f)).join('');
     $('#grid').innerHTML = html;
     if (window.GV.ads) GV.ads.hydrate($('#home'));
@@ -168,7 +172,7 @@
     $('#home').addEventListener('keydown', e => { const f = e.target.closest && e.target.closest('[data-f]'); if (f && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleFav(f.dataset.f); renderHome(); } });
     document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) GV.go(b.dataset.go); });
     $('#rand').addEventListener('click', () => { const g = GV.items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'); const i = g[GV.rnd(g.length)]; location.hash = `#/game/${i.id}`; });
-    $('#goOnline').addEventListener('click', () => { GV.go('online'); setTimeout(() => $('#tabs').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
+    $('#goOnline').addEventListener('click', () => { const t = $('#tabs'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     $('#home').addEventListener('pointermove', e => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
     $('#theme').addEventListener('click', () => {
       const d = document.documentElement, dark = d.dataset.theme !== 'light';
