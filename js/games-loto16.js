@@ -1,8 +1,9 @@
 // Lô tô Việt Nam – bộ 16 vé (chuyển từ bản HTML độc lập sang khung GameVui)
 (function () {
   const pad = n => String(n).padStart(2, '0');
-  // Mỗi vé: 9 hàng x 5 số = 45 số khác nhau trong 1..90 (ngẫu nhiên mỗi ván)
-  const makeTicket = () => { const a = GV.shuffle(Array.from({ length: 90 }, (_, i) => i + 1)); return Array.from({ length: 9 }, (_, r) => a.slice(r * 5, r * 5 + 5)); };
+  // Vé 9x9: mỗi hàng 5 số + 4 ô trống, cột 1 = 1-9, cột 2 = 10-19 ... cột 9 = 80-90 (0 = ô trống)
+  const makeTicket = () => GV.lotoTicket();
+  const COLORS = ['#d62828', '#f57c00', '#f2b700', '#7cb518', '#16a34a', '#1e88e5', '#7b1fa2', '#e91e8c'];
 
   const CSS = `
   .l16{width:100%;display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start;--red:#d62828;--gold:#f5c542}
@@ -21,27 +22,27 @@
   .l16 .head h3{margin:0}
   .l16 .vb button{padding:5px 10px;border:1px solid var(--line);background:var(--card2);color:var(--fg);border-radius:8px;cursor:pointer;margin-left:4px}
   .l16 .vb button.on{background:var(--acc);color:#fff}
-  .l16 .tks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-  .l16 .tk{background:#fffdf5;color:#241b14;border:3px solid #9e2020;border-radius:9px;padding:7px}
-  .l16 .tk.win{border-color:#16a34a;box-shadow:0 0 0 3px #86efac,0 5px 18px #16a34a55}
-  .l16 .tt{display:flex;justify-content:space-between;border-bottom:2px solid #9e2020;padding-bottom:4px;margin-bottom:6px;color:#8e1111;font-size:12px;font-weight:800}
-  .l16 .gr{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #b9a98e;border-bottom:0;border-right:0}
-  .l16 .gr div{height:28px;display:flex;align-items:center;justify-content:center;border-right:1px solid #cfc1aa;border-bottom:1px solid #cfc1aa;font-size:13px;font-weight:900;background:#fff;cursor:pointer;user-select:none}
-  .l16 .gr div:nth-child(n+16):nth-child(-n+20),.l16 .gr div:nth-child(n+31):nth-child(-n+35){border-top:5px solid #cfc1aa}
-  .l16 .gr div.c{background:#e53935;color:#fff}
-  .l16 .gr div.rw{box-shadow:inset 0 0 0 2px #ff9f43}
-  .l16 .tf{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:#806}
+  .l16 .tks{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .l16 .tk{--tc:#d62828;container-type:inline-size;background:#fff;color:#111;border:3px solid var(--tc);border-radius:8px;padding:6px}
+  .l16 .tk.win{box-shadow:0 0 0 4px #86efac,0 6px 20px #16a34a66;outline:3px solid #16a34a}
+  .l16 .tt{display:flex;justify-content:space-between;color:var(--tc);font-size:clamp(9px,3.4cqw,13px);font-weight:900;letter-spacing:.03em;padding:0 2px 4px}
+  .l16 .blk{display:grid;grid-template-columns:repeat(9,1fr);border-top:2px solid var(--tc);border-left:2px solid var(--tc)}
+  .l16 .blk+.blk{margin-top:2.2cqw}
+  .l16 .blk div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--tc);border-bottom:2px solid var(--tc);font-size:5.4cqw;font-weight:900;font-family:Impact,"Arial Narrow",Arial,sans-serif;background:var(--tc);cursor:default;user-select:none}
+  .l16 .blk div.n{background:#fff;color:#111;cursor:pointer}
+  .l16 .blk div.n.c{background:#111;color:#fff;border-radius:50%;box-shadow:inset 0 0 0 2px #fff}
+  .l16 .blk div.n.rw{box-shadow:inset 0 0 0 3px #ff9f43}
+  .l16 .tf{display:flex;justify-content:space-between;margin-top:4px;font-size:clamp(8px,2.8cqw,11px);color:var(--tc);font-weight:700}
   .l16 .modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50}
   .l16 .modal.show{display:flex}
   .l16 .mc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;text-align:center;min-width:280px;max-width:90vw}
   .l16 .mc .big{color:var(--ok);font-size:3rem}
-  @media(max-width:1000px){.l16{grid-template-columns:1fr}.l16 .tks{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:700px){.l16 .tks{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:420px){.l16 .tks{grid-template-columns:1fr}}
+  @media(max-width:1000px){.l16{grid-template-columns:1fr}}
+  @media(max-width:520px){.l16 .tks{grid-template-columns:1fr}}
   @media print{
     body *{visibility:hidden}
     .l16 .tks,.l16 .tks *{visibility:visible}
-    .l16 .tks{position:absolute;left:0;top:0;width:100%;grid-template-columns:repeat(4,1fr)!important;gap:5px}
+    .l16 .tks{position:absolute;left:0;top:0;width:100%;grid-template-columns:repeat(2,1fr)!important;gap:8px}
     .l16 .tk{break-inside:avoid;box-shadow:none!important}
   }`;
 
@@ -60,7 +61,7 @@
         </aside>
         <section>
           <div class="head"><h3>🎫 Bộ vé 16 tờ</h3>
-            <div><span class="vb">Cột: ${[4, 3, 2, 1].map(n => `<button data-n="${n}">${n}</button>`).join('')}</span>
+            <div><span class="vb">Cột: ${[1, 2, 3, 4].map(n => `<button data-n="${n}" class="${n === 2 ? 'on' : ''}">${n}</button>`).join('')}</span>
             <button class="btn ghost print" style="padding:5px 10px">🖨️ In vé</button><button class="btn ghost rs" style="padding:5px 10px">🔄 Ván mới</button></div></div>
           <div class="tks"></div>
         </section>
@@ -74,9 +75,13 @@
         try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(String(n)); u.lang = 'vi-VN'; u.rate = .9; speechSynthesis.speak(u); } catch (e) {}
       }
       function renderTickets() {
-        $('.tks').innerHTML = tickets.map((t, i) => `<div class="tk ${won.has(i) ? 'win' : ''}"><div class="tt"><span>VÉ LÔ TÔ #${pad(i + 1)}</span><span>LT-${String(i + 1).padStart(3, '0')}</span></div>
-          <div class="gr">${t.map(row => { const full = row.filter(n => called.has(n)).length === 4; return row.map(n => `<div data-n="${n}" class="${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${pad(n)}</div>`).join(''); }).join('')}</div>
-          <div class="tf"><span>9 hàng • 45 số</span><span>Việt Nam</span></div></div>`).join('');
+        $('.tks').innerHTML = tickets.map((t, i) => {
+          const blocks = [0, 3, 6].map(g => `<div class="blk">${t.slice(g, g + 3).map(row => {
+            const full = row.filter(n => n && called.has(n)).length === 4;
+            return row.map(n => n ? `<div class="n ${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${n}</div>` : '<div></div>').join('');
+          }).join('')}</div>`).join('');
+          return `<div class="tk ${won.has(i) ? 'win' : ''}" style="--tc:${COLORS[i % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số</span><span>Việt Nam</span></div></div>`;
+        }).join('');
       }
       function renderSide() {
         $('.hist').innerHTML = hist.slice(0, 24).map((n, i) => `<span class="${i ? '' : 'lt'}">${pad(n)}</span>`).join('');
@@ -86,7 +91,7 @@
       }
       function check() {
         const fresh = [];
-        tickets.forEach((t, i) => { if (!won.has(i) && t.some(row => row.every(n => called.has(n)))) { won.add(i); fresh.push(i + 1); } });
+        tickets.forEach((t, i) => { if (!won.has(i) && t.some(row => row.filter(Boolean).every(n => called.has(n)))) { won.add(i); fresh.push(i + 1); } });
         if (fresh.length) {
           $('.wt').textContent = 'Vé ' + fresh.map(n => '#' + pad(n)).join(', ') + ' đã hoàn thành một hàng!';
           $('.modal').classList.add('show'); stopAuto(); GV.beep(880, 400);

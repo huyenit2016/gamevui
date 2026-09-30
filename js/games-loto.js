@@ -15,6 +15,7 @@
     }
     return t;
   }
+  GV.lotoTicket = makeTicket;
   const rowNums = (t, r) => t[r].filter(Boolean);
 
   GV.register({
