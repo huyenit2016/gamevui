@@ -60,8 +60,8 @@
 
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
-  const HOT = ['lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
-  const NEW = ['chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+  const HOT = ['aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
+  const NEW = ['aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
 
   function cardHTML(i, f, big) {
     const badge = NEW.includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT.includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
@@ -94,10 +94,10 @@
     const tr = $('#track'); if (showcase && !tr.dataset.done) { const em = GV.items.map(i => `<span>${i.icon}</span>`).join(''); tr.innerHTML = em + em; tr.dataset.done = 1; }
     let html;
     if (showcase) {
-      const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), tools = items.filter(i => i.type === 'tool');
+      const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), learn = items.filter(i => i.cat === 'Học tập'), tools = items.filter(i => i.type === 'tool' && i.cat !== 'Học tập');
       const sec = (t, arr) => arr.length ? `<h2 class="sec span">${t} <small>${arr.length}</small></h2>` + arr.map(i => cardHTML(i, f)).join('') : '';
       const adSlot = '<div class="ad span" data-slot="inline"></div>';
-      html = sec('👥 Chơi cùng bạn bè (online)', multi) + adSlot + sec('🎮 Game giải trí', games) + adSlot + sec('🧰 Tiện ích hằng ngày', tools);
+      html = sec('👥 Chơi cùng bạn bè (online)', multi) + adSlot + sec('📚 Học tập – ngoại ngữ, AI, họp & dịch', learn) + sec('🎮 Game giải trí', games) + adSlot + sec('🧰 Tiện ích hằng ngày', tools);
     } else html = items.map(i => cardHTML(i, f)).join('');
     $('#grid').innerHTML = html;
     if (window.GV.ads) GV.ads.hydrate($('#home'));
