@@ -300,4 +300,11 @@
     await A.init();
     if (A.user) panelView(); else authView();
   })();
+  // gắn nhãn cột cho mỗi ô để bảng hiển thị dạng thẻ trên điện thoại
+  const labelize = () => document.querySelectorAll('#cms table:not(.perm)').forEach(t => {
+    const h = [...t.querySelectorAll('tr')].find(r => r.querySelector('th')); if (!h) return;
+    const names = [...h.children].map(x => x.textContent.trim());
+    t.querySelectorAll('tr').forEach(r => { if (r === h) return; [...r.children].forEach((td, i) => { if (td.tagName === 'TD' && td.dataset.label === undefined) td.dataset.label = names[i] || ''; }); });
+  });
+  try { let raf = 0; new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(labelize); }).observe(document.getElementById('cms'), { childList: true, subtree: true }); } catch (e) {}
 })();

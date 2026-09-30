@@ -20,3 +20,69 @@
 .cx .perm td.y{color:var(--ok);text-align:center}.cx .perm td.n{color:var(--mut);text-align:center;opacity:.5}.cx .perm th.me,.cx .perm td.me{background:#7a8dff22}
 .cx .idchips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.cx .idchips span{font-size:12px;background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:1px 8px;cursor:pointer}
 .cx details>summary{cursor:pointer;font-weight:700}
+
+/* ===== CMS v2: giao diện đẹp hơn + responsive ===== */
+#cms{margin:0 auto;padding:12px 16px 40px;width:100%}
+.cx{gap:16px}
+.cx .card2{position:relative;border-radius:20px;padding:20px;background:linear-gradient(160deg,color-mix(in srgb,var(--card) 94%,transparent),color-mix(in srgb,var(--card2) 70%,transparent));backdrop-filter:blur(10px)}
+.cx .card2>h2:first-child{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.cx h2{font-size:1.3rem;letter-spacing:-.01em}
+.cx .tabsx{top:58px;margin:0 -16px;padding:10px 16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;border-bottom:1px solid var(--line)}
+.cx .tabsx::-webkit-scrollbar{display:none}
+.cx .tabsx button{flex:0 0 auto;white-space:nowrap;scroll-snap-align:start;transition:.15s;min-height:40px}
+.cx .tabsx button:hover{border-color:var(--acc);color:var(--fg)}
+.cx .tabsx button.on{box-shadow:0 4px 14px #7a8dff55}
+.cx table{border-radius:12px;overflow:hidden}
+.cx th{background:color-mix(in srgb,var(--inp) 70%,transparent);position:sticky;top:0}
+.cx tbody tr:hover td,.cx table tr:hover td{background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.cx .stat{background:linear-gradient(160deg,var(--inp),color-mix(in srgb,var(--acc) 10%,var(--inp)));transition:transform .15s}
+.cx .stat:hover{transform:translateY(-2px)}
+.cx .stat b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cx #stats{margin-top:2px}
+.cx .stat small,.cx .stat span{color:var(--mut);font-size:13px}
+.cx .authbox{margin:24px auto;padding:26px;box-shadow:0 20px 60px #0005}
+.cx .authbox input{width:100%;margin-bottom:8px}
+.cx .btn,.cx .pbtn{min-height:40px}
+.cx .btn.sm,.cx .pbtn.sm{min-height:34px}
+.cx .btn.bad{background:linear-gradient(135deg,#ff5c6c,#d63a5a);box-shadow:0 4px 14px #ff5c6c44}
+.cx .btn.ok{background:linear-gradient(135deg,#2fcf8d,#1ea97a);box-shadow:0 4px 14px #3ddc9744}
+.cx .row{gap:8px;flex-wrap:wrap;align-items:center}
+.cx textarea.w{min-height:90px}
+.cx details{background:var(--inp);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.cx .hint{line-height:1.45}
+
+@media(max-width:720px){
+  #cms{padding:8px 12px 32px}
+  .cx{gap:12px}
+  .cx .card2{padding:14px;border-radius:16px}
+  .cx h2{font-size:1.12rem}
+  .cx .tabsx{top:54px;margin:0 -12px;padding:8px 12px}
+  .cx .tabsx button{padding:8px 13px;font-size:13.5px}
+  .cx .grid2{grid-template-columns:1fr}
+  .cx #stats.grid2{grid-template-columns:repeat(2,1fr);gap:10px}
+  .cx .stat{padding:12px 8px}.cx .stat b{font-size:1.5rem}
+  .cx .authbox{margin:12px auto;padding:18px}
+  /* ô nhập & nút to hơn cho ngón tay, 16px để iOS không tự zoom */
+  .cx input,.cx select,.cx textarea{font-size:16px}
+  .cx .btn,.cx .pbtn{min-height:44px}
+  .cx .btn.sm,.cx .pbtn.sm{min-height:38px;padding:7px 12px}
+  .cx .row>input:not([type=checkbox]):not([type=radio]),.cx .row>select{flex:1 1 100%}
+  .cx .row>input[type=checkbox]{flex:0 0 auto}
+  .cx .row>.btn,.cx .row>.pbtn{flex:1 1 auto}
+  .cx .card2>.row:first-child{align-items:flex-start}
+  /* bảng -> dạng thẻ (nhãn cột lấy từ data-label do js gắn) */
+  .cx .tw{overflow:visible}
+  .cx table:not(.perm),.cx table:not(.perm) tbody{display:block;width:100%}
+  .cx table:not(.perm) tr:has(th){display:none}
+  .cx table:not(.perm) tr{display:block;background:var(--inp);border:1px solid var(--line);border-radius:14px;padding:6px 12px;margin-bottom:10px}
+  .cx table:not(.perm) td{display:flex;gap:10px;justify-content:space-between;align-items:center;text-align:right;padding:7px 0;border-bottom:1px dashed var(--line);word-break:break-word}
+  .cx table:not(.perm) td:last-child{border-bottom:0;justify-content:flex-end;flex-wrap:wrap}
+  .cx table:not(.perm) td::before{content:attr(data-label);flex:0 0 34%;max-width:40%;text-align:left;font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+  .cx table:not(.perm) td[data-label=""]::before{display:none}
+  .cx table:not(.perm) td:hover{background:none}
+  .cx table:not(.perm) tr:hover td{background:none}
+  .cx .perm{font-size:12px}.cx .perm td,.cx .perm th{padding:6px 3px}
+  .cx .tw:has(.perm){overflow-x:auto}
+}
+@media(max-width:380px){.cx .tabsx button{padding:7px 11px;font-size:13px}.cx .card2{padding:12px}}
+@media(prefers-reduced-motion:reduce){.cx *{transition:none!important}}
