@@ -20,6 +20,14 @@
       if (v) u.voice = v; speechSynthesis.cancel(); speechSynthesis.speak(u); return true;
     } catch (e) { return false; }
   };
+  L.speakAsync = (text, lang, rate = .95) => new Promise(ok => {
+    if (!window.speechSynthesis || !LANGS[lang] || !text) return ok();
+    try {
+      const u = new SpeechSynthesisUtterance(String(text)); u.lang = LANGS[lang].bcp; u.rate = rate;
+      const v = speechSynthesis.getVoices().find(v => v.lang.replace('_', '-').toLowerCase().startsWith(lang)); if (v) u.voice = v;
+      u.onend = u.onerror = () => ok(); speechSynthesis.cancel(); speechSynthesis.speak(u); setTimeout(ok, 15000);
+    } catch (e) { ok(); }
+  });
   L.hasSTT = () => !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   /* ---------- Nhận giọng nói (STT) ---------- */
