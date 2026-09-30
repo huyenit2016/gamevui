@@ -42,7 +42,7 @@ rules = {"rules": {
       "history": {".write": f"{AUTH} && {MH}"},
       "players": {"$uid": {".write": f"{AUTH} && (auth.uid === $uid || {MH})"}},
       "act": {".write": f"{AUTH} && {MH}", "$uid": {".write": f"{AUTH} && auth.uid === $uid"}},
-      "chat": {".write": f"{AUTH} && {MH}", "$id": {".write": f"{AUTH} && !data.exists() && newData.child('uid').val() === auth.uid"}}
+      "chat": {".write": f"{AUTH} && {MH}", "$id": {".write": f"{AUTH} && !data.exists() && newData.child('uid').val() === auth.uid", ".validate": "newData.child('text').isString() && newData.child('text').val().length <= 200"}}
     }
   },
   "mpprivate": {"$room": {".write": f"{AUTH} && ({MH} || ({MDELI}))", "$uid": {".read": f"{AUTH} && auth.uid === $uid", ".write": f"{AUTH} && auth.uid === $uid && !newData.exists()"}}},
@@ -64,10 +64,9 @@ rules = {"rules": {
 
   # ---- thống kê truy cập ----
   "stats": {
-    ".read": AUTH,
-    "total": {".write": f"{AUTH} && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"},
-    "unique": {".write": f"{AUTH} && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"},
-    "ips": {"$h": {".write": f"{AUTH} && $h.length === 16",
+    "total": {".read": AUTH, ".write": f"{AUTH} && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"},
+    "unique": {".read": AUTH, ".write": f"{AUTH} && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"},
+    "ips": {".read": f"{AUTH} && {ADMIN}", "$h": {".read": AUTH, ".write": f"{AUTH} && $h.length === 16",
       "first": {".validate": "!data.exists() && newData.isNumber()"}, "last": {".validate": "newData.isNumber()"},
       "n": {".validate": "newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"}, "$other": {".validate": "false"}}}
   },

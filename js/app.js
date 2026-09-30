@@ -37,6 +37,8 @@
       window.addEventListener('keydown', h);
       return () => window.removeEventListener('keydown', h);
     },
+    // chỉ cho phép liên kết http(s) – chặn javascript:/data:
+    safeUrl: u => /^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '#',
     rnd: n => Math.floor(Math.random() * n),
     shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = GV.rnd(i + 1);[a[i], a[j]] = [a[j], a[i]]; } return a; },
     esc: s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])),

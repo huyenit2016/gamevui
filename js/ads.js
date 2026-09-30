@@ -30,7 +30,7 @@
     const cu = (cfg.custom || []).filter(x => x && x.img && x.url);
     if (cu.length) { // banner tự chèn
       const b = cu[GV.rnd(cu.length)];
-      el.innerHTML = `<span class="adl">Quảng cáo</span><a href="${GV.esc(b.url)}" target="_blank" rel="sponsored noopener"><img src="${GV.esc(b.img)}" alt="${GV.esc(b.alt || 'Quảng cáo')}" loading="lazy" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto"></a>`;
+      el.innerHTML = `<span class="adl">Quảng cáo</span><a href="${GV.esc(GV.safeUrl(b.url))}" target="_blank" rel="sponsored noopener"><img src="${GV.esc(GV.safeUrl(b.img))}" alt="${GV.esc(b.alt || 'Quảng cáo')}" loading="lazy" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto"></a>`;
       return;
     }
     const h = HOUSE[GV.rnd(HOUSE.length)]; // banner giới thiệu game của GameVui

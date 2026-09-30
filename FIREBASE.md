@@ -69,7 +69,8 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
         "chat": {
           ".write": "auth != null && root.child('mprooms').child($room).child('host').val() === auth.uid",
           "$id": {
-            ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid"
+            ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+            ".validate": "newData.child('text').isString() && newData.child('text').val().length <= 200"
           }
         }
       }
@@ -161,15 +162,18 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
       }
     },
     "stats": {
-      ".read": "auth != null",
       "total": {
+        ".read": "auth != null",
         ".write": "auth != null && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
       },
       "unique": {
+        ".read": "auth != null",
         ".write": "auth != null && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
       },
       "ips": {
+        ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
         "$h": {
+          ".read": "auth != null",
           ".write": "auth != null && $h.length === 16",
           "first": {
             ".validate": "!data.exists() && newData.isNumber()"

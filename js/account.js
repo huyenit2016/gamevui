@@ -71,7 +71,7 @@
     const box = $('#announce'); if (!box) return;
     let dis = null; try { dis = localStorage.getItem('gv_ann_dis'); } catch (e) {}
     if (!a || !a.active || !a.text || String(a.id) === dis) { box.innerHTML = ''; return; }
-    box.innerHTML = `<div class="annc ${esc(a.type || 'info')}"><span>${{ info: '📢', warn: '⚠️', success: '🎉' }[a.type] || '📢'} ${esc(a.text)}${a.link ? ` <a href="${esc(a.link)}" target="_blank" rel="noopener">Xem thêm ›</a>` : ''}</span><button aria-label="Đóng">✕</button></div>`;
+    box.innerHTML = `<div class="annc ${esc(a.type || 'info')}"><span>${{ info: '📢', warn: '⚠️', success: '🎉' }[a.type] || '📢'} ${esc(a.text)}${a.link ? ` <a href="${esc(GV.safeUrl(a.link))}" target="_blank" rel="noopener">Xem thêm ›</a>` : ''}</span><button aria-label="Đóng">✕</button></div>`;
     box.querySelector('button').onclick = () => { try { localStorage.setItem('gv_ann_dis', String(a.id)); } catch (e) {} box.innerHTML = ''; };
     let seen = null; try { seen = localStorage.getItem('gv_ann_seen'); } catch (e) {}
     if (String(a.id) !== seen && GV.toast) { try { localStorage.setItem('gv_ann_seen', String(a.id)); } catch (e) {} GV.toast(a.text, { type: a.type === 'warn' ? 'warn' : a.type === 'success' ? 'success' : 'info', icon: '📢', ttl: 7000 }); }
