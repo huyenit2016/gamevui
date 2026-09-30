@@ -38,3 +38,11 @@ Học ngoại ngữ (Anh · Nhật · Hàn · Trung, flashcard + đề kiểm tr
 ## Quảng cáo & thống kê
 - Quảng cáo cấu hình trong `js/ads-config.js` (AdSense / banner tự chèn; để trống thì hiện banner giới thiệu game). Có sẵn `privacy.html` và `ads.txt` mẫu.
 - Đếm lượt truy cập theo IP (IP băm, không lưu IP gốc) hiển thị ở chân trang – xem `FIREBASE.md`.
+
+## 🔒 Làm rối mã & deploy tự động
+
+Mã trong repo giữ nguyên dễ đọc. Khi `push` lên `main`, GitHub Actions (`.github/workflows/deploy.yml`) chạy `npm ci && npm run build` (`tools/build.mjs`): nén + làm rối JS (terser + javascript-obfuscator), nén CSS/HTML vào `dist/` rồi deploy lên Pages.
+
+**Bật một lần:** repo → Settings → Pages → *Build and deployment* → Source = **GitHub Actions**.
+
+Chạy thử tại máy: `npm install && npm run build` rồi mở `dist/index.html`. Lưu ý: làm rối chỉ gây khó khăn cho người xem mã, **không** ngăn được hoàn toàn; repo public thì mã gốc vẫn xem được trên GitHub. Bản quyền xem file `LICENSE`.

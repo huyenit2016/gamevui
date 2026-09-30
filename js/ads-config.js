@@ -10,5 +10,5 @@ window.GV_ADS = {
   custom: [
     // { img: 'https://.../banner-728x90.png', url: 'https://link-tiep-thi-lien-ket', alt: 'Tên nhà tài trợ' },
   ],
-  contact: 'Liên hệ đặt quảng cáo: mở Issue tại github.com/huyenit2016/gamevui'
+  contact: 'Liên hệ đặt quảng cáo: (điền email / Zalo của bạn vào đây)'
 };

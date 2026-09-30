@@ -1,0 +1,13 @@
+{
+  "name": "gamevui",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GameVui – game & tiện ích online (tĩnh, build chỉ để làm rối mã khi deploy)",
+  "scripts": { "build": "node tools/build.mjs" },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "html-minifier-terser": "^7.2.0",
+    "javascript-obfuscator": "^4.1.1",
+    "terser": "^5.31.0"
+  }
+}
