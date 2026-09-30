@@ -154,7 +154,17 @@
           <div class="modal"><div class="mc"><div class="big">🎉 KINH!</div><h3 class="wt"></h3><button class="btn ok close">Tiếp tục</button></div></div>
         </div>`;
         const isHost = () => R && R.host === uid;
-        const renderTk = () => { $('.tks').innerHTML = myT.length ? GV.lotoTicketsHTML(myT, lastCs, lastWon, marked) : `<p class="hint">${R && R.status === 'playing' ? 'Ván đang chơi – bạn vào muộn nên chỉ xem. Ván sau sẽ có vé.' : 'Đang tạo vé…'}</p>`; };
+        let tkHtml = '';
+        const buildTk = () => myT.length ? GV.lotoTicketsHTML(myT, lastCs, lastWon, marked) : `<p class="hint">${R && R.status === 'playing' ? 'Ván đang chơi – bạn vào muộn nên chỉ xem. Ván sau sẽ có vé.' : 'Đang tạo vé…'}</p>`;
+        // Chỉ vẽ lại khi nội dung thật sự đổi, và giữ nguyên vị trí cuộn (tránh bị giật lên đầu trang trên điện thoại)
+        const renderTk = () => {
+          const h = buildTk(); if (h === tkHtml) return;
+          const box = $('.tks'), y = window.scrollY, x = window.scrollX;
+          box.style.minHeight = box.offsetHeight + 'px';
+          box.innerHTML = h; tkHtml = h;
+          window.scrollTo(x, y);
+          requestAnimationFrame(() => { box.style.minHeight = ''; window.scrollTo(x, y); });
+        };
 
         function newTickets() { // chỉ sinh vé khi phòng đang ở sảnh
           myT = GV.lotoMakeTickets(k); marked = new Set(); saveMarks();
@@ -279,7 +289,8 @@
           const c = e.target.closest('.n'); if (!c || !R || R.status !== 'playing') return;
           const key = c.dataset.t + ':' + c.dataset.n;
           marked.has(key) ? marked.delete(key) : marked.add(key);
-          saveMarks(); renderTk();
+          c.classList.toggle('c', marked.has(key)); // đổi màu ngay tại ô, không vẽ lại cả danh sách vé
+          tkHtml = buildTk(); saveMarks();
         };
         // bấm KINH: kiểm tra các ô đã dò của mình
         $('.kinh').onclick = () => {

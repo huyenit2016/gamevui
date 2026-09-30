@@ -33,7 +33,7 @@
     return tickets.map((t, i) => {
       const blocks = [0, 3, 6].map(g => `<div class="blk">${t.slice(g, g + 3).map(row => {
         const isOn = n => marked ? marked.has(i + ':' + n) : called.has(n);
-        const full = row.filter(n => n && isOn(n)).length === 4;
+        const full = !marked && row.filter(n => n && isOn(n)).length === 4; // chế độ tự dò: không gợi ý
         return row.map(n => n ? `<div class="n ${isOn(n) ? 'c' : ''} ${full && !isOn(n) ? 'rw' : ''}" data-t="${i}" data-n="${n}">${n}</div>` : '<div></div>').join('');
       }).join('')}</div>`).join('');
       return `<div class="tk ${won && won.has(i) ? 'win' : ''}" style="--tc:${COLORS[(i >> 1) % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
@@ -79,7 +79,7 @@
   .l16 .blk{display:grid;grid-template-columns:repeat(9,1fr);border-top:2px solid var(--td);border-left:2px solid var(--td)}
   .l16 .blk+.blk{margin-top:2.2cqw}
   .l16 .blk div{aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--td);border-bottom:2px solid var(--td);font-size:6.2cqw;font-weight:900;font-family:Impact,"Arial Narrow",Arial,sans-serif;background:var(--tc);cursor:default;user-select:none}
-  .l16 .blk div.n{background:#fff;color:#111;cursor:pointer}
+  .l16 .blk div.n{background:#fff;color:#111;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .l16 .blk div.n.c{background:#111;color:#fff;border-radius:30%;box-shadow:inset 0 0 0 2px #fff}
   .l16 .blk div.n.rw{box-shadow:inset 0 0 0 3px #ff9f43}
   .l16 .tf{display:flex;justify-content:space-between;margin-top:4px;font-size:clamp(8px,2.8cqw,11px);color:var(--td);font-weight:700}
