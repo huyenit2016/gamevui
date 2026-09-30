@@ -27,7 +27,7 @@
   GV.register({
     id: 'lotoonline', type: 'game', cat: 'Gia đình', name: 'Lô tô online', icon: '🌐', desc: 'Chơi lô tô nhiều người qua mạng bằng mã phòng.',
     mount(el) {
-      let dead = false, unsub = null, timer = null;
+      let dead = false, unsub = null, timer = null, listOff = null;
       const $ = s => el.querySelector(s);
       const hashCode = () => (location.hash.match(/lotoonline\/(\d{4})/) || [])[1] || '';
 
@@ -47,56 +47,76 @@
 
       function entry(err) {
         if (dead) return;
+        if (listOff) listOff(), listOff = null;
         if (!getCfg()) return showSetup();
         const code = hashCode();
         el.innerHTML = `<div class="tool" style="max-width:420px"><div class="big">🌐 Lô tô online</div>
         <label>Tên của bạn <input class="nm" maxlength="16" placeholder="Ví dụ: Huyền" style="width:100%" value="${GV.esc(GV.store.get('lo_name', ''))}"></label>
+        <label>Tên phòng / nhóm <input class="rn" maxlength="24" placeholder="Ví dụ: Nhóm tối thứ 7" style="width:100%" value="${GV.esc(GV.store.get('lo_room', ''))}"></label>
         <button class="btn mk">➕ Tạo phòng mới</button>
-        <div class="hint">— hoặc vào phòng có sẵn —</div>
+        <div class="hint">— hoặc vào phòng đang mở —</div>
+        <div class="rl hint">Đang tải danh sách phòng…</div>
+        <div class="hint">— hoặc nhập mã phòng —</div>
         <div class="row"><input class="cd" inputmode="numeric" maxlength="4" placeholder="Mã 4 số" style="width:120px;text-align:center;font-size:1.3rem" value="${code}"><button class="btn ghost jn">Vào phòng</button></div>
         <p class="msg">${err ? GV.esc(err) : ''}</p><p class="hint"><a href="#" class="rc">Đổi cấu hình Firebase</a></p></div>`;
         const name = () => { const n = $('.nm').value.trim(); if (!n) { $('.msg').textContent = 'Nhập tên của bạn trước nhé.'; $('.nm').focus(); return null; } GV.store.set('lo_name', n); return n; };
         const busy = t => { $('.msg').textContent = t; el.querySelectorAll('button').forEach(b => b.disabled = !!t); };
-        $('.mk').onclick = async () => { const n = name(); if (!n) return; busy('Đang tạo phòng…'); try { await createRoom(n); } catch (e) { entry(e.message); } };
+        $('.mk').onclick = async () => { const n = name(); if (!n) return; const rn = $('.rn').value.trim() || ('Phòng của ' + n); GV.store.set('lo_room', $('.rn').value.trim()); busy('Đang tạo phòng…'); try { await createRoom(n, rn); } catch (e) { entry(e.message); } };
         $('.jn').onclick = async () => { const n = name(); if (!n) return; const c = $('.cd').value.trim(); if (!/^\d{4}$/.test(c)) { $('.msg').textContent = 'Mã phòng gồm 4 chữ số.'; return; } busy('Đang vào phòng…'); try { await join(c, n); } catch (e) { entry(e.message); } };
+        $('.rl').onclick = async ev => { const b = ev.target.closest('[data-c]'); if (!b) return; const n = name(); if (!n) return; busy('Đang vào phòng…'); try { await join(b.dataset.c, n); } catch (e) { entry(e.message); } };
+        watchList();
         $('.rc').onclick = ev => { ev.preventDefault(); GV.store.set('fbcfg', null); if (!window.GV_FIREBASE) showSetup(); else $('.msg').textContent = 'Cấu hình nằm trong js/firebase-config.js.'; };
       }
 
-      async function createRoom(name) {
+      function watchList() {
+        if (listOff) listOff(); listOff = null;
+        fb().then(({ db }) => {
+          if (dead) return;
+          const q = db.ref('lobby').orderByChild('at').startAt(Date.now() - 6 * 3600e3), cb = snap => {
+            const box = $('.rl'); if (!box) return;
+            const v = snap.val() || {}, rows = Object.entries(v).filter(([, r]) => r && r.status !== 'closed').sort((a, b) => b[1].at - a[1].at);
+            box.innerHTML = rows.length ? rows.map(([c, r]) => `<div class="row" style="justify-content:space-between;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span><b>${GV.esc(r.name || 'Phòng ' + c)}</b><br><span class="hint">#${c} · ${GV.esc(r.hostName || '')} · ${r.count || 0} người · ${r.status === 'playing' ? '🎲 đang chơi' : '⏳ đang chờ'}</span></span><button class="btn ghost" data-c="${c}" style="padding:6px 12px">Vào</button></div>`).join('') : 'Chưa có phòng nào đang mở – hãy tạo phòng mới!';
+          };
+          q.on('value', cb); listOff = () => q.off('value', cb);
+        }).catch(() => { const b = $('.rl'); if (b) b.textContent = 'Không tải được danh sách phòng.'; });
+      }
+
+      async function createRoom(name, roomName) {
         const { db, uid, TS } = await fb();
         for (let i = 0; i < 12; i++) {
           const code = String(1000 + GV.rnd(9000));
           const r = await db.ref(`rooms/${code}/host`).transaction(cur => cur === null ? uid : undefined);
-          if (r.committed) { await db.ref('rooms/' + code).update({ round: 1, status: 'lobby', createdAt: TS }); return join(code, name); }
+          if (r.committed) { await db.ref('rooms/' + code).update({ round: 1, status: 'lobby', createdAt: TS, name: roomName });
+            await db.ref('lobby/' + code).set({ name: roomName, hostName: name, status: 'lobby', count: 0, at: TS }); return join(code, name); }
         }
         throw new Error('Không tạo được phòng, thử lại.');
       }
 
       async function join(code, name) {
-        const { db, uid } = await fb();
+        const { db, uid, TS } = await fb();
         const snap = await db.ref(`rooms/${code}/host`).once('value');
         if (!snap.exists()) throw new Error('Không tìm thấy phòng ' + code);
         history.replaceState(null, '', '#/game/lotoonline/' + code);
-        room(db, uid, code, name);
+        room(db, uid, TS, code, name);
       }
 
       /* ---------- Phòng chơi ---------- */
-      function room(db, uid, code, name) {
+      function room(db, uid, TS, code, name) {
         const ref = db.ref('rooms/' + code), me = ref.child('players/' + uid);
         me.child('online').onDisconnect().set(false);
         me.update({ name, online: true });
-        let R = null, k = +GV.store.get('lo_k', 4), auto = false, gen = 0, claimed = new Set(), seenWin = new Set(), lastLen = -1, myT = [], myRound = null;
+        let lobbySig = '', R = null, k = +GV.store.get('lo_k', 4), auto = false, gen = 0, claimed = new Set(), seenWin = new Set(), lastLen = -1, myT = [], myRound = null;
         el.innerHTML = `<style>${GV.lotoCSS}
           .l16 .code{font-size:2rem;font-weight:900;letter-spacing:.2em;color:var(--acc)}
           .l16 .pl{list-style:none;margin:8px 0 0;padding:0;font-size:14px}.l16 .pl li{padding:3px 0;border-bottom:1px solid var(--line)}
           .l16 .wn{margin:6px 0 0;font-size:14px}</style>
         <div class="l16">
           <aside class="side">
-            <section class="pn cur"><div class="lb">PHÒNG</div><div class="code">${code}</div>
+            <section class="pn cur"><div class="lb rname">PHÒNG</div><div class="code">${code}</div>
               <div class="row"><button class="btn ghost share" style="padding:5px 12px">🔗 Chia sẻ</button><button class="btn ghost leave" style="padding:5px 12px">🚪 Rời</button></div>
               <div class="lb" style="margin-top:12px">SỐ VỪA GỌI</div><div class="no">--</div>
               <div class="host" hidden><div class="row"><button class="btn start">▶ Bắt đầu ván</button><button class="btn draw">🎲 Gọi số</button><button class="btn ghost auto">⏯ Tự động</button></div>
-              <div class="row" style="margin-top:8px"><label>Tốc độ <select class="sp"><option value="5000">Chậm</option><option value="3500" selected>Vừa</option><option value="2000">Nhanh</option></select></label><button class="btn ghost nw" style="padding:5px 12px">🔄 Ván mới</button></div></div>
+              <div class="row" style="margin-top:8px"><label>Tốc độ <select class="sp"><option value="5000">Chậm</option><option value="3500" selected>Vừa</option><option value="2000">Nhanh</option></select></label><button class="btn ghost nw" style="padding:5px 12px">🔄 Ván mới</button><button class="btn bad cl" style="padding:5px 12px">⛔ Đóng phòng</button></div></div>
               <div class="row" style="margin-top:8px"><label><input type="checkbox" class="say"> 🔊 Đọc số</label></div>
               <div class="st"></div></section>
             <section class="pn"><b>👥 Người chơi</b><ul class="pl"></ul></section>
@@ -127,6 +147,8 @@
           if (dead) return;
           R = snap.val();
           if (!R) { cleanup(); entry('Phòng đã bị xóa.'); return; }
+          if (R.closed && R.host !== uid) { cleanup(); history.replaceState(null, '', '#/game/lotoonline'); entry('Chủ phòng đã đóng phòng.'); return; }
+          $('.rname').textContent = (R.name || 'PHÒNG').toUpperCase();
           const players = R.players || {}, mine = players[uid] || {}, called = toList(R.called), cs = new Set(called);
           // vé của tôi
           if (R.status === 'lobby') {
@@ -135,6 +157,10 @@
           } else myT = mine.tickets && mine.round === R.round ? dec(mine.tickets) : [];
           // giao diện
           $('.host').hidden = !isHost();
+          if (isHost() && !R.closed) { // đồng bộ danh sách phòng công khai
+            const cnt = Object.values(players).filter(p => p && p.online).length, sig = cnt + '/' + R.status;
+            if (sig !== lobbySig) { lobbySig = sig; db.ref('lobby/' + code).update({ count: cnt, status: R.status, at: TS }); }
+          }
           const st = R.status;
           $('.start').hidden = st !== 'lobby'; $('.draw').hidden = $('.auto').hidden = st !== 'playing';
           $('.no').textContent = called.length ? pad(called[called.length - 1]) : '--';
@@ -167,6 +193,7 @@
         $('.auto').onclick = () => auto ? stopAuto() : startAuto();
         $('.sp').onchange = () => auto && startAuto();
         $('.nw').onclick = () => { stopAuto(); ref.update({ round: (R.round || 1) + 1, status: 'lobby', called: null, winners: null }); };
+        $('.cl').onclick = () => { if (!confirm('Đóng phòng? Mọi người sẽ bị đưa ra ngoài.')) return; stopAuto(); ref.child('closed').set(true).then(() => db.ref('lobby/' + code).remove()); cleanup(); history.replaceState(null, '', '#/game/lotoonline'); entry(); };
         $('.close').onclick = () => $('.modal').classList.remove('show');
         $('.leave').onclick = () => { cleanup(); me.child('online').set(false); history.replaceState(null, '', '#/game/lotoonline'); entry(); };
         $('.share').onclick = async () => {
