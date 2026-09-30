@@ -74,7 +74,7 @@
     box.innerHTML = `<div class="annc ${esc(a.type || 'info')}"><span>${{ info: '📢', warn: '⚠️', success: '🎉' }[a.type] || '📢'} ${esc(a.text)}${a.link ? ` <a href="${esc(GV.safeUrl(a.link))}" target="_blank" rel="noopener">Xem thêm ›</a>` : ''}</span><button aria-label="Đóng">✕</button></div>`;
     box.querySelector('button').onclick = () => { try { localStorage.setItem('gv_ann_dis', String(a.id)); } catch (e) {} box.innerHTML = ''; };
     let seen = null; try { seen = localStorage.getItem('gv_ann_seen'); } catch (e) {}
-    if (String(a.id) !== seen && GV.toast) { try { localStorage.setItem('gv_ann_seen', String(a.id)); } catch (e) {} GV.toast(a.text, { type: a.type === 'warn' ? 'warn' : a.type === 'success' ? 'success' : 'info', icon: '📢', ttl: 7000 }); }
+    if (String(a.id) !== seen && GV.toast) { try { localStorage.setItem('gv_ann_seen', String(a.id)); } catch (e) {} GV.toast(a.text, { type: a.type === 'warn' ? 'warn' : a.type === 'success' ? 'success' : 'info', ttl: 7000 }); }
   }
   A.applySite = applySite; A.showAnnounce = showAnnounce;
   A.loadConfig = async () => {
@@ -87,8 +87,12 @@
   /* ---------- Nút tài khoản trên thanh đầu trang ---------- */
   function paintHeader() {
     const a = $('#acct'); if (!a) return;
-    if (A.user) { const nm = (A.profile && A.profile.name) || A.user.email; a.innerHTML = `${ICON[A.role] || '👤'} <span class="an">${esc(String(nm).split(' ').pop())}</span>`; a.title = ROLES[A.role] + ' – ' + A.user.email; }
-    else { a.innerHTML = '👤 <span class="an">Đăng nhập</span>'; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; }
+    const ico = GV.ic ? GV.ic('user', 16) : '';
+    if (A.user) {
+      const nm = (A.profile && A.profile.name) || A.user.email, ini = esc(String(nm).trim().charAt(0).toUpperCase());
+      a.innerHTML = `<span class="av on">${ini}</span><span class="an">${esc(String(nm).split(' ').pop())}</span>`; a.title = ROLES[A.role] + ' – ' + A.user.email; a.setAttribute('aria-label', 'Tài khoản: ' + nm);
+    } else { a.innerHTML = `<span class="av">${ico}</span><span class="an">Đăng nhập</span>`; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; a.setAttribute('aria-label', 'Đăng nhập'); }
+    const b = $('#acct2'); if (b) { b.querySelector('span').textContent = A.user ? 'Tài khoản' : 'Đăng nhập'; b.classList.toggle('authed', !!A.user); }
   }
   A.onChange(paintHeader);
   // Quản trị viên: nhắc phòng rác ngay khi vào web

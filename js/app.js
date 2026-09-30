@@ -69,12 +69,14 @@
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
   const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
 
+  const tagOf = i => i.cat === 'Nhiều người' ? 'Online' : i.cat === 'Học tập' ? 'Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích';
   function cardHTML(i, f, big) {
     const badge = NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
-    return `<a class="card${big ? ' big' : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}">
-      <span class="tag">${i.cat === 'Nhiều người' ? '🌐 Online' : i.cat === 'Học tập' ? '📚 Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích'}</span>${badge}
-      <span class="fv" data-f="${i.id}" title="Yêu thích">${f.includes(i.id) ? '★' : '☆'}</span>
-      <div class="ic">${i.icon}</div><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p>${big ? '<span class="play">Chơi ngay ▶</span>' : ''}
+    const on = f.includes(i.id);
+    return `<a class="card${big ? ' big' : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${GV.esc(i.name)}">
+      <div class="art"><span class="ic" aria-hidden="true">${i.icon}</span><span class="tag">${tagOf(i)}</span>${badge}
+        <span class="fv${on ? ' on' : ''}" data-f="${i.id}" role="button" tabindex="0" aria-pressed="${on}" aria-label="Yêu thích" title="Yêu thích">${GV.ic('star', 16, on)}</span></div>
+      <div class="body"><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p><span class="go">${GV.ic('play', 13, true)}${big ? 'Chơi ngay' : 'Chơi'}</span></div>
     </a>`;
   }
 
@@ -97,19 +99,27 @@
     const rec = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean).slice(0, 8);
     $('#recentwrap').hidden = !showcase || !rec.length; $('#recent').innerHTML = rec.map(i => cardHTML(i, f, true)).join('');
     $('.ticker').hidden = !showcase;
-    const tr = $('#track'); if (showcase && !tr.dataset.done) { const em = GV.items.map(i => `<span>${i.icon}</span>`).join(''); tr.innerHTML = em + em; tr.dataset.done = 1; }
     let html;
     if (showcase) {
       const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), learn = items.filter(i => i.cat === 'Học tập'), tools = items.filter(i => i.type === 'tool' && i.cat !== 'Học tập');
-      const sec = (t, arr) => arr.length ? `<h2 class="sec span">${t} <small>${arr.length}</small></h2>` + arr.map(i => cardHTML(i, f)).join('') : '';
+      const sec = (ic, t, arr) => arr.length ? `<h2 class="sec span">${GV.ic(ic, 20)}${t} <small>${arr.length}</small></h2>` + arr.map(i => cardHTML(i, f)).join('') : '';
       const adSlot = '<div class="ad span" data-slot="inline"></div>';
-      html = sec('👥 Chơi cùng bạn bè (online)', multi) + adSlot + sec('📚 Học tập – ngoại ngữ, AI, họp & dịch', learn) + sec('🎮 Game giải trí', games) + adSlot + sec('🧰 Tiện ích hằng ngày', tools);
+      html = sec('users', 'Chơi cùng bạn bè (online)', multi) + adSlot + sec('cap', 'Học tập – ngoại ngữ, AI, họp & dịch', learn) + sec('gamepad', 'Game giải trí', games) + adSlot + sec('wrench', 'Tiện ích hằng ngày', tools);
     } else html = items.map(i => cardHTML(i, f)).join('');
     $('#grid').innerHTML = html;
     if (window.GV.ads) GV.ads.hydrate($('#home'));
     $('#empty').hidden = items.length > 0;
     $('#tabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+    markNav(cat === 'Nhiều người' ? 'online' : cat === 'Học tập' ? 'learn' : tab === 'tool' ? 'tool' : tab === 'game' ? 'game' : 'all');
   }
+  const markNav = k => document.querySelectorAll('[data-go]').forEach(b => { const on = b.dataset.go === k; b.classList.toggle('on', on); on ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'); });
+  // chuyển nhanh tới một bộ lọc của trang chủ (dùng cho menu trên cùng & thanh điều hướng dưới)
+  GV.go = function (k) {
+    const m = { all: ['all', ''], game: ['game', ''], online: ['game', 'Nhiều người'], learn: ['all', 'Học tập'], tool: ['tool', ''] }[k]; if (!m) return;
+    tab = m[0]; cat = m[1]; query = ''; const q = $('#q'); if (q) q.value = '';
+    if (location.hash.length > 2) location.hash = '#/'; else renderHome();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   function toggleFav(id) {
     const f = favs(), i = f.indexOf(id);
@@ -123,6 +133,7 @@
     const item = m && GV.items.find(i => i.id === m[2] && i.type === m[1]);
     const stage = $('#stage');
     stage.innerHTML = ''; stage.onclick = null;
+    document.body.classList.toggle('ingame', !!item);
     if (!item) {
       document.title = 'GameVui – Game & Tiện ích online';
       $('#view').hidden = true; $('#home').hidden = false;
@@ -130,13 +141,13 @@
       if (GV.ads) GV.ads.hydrate(document.querySelector('footer'));
       return;
     }
-    $('#home').hidden = true; $('#view').hidden = false;
+    $('#home').hidden = true; $('#view').hidden = false; $('#view').style.setProperty('--h', hue(item.cat)); markNav('');
     document.title = item.name + ' – GameVui';
     if (!visible(item)) { $('#vtitle').textContent = item.icon + ' ' + item.name; stage.innerHTML = '<p class="msg">🔧 Chức năng này đang tạm đóng để bảo trì. Bạn quay lại sau nhé!</p>'; return; }
     $('#vtitle').textContent = item.icon + ' ' + item.name;
     const vf = $('#vfav');
-    vf.textContent = favs().includes(item.id) ? '★' : '☆';
-    vf.onclick = () => { toggleFav(item.id); vf.textContent = favs().includes(item.id) ? '★' : '☆'; };
+    const paintFav = () => { const on = favs().includes(item.id); vf.innerHTML = GV.ic('star', 18, on); vf.classList.toggle('on', on); vf.setAttribute('aria-pressed', on); };
+    paintFav(); vf.onclick = () => { toggleFav(item.id); paintFav(); };
     window.scrollTo(0, 0);
     if (GV.ads) { const a = document.querySelector('#view .ad'); if (a) { a.removeAttribute('data-done'); a.innerHTML = ''; GV.ads.hydrate($('#view')); } }
     store.set('recent', [item.id, ...store.get('recent', []).filter(x => x !== item.id)].slice(0, 8));
@@ -154,11 +165,13 @@
       const f = e.target.closest('[data-f]');
       if (f) { e.preventDefault(); toggleFav(f.dataset.f); renderHome(); }
     });
+    $('#home').addEventListener('keydown', e => { const f = e.target.closest && e.target.closest('[data-f]'); if (f && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleFav(f.dataset.f); renderHome(); } });
+    document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) GV.go(b.dataset.go); });
     $('#rand').addEventListener('click', () => { const g = GV.items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'); const i = g[GV.rnd(g.length)]; location.hash = `#/game/${i.id}`; });
-    $('#goOnline').addEventListener('click', () => { tab = 'game'; cat = 'Nhiều người'; query = ''; $('#q').value = ''; renderHome(); $('#tabs').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    $('#goOnline').addEventListener('click', () => { GV.go('online'); setTimeout(() => $('#tabs').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); });
     $('#home').addEventListener('pointermove', e => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
     $('#theme').addEventListener('click', () => {
-      const d = document.documentElement, dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      const d = document.documentElement, dark = d.dataset.theme !== 'light';
       d.dataset.theme = dark ? 'light' : 'dark';
       try { localStorage.setItem('gv_theme', d.dataset.theme); } catch (e) {}
     });
