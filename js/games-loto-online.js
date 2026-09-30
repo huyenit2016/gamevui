@@ -88,6 +88,7 @@
         if (listOff) listOff(); listOff = null;
         fb().then(({ db }) => {
           if (dead) return;
+          db.ref('lobby').orderByChild('at').endAt(Date.now() - 6 * 3600e3).limitToFirst(10).once('value').then(sn => { const up = {}; Object.keys(sn.val() || {}).forEach(c => { up['rooms/' + c] = null; up['lobby/' + c] = null; }); if (Object.keys(up).length) db.ref().update(up).catch(() => {}); }).catch(() => {});
           const q = db.ref('lobby').orderByChild('at').startAt(Date.now() - 6 * 3600e3), cb = snap => {
             const box = $('.rl'); if (!box) return;
             const v = snap.val() || {}, rows = Object.entries(v).filter(([, r]) => r && r.status !== 'closed').sort((a, b) => b[1].at - a[1].at);
@@ -278,9 +279,21 @@
         };
         $('.clh').onclick = () => { if (confirm('Xoá toàn bộ lịch sử kinh của các ván trước?')) ref.child('history').remove(); };
         $('.hs').onclick = e => { const r = e.target.dataset.h; if (r && isHost() && confirm('Xoá ván ' + r + ' khỏi lịch sử?')) { e.preventDefault(); ref.child('history/' + r).remove(); } else if (r) e.preventDefault(); };
-        $('.cl').onclick = () => { if (!confirm('Đóng phòng? Mọi người sẽ bị đưa ra ngoài.')) return; stopAuto(); ref.child('closed').set(true).then(() => db.ref('lobby/' + code).remove()); cleanup(); history.replaceState(null, '', '#/game/lotoonline'); entry(); };
+        // Xoá hẳn dữ liệu phòng (tránh để rác trong database)
+        async function deleteRoom() {
+          stopAuto(); cleanup(); history.replaceState(null, '', '#/game/lotoonline');
+          try { await db.ref().update({ ['rooms/' + code]: null, ['lobby/' + code]: null }); entry('Đã xoá phòng ' + code + '.'); } catch (e) { entry(explain(e)); }
+        }
+        $('.cl').onclick = () => { if (confirm('Đóng và xoá phòng? Mọi người sẽ bị đưa ra ngoài.')) deleteRoom(); };
+        $('.leave').onclick = () => {
+          if (!R) return;
+          const others = Object.entries(R.players || {}).filter(([id, p]) => id !== uid && p && p.online !== false), host = isHost();
+          if (host && others.length) { if (confirm('Bạn là chủ phòng. Rời đi sẽ đóng và xoá phòng cho mọi người. Tiếp tục?')) deleteRoom(); return; }
+          if (!others.length && confirm('Không còn người chơi nào khác trong phòng.\nXoá phòng luôn để tránh rác dữ liệu?')) return deleteRoom();
+          stopAuto(); cleanup(); me.remove().catch(() => me.child('online').set(false)); history.replaceState(null, '', '#/game/lotoonline'); entry();
+        };
         $('.close').onclick = () => $('.modal').classList.remove('show');
-        $('.leave').onclick = () => { cleanup(); me.child('online').set(false); history.replaceState(null, '', '#/game/lotoonline'); entry(); };
+
         $('.share').onclick = async () => {
           const url = location.origin + location.pathname + '#/game/lotoonline/' + code;
           try { if (navigator.share) await navigator.share({ title: 'Lô tô online', text: 'Vào phòng lô tô ' + code, url }); else { await navigator.clipboard.writeText(url); $('.share').textContent = 'Đã chép ✓'; } } catch (e) {}

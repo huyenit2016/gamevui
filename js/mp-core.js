@@ -62,6 +62,7 @@
       $('.rl').onclick = ev => { const b = ev.target.closest('[data-c]'); if (!b) return; const n = name(); if (!n) return; busy('Đang vào phòng…'); go(() => join(b.dataset.c, n)); };
       F.fb().then(({ db }) => {
         if (dead) return;
+        janitor(db);
         const q = db.ref('mplobby').orderByChild('at').startAt(Date.now() - 6 * 3600e3), cb = snap => {
           const box = $('.rl'); if (!box) return;
           const rows = Object.entries(snap.val() || {}).filter(([, r]) => r && r.game === def.id && r.status !== 'closed').sort((a, b) => b[1].at - a[1].at);
@@ -70,6 +71,14 @@
         q.on('value', cb); listOff = () => q.off('value', cb);
       }).catch(() => { const b = $('.rl'); if (b) b.textContent = 'Không tải được danh sách phòng.'; });
       if (hashCode() && GV.store.get('lo_name', '')) { /* để người dùng bấm Vào */ }
+    }
+
+    // Dọn các phòng bỏ hoang (quá 6 giờ không hoạt động) để không tồn dữ liệu rác
+    function janitor(db) {
+      db.ref('mplobby').orderByChild('at').endAt(Date.now() - 6 * 3600e3).limitToFirst(10).once('value').then(snap => {
+        const up = {}; Object.keys(snap.val() || {}).forEach(c => { up[`mprooms/${c}`] = null; up[`mpprivate/${c}`] = null; up[`mpstate/${c}`] = null; up[`mplobby/${c}`] = null; });
+        if (Object.keys(up).length) db.ref().update(up).catch(() => {});
+      }).catch(() => {});
     }
 
     async function createRoom(name, roomName) {
@@ -158,7 +167,9 @@
         }
         if (changed) publish();
       }
+      let beat = Date.now();
       function hostLoop() {
+        if (isHost() && R && Date.now() - beat > 600000) { beat = Date.now(); db.ref('mplobby/' + code + '/at').set(TS); } // giữ phòng "còn sống"
         if (!isHost() || !S || S.over || !R) return;
         let changed = false;
         for (const s of seats()) {
@@ -253,8 +264,23 @@
       $('.rmbot').onclick = () => { const ids = Object.keys(R.bots || {}); if (ids.length) ref.child('bots/' + ids[ids.length - 1]).remove(); };
       $('.start').onclick = startGame;
       $('.newg').onclick = () => { S = null; root.update({ [`mprooms/${code}/meta/status`]: 'lobby', [`mprooms/${code}/pub`]: null, [`mprooms/${code}/act`]: null, [`mpprivate/${code}`]: null, [`mpstate/${code}`]: null }); seen = null; };
-      $('.closeroom').onclick = () => { if (!confirm('Đóng phòng? Mọi người sẽ bị đưa ra ngoài.')) return; ref.child('meta/closed').set(true).then(() => db.ref('mplobby/' + code).remove()); cleanup(); history.replaceState(null, '', `#/game/${def.id}`); entry(); };
-      $('.leave').onclick = () => { cleanup(); me.child('online').set(false); history.replaceState(null, '', `#/game/${def.id}`); entry(); };
+      // Xoá hẳn dữ liệu phòng (tránh để rác trong database)
+      async function deleteRoom() {
+        cleanup(); history.replaceState(null, '', `#/game/${def.id}`);
+        try { await root.update({ [`mprooms/${code}`]: null, [`mpprivate/${code}`]: null, [`mpstate/${code}`]: null, [`mplobby/${code}`]: null }); entry('Đã xoá phòng ' + code + '.'); }
+        catch (e) { entry(F.explain(e)); }
+      }
+      $('.closeroom').onclick = () => { if (confirm('Đóng và xoá phòng? Mọi người sẽ bị đưa ra ngoài.')) deleteRoom(); };
+      $('.leave').onclick = () => {
+        if (!R) return;
+        const others = seats().filter(s => !s.bot && s.online && s.id !== uid), host = isHost();
+        if (host && others.length) { if (confirm('Bạn là chủ phòng. Rời đi sẽ đóng và xoá phòng cho mọi người. Tiếp tục?')) deleteRoom(); return; }
+        if (!others.length) { // không còn ai khác trong phòng
+          if (confirm('Không còn người chơi nào khác trong phòng.\nXoá phòng luôn để tránh rác dữ liệu?')) return deleteRoom();
+        }
+        cleanup(); me.remove().catch(() => me.child('online').set(false));
+        history.replaceState(null, '', `#/game/${def.id}`); entry();
+      };
       $('.share').onclick = async () => {
         const url = location.origin + location.pathname + `#/game/${def.id}/${code}`;
         try { if (navigator.share) await navigator.share({ title: def.name, text: `Vào phòng ${def.name} ${code}`, url }); else { await navigator.clipboard.writeText(url); $('.share').textContent = 'Đã chép ✓'; } } catch (e) {}

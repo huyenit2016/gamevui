@@ -104,7 +104,7 @@
       return { t: 'play', cards: pick.cards };
     },
     render(box, c) {
-      const p = c.pub, hand = c.priv.hand || [], n = c.names, myTurn = p.turn === c.me, ui = c.ui;
+      const p = Object.assign({}, c.pub, { passed: c.pub.passed || [], log: c.pub.log || [] }), hand = c.priv.hand || [], n = c.names, myTurn = p.turn === c.me, ui = c.ui;
       ui.sel = (ui.sel || []).filter(x => hand.includes(x)); if (!myTurn) ui.sel = [];
       const card = (id, cls = '') => `<div class="c ${red(id) ? 'r' : ''} ${cls}" data-id="${id}"><span>${RN[rk(id)]}</span><span>${SU[su(id)]}</span></div>`;
       const others = p.order.filter(i => i !== c.me).map(i => `<span class="seat ${p.turn === i ? 'turn' : ''}">${GV.esc(n[i] || p.names[i])}: <b>${p.counts[i]}</b> lá${p.passed.includes(i) ? ' · bỏ lượt' : ''}</span>`).join(' ');

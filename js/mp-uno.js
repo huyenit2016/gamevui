@@ -79,7 +79,7 @@
       return { t: 'play', i, color: best, uno: true };
     },
     render(box, c) {
-      const p = c.pub, hand = c.priv.hand || [], myTurn = p.turn === c.me, n = c.names;
+      const p = Object.assign({}, c.pub, { log: c.pub.log || [], counts: c.pub.counts || {} }), hand = c.priv.hand || [], myTurn = p.turn === c.me, n = c.names;
       const ui = c.ui; if (ui.pend != null && (!myTurn || !hand[ui.pend])) ui.pend = null;
       const others = p.order.filter(i => i !== c.me).map(i => `<span class="seat ${p.turn === i ? 'turn' : ''}">${GV.esc(n[i] || p.names[i])}: <b>${p.counts[i]}</b> 🂠</span>`).join(' ');
       const t = p.top, tcol = col(t) === 'W' ? p.color : col(t);

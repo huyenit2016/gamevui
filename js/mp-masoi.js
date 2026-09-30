@@ -178,7 +178,7 @@
       return p;
     },
     render(box, c) {
-      const p = c.pub, me = c.priv, n = c.names, al = p.order.filter(i => p.alive[i]), night = p.phase === 'night';
+      const p = Object.assign({}, c.pub, { dead: c.pub.dead || [], log: c.pub.log || [], alive: c.pub.alive || {} }), me = c.priv, n = c.names, al = p.order.filter(i => p.alive[i]), night = p.phase === 'night';
       const nm = i => GV.esc(n[i] || p.names[i] || '?');
       const targets = (list, cls = 'pbtn') => `<div class="tgt">${list.map(i => `<button class="${cls}" data-t="${i}">${nm(i)}</button>`).join('')}</div>`;
       const role = me.role ? `<div class="role">${RI[me.role]} Bạn là <b>${RN[me.role]}</b>${me.alive === false ? ' (đã chết 💀)' : ''}</div>` : '';
