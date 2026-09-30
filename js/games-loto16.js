@@ -1,8 +1,29 @@
 // Lô tô Việt Nam – bộ 16 vé (chuyển từ bản HTML độc lập sang khung GameVui)
 (function () {
   const pad = n => String(n).padStart(2, '0');
-  // Vé 9x9: mỗi hàng 5 số + 4 ô trống, cột 1 = 1-9, cột 2 = 10-19 ... cột 9 = 80-90 (0 = ô trống)
-  const makeTicket = () => GV.lotoTicket();
+  // Vé 9x9: mỗi hàng 5 số + 4 ô trống, cột 1 = 1-9, cột 2 = 10-19 ... cột 9 = 80-90 (0 = ô trống).
+  // Hai vé cùng màu tạo thành một cặp chia đôi trọn bộ 1..90, nên không trùng số với nhau.
+  const colPool = c => { const lo = c === 0 ? 1 : c * 10, hi = c === 8 ? 90 : c * 10 + 9; return Array.from({ length: hi - lo + 1 }, (_, i) => lo + i); };
+  function buildTicket(counts, nums) {
+    const need = counts.slice(), rows = [];
+    for (let r = 0; r < 9; r++) {
+      const cols = GV.shuffle([...Array(9).keys()]).sort((x, y) => need[y] - need[x]).slice(0, 5);
+      cols.forEach(c => need[c]--); rows.push(new Set(cols));
+    }
+    const t = Array.from({ length: 9 }, () => Array(9).fill(0));
+    for (let c = 0; c < 9; c++) { const v = nums[c].slice().sort((x, y) => x - y); let k = 0; for (let r = 0; r < 9; r++) if (rows[r].has(c)) t[r][c] = v[k++]; }
+    return t;
+  }
+  function makePair() {
+    // Cột 1 chỉ có 9 số, cột 9 có 11 số => một vé lấy 4 số ở cột 1 và 6 số ở cột 9, vé kia 5 và 5.
+    let ca = [4, 5, 5, 5, 5, 5, 5, 5, 6], cb = Array(9).fill(5);
+    if (Math.random() < .5) [ca, cb] = [cb, ca];
+    const na = [], nb = [];
+    for (let c = 0; c < 9; c++) { const p = GV.shuffle(colPool(c)); na.push(p.slice(0, ca[c])); nb.push(p.slice(ca[c])); }
+    return [buildTicket(ca, na), buildTicket(cb, nb)];
+  }
+  // 16 vé = 8 cặp; vé i và vé i+8 cùng màu (COLORS[i % 8]) nên không trùng số.
+  function makeTickets() { const a = [], b = []; for (let i = 0; i < 8; i++) { const [x, y] = makePair(); a.push(x); b.push(y); } return a.concat(b); }
   const COLORS = ['#d62828', '#f57c00', '#f2b700', '#7cb518', '#16a34a', '#1e88e5', '#7b1fa2', '#e91e8c'];
 
   const CSS = `
@@ -80,7 +101,7 @@
             const full = row.filter(n => n && called.has(n)).length === 4;
             return row.map(n => n ? `<div class="n ${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${n}</div>` : '<div></div>').join('');
           }).join('')}</div>`).join('');
-          return `<div class="tk ${won.has(i) ? 'win' : ''}" style="--tc:${COLORS[i % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số</span><span>Việt Nam</span></div></div>`;
+          return `<div class="tk ${won.has(i) ? 'win' : ''}" style="--tc:${COLORS[i % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
         }).join('');
       }
       function renderSide() {
@@ -106,7 +127,7 @@
       function stopAuto() { clearInterval(timer); auto = false; $('.auto').textContent = '▶ Tự động'; }
       function startAuto() { clearInterval(timer); auto = true; $('.auto').textContent = '⏸ Dừng'; timer = setInterval(draw, +$('.sp').value); }
       function newGame() {
-        stopAuto(); called = new Set(); hist = []; won = new Set(); tickets = Array.from({ length: 16 }, makeTicket);
+        stopAuto(); called = new Set(); hist = []; won = new Set(); tickets = makeTickets();
         $('.modal').classList.remove('show'); renderTickets(); renderSide();
       }
       $('.draw').onclick = draw;
