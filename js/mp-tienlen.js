@@ -57,7 +57,7 @@
     id: 'tienlen', name: 'Tiến lên miền Nam', icon: '🎴', desc: 'Bài Tiến lên online 2–4 người (có bot), đủ chặt heo.', min: 2, max: 4,
     css: `.tl .c{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:68px;border-radius:8px;background:#fff;color:#111;font-weight:800;font-size:16px;margin:2px;border:2px solid #ccc;box-shadow:0 1px 4px #0005;user-select:none}
       .tl .c.r{color:#d11}.tl .hand .c{cursor:pointer;transition:transform .1s}.tl .hand .c.sel{transform:translateY(-14px);border-color:var(--acc);box-shadow:0 4px 10px #6c8cff88}
-      .tl .hand{display:flex;flex-wrap:wrap;justify-content:center;margin:8px 0}.tl .table{min-height:80px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap}`,
+      .tl .c.pick{outline:3px dashed var(--acc2);outline-offset:2px}.tl.arr .hand .c{cursor:grab}.tl .arrhint .pbtn{padding:2px 10px;margin:0 3px}.tl .hand{display:flex;flex-wrap:wrap;justify-content:center;margin:8px 0}.tl .table{min-height:80px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap}`,
     init(seats, api) {
       const S = { order: seats.map(s => s.id), names: Object.fromEntries(seats.map(s => [s.id, s.name])), hands: {}, turn: 0, trick: null, passed: [], first: true, log: [], over: null };
       const d = api.shuffle([...Array(52).keys()]); S.order.forEach((id, i) => S.hands[id] = sortIds(d.slice(i * 13, i * 13 + 13)));
@@ -106,31 +106,67 @@
     render(box, c) {
       const p = Object.assign({}, c.pub, { passed: c.pub.passed || [], log: c.pub.log || [] }), hand = c.priv.hand || [], n = c.names, myTurn = p.turn === c.me, ui = c.ui;
       ui.sel = (ui.sel || []).filter(x => hand.includes(x)); if (!myTurn) ui.sel = [];
-      const card = (id, cls = '') => `<div class="c ${red(id) ? 'r' : ''} ${cls}" data-id="${id}"><span>${RN[rk(id)]}</span><span>${SU[su(id)]}</span></div>`;
+      // thứ tự bài do người chơi tự xếp (chỉ là cách hiển thị, không ảnh hưởng luật)
+      const order = () => { const o = (ui.order || []).filter(id => hand.includes(id)); hand.forEach(id => { if (!o.includes(id)) o.push(id); }); ui.order = o; return o; };
+      if (ui.pick != null && !hand.includes(ui.pick)) ui.pick = null;
+      const card = (id, cls = '', extra = '') => `<div class="c ${red(id) ? 'r' : ''} ${cls}" data-id="${id}" ${extra}><span>${RN[rk(id)]}</span><span>${SU[su(id)]}</span></div>`;
+      const handHTML = () => order().map(id => card(id, (ui.sel.includes(id) ? 'sel ' : '') + (ui.pick === id ? 'pick' : ''), ui.arr ? 'draggable="true"' : '')).join('');
       const others = p.order.filter(i => i !== c.me).map(i => `<span class="seat ${p.turn === i ? 'turn' : ''}">${GV.esc(n[i] || p.names[i])}: <b>${p.counts[i]}</b> lá${p.passed.includes(i) ? ' · bỏ lượt' : ''}</span>`).join(' ');
       const tr = p.trick;
       let msg;
       if (p.over) msg = p.over.winner === c.me ? '🎉 Bạn về nhất!' : '🏆 ' + GV.esc(n[p.over.winner] || '') + ' về nhất!';
       else msg = myTurn ? (tr ? 'Đến lượt bạn – đánh cao hơn hoặc bỏ lượt' : 'Bạn dẫn lượt – đánh bất kỳ bộ hợp lệ' + (p.first ? ` (phải có ${label(p.low)})` : '')) : 'Lượt của ' + GV.esc(n[p.turn] || '');
-      box.innerHTML = `<div class="tl"><div class="row" style="margin-bottom:6px">${others}</div>
+      box.innerHTML = `<div class="tl ${ui.arr ? 'arr' : ''}"><div class="row" style="margin-bottom:6px">${others}</div>
         <div class="table">${tr ? tr.cards.map(id => card(id)).join('') : '<span class="hint">Bàn trống</span>'}</div>
         <div class="hint" style="text-align:center">${tr ? GV.esc(n[tr.by] || '') + ' · ' + typeName(tr) : ''}</div>
         <div class="msg">${msg}</div>
         ${p.over ? `<div class="hint" style="text-align:center">Xếp hạng theo số lá còn lại: ${p.over.ranks.map(r => GV.esc(n[r.id] || '') + ' (' + r.n + ')').join(' · ')}</div>` : ''}
-        <div class="hand">${hand.map(id => card(id, ui.sel.includes(id) ? 'sel' : '')).join('')}</div>
+        ${hand.length ? `<div class="row" style="margin-top:8px"><button class="pbtn" data-a="sortr">↕ Tăng dần</button><button class="pbtn" data-a="sorts">♠ Theo chất</button><button class="pbtn" data-a="sortg">🧩 Gom bộ</button><button class="pbtn ${ui.arr ? 'sel' : ''}" data-a="arr">✋ Tự xếp${ui.arr ? ' (bật)' : ''}</button></div>
+        <div class="hint arrhint" style="text-align:center" ${ui.arr ? '' : 'hidden'}>Chạm lá muốn dời, rồi chạm lá đích (hoặc dùng ◀ ▶). Trên máy tính có thể kéo thả.
+          <span class="mv" ${ui.pick != null ? '' : 'hidden'}><button class="pbtn" data-a="mvl">◀</button><button class="pbtn" data-a="mvr">▶</button></span></div>` : ''}
+        <div class="hand">${handHTML()}</div>
         ${!p.over ? `<div class="row"><button class="pbtn sel" data-a="play" ${myTurn ? '' : 'disabled'}>Đánh (${ui.sel.length})</button><button class="pbtn" data-a="pass" ${myTurn && tr ? '' : 'disabled'}>Bỏ lượt</button><button class="pbtn" data-a="clr">Bỏ chọn</button></div>` : ''}
         <div class="lgbox">${p.log.slice().reverse().map(l => GV.esc(l)).join('<br>')}</div></div>`;
+      const paintHand = () => {
+        box.querySelector('.hand').innerHTML = handHTML();
+        const pl = box.querySelector('[data-a=play]'); if (pl) pl.textContent = `Đánh (${ui.sel.length})`;
+        const mv = box.querySelector('.mv'); if (mv) mv.hidden = ui.pick == null;
+      };
+      const move = (id, target) => { // dời lá `id` tới vị trí của lá `target`
+        const o = order(), from = o.indexOf(id), to = o.indexOf(target); if (from < 0 || to < 0 || from === to) return;
+        o.splice(from, 1); o.splice(to, 0, id); ui.order = o; ui.pick = null; paintHand();
+      };
+      const step = d => { const o = order(), i = o.indexOf(ui.pick); const j = i + d; if (i < 0 || j < 0 || j >= o.length) return; o.splice(i, 1); o.splice(j, 0, ui.pick); ui.order = o; paintHand(); };
       box.onclick = e => {
-        if (p.over) return;
         const cd = e.target.closest('.hand [data-id]'), ac = e.target.closest('[data-a]');
-        if (cd) { const id = +cd.dataset.id, i = ui.sel.indexOf(id); i >= 0 ? ui.sel.splice(i, 1) : ui.sel.push(id); cd.classList.toggle('sel'); box.querySelector('[data-a=play]').textContent = `Đánh (${ui.sel.length})`; return; }
+        if (cd) {
+          const id = +cd.dataset.id;
+          if (ui.arr) { if (ui.pick == null) ui.pick = id; else if (ui.pick === id) ui.pick = null; else move(ui.pick, id); return paintHand(); }
+          if (p.over) return;
+          const i = ui.sel.indexOf(id); i >= 0 ? ui.sel.splice(i, 1) : ui.sel.push(id); cd.classList.toggle('sel'); box.querySelector('[data-a=play]').textContent = `Đánh (${ui.sel.length})`; return;
+        }
         if (!ac) return;
-        if (ac.dataset.a === 'clr') { ui.sel = []; box.querySelectorAll('.hand .sel').forEach(x => x.classList.remove('sel')); box.querySelector('[data-a=play]').textContent = 'Đánh (0)'; return; }
+        const k = ac.dataset.a;
+        if (k === 'sortr') { ui.order = sortIds(hand); ui.pick = null; return paintHand(); }
+        if (k === 'sorts') { ui.order = hand.slice().sort((x, y) => su(x) - su(y) || x - y); ui.pick = null; return paintHand(); }
+        if (k === 'sortg') { // gom các lá cùng hạng lại gần nhau: nhóm nhiều lá trước (tứ quý, sám, đôi), lá lẻ sau
+          const by = {}; hand.forEach(id => (by[rk(id)] = by[rk(id)] || []).push(id));
+          ui.order = Object.values(by).sort((x, y) => y.length - x.length || rk(x[0]) - rk(y[0])).flat(); ui.pick = null; return paintHand();
+        }
+        if (k === 'arr') { ui.arr = !ui.arr; ui.pick = null; box.querySelector('.tl').classList.toggle('arr', ui.arr); ac.classList.toggle('sel', ui.arr); ac.textContent = '✋ Tự xếp' + (ui.arr ? ' (bật)' : ''); box.querySelector('.arrhint').hidden = !ui.arr; return paintHand(); }
+        if (k === 'mvl') return step(-1);
+        if (k === 'mvr') return step(1);
+        if (p.over) return;
+        if (k === 'clr') { ui.sel = []; return paintHand(); }
         if (!myTurn) return c.toast('Chưa tới lượt bạn.');
-        if (ac.dataset.a === 'pass') return c.send({ t: 'pass' });
+        if (k === 'pass') return c.send({ t: 'pass' });
         if (!ui.sel.length) return c.toast('Hãy chọn bài để đánh.');
         c.send({ t: 'play', cards: ui.sel }); ui.sel = [];
       };
+      // kéo thả (máy tính)
+      box.ondragstart = e => { const cd = e.target.closest('.hand [data-id]'); if (cd && ui.arr) { e.dataTransfer.setData('text/plain', cd.dataset.id); e.dataTransfer.effectAllowed = 'move'; } };
+      box.ondragover = e => { if (ui.arr && e.target.closest('.hand [data-id]')) e.preventDefault(); };
+      box.ondrop = e => { const cd = e.target.closest('.hand [data-id]'); if (!cd || !ui.arr) return; e.preventDefault(); const id = +e.dataTransfer.getData('text/plain'); if (!isNaN(id)) move(id, +cd.dataset.id); };
     }
   });
 
