@@ -23,8 +23,21 @@
     return [buildTicket(ca, na), buildTicket(cb, nb)];
   }
   // 16 vé = 8 cặp; vé i và vé i+8 cùng màu (COLORS[i % 8]) nên không trùng số.
-  function makeTickets() { const a = [], b = []; for (let i = 0; i < 8; i++) { const [x, y] = makePair(); a.push(x); b.push(y); } return a.concat(b); }
+  // k vé (k chẵn, tối đa 16) = k/2 cặp; vé i và vé i + k/2 cùng màu.
+  function makeTickets(k = 16) { const a = [], b = []; for (let i = 0; i < k / 2; i++) { const [x, y] = makePair(); a.push(x); b.push(y); } return a.concat(b); }
   const COLORS = ['#d62828', '#f57c00', '#f2b700', '#7cb518', '#16a34a', '#1e88e5', '#7b1fa2', '#e91e8c'];
+
+  // Vẽ danh sách vé (dùng chung cho bản chơi một máy và bản online)
+  function ticketsHTML(tickets, called, won) {
+    const np = Math.max(1, tickets.length / 2);
+    return tickets.map((t, i) => {
+      const blocks = [0, 3, 6].map(g => `<div class="blk">${t.slice(g, g + 3).map(row => {
+        const full = row.filter(n => n && called.has(n)).length === 4;
+        return row.map(n => n ? `<div class="n ${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${n}</div>` : '<div></div>').join('');
+      }).join('')}</div>`).join('');
+      return `<div class="tk ${won && won.has(i) ? 'win' : ''}" style="--tc:${COLORS[(i % np) % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
+    }).join('');
+  }
 
   const CSS = `
   .l16{width:100%;display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start;--red:#d62828;--gold:#f5c542}
@@ -67,6 +80,8 @@
     .l16 .tk{break-inside:avoid;box-shadow:none!important}
   }`;
 
+  GV.lotoCSS = CSS; GV.lotoTicketsHTML = ticketsHTML; GV.lotoMakeTickets = makeTickets;
+
   GV.register({
     id: 'loto16', type: 'game', cat: 'Gia đình', name: 'Lô tô 16 vé', icon: '🎤', desc: 'Bộ 16 vé, gọi số ngẫu nhiên, có thể in vé.',
     mount(el) {
@@ -95,15 +110,7 @@
         if (!$('.say').checked || !window.speechSynthesis) return;
         try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(String(n)); u.lang = 'vi-VN'; u.rate = .9; speechSynthesis.speak(u); } catch (e) {}
       }
-      function renderTickets() {
-        $('.tks').innerHTML = tickets.map((t, i) => {
-          const blocks = [0, 3, 6].map(g => `<div class="blk">${t.slice(g, g + 3).map(row => {
-            const full = row.filter(n => n && called.has(n)).length === 4;
-            return row.map(n => n ? `<div class="n ${called.has(n) ? 'c' : ''} ${full && !called.has(n) ? 'rw' : ''}">${n}</div>` : '<div></div>').join('');
-          }).join('')}</div>`).join('');
-          return `<div class="tk ${won.has(i) ? 'win' : ''}" style="--tc:${COLORS[i % COLORS.length]}"><div class="tt"><span>TRÒ CHƠI GIẢI TRÍ · VÉ ${pad(i + 1)}</span><span>LÔ TÔ</span></div>${blocks}<div class="tf"><span>9 hàng × 5 số · cùng màu không trùng số</span><span>Việt Nam</span></div></div>`;
-        }).join('');
-      }
+      function renderTickets() { $('.tks').innerHTML = ticketsHTML(tickets, called, won); }
       function renderSide() {
         $('.hist').innerHTML = hist.slice(0, 24).map((n, i) => `<span class="${i ? '' : 'lt'}">${pad(n)}</span>`).join('');
         $('.pool').innerHTML = Array.from({ length: 90 }, (_, i) => `<span class="${called.has(i + 1) ? 'on' : ''}">${i + 1}</span>`).join('');
