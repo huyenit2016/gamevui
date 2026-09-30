@@ -24,6 +24,7 @@
   const timeout = (p, ms = 12000) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('TIMEOUT')), ms))]);
 
   let fbP = null;
+  GV.fbInfo = () => ({ fb: () => fb(), explain, timeout, cfg: getCfg });
   function fb() {
     if (fbP) return fbP;
     fbP = (async () => {
