@@ -47,7 +47,7 @@
           const r = await F.timeout(ref.child('host').transaction(c => c === null ? uid : undefined));
           if (r.committed) {
             await F.timeout(ref.update({ hostName: name, title, lang, createdAt: TS }));
-            ref.onDisconnect().remove(); db.ref('calllobby/' + code).onDisconnect().remove();
+            db.ref().onDisconnect().update({ ['calllobby/' + code]: null, ['calls/' + code]: null });
             await F.timeout(db.ref('calllobby/' + code).set({ title, hostName: name, lang, at: TS, busy: false }));
             return classroom(db, uid, TS, code, 'h', name, { title, lang });
           }
@@ -139,7 +139,7 @@
         q('.share').onclick = async e => { const url = location.origin + location.pathname + '#/tool/classroom/' + code; try { if (navigator.share) await navigator.share({ title: meta.title, url }); else { await navigator.clipboard.writeText(url); e.target.textContent = 'Đã chép ✓'; } } catch (x) {} };
         async function leave() {
           cleanupAll();
-          try { if (isT) { await ref.remove(); await db.ref('calllobby/' + code).remove(); } else { await ref.update({ guest: null, guestName: null, answer: null }); } } catch (e) {}
+          try { if (isT) { await db.ref().update({ ['calllobby/' + code]: null, ['calls/' + code]: null }); } else { await ref.update({ guest: null, guestName: null, answer: null }); } } catch (e) {}
           history.replaceState(null, '', '#/tool/classroom'); entry();
         }
         q('.end').onclick = () => { if (confirm(isT ? 'Kết thúc lớp học?' : 'Rời lớp học?')) leave(); };
