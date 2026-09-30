@@ -39,7 +39,7 @@
   }
 
   GV.register({
-    id: 'lotoonline', type: 'game', cat: 'Gia đình', name: 'Lô tô online', icon: '🌐', desc: 'Chơi lô tô nhiều người qua mạng bằng mã phòng.',
+    id: 'lotoonline', type: 'game', cat: 'Nhiều người', name: 'Lô tô online', icon: '🌐', desc: 'Chơi lô tô nhiều người qua mạng bằng mã phòng.',
     mount(el) {
       let dead = false, unsub = null, timer = null, listOff = null, offVis = null;
       const $ = s => el.querySelector(s);
