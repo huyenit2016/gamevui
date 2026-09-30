@@ -1,10 +1,12 @@
-// Dán cấu hình Firebase của bạn vào đây (xem FIREBASE.md). Các giá trị này là công khai, không phải mật khẩu.
-// Ví dụ:
-// window.GV_FIREBASE = {
-//   apiKey: "AIza...",
-//   authDomain: "ten-du-an.firebaseapp.com",
-//   databaseURL: "https://ten-du-an-default-rtdb.asia-southeast1.firebasedatabase.app",
-//   projectId: "ten-du-an",
-//   appId: "1:123:web:abc"
-// };
-window.GV_FIREBASE = null;
+// Cấu hình Firebase (giá trị công khai, không phải mật khẩu). Xem FIREBASE.md.
+// LƯU Ý: databaseURL phải khớp đúng địa chỉ hiện ở đầu trang Realtime Database trong Firebase Console.
+window.GV_FIREBASE = {
+  apiKey: "AIzaSyBSuyn7WZjOJ1nY2owfrhwqqBkpCgr228U",
+  authDomain: "huyenit-game-online.firebaseapp.com",
+  databaseURL: "https://huyenit-game-online-default-rtdb.firebaseio.com",
+  projectId: "huyenit-game-online",
+  storageBucket: "huyenit-game-online.firebasestorage.app",
+  messagingSenderId: "1079671806787",
+  appId: "1:1079671806787:web:d00f0ad504a7a66285adf6",
+  measurementId: "G-ZMNH49MGZB"
+};
