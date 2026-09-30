@@ -131,3 +131,12 @@ footer{padding:26px}
 .ad .house:hover{transform:scale(1.01)}
 .ad .house .adl{color:#ffffffb0;align-self:flex-start}.ad .house b{font-size:1.05rem}.ad .house span:not(.adl){font-size:13px;opacity:.9}.ad .house em{font-style:normal;margin-top:4px;background:#fff;color:#222;border-radius:99px;padding:3px 14px;font-weight:800;font-size:12px}
 footer .ad{margin-bottom:10px}
+
+/* Tài khoản + thông báo toàn web */
+.acct{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:700;white-space:nowrap;transition:.2s}
+.acct:hover{border-color:var(--acc);transform:translateY(-1px)}
+@media(max-width:560px){.acct .an{display:none}}
+#announce:empty{display:none}
+.annc{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:14px;margin-bottom:12px;background:linear-gradient(90deg,#6c8cff33,#ff6cab33);border:1px solid #ffffff2a;font-size:14px;animation:pop .4s both}
+.annc.warn{background:linear-gradient(90deg,#ffb02033,#ff5c6c33)}.annc.success{background:linear-gradient(90deg,#3ddc9733,#3b82f633)}
+.annc a{font-weight:800;text-decoration:underline}.annc button{background:none;border:0;color:inherit;font-size:16px;cursor:pointer;opacity:.7}

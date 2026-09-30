@@ -26,8 +26,11 @@
       const cfg = getCfg(); if (!cfg || !cfg.databaseURL) throw new Error('Chưa có cấu hình Firebase');
       if (!window.firebase || !firebase.database) for (const s of SRC) await loadScript(s);
       if (!firebase.apps.length) firebase.initializeApp(cfg);
-      await timeout(firebase.auth().signInAnonymously());
-      return { db: firebase.database(), uid: firebase.auth().currentUser.uid, TS: firebase.database.ServerValue.TIMESTAMP };
+      const auth = firebase.auth();
+      // giữ nguyên phiên đăng nhập (email) nếu có; chỉ đăng nhập ẩn danh cho khách
+      const cur = await new Promise(ok => { const off = auth.onAuthStateChanged(u => { try { off(); } catch (e) {} ok(u); }); });
+      if (!cur) await timeout(auth.signInAnonymously());
+      return { db: firebase.database(), auth, user: auth.currentUser, uid: auth.currentUser.uid, TS: firebase.database.ServerValue.TIMESTAMP };
     })();
     fbP.catch(() => { fbP = null; });
     return fbP;

@@ -29,6 +29,9 @@ Kỷ lục, danh sách yêu thích, ghi chú… được lưu trong `localStorag
 
 Demo: https://huyenit2016.github.io/gamevui/
 
+## 🛠️ CMS & phân quyền
+`cms.html`: đăng nhập (khách **không** cần), vai trò Quản trị / Cộng tác viên / Giáo viên / Học sinh; quản lý phòng & dọn rác, người dùng, cấu hình web tự động, thông báo, thư viện khoá học, giao bài. Xem `FIREBASE.md`. Luật bảo mật: `database.rules.json` (sinh bởi `tools/make_rules.py`).
+
 ## 📚 Học tập
 Học ngoại ngữ (Anh · Nhật · Hàn · Trung, flashcard + đề kiểm tra tự động), Tạo khoá học & đề thi từ file CSV/JSON, Gia sư AI 1-1, Dịch giọng nói tự động, Phân tích cuộc họp (ghi âm), Lớp học 1-1 online (video + chat + bảng trắng). Xem `FIREBASE.md` (mục "Nhóm Học tập") để cấu hình AI / TURN.
 

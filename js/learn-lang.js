@@ -132,6 +132,7 @@
     }
     function result() {
       const s = session, pct = Math.round(s.ok / s.qs.length * 100);
+      if (L.library) L.library.saveResult(course.name, s.ok, s.qs.length);
       const h = GV.store.get('learn_hist', []); h.unshift({ c: course.name, ok: s.ok, n: s.qs.length, at: Date.now() }); GV.store.set('learn_hist', h.slice(0, 30));
       body().innerHTML = `<div class="big" style="color:var(--${pct >= 80 ? 'ok' : pct >= 50 ? 'acc' : 'bad'})">${pct}%</div><div class="msg">${s.ok}/${s.qs.length} câu đúng ${pct >= 80 ? '🎉 Xuất sắc!' : pct >= 50 ? '👍 Khá tốt' : '💪 Cố lên, ôn thêm nhé'}</div>
         ${s.wrong.length ? `<div class="box" style="text-align:left"><b>Cần ôn lại:</b><br>${s.wrong.map(w => `${esc(w.t)}${w.r ? ' (' + esc(w.r) + ')' : ''} = ${esc(w.m)}`).join('<br>')}</div>` : ''}
@@ -161,10 +162,23 @@
         const cs = store.byLang(sel);
         el.innerHTML = `<div class="tool" style="max-width:720px"><div class="row">${['en', 'ja', 'ko', 'zh'].map(k => `<button class="pbtn ${k === sel ? 'sel' : ''}" data-l="${k}" style="font-size:16px">${L.LANGS[k].flag} ${L.LANGS[k].name}</button>`).join('')}</div>
           <div class="col" style="max-width:none">${cs.map(c => `<div class="box row" style="justify-content:space-between;text-align:left"><span><b>${esc(c.name)}</b><br><span class="hint">${c.units.length} bài · ${flat(c).length} từ${c.id.startsWith('b-') ? ' · có sẵn' : ' · của bạn'}</span></span><button class="btn" data-c="${c.id}" style="padding:6px 16px">Học ▶</button></div>`).join('') || '<div class="hint">Chưa có khoá nào.</div>'}</div>
+          <div class="box lib" style="text-align:left"><b>📥 Thư viện cộng đồng</b> <span class="hint">(khoá do giáo viên / cộng tác viên đăng)</span><div class="ll hint">Đang tải…</div></div>
           <a class="btn ghost" href="#/tool/coursemaker">➕ Tạo khoá học riêng từ tệp (CSV / JSON)</a>
           <div class="hint">Mẹo: học 10 phút mỗi ngày hiệu quả hơn học dồn. Thẻ "Chưa nhớ" sẽ quay lại ngay, thẻ "Nhớ rồi" sẽ hiện lại sau 1 → 3 → 7 → 14 ngày.</div></div>`;
         el.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { sel = b.dataset.l; GV.store.set('learn_lang', sel); home(); });
         el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => L.study(el, store.find(b.dataset.c), home));
+        libBlock();
+      }
+      function libBlock() {
+        const box = el.querySelector('.ll'); if (!box || !L.library || !GV.fbInfo().cfg()) { if (box) box.textContent = 'Thư viện cần kết nối Firebase.'; return; }
+        Promise.all([L.library.list(sel).catch(() => null), L.library.assigned().catch(() => [])]).then(([list, asg]) => {
+          if (!box.isConnected) return;
+          if (list === null) { box.textContent = 'Không tải được thư viện.'; return; }
+          const have = new Set(store.custom().map(c => c.lib));
+          const asgHtml = asg.length ? `<div class="hint" style="margin-top:6px">📌 <b>Bài được giao cho bạn</b></div>` + asg.map(a => `<div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding:4px 0"><span>${esc(a.name || a.cid)} <span class="hint">· GV ${esc(a.byName || '')}</span></span><button class="pbtn" data-imp="${esc(a.cid)}">${have.has(a.cid) ? 'Mở' : 'Nhận bài'}</button></div>`).join('') : '';
+          box.innerHTML = asgHtml + (list.length ? list.slice(0, 15).map(m => `<div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding:4px 0"><span>${esc(m.name)} <span class="hint">· ${m.n || '?'} từ · ${esc(m.byName || '')}</span></span><button class="pbtn" data-imp="${m.id}">${have.has(m.id) ? 'Mở' : 'Nhập'}</button></div>`).join('') : '<div class="hint">Chưa có khoá nào cho ngôn ngữ này.</div>');
+          box.onclick = async e => { const b = e.target.closest('[data-imp]'); if (!b) return; b.disabled = true; try { const c = await L.library.importToLocal(b.dataset.imp); L.study(el, c, home); } catch (x) { b.disabled = false; GV.toast && GV.toast(x.message, { type: 'error' }); } };
+        });
       }
       home();
     }
@@ -211,14 +225,15 @@
             <textarea class="ta" placeholder="…hoặc dán thẳng nội dung vào đây. Ví dụ:&#10;hello, xin chào&#10;goodbye - tạm biệt" style="min-height:110px;margin-top:8px"></textarea>
             <div class="row" style="justify-content:flex-start"><input class="nm" placeholder="Tên khoá học" style="flex:1;min-width:140px"><select class="lg">${['en', 'ja', 'ko', 'zh'].map(k => `<option value="${k}">${L.LANGS[k].flag} ${L.LANGS[k].name}</option>`).join('')}</select><button class="btn pv">Xem trước</button></div></div>
           <div class="pvbox"></div><div class="msg">${msg || ''}</div>
-          <div class="box" style="text-align:left"><b>Khoá học của tôi (${cs.length})</b>${cs.map(c => `<div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding:6px 0"><span>${L.LANGS[c.lang].flag} <b>${esc(c.name)}</b> <span class="hint">${c.units.length} bài · ${flat(c).length} từ</span></span><span class="row"><button class="pbtn" data-s="${c.id}">📖 Học / Thi</button><button class="pbtn" data-j="${c.id}">JSON</button><button class="pbtn" data-v="${c.id}">CSV</button><button class="pbtn" data-d="${c.id}">🗑</button></span></div>`).join('') || '<div class="hint">Chưa có khoá nào.</div>'}</div></div>`;
+          <div class="box" style="text-align:left"><b>Khoá học của tôi (${cs.length})</b>${cs.map(c => `<div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding:6px 0"><span>${L.LANGS[c.lang].flag} <b>${esc(c.name)}</b> <span class="hint">${c.units.length} bài · ${flat(c).length} từ</span></span><span class="row"><button class="pbtn" data-s="${c.id}">📖 Học / Thi</button><button class="pbtn" data-u="${c.id}">📤 Đăng</button><button class="pbtn" data-j="${c.id}">JSON</button><button class="pbtn" data-v="${c.id}">CSV</button><button class="pbtn" data-d="${c.id}">🗑</button></span></div>`).join('') || '<div class="hint">Chưa có khoá nào.</div>'}</div></div>`;
         $(el, '.tp').onclick = () => L.download('mau-khoa-hoc.csv', TEMPLATE, 'text/csv;charset=utf-8');
         $(el, '.fi').onchange = async e => { const f = e.target.files[0]; if (!f) return; $(el, '.ta').value = await L.readFile(f); if (!$(el, '.nm').value) $(el, '.nm').value = f.name.replace(/\.[^.]+$/, ''); doPreview(); };
         $(el, '.pv').onclick = doPreview;
         el.onclick = e => {
-          const b = e.target.closest('button[data-s],button[data-j],button[data-v],button[data-d]'); if (!b) return;
-          const id = b.dataset.s || b.dataset.j || b.dataset.v || b.dataset.d, c = store.find(id); if (!c) return;
-          if (b.dataset.s) L.study(el, c, () => home());
+          const b = e.target.closest('button[data-s],button[data-j],button[data-v],button[data-d],button[data-u]'); if (!b) return;
+          const id = b.dataset.s || b.dataset.j || b.dataset.v || b.dataset.d || b.dataset.u, c = store.find(id); if (!c) return;
+          if (b.dataset.u) { L.library.publish(c).then(() => GV.toast && GV.toast('Đã đăng "' + c.name + '" lên thư viện cộng đồng!', { type: 'success' })).catch(x => GV.toast && GV.toast(x.message, { type: 'error' })); }
+          else if (b.dataset.s) L.study(el, c, () => home());
           else if (b.dataset.j) L.download(c.name + '.json', JSON.stringify({ name: c.name, lang: c.lang, units: c.units }, null, 1), 'application/json');
           else if (b.dataset.v) L.download(c.name + '.csv', 'unit,term,reading,meaning,example\n' + c.units.flatMap(u => u.items.map(i => [u.title, i.t, i.r, i.m, i.e].map(L.csvEsc).join(','))).join('\n'), 'text/csv;charset=utf-8');
           else if (confirm('Xoá khoá "' + c.name + '"?')) { store.remove(id); home('Đã xoá.'); }
@@ -238,4 +253,5 @@
       home();
     }
   });
+  L.parseImport = parseImport; L.buildCourse = buildCourse; L.flat = flat; L.TEMPLATE = TEMPLATE;
 })();

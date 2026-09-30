@@ -7,6 +7,7 @@
 
   const GV = window.GV = {
     items: [],
+    cfg: { hot: null, nw: null, off: [] },
     store,
     register(o) { this.items.push(o); },
     best(id) { return store.get('best_' + id, 0); },
@@ -60,11 +61,14 @@
 
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
-  const HOT = ['aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
-  const NEW = ['aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+  const DEF_HOT = ['aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
+  const DEF_NEW = ['aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+  const HOT = () => GV.cfg.hot || DEF_HOT, NEW = () => GV.cfg.nw || DEF_NEW;
+  const isAdmin = () => !!(GV.account && GV.account.isAdmin);
+  const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
 
   function cardHTML(i, f, big) {
-    const badge = NEW.includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT.includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
+    const badge = NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
     return `<a class="card${big ? ' big' : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}">
       <span class="tag">${i.cat === 'Nhiều người' ? '🌐 Online' : i.cat === 'Học tập' ? '📚 Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích'}</span>${badge}
       <span class="fv" data-f="${i.id}" title="Yêu thích">${f.includes(i.id) ? '★' : '☆'}</span>
@@ -80,13 +84,13 @@
     if (cat && !list.includes(cat)) cat = '';
     chips.innerHTML = list.length > 1 ? ['', ...list].map(c => `<button data-c="${GV.esc(c)}" class="${c === cat ? 'on' : ''}">${c || 'Mọi thể loại'}</button>`).join('') : '';
     const f = favs(), q = query.trim().toLowerCase();
-    const items = GV.items.filter(i =>
+    const items = GV.items.filter(i => visible(i) &&
       (tab === 'all' || (tab === 'fav' ? f.includes(i.id) : i.type === tab)) &&
       (!cat || i.cat === cat) &&
       (!q || (i.name + ' ' + i.desc + ' ' + i.cat).toLowerCase().includes(q)));
     const showcase = tab === 'all' && !cat && !q;
     // khu nổi bật (chỉ hiện ở màn hình chính, chưa lọc)
-    const hot = HOT.map(id => GV.items.find(i => i.id === id)).filter(Boolean);
+    const hot = HOT().map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i));
     $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.map(i => cardHTML(i, f, true)).join('');
     const rec = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean).slice(0, 8);
     $('#recentwrap').hidden = !showcase || !rec.length; $('#recent').innerHTML = rec.map(i => cardHTML(i, f, true)).join('');
@@ -126,6 +130,7 @@
     }
     $('#home').hidden = true; $('#view').hidden = false;
     document.title = item.name + ' – GameVui';
+    if (!visible(item)) { $('#vtitle').textContent = item.icon + ' ' + item.name; stage.innerHTML = '<p class="msg">🔧 Chức năng này đang tạm đóng để bảo trì. Bạn quay lại sau nhé!</p>'; return; }
     $('#vtitle').textContent = item.icon + ' ' + item.name;
     const vf = $('#vfav');
     vf.textContent = favs().includes(item.id) ? '★' : '☆';
@@ -137,6 +142,7 @@
     catch (e) { console.error(e); stage.innerHTML = '<p class="msg">Có lỗi khi tải: ' + GV.esc(e.message) + '</p>'; }
   }
 
+  GV.rerender = () => { if (!$('#home').hidden) renderHome(); };
   GV.start = function () {
     GV.items.sort((a, b) => (a.type === b.type ? 0 : a.type === 'game' ? -1 : 1));
     $('#tabs').addEventListener('click', e => { const t = e.target.dataset.t; if (t) { tab = t; cat = ''; renderHome(); } });

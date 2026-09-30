@@ -1,0 +1,22 @@
+.cmsb{font-size:11px;background:var(--grad);color:#fff;border-radius:99px;padding:1px 9px;vertical-align:middle;margin-left:4px}
+#cms{max-width:1100px}
+.cx{display:flex;flex-direction:column;gap:14px}
+.cx .card2{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.cx h2{margin:0 0 8px;font-size:1.25rem}.cx h3{margin:0 0 6px;font-size:1.05rem}
+.cx .tabsx{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:64px;z-index:4;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);padding:8px 0}
+.cx .tabsx button{border:1px solid var(--line);border-radius:99px;padding:8px 14px;background:var(--card);color:var(--mut);cursor:pointer;font-weight:700;font-size:14px}
+.cx .tabsx button.on{background:var(--grad);color:#fff;border-color:transparent}
+.cx .tabsx .badge{background:#ff5c6c;color:#fff;border-radius:99px;padding:0 7px;font-size:11px;margin-left:4px}
+.cx table{width:100%;border-collapse:collapse;font-size:14px}.cx th{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.cx td,.cx th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cx .tw{overflow-x:auto}
+.cx .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.cx .stat{background:var(--inp);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.cx .stat b{display:block;font-size:1.8rem}
+.cx label.f{display:block;margin:8px 0 2px;font-size:13px;color:var(--mut);font-weight:600}.cx input.w,.cx textarea.w,.cx select.w{width:100%}
+.cx .tag{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:700;background:var(--card2);border:1px solid var(--line)}
+.cx .tag.bad{background:#ff5c6c22;border-color:#ff5c6c66;color:#ff8d98}.cx .tag.ok{background:#3ddc9722;border-color:#3ddc9766}.cx .tag.warn{background:#ffb02022;border-color:#ffb02066}
+.cx .sm{padding:5px 11px;font-size:13px;border-radius:9px}
+.cx .authbox{max-width:440px;margin:30px auto}
+.cx .perm td.y{color:var(--ok);text-align:center}.cx .perm td.n{color:var(--mut);text-align:center;opacity:.5}.cx .perm th.me,.cx .perm td.me{background:#7a8dff22}
+.cx .idchips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.cx .idchips span{font-size:12px;background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:1px 8px;cursor:pointer}
+.cx details>summary{cursor:pointer;font-weight:700}
