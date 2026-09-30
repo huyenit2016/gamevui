@@ -140,6 +140,7 @@
       else if (S.check) log(S, '⚠️ Chiếu tướng!');
     },
     pub(S) { return { board: S.board, turn: S.over ? null : S.turn, players: S.players, names: S.names, last: S.last, check: S.check, moveN: S.moveN, log: S.log.slice(-8), over: S.over }; },
+    summary(S) { const o = S.over; return { title: o.winner ? '🏆 ' + name(o.winner, S) + ' thắng' : 'Hòa', lines: [o.reason, S.moveN + ' nước đi'] }; },
     priv() { return {}; },
     bot(S, id) {
       if (S.over) return null; const mine = S.players.r === id ? 'r' : S.players.b === id ? 'b' : null; if (!mine || S.turn !== mine) return null;

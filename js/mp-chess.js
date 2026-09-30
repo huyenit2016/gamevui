@@ -157,6 +157,7 @@
       else if (chk) log(S, '⚠️ Chiếu!');
     },
     pub(S) { return { b: S.b, t: S.over ? null : S.t, c: S.c || '-', ep: S.ep, hm: S.hm, fm: S.fm, players: S.players, names: S.names, last: S.last, check: S.check, log: S.log.slice(-8), over: S.over }; },
+    summary(S) { const o = S.over; return { title: o.winner ? '🏆 ' + pname(o.winner, S) + ' thắng' : 'Hòa', lines: [o.reason, 'Nước thứ ' + S.fm] }; },
     priv() { return {}; },
     bot(S, id) {
       if (S.over) return null; const mine = S.players.w === id ? 'w' : S.players.b === id ? 'b' : null; if (!mine || S.t !== mine) return null;

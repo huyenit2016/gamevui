@@ -68,6 +68,7 @@
       else S.turn = nextIdx(S, 1);
     },
     pub(S) { return { order: S.order, names: S.names, counts: Object.fromEntries(S.order.map(i => [i, S.hands[i].length])), top: top(S), color: S.color, turn: S.over ? null : S.order[S.turn], dir: S.dir, deckN: S.deck.length, drew: S.drew, log: S.log.slice(-8), over: S.over }; },
+    summary(S) { return { title: '🏆 ' + S.names[S.over.winner], lines: S.order.map(i => `${S.names[i]}: còn ${S.hands[i].length} lá`) }; },
     priv(S, id) { return { hand: S.hands[id] || [] }; },
     bot(S, id) {
       if (S.over || S.order[S.turn] !== id) return null;

@@ -28,3 +28,7 @@ GV.register({
 Kỷ lục, danh sách yêu thích, ghi chú… được lưu trong `localStorage` của trình duyệt.
 
 Demo: https://huyenit2016.github.io/gamevui/
+
+## Quảng cáo & thống kê
+- Quảng cáo cấu hình trong `js/ads-config.js` (AdSense / banner tự chèn; để trống thì hiện banner giới thiệu game). Có sẵn `privacy.html` và `ads.txt` mẫu.
+- Đếm lượt truy cập theo IP (IP băm, không lưu IP gốc) hiển thị ở chân trang – xem `FIREBASE.md`.

@@ -122,3 +122,12 @@ footer{padding:26px}
 @media(max-width:480px){.hero{padding:30px 4px 18px}.float span{font-size:1.4rem}.rail .card{flex-basis:170px}.ticker{margin:0 -10px 6px}}
 .hero>*:not(.float){position:relative;z-index:1}.float span{opacity:.25}
 .card.big .ic{margin-top:18px}
+
+/* Banner quảng cáo */
+.ad{position:relative;margin:14px auto;max-width:900px;text-align:center;min-height:0}
+.ad.span{grid-column:1/-1;margin:10px 0}
+.ad .adl{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:3px;text-align:left}
+.ad .house{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 16px;border-radius:14px;background:linear-gradient(120deg,hsl(var(--h) 72% 46%),hsl(calc(var(--h) + 55) 70% 42%));color:#fff;border:1px solid hsl(var(--h) 90% 65%/.4);transition:transform .15s}
+.ad .house:hover{transform:scale(1.01)}
+.ad .house .adl{color:#ffffffb0;align-self:flex-start}.ad .house b{font-size:1.05rem}.ad .house span:not(.adl){font-size:13px;opacity:.9}.ad .house em{font-style:normal;margin-top:4px;background:#fff;color:#222;border-radius:99px;padding:3px 14px;font-weight:800;font-size:12px}
+footer .ad{margin-bottom:10px}

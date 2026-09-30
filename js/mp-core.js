@@ -63,7 +63,7 @@
       F.fb().then(({ db }) => {
         if (dead) return;
         janitor(db);
-        const q = db.ref('mplobby').orderByChild('at').startAt(Date.now() - 6 * 3600e3), cb = snap => {
+        const q = db.ref('mplobby').orderByChild('at').startAt(Date.now() - 2 * 3600e3), cb = snap => {
           const box = $('.rl'); if (!box) return;
           const rows = Object.entries(snap.val() || {}).filter(([, r]) => r && r.game === def.id && r.status !== 'closed').sort((a, b) => b[1].at - a[1].at);
           box.innerHTML = rows.length ? rows.map(([c, r]) => `<div class="row" style="justify-content:space-between;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span><b>${GV.esc(r.name || 'Phòng ' + c)}</b><br><span class="hint">#${c} · ${GV.esc(r.hostName || '')} · ${r.count || 0} người · ${r.status === 'lobby' ? '⏳ đang chờ' : '🎲 đang chơi'}</span></span><button class="btn ghost" data-c="${c}" style="padding:6px 12px">Vào</button></div>`).join('') : 'Chưa có phòng nào đang mở – hãy tạo phòng mới!';
@@ -75,7 +75,7 @@
 
     // Dọn các phòng bỏ hoang (quá 6 giờ không hoạt động) để không tồn dữ liệu rác
     function janitor(db) {
-      db.ref('mplobby').orderByChild('at').endAt(Date.now() - 6 * 3600e3).limitToFirst(10).once('value').then(snap => {
+      db.ref('mplobby').orderByChild('at').endAt(Date.now() - 2 * 3600e3).limitToFirst(10).once('value').then(snap => {
         const up = {}; Object.keys(snap.val() || {}).forEach(c => { up[`mprooms/${c}`] = null; up[`mpprivate/${c}`] = null; up[`mpstate/${c}`] = null; up[`mplobby/${c}`] = null; });
         if (Object.keys(up).length) db.ref().update(up).catch(() => {});
       }).catch(() => {});
@@ -109,9 +109,10 @@
     function room(db, uid, TS, code, name) {
       const ref = db.ref('mprooms/' + code), root = db.ref(), me = ref.child('players/' + uid);
       me.child('online').onDisconnect().set(false);
+      ref.child('act/' + uid).onDisconnect().remove();
       me.update({ name, online: true });
       me.child('at').transaction(c => c || Date.now());
-      const api = { rnd: GV.rnd, shuffle: GV.shuffle, now: () => Date.now() };
+      const api = { rnd: GV.rnd, shuffle: GV.shuffle, now: () => Date.now(), host: null };
       let R = null, P = null, S = null, seen = null, recvAt = Date.now(), lastErr = 0, actN = 0, restoring = false, lobbySig = '', chatSig = '';
       const errs = {}, ui = {};
             const isHost = () => R && R.host === uid;
@@ -124,18 +125,20 @@
         <div class="box lobby" hidden>
           <div class="hint">Cần ${def.min}–${def.max} người. Chủ phòng bấm bắt đầu khi đủ người (có thể thêm bot).</div>
           <div class="row hostctl" hidden style="margin-top:8px"><button class="btn ghost addbot">🤖 + Bot</button><button class="btn ghost rmbot">🤖 − Bot</button><button class="btn ok start">▶ Bắt đầu</button><button class="btn bad closeroom">⛔ Đóng phòng</button></div>
+          ${(def.opts || []).map(o => `<label class="optl" style="display:block;margin-top:8px">${GV.esc(o.label)} <select class="opt" data-k="${o.k}">${o.values.map(v => `<option>${v}</option>`).join('')}</select></label>`).join('')}
           <div class="msg wait"></div>
         </div>
         <div class="err"></div>
         <div class="game" hidden></div>
         <div class="row hostend" hidden><button class="btn newg">🔄 Ván mới (về sảnh)</button></div>
+        ${def.summary ? `<details class="box hst"><summary>📚 Lịch sử các ván</summary><div class="hl hint">Chưa có ván nào.</div><div class="row hostclr" hidden style="margin-top:6px"><button class="btn ghost clh" style="padding:5px 12px">🗑 Xoá lịch sử</button></div></details>` : ''}
         <details class="box chat"><summary>💬 Chat</summary><div class="cl"></div><div class="row" style="margin-top:6px"><input class="ci" maxlength="200" placeholder="Nhập tin nhắn…" style="flex:1"><button class="btn cs" style="padding:6px 14px">Gửi</button></div></details>
       </div>`;
 
       /* --- người chơi & bot --- */
       const seats = () => {
         const a = [];
-        Object.entries(R.players || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || '?', bot: false, online: p.online !== false, at: p.at || 0 }));
+        Object.entries(R.players || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || '?', bot: false, online: p.online !== false, at: p.at || 0, opts: p.opts || {} }));
         Object.entries(R.bots || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || 'Bot', bot: true, online: true, at: p.at || 0 }));
         return a.sort((x, y) => x.at - y.at || (x.id < y.id ? -1 : 1));
       };
@@ -146,15 +149,18 @@
         const pub = clean(def.pub(S)) || {}; pub._t = Date.now();
         up[`mprooms/${code}/pub`] = pub;
         seats().filter(s => !s.bot).forEach(s => { const pv = clean(def.priv(S, s.id)) || {}; pv._err = errs[s.id] || null; up[`mpprivate/${code}/${s.id}`] = pv; });
-        up[`mpstate/${code}`] = JSON.stringify(S);
-        if (S.over) up[`mprooms/${code}/meta/status`] = 'ended';
+        up[`mpstate/${code}`] = S.over ? null : JSON.stringify(S); // chỉ giữ trạng thái khi ván còn đang chơi
+        if (S.over) {
+          up[`mprooms/${code}/meta/status`] = 'ended';
+          if (def.summary && !S._h) { S._h = 1; const sm = clean(def.summary(S)) || {}; up[`mprooms/${code}/history/${R.meta.round || 1}`] = { round: R.meta.round || 1, at: Date.now(), title: 'Ván ' + (R.meta.round || 1) + (sm.title ? ' · ' + sm.title : ''), lines: sm.lines || null }; }
+        }
         root.update(up).catch(e => { showErr(F.explain(e)); });
       }
       function startGame() {
         const st = seats();
         if (st.length < def.min) return showErr(`Cần ít nhất ${def.min} người (thêm bot nếu thiếu).`);
         if (st.length > def.max) return showErr(`Tối đa ${def.max} người.`);
-        S = def.init(st.map(s => ({ id: s.id, name: s.name, bot: s.bot })), api); seen = Object.assign({}, seen);
+        S = def.init(st.map(s => ({ id: s.id, name: s.name, bot: s.bot, opts: s.opts || {} })), api); seen = Object.assign({}, seen);
         publish({ [`mprooms/${code}/meta/status`]: 'playing' });
       }
       function processActs() {
@@ -167,9 +173,13 @@
         }
         if (changed) publish();
       }
-      let beat = Date.now();
+      let beat = Date.now(), trimN = 0;
       function hostLoop() {
         if (isHost() && R && Date.now() - beat > 600000) { beat = Date.now(); db.ref('mplobby/' + code + '/at').set(TS); } // giữ phòng "còn sống"
+        if (isHost() && R && ++trimN % 25 === 0) { // giữ dữ liệu gọn: chat tối đa 50 tin, lịch sử tối đa 30 ván
+          const ch = Object.entries(R.chat || {}).sort((a, b) => a[1].at - b[1].at); if (ch.length > 50) ch.slice(0, ch.length - 50).forEach(([k]) => ref.child('chat/' + k).remove());
+          const hs = Object.keys(R.history || {}).sort((a, b) => a - b); if (hs.length > 30) hs.slice(0, hs.length - 30).forEach(k => ref.child('history/' + k).remove());
+        }
         if (!isHost() || !S || S.over || !R) return;
         let changed = false;
         for (const s of seats()) {
@@ -187,7 +197,7 @@
         if (dead) return;
         R = snap.val();
         if (!R || !R.meta) { cleanup(); entry('Phòng không còn tồn tại.'); return; }
-        recvAt = Date.now();
+        recvAt = Date.now(); api.host = R.host;
         if (R.meta.closed && R.host !== uid) { cleanup(); history.replaceState(null, '', `#/game/${def.id}`); entry('Chủ phòng đã đóng phòng.'); return; }
         const st = R.meta.status, hostNow = isHost();
         if (hostNow && seen === null) seen = Object.fromEntries(Object.entries(R.act || {}).map(([k, v]) => [k, (v && v.n) || 0]));
@@ -216,12 +226,14 @@
         $('.hostend').hidden = !(host && st === 'ended');
         const g = $('.game'); g.hidden = st === 'lobby' || !R.pub;
         if (!g.hidden) renderGame();
+        el.querySelectorAll('.opt').forEach(sel => { const v = ((R.players[uid] || {}).opts || {})[sel.dataset.k]; const o = def.opts.find(x => x.k === sel.dataset.k); if (document.activeElement !== sel) sel.value = v != null ? v : o.def; });
+        renderHist();
         renderChat();
         if (P && P._err && P._err.at > lastErr) { lastErr = P._err.at; showErr(P._err.msg); }
       }
       function ctx() {
         return {
-          pub: R.pub, priv: P || {}, me: uid, isHost: isHost(), ui, esc: GV.esc, fmtT,
+          pub: R.pub, priv: P || {}, me: uid, code, round: R.meta.round || 1, isHost: isHost(), ui, esc: GV.esc, fmtT,
           names: Object.fromEntries(seats().map(s => [s.id, s.name])), seats: seats(),
           left: dl => dl - ((R.pub._t || Date.now()) + (Date.now() - recvAt)),
           send: a => { actN = Math.max(actN + 1, Date.now()); ref.child('act/' + uid).set({ n: actN, a: clean(a) }); },
@@ -241,6 +253,15 @@
       }
       let errT = null;
       function showErr(m) { const e = $('.err'); if (!e) return; e.textContent = m; clearTimeout(errT); errT = setTimeout(() => { e.textContent = ''; }, 3500); }
+
+      /* --- lịch sử các ván --- */
+      function renderHist() {
+        const hl = $('.hl'); if (!hl) return;
+        const h = Object.values(R.history || {}).filter(Boolean).sort((a, b) => b.round - a.round), host = isHost();
+        $('.hostclr').hidden = !host;
+        hl.innerHTML = h.length ? h.map(x => `<div style="border-bottom:1px solid var(--line);padding:4px 0;text-align:left"><b>${GV.esc(x.title || '')}</b>${host ? ` <a href="#" data-h="${x.round}" style="color:var(--bad)" title="Xoá ván này">✕</a>` : ''}${toList(x.lines).map(l => `<div>${GV.esc(l)}</div>`).join('')}</div>`).join('') : 'Chưa có ván nào.';
+      }
+      const toList = v => !v ? [] : Array.isArray(v) ? v.filter(x => x != null) : Object.keys(v).sort((a, b) => a - b).map(k => v[k]);
 
       /* --- chat --- */
       function renderChat() {
@@ -263,7 +284,12 @@
       $('.addbot').onclick = () => { const n = Object.keys(R.bots || {}).length + 1; if (seats().length >= def.max) return showErr('Phòng đã đầy.'); ref.child('bots/b' + (Date.now() % 100000)).set({ name: 'Bot ' + n, at: Date.now() }); };
       $('.rmbot').onclick = () => { const ids = Object.keys(R.bots || {}); if (ids.length) ref.child('bots/' + ids[ids.length - 1]).remove(); };
       $('.start').onclick = startGame;
-      $('.newg').onclick = () => { S = null; root.update({ [`mprooms/${code}/meta/status`]: 'lobby', [`mprooms/${code}/pub`]: null, [`mprooms/${code}/act`]: null, [`mpprivate/${code}`]: null, [`mpstate/${code}`]: null }); seen = null; };
+      el.querySelectorAll('.opt').forEach(sel => { sel.onchange = () => me.child('opts/' + sel.dataset.k).set(sel.value); });
+      if ($('.clh')) {
+        $('.clh').onclick = () => { if (confirm('Xoá toàn bộ lịch sử các ván?')) ref.child('history').remove(); };
+        $('.hl').onclick = e => { const r = e.target.dataset.h; if (r === undefined) return; e.preventDefault(); if (isHost() && confirm('Xoá ván ' + r + ' khỏi lịch sử?')) ref.child('history/' + r).remove(); };
+      }
+      $('.newg').onclick = () => { S = null; root.update({ [`mprooms/${code}/meta/status`]: 'lobby', [`mprooms/${code}/meta/round`]: (R.meta.round || 1) + 1, [`mprooms/${code}/pub`]: null, [`mprooms/${code}/act`]: null, [`mpprivate/${code}`]: null, [`mpstate/${code}`]: null }); seen = null; };
       // Xoá hẳn dữ liệu phòng (tránh để rác trong database)
       async function deleteRoom() {
         cleanup(); history.replaceState(null, '', `#/game/${def.id}`);
@@ -278,7 +304,7 @@
         if (!others.length) { // không còn ai khác trong phòng
           if (confirm('Không còn người chơi nào khác trong phòng.\nXoá phòng luôn để tránh rác dữ liệu?')) return deleteRoom();
         }
-        cleanup(); me.remove().catch(() => me.child('online').set(false));
+        cleanup(); root.update({ [`mprooms/${code}/players/${uid}`]: null, [`mprooms/${code}/act/${uid}`]: null, [`mpprivate/${code}/${uid}`]: null }).catch(() => me.child('online').set(false));
         history.replaceState(null, '', `#/game/${def.id}`); entry();
       };
       $('.share').onclick = async () => {

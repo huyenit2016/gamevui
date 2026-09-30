@@ -96,9 +96,11 @@
     if (showcase) {
       const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), tools = items.filter(i => i.type === 'tool');
       const sec = (t, arr) => arr.length ? `<h2 class="sec span">${t} <small>${arr.length}</small></h2>` + arr.map(i => cardHTML(i, f)).join('') : '';
-      html = sec('👥 Chơi cùng bạn bè (online)', multi) + sec('🎮 Game giải trí', games) + sec('🧰 Tiện ích hằng ngày', tools);
+      const adSlot = '<div class="ad span" data-slot="inline"></div>';
+      html = sec('👥 Chơi cùng bạn bè (online)', multi) + adSlot + sec('🎮 Game giải trí', games) + adSlot + sec('🧰 Tiện ích hằng ngày', tools);
     } else html = items.map(i => cardHTML(i, f)).join('');
     $('#grid').innerHTML = html;
+    if (window.GV.ads) GV.ads.hydrate($('#home'));
     $('#empty').hidden = items.length > 0;
     $('#tabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
   }
@@ -119,6 +121,7 @@
       document.title = 'GameVui – Game & Tiện ích online';
       $('#view').hidden = true; $('#home').hidden = false;
       renderHome();
+      if (GV.ads) GV.ads.hydrate(document.querySelector('footer'));
       return;
     }
     $('#home').hidden = true; $('#view').hidden = false;
@@ -128,6 +131,7 @@
     vf.textContent = favs().includes(item.id) ? '★' : '☆';
     vf.onclick = () => { toggleFav(item.id); vf.textContent = favs().includes(item.id) ? '★' : '☆'; };
     window.scrollTo(0, 0);
+    if (GV.ads) { const a = document.querySelector('#view .ad'); if (a) { a.removeAttribute('data-done'); a.innerHTML = ''; GV.ads.hydrate($('#view')); } }
     store.set('recent', [item.id, ...store.get('recent', []).filter(x => x !== item.id)].slice(0, 8));
     try { cleanup = item.mount(stage) || null; }
     catch (e) { console.error(e); stage.innerHTML = '<p class="msg">Có lỗi khi tải: ' + GV.esc(e.message) + '</p>'; }

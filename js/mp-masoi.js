@@ -160,6 +160,7 @@
       return { phase: S.phase, day: S.day, deadline: S.deadline, order: S.order, names: S.names, alive: S.alive, dead: S.deadList, log: S.log.slice(-14),
         votes: S.phase === 'vote' ? S.votes : null, voted: S.voted || null, ready: S.phase === 'day' ? Object.keys(S.ready).length : 0, over, turn: null };
     },
+    summary(S) { return { title: S.over.winner === 'village' ? '🎉 Dân làng thắng' : '🐺 Ma sói thắng', lines: S.order.map(i => `${S.names[i]}: ${RI[S.roles[i]]} ${RN[S.roles[i]]}${S.alive[i] ? '' : ' (đã chết)'}`) }; },
     priv(S, id) {
       const role = S.roles[id], p = { role, alive: !!S.alive[id], act: null };
       if (role === 'wolf') p.allies = S.order.filter(i => S.roles[i] === 'wolf' && i !== id);

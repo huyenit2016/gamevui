@@ -1,0 +1,2 @@
+# Sau khi có tài khoản AdSense, thay dòng dưới bằng dòng do Google cấp (pub-xxxxxxxxxxxxxxxx là mã nhà xuất bản của bạn):
+# google.com, pub-xxxxxxxxxxxxxxxx, DIRECT, f08c47fec0942fa0

@@ -88,6 +88,7 @@
       advance(S);
     },
     pub(S) { return { order: S.order, names: S.names, counts: Object.fromEntries(S.order.map(i => [i, S.hands[i].length])), turn: S.over ? null : S.order[S.turn], trick: S.trick, passed: S.passed, first: S.first, low: S.low, log: S.log.slice(-8), over: S.over, hands: S.over ? S.hands : null }; },
+    summary(S) { return { title: '🏆 ' + S.names[S.over.winner], lines: S.over.ranks.map(r => `${S.names[r.id]}: còn ${r.n} lá`) }; },
     priv(S, id) { return { hand: S.hands[id] || [] }; },
     bot(S, id) {
       if (S.over || S.order[S.turn] !== id) return null;

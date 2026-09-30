@@ -21,61 +21,10 @@ window.GV_FIREBASE = {
 (Các giá trị này công khai, không phải mật khẩu. Bảo mật nằm ở Rules bên dưới.)
 
 ## 3. Rules (Realtime Database → Rules → dán → Publish)
-Bản này gồm cả Lô tô online và các game nhiều người (Uno, Tiến lên, Ma sói). **Mỗi khi repo cập nhật luật, hãy dán lại.** (Bản này có thêm quyền xoá phòng khi rời/đóng phòng và tự dọn phòng bỏ hoang quá 6 giờ.)
+Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Tiến lên, Ma sói, Cờ tướng, Cờ vua). **Mỗi khi repo cập nhật luật, hãy dán lại.** (Bản này có thêm quyền xoá phòng khi rời/đóng phòng và tự dọn phòng bỏ hoang quá 2 giờ.)
 ```json
 {
   "rules": {
-    "rooms": {
-      "$room": {
-        ".read": "auth != null",
-        ".validate": "$room.matches(/^[0-9]{4}$/)",
-        "host": {
-          ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
-        },
-        "createdAt": {
-          ".write": "auth != null && !data.exists()"
-        },
-        "name": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid"
-        },
-        "closed": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid"
-        },
-        "history": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid"
-        },
-        "round": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid"
-        },
-        "status": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid"
-        },
-        "called": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid"
-        },
-        "winners": {
-          ".write": "auth != null && root.child('rooms').child($room).child('host').val() === auth.uid",
-          "$w": {
-            ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid"
-          }
-        },
-        "players": {
-          "$uid": {
-            ".write": "auth != null && auth.uid === $uid"
-          }
-        },
-        ".write": "auth != null && !newData.exists() && (root.child('rooms').child($room).child('host').val() === auth.uid || root.child('rooms').child($room).child('players').child(auth.uid).exists() || root.child('lobby').child($room).child('at').val() < now - 21600000)"
-      }
-    },
-    "lobby": {
-      ".read": "auth != null",
-      ".indexOn": [
-        "at"
-      ],
-      "$code": {
-        ".write": "auth != null && (root.child('rooms').child($code).child('host').val() === auth.uid || (!newData.exists() && data.child('at').val() < now - 21600000))"
-      }
-    },
     "mprooms": {
       "$room": {
         ".read": "auth != null",
@@ -108,21 +57,25 @@ Bản này gồm cả Lô tô online và các game nhiều người (Uno, Tiến
             ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid"
           }
         },
-        ".write": "auth != null && !newData.exists() && (root.child('mprooms').child($room).child('host').val() === auth.uid || root.child('mprooms').child($room).child('players').child(auth.uid).exists() || root.child('mplobby').child($room).child('at').val() < now - 21600000)"
+        ".write": "auth != null && !newData.exists() && (root.child('mprooms').child($room).child('host').val() === auth.uid || root.child('mprooms').child($room).child('players').child(auth.uid).exists() || root.child('mplobby').child($room).child('at').val() < now - 7200000)",
+        "history": {
+          ".write": "auth != null && root.child('mprooms').child($room).child('host').val() === auth.uid"
+        }
       }
     },
     "mpprivate": {
       "$room": {
-        ".write": "auth != null && (root.child('mprooms').child($room).child('host').val() === auth.uid || (!newData.exists() && (root.child('mprooms').child($room).child('host').val() === auth.uid || root.child('mprooms').child($room).child('players').child(auth.uid).exists() || root.child('mplobby').child($room).child('at').val() < now - 21600000)))",
+        ".write": "auth != null && (root.child('mprooms').child($room).child('host').val() === auth.uid || (!newData.exists() && (root.child('mprooms').child($room).child('host').val() === auth.uid || root.child('mprooms').child($room).child('players').child(auth.uid).exists() || root.child('mplobby').child($room).child('at').val() < now - 7200000)))",
         "$uid": {
-          ".read": "auth != null && auth.uid === $uid"
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && !newData.exists()"
         }
       }
     },
     "mpstate": {
       "$room": {
         ".read": "auth != null && root.child('mprooms').child($room).child('host').val() === auth.uid",
-        ".write": "auth != null && (root.child('mprooms').child($room).child('host').val() === auth.uid || (!newData.exists() && (root.child('mprooms').child($room).child('host').val() === auth.uid || root.child('mprooms').child($room).child('players').child(auth.uid).exists() || root.child('mplobby').child($room).child('at').val() < now - 21600000)))"
+        ".write": "auth != null && (root.child('mprooms').child($room).child('host').val() === auth.uid || (!newData.exists() && (root.child('mprooms').child($room).child('host').val() === auth.uid || root.child('mprooms').child($room).child('players').child(auth.uid).exists() || root.child('mplobby').child($room).child('at').val() < now - 7200000)))"
       }
     },
     "mplobby": {
@@ -131,7 +84,33 @@ Bản này gồm cả Lô tô online và các game nhiều người (Uno, Tiến
         "at"
       ],
       "$code": {
-        ".write": "auth != null && (root.child('mprooms').child($code).child('host').val() === auth.uid || (!newData.exists() && data.child('at').val() < now - 21600000))"
+        ".write": "auth != null && (root.child('mprooms').child($code).child('host').val() === auth.uid || (!newData.exists() && data.child('at').val() < now - 7200000))"
+      }
+    },
+    "stats": {
+      ".read": "auth != null",
+      "total": {
+        ".write": "auth != null && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+      },
+      "unique": {
+        ".write": "auth != null && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+      },
+      "ips": {
+        "$h": {
+          ".write": "auth != null && $h.length === 16",
+          "first": {
+            ".validate": "!data.exists() && newData.isNumber()"
+          },
+          "last": {
+            ".validate": "newData.isNumber()"
+          },
+          "n": {
+            ".validate": "newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+          },
+          "$other": {
+            ".validate": "false"
+          }
+        }
       }
     }
   }
@@ -151,3 +130,8 @@ Bản này gồm cả Lô tô online và các game nhiều người (Uno, Tiến
 - Chủ phòng là "máy chủ" của ván: xử lý luật, bot và thời gian. Nếu chủ phòng thoát hẳn thì ván dừng (chủ phòng tải lại trang vẫn tiếp tục được).
 - Người chơi bị mất kết nối sẽ được máy chơi hộ để ván không bị kẹt.
 - Bài trên tay / vai trò chỉ người chơi đó đọc được (nằm ở `mpprivate`), nên không xem trộm được bằng công cụ dev của trình duyệt.
+
+## Dọn dữ liệu & thống kê truy cập
+- Rời phòng sẽ xoá dữ liệu của bạn trong phòng; phòng trống/đóng bị xoá hẳn; phòng bỏ hoang quá 2 giờ tự bị dọn khi có người mở danh sách phòng. Chat giữ tối đa 50 tin, lịch sử tối đa 30 ván.
+- Nếu trước đây bạn đã chạy bản Lô tô online cũ, trong Firebase Console → Realtime Database → tab **Data** còn hai nhánh cũ `rooms` và `lobby`: hãy xoá thủ công (đã không dùng nữa).
+- **Đếm lượt truy cập:** mỗi lần mở web (mỗi phiên) cộng 1 vào `stats/total`; mỗi IP mới cộng 1 vào `stats/unique`. IP được băm SHA-256 và chỉ lưu 16 ký tự đầu, **không lưu IP gốc**. Nếu trình duyệt chặn dịch vụ lấy IP (api.ipify.org) thì tính theo mã thiết bị ẩn danh.
