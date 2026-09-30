@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <header class="top">
   <a class="logo" href="#/">🎮 Game<b>Vui</b></a>
   <input id="q" type="search" placeholder="🔍 Tìm game, tiện ích..." autocomplete="off">
@@ -20,9 +21,15 @@
 <main>
   <section id="home">
     <div class="hero">
-      <h1>Rủ hội chơi liền tay, <span>không tải – không lag – không drama</span> 🔥</h1>
+      <div class="float" aria-hidden="true"><span>🎲</span><span>♟️</span><span>🃏</span><span>🐺</span><span>🎱</span><span>🐍</span><span>🧩</span><span>🎮</span></div>
+      <span class="pill">✨ Mới: Cờ vua · Cờ tướng · Ma sói · Uno online</span>
+      <h1>Rủ hội chơi liền tay, <span class="grad">không tải – không lag – không drama</span> 🔥</h1>
       <p id="stats"></p>
+      <div class="cta"><button class="btn big" id="rand">🎲 Chơi ngẫu nhiên</button><button class="btn ghost big" id="goOnline">👥 Chơi cùng bạn bè</button></div>
     </div>
+    <div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
+    <div id="hotwrap"><h2 class="sec">🔥 Đang hot</h2><div id="hot" class="rail"></div></div>
+    <div id="recentwrap" hidden><h2 class="sec">⏱ Chơi gần đây</h2><div id="recent" class="rail"></div></div>
     <nav class="tabs" id="tabs">
       <button data-t="all" class="on">Tất cả</button>
       <button data-t="game">🎮 Game</button>
@@ -60,6 +67,7 @@
 <script src="js/mp-tienlen.js"></script>
 <script src="js/mp-masoi.js"></script>
 <script src="js/mp-cotuong.js"></script>
+<script src="js/mp-chess.js"></script>
 <script src="js/tools-basic.js"></script>
 <script src="js/tools-text.js"></script>
 <script src="js/tools-life.js"></script>

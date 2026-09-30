@@ -60,9 +60,21 @@
 
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
+  const HOT = ['lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
+  const NEW = ['chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+
+  function cardHTML(i, f, big) {
+    const badge = NEW.includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT.includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
+    return `<a class="card${big ? ' big' : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}">
+      <span class="tag">${i.cat === 'Nhiều người' ? '🌐 Online' : i.type === 'game' ? 'Game' : 'Tiện ích'}</span>${badge}
+      <span class="fv" data-f="${i.id}" title="Yêu thích">${f.includes(i.id) ? '★' : '☆'}</span>
+      <div class="ic">${i.icon}</div><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p>${big ? '<span class="play">Chơi ngay ▶</span>' : ''}
+    </a>`;
+  }
+
   function renderHome() {
-    const ng = GV.items.filter(i => i.type === 'game').length;
-    $('#stats').textContent = `${ng} game · ${GV.items.length - ng} tiện ích · miễn phí, không cần cài đặt`;
+    const ng = GV.items.filter(i => i.type === 'game').length, online = GV.items.filter(i => i.cat === 'Nhiều người').length;
+    $('#stats').innerHTML = `<b>${ng}</b> game · <b>${GV.items.length - ng}</b> tiện ích · <b>${online}</b> game chơi cùng bạn bè · miễn phí, không cần cài đặt`;
     const chips = $('#chips');
     const list = cats();
     if (cat && !list.includes(cat)) cat = '';
@@ -72,12 +84,21 @@
       (tab === 'all' || (tab === 'fav' ? f.includes(i.id) : i.type === tab)) &&
       (!cat || i.cat === cat) &&
       (!q || (i.name + ' ' + i.desc + ' ' + i.cat).toLowerCase().includes(q)));
-    $('#grid').innerHTML = items.map(i => `
-      <a class="card" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}">
-        <span class="tag">${i.type === 'game' ? 'Game' : 'Tiện ích'}</span>
-        <span class="fv" data-f="${i.id}" title="Yêu thích">${f.includes(i.id) ? '★' : '☆'}</span>
-        <div class="ic">${i.icon}</div><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p>
-      </a>`).join('');
+    const showcase = tab === 'all' && !cat && !q;
+    // khu nổi bật (chỉ hiện ở màn hình chính, chưa lọc)
+    const hot = HOT.map(id => GV.items.find(i => i.id === id)).filter(Boolean);
+    $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.map(i => cardHTML(i, f, true)).join('');
+    const rec = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean).slice(0, 8);
+    $('#recentwrap').hidden = !showcase || !rec.length; $('#recent').innerHTML = rec.map(i => cardHTML(i, f, true)).join('');
+    $('.ticker').hidden = !showcase;
+    const tr = $('#track'); if (showcase && !tr.dataset.done) { const em = GV.items.map(i => `<span>${i.icon}</span>`).join(''); tr.innerHTML = em + em; tr.dataset.done = 1; }
+    let html;
+    if (showcase) {
+      const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), tools = items.filter(i => i.type === 'tool');
+      const sec = (t, arr) => arr.length ? `<h2 class="sec span">${t} <small>${arr.length}</small></h2>` + arr.map(i => cardHTML(i, f)).join('') : '';
+      html = sec('👥 Chơi cùng bạn bè (online)', multi) + sec('🎮 Game giải trí', games) + sec('🧰 Tiện ích hằng ngày', tools);
+    } else html = items.map(i => cardHTML(i, f)).join('');
+    $('#grid').innerHTML = html;
     $('#empty').hidden = items.length > 0;
     $('#tabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
   }
@@ -107,6 +128,7 @@
     vf.textContent = favs().includes(item.id) ? '★' : '☆';
     vf.onclick = () => { toggleFav(item.id); vf.textContent = favs().includes(item.id) ? '★' : '☆'; };
     window.scrollTo(0, 0);
+    store.set('recent', [item.id, ...store.get('recent', []).filter(x => x !== item.id)].slice(0, 8));
     try { cleanup = item.mount(stage) || null; }
     catch (e) { console.error(e); stage.innerHTML = '<p class="msg">Có lỗi khi tải: ' + GV.esc(e.message) + '</p>'; }
   }
@@ -116,10 +138,13 @@
     $('#tabs').addEventListener('click', e => { const t = e.target.dataset.t; if (t) { tab = t; cat = ''; renderHome(); } });
     $('#chips').addEventListener('click', e => { if (e.target.dataset.c !== undefined) { cat = e.target.dataset.c; renderHome(); } });
     $('#q').addEventListener('input', e => { query = e.target.value; if (location.hash.length > 2) location.hash = '#/'; else renderHome(); });
-    $('#grid').addEventListener('click', e => {
+    $('#home').addEventListener('click', e => {
       const f = e.target.closest('[data-f]');
       if (f) { e.preventDefault(); toggleFav(f.dataset.f); renderHome(); }
     });
+    $('#rand').addEventListener('click', () => { const g = GV.items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'); const i = g[GV.rnd(g.length)]; location.hash = `#/game/${i.id}`; });
+    $('#goOnline').addEventListener('click', () => { tab = 'game'; cat = 'Nhiều người'; query = ''; $('#q').value = ''; renderHome(); $('#tabs').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    $('#home').addEventListener('pointermove', e => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
     $('#theme').addEventListener('click', () => {
       const d = document.documentElement, dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
       d.dataset.theme = dark ? 'light' : 'dark';

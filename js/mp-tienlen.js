@@ -54,7 +54,7 @@
   }
 
   GV.mp.define({
-    id: 'tienlen', name: 'Tiến lên miền Nam', icon: '🎴', desc: 'Bài Tiến lên online 2–4 người (có bot), đủ chặt heo.', min: 2, max: 4,
+    id: 'tienlen', name: 'Tiến lên miền Nam', icon: '♠️', desc: 'Bài Tiến lên online 2–4 người (có bot), đủ chặt heo.', min: 2, max: 4,
     css: `.tl .c{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:68px;border-radius:8px;background:#fff;color:#111;font-weight:800;font-size:16px;margin:2px;border:2px solid #ccc;box-shadow:0 1px 4px #0005;user-select:none}
       .tl .c.r{color:#d11}.tl .hand .c{cursor:pointer;transition:transform .1s}.tl .hand .c.sel{transform:translateY(-14px);border-color:var(--acc);box-shadow:0 4px 10px #6c8cff88}
       .tl .c.pick{outline:3px dashed var(--acc2);outline-offset:2px}.tl.arr .hand .c{cursor:grab}.tl .arrhint .pbtn{padding:2px 10px;margin:0 3px}.tl .hand{display:flex;flex-wrap:wrap;justify-content:center;margin:8px 0}.tl .table{min-height:80px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap}`,

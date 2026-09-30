@@ -68,3 +68,57 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:20px}
 [hidden]{display:none!important}
 @media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:12px}.logo{font-size:1.15rem}main{padding:10px}#q{max-width:none}.stage{padding:14px 10px}.tabs button{padding:7px 12px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ================= Giao diện v2: trending / wow ================= */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.42;animation:drift 22s ease-in-out infinite alternate}
+.aurora i:nth-child(1){background:#6c8cff;left:-15vmax;top:-20vmax}
+.aurora i:nth-child(2){background:#ff6cab;right:-18vmax;top:10vmax;animation-delay:-7s}
+.aurora i:nth-child(3){background:#3ddc97;left:20vw;bottom:-30vmax;opacity:.22;animation-delay:-13s}
+:root[data-theme=light] .aurora i{opacity:.3}
+@keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+body{background:var(--bg)}
+.top{box-shadow:0 6px 30px #0003}
+.logo{font-size:1.5rem;text-shadow:0 0 24px #7a8dff66}
+.hero{position:relative;padding:44px 8px 26px;overflow:hidden}
+.hero h1{font-size:clamp(1.7rem,6vw,3.1rem);font-weight:900;letter-spacing:-1.5px;margin:12px auto 10px;max-width:880px}
+.hero h1 .grad{background:linear-gradient(90deg,#6c8cff,#b06cff,#ff6cab,#ffb86c,#6c8cff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 6s linear infinite}
+@keyframes flow{to{background-position:300% 0}}
+.hero p{font-size:15px}.hero p b{color:var(--fg)}
+.pill{display:inline-block;padding:5px 14px;border-radius:99px;font-size:13px;font-weight:700;color:var(--fg);background:linear-gradient(90deg,#6c8cff33,#ff6cab33);border:1px solid #ffffff2a;backdrop-filter:blur(6px);animation:pop .6s both}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.btn.big{padding:13px 26px;font-size:16px;border-radius:14px}
+#rand{box-shadow:0 8px 30px #7a8dff77;animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 8px 44px #ff6cabaa;transform:scale(1.03)}}
+.float{position:absolute;inset:0;pointer-events:none}
+.float span{position:absolute;font-size:2rem;opacity:.35;animation:bob 6s ease-in-out infinite}
+.float span:nth-child(1){left:6%;top:18%}.float span:nth-child(2){left:16%;top:62%;animation-delay:-1s}.float span:nth-child(3){left:30%;top:8%;animation-delay:-2s}.float span:nth-child(4){right:26%;top:12%;animation-delay:-3s}
+.float span:nth-child(5){right:12%;top:55%;animation-delay:-4s}.float span:nth-child(6){right:5%;top:15%;animation-delay:-1.5s}.float span:nth-child(7){left:42%;top:78%;animation-delay:-2.5s}.float span:nth-child(8){right:38%;top:72%;animation-delay:-3.5s}
+@keyframes bob{50%{transform:translateY(-14px) rotate(8deg)}}
+.ticker{overflow:hidden;margin:0 -16px 10px;padding:8px 0;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.ticker .track{display:flex;gap:26px;width:max-content;font-size:1.6rem;animation:marq 38s linear infinite}
+@keyframes marq{to{transform:translateX(-50%)}}
+.sec{font-size:1.25rem;margin:22px 4px 10px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.sec small{font-size:12px;background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:1px 9px;color:var(--mut)}
+.grid .span{grid-column:1/-1;margin:26px 4px 2px}
+.rail{display:flex;gap:14px;overflow-x:auto;padding:6px 4px 16px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.rail::-webkit-scrollbar{height:6px}.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+.rail .card{flex:0 0 210px;scroll-snap-align:start}
+/* thẻ kính mờ + đèn rọi theo chuột */
+.card{background:linear-gradient(160deg,color-mix(in srgb,var(--card) 90%,transparent),color-mix(in srgb,var(--card2) 80%,transparent));backdrop-filter:blur(8px);--mx:50%;--my:0}
+.card::before{background:radial-gradient(260px circle at var(--mx) var(--my),hsl(var(--h) 95% 65%/.35),transparent 65%);opacity:.55}
+.card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 18px 40px #0006,0 0 0 1px hsl(var(--h) 95% 68%/.85),0 0 34px hsl(var(--h) 95% 60%/.35)}
+.card.big{padding:26px 16px 18px;background:linear-gradient(160deg,hsl(var(--h) 70% 30%/.75),color-mix(in srgb,var(--card) 92%,transparent));border-color:hsl(var(--h) 90% 60%/.35)}
+:root[data-theme=light] .card.big{background:linear-gradient(160deg,hsl(var(--h) 90% 88%),#fff)}
+.card.big .ic{font-size:3.6rem}.card.big h3{font-size:1.1rem}
+.card .play{display:inline-block;margin-top:10px;padding:5px 14px;border-radius:99px;background:linear-gradient(90deg,#6c8cff,#ff6cab);color:#fff;font-size:12px;font-weight:800;opacity:.92}
+.bdg{position:absolute;top:30px;left:9px;font-size:10px;font-weight:900;padding:1px 8px;border-radius:99px;color:#fff;letter-spacing:.06em}
+.bdg.hot{background:linear-gradient(90deg,#ff7a3d,#ff3d6e);animation:blink 1.6s ease-in-out infinite}
+.bdg.new{background:linear-gradient(90deg,#20c997,#3b82f6)}
+@keyframes blink{50%{filter:brightness(1.4);transform:scale(1.06)}}
+.tabs button.on,.chips button.on{box-shadow:0 6px 22px #7a8dff66}
+.stage{box-shadow:0 18px 50px #0004;border-color:#ffffff1f}
+footer{padding:26px}
+@media(max-width:480px){.hero{padding:30px 4px 18px}.float span{font-size:1.4rem}.rail .card{flex-basis:170px}.ticker{margin:0 -10px 6px}}
+.hero>*:not(.float){position:relative;z-index:1}.float span{opacity:.25}
+.card.big .ic{margin-top:18px}
