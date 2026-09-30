@@ -46,3 +46,6 @@ Mã trong repo giữ nguyên dễ đọc. Khi `push` lên `main`, GitHub Actions
 **Bật một lần:** repo → Settings → Pages → *Build and deployment* → Source = **GitHub Actions**.
 
 Chạy thử tại máy: `npm install && npm run build` rồi mở `dist/index.html`. Lưu ý: làm rối chỉ gây khó khăn cho người xem mã, **không** ngăn được hoàn toàn; repo public thì mã gốc vẫn xem được trên GitHub. Bản quyền xem file `LICENSE`.
+
+## 🎧 Giải trí: Nghe nhạc · Karaoke · Xem TV
+`js/media.js`. Nhạc lấy từ kho Creative Commons/phạm vi công cộng (Openverse) hoặc file của chính bạn; Karaoke dùng lời/nhạc bạn cung cấp (.lrc/.txt), có echo/reverb và thu âm; TV liệt kê luồng công khai từ iptv-org. Không lưu/phát lại nội dung có bản quyền, không chèn quảng cáo.
