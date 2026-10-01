@@ -26,14 +26,14 @@ Những việc đã thống nhất là **để lại làm sau**. Đánh dấu `[
 Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các nhóm: **Arcade, Trí tuệ, Phản xạ, Bàn cờ, Nhiều người (online), Học tập**, cùng nhóm tiện ích. Dưới đây là các danh mục **chưa có** — làm dần khi có thời gian, ưu tiên chọn game nhẹ, chơi được trên điện thoại.
 
 ### Ưu tiên cao (hợp với web hiện tại)
-- [x] **Game 2 người** (cùng máy): Pong ✔ (còn: bắn tàu, đua xe 2 người, đấu kiếm…)
-- [x] **Hành động**: Diệt zombie ✔, Bắn cung ✔ (còn: xạ thủ, bắn tỉa, bắn xe tăng)
+- [x] **Game 2 người** (cùng máy): Pong ✔, Xe tăng đối kháng ✔ (còn: bắn tàu, đua xe 2 người, đấu kiếm…)
+- [x] **Hành động**: Diệt zombie ✔, Bắn cung ✔, Xạ thủ bắn tỉa ✔, Không chiến ✔
 - [x] **Thể thao**: Đá phạt đền ✔, Bóng rổ ✔, Bida ✔, Bowling ✔
-- [x] **Mô phỏng**: Nông trại ✔, Tiệm bánh ✔ (còn: nấu ăn, bán hàng)
-- [x] **Toán học**: Toán nhanh ✔ (còn: game từ vựng tiếng Anh, ghép chữ)
-- [x] **Tô màu theo số** ✔ (còn: vẽ tự do, trang trí, thời trang, trang điểm, làm tóc, làm móng)
-- [x] **Đua xe** ✔, **Ăn kẹo (kiểu Pac-Man)** ✔ (còn: Mario-like, Bomberman, Contra-like)
-- [x] **Mê cung** ✔, **Đào vàng** ✔ (còn: escape room, chọc phá, người que)
+- [x] **Mô phỏng**: Nông trại ✔, Tiệm bánh ✔, Nhà bếp nhỏ ✔ (còn: bán hàng)
+- [x] **Toán & chữ**: Toán nhanh ✔, Đố từ vựng ✔, Ghép chữ ✔
+- [x] **Sáng tạo**: Tô màu theo số ✔, Vẽ & trang trí ✔, Thời trang công chúa ✔ (còn: trang điểm, làm tóc, làm móng)
+- [x] **Đua xe** ✔, **Ăn kẹo (kiểu Pac-Man)** ✔, **Đặt bom (Bomberman)** ✔, **Người que chạy** ✔ (còn: Mario-like, Contra-like)
+- [x] **Mê cung** ✔, **Đào vàng** ✔, **Thoát khỏi nhà ma** ✔ (còn: escape room nhiều phòng, chọc phá)
 
 ### Theo chủ đề & mùa lễ
 - [x] **Lễ hội**: Hứng lì xì Tết ✔, Bầu cua tôm cá (xu ảo) ✔, Ghép đôi Valentine ✔, Noel giao quà ✔, Halloween nhặt kẹo ✔ (còn: gói bánh chưng, xếp người tuyết, nhà ma…)
@@ -42,9 +42,9 @@ Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các
   *(lưu ý bản quyền: dùng ý tưởng/phong cách gần gũi, không dùng tên/hình nhân vật có bản quyền)*
 
 ### Loại khác
-- [ ] **Diệt Zombie, Phòng thủ (tower defense), Đế chế, Chiến binh, Chiến thuật, Đối kháng, Không chiến, Săn bắn, Đột kích**
-- [ ] **Âm nhạc / Kim cương / Câu cá / Chơi cờ (thêm cờ vây, cờ thú, cờ cá ngựa) / Luyện trí nhớ**
-- [ ] **Văn phòng** (mini game giải trí giờ nghỉ), **Giải đố IQ**, **Y8-style 2 người**
+- [x] **Phòng thủ tháp** ✔, **Câu cá** ✔ (còn: đế chế, chiến binh, săn bắn, đột kích)
+- [ ] **Âm nhạc / Kim cương / Chơi cờ (thêm cờ vây, cờ thú, cờ cá ngựa)**
+- [x] **Giải đố IQ vui** ✔ (còn: game văn phòng giờ nghỉ, thêm game 2 người kiểu Y8)
 
 ### Đề xuất hệ thống thể loại (khi thêm nhiều game)
 - [ ] Tab thể loại cuộn ngang có icon (thay chip hiện tại), thêm nhãn **Game Hot / Game Hay / Game Mới** lọc nhanh giống ảnh tham khảo.
