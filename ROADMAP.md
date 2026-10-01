@@ -26,14 +26,14 @@ Những việc đã thống nhất là **để lại làm sau**. Đánh dấu `[
 Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các nhóm: **Arcade, Trí tuệ, Phản xạ, Bàn cờ, Nhiều người (online), Học tập**, cùng nhóm tiện ích. Dưới đây là các danh mục **chưa có** — làm dần khi có thời gian, ưu tiên chọn game nhẹ, chơi được trên điện thoại.
 
 ### Ưu tiên cao (hợp với web hiện tại)
-- [ ] **Game 2 người** (cùng máy): Pong, bắn tàu, đua xe 2 người, Đấu kiếm...
-- [ ] **Hành động / Xạ thủ / Bắn tỉa / Bắn cung / Bắn Xe Tăng**
-- [ ] **Bóng đá / Bóng rổ / Thể thao / Bida (Game Bida) / Bowling**
-- [ ] **Nông trại / Nấu ăn / Làm bánh / Bán hàng** (game quản lý nhẹ, click-idle)
-- [ ] **Toán học** (nhanh tay tính toán, điền số), **Học tiếng Anh** (thêm game từ vựng, ghép chữ)
-- [ ] **Tô màu** (tô màu theo số / vẽ), **Trang trí / Thiết kế / Thời trang / Trang điểm / Làm tóc / Làm móng**
-- [ ] **Đua xe**, **Phiêu lưu / Kinh điển** (Mario-like, Pac-Man, Bomberman, Contra-like)
-- [ ] **Tìm lối thoát / Escape / Mê cung**, **Đào vàng**, **Chọc phá / Người que**
+- [x] **Game 2 người** (cùng máy): Pong ✔ (còn: bắn tàu, đua xe 2 người, đấu kiếm…)
+- [x] **Hành động**: Diệt zombie ✔, Bắn cung ✔ (còn: xạ thủ, bắn tỉa, bắn xe tăng)
+- [x] **Thể thao**: Đá phạt đền ✔ (còn: bóng rổ, bida, bowling)
+- [x] **Mô phỏng**: Nông trại ✔, Tiệm bánh ✔ (còn: nấu ăn, bán hàng)
+- [x] **Toán học**: Toán nhanh ✔ (còn: game từ vựng tiếng Anh, ghép chữ)
+- [x] **Tô màu theo số** ✔ (còn: vẽ tự do, trang trí, thời trang, trang điểm, làm tóc, làm móng)
+- [x] **Đua xe** ✔, **Ăn kẹo (kiểu Pac-Man)** ✔ (còn: Mario-like, Bomberman, Contra-like)
+- [x] **Mê cung** ✔, **Đào vàng** ✔ (còn: escape room, chọc phá, người que)
 
 ### Theo chủ đề & mùa lễ
 - [ ] **Game Tết**, **Valentine / Tình yêu**, **Noel**, **Halloween / Kinh dị**
@@ -50,3 +50,7 @@ Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các
 - [ ] Tab thể loại cuộn ngang có icon (thay chip hiện tại), thêm nhãn **Game Hot / Game Hay / Game Mới** lọc nhanh giống ảnh tham khảo.
 - [ ] Mỗi game có nhiều thể loại (tag) thay vì một `cat`.
 - [ ] Đo lượt chơi theo game (Firebase `stats/games`) để tự xếp "Hot / Hay".
+
+## 🧰 Tiện ích mới đã thêm (tháng 10/2026)
+- [x] Sổ chi tiêu · Theo dõi thói quen · Tính vay & tiết kiệm · Máy đếm nhịp (`js/tools-new.js`)
+- [ ] Ý tưởng tiếp: mã QR, đổi tiền tệ (cần nguồn tỷ giá miễn phí), lịch âm, nhắc uống nước, đếm calo, ghi chú giọng nói.

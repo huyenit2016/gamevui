@@ -17,7 +17,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 |---|---|
 | `index.html`, `css/style.css`, `js/app.js` | Trang chủ, router, thẻ game, bộ lọc, tìm kiếm |
 | `js/icons.js`, `js/material.js`, `js/toast.js` | Icon SVG · ripple + FAB · snackbar |
-| `js/games-*.js`, `js/tools-*.js` | Game & tiện ích đơn |
+| `js/games-*.js`, `js/tools-*.js` | Game & tiện ích đơn (mới: `games-new.js` canvas hành động/thể thao, `games-brain.js` trí tuệ & mô phỏng, `tools-new.js` sổ chi tiêu/thói quen/vay/metronome) |
 | `js/mp-core.js`, `js/mp-*.js` | Game nhiều người (Firebase): loto, uno, tiến lên, ma sói, cờ tướng, cờ vua |
 | `js/learn-*.js` | Học tập: ngoại ngữ, tạo khoá học, gia sư AI, dịch, họp, lớp học 1-1, thư viện khoá |
 | `js/media.js` | Nghe nhạc (Openverse CC), Karaoke (mic/echo/thu âm), Xem TV (iptv-org) |
@@ -44,9 +44,10 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Obfuscator: **`renameGlobals:false`**, `transformObjectKeys:false` (bắt buộc, các file dùng chung biến toàn cục `GV`, khoá Firebase). Hai file `firebase-config.js`, `ads-config.js` chỉ nén. Không sửa trong `dist/` (bị xoá mỗi lần build).
 - Chạy thử cục bộ: `npm install && npm run build`, mở `dist/index.html`.
 - **Test** (Playwright, cần cài global; mạng bị chặn nên dùng mock): `NODE_PATH=$(npm root -g) node tools/tests/<file>`
-  - `mount-all.test.js` — mở cả 60 mục, báo lỗi (luôn chạy sau khi sửa UI)
+  - `mount-all.test.js` — mở cả 76 mục, báo lỗi (luôn chạy sau khi sửa UI)
   - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `86 đạt, 0 lỗi`)
   - `cms-e2e.test.js` — CMS end-to-end với Firebase giả (`hub.js`, `mock_shared.js`)
+  - `new-games.test.js` — 12 game + 4 tiện ích mới (thao tác cơ bản, kiểm tra canvas có vẽ)
   - `media.test.js` — Nghe nhạc/Karaoke/TV với API giả
   - Chưa thử được: Firebase thật, API AI thật, micro/điện thoại thật.
 - Commit xong chạy thêm `node --check js/*.js`.
@@ -64,7 +65,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Bố cục: top app bar + ô tìm kiếm (`#q`) · **navigation rail** trái (≥600px) · **bottom bar 5 mục** (<600px, ẩn khi đang chơi, class `body.ingame`) · FAB "Chơi ngẫu nhiên" · hero gọn có 4 thẻ game · "Đang hot" dạng bento (thẻ đầu 2×2, tối đa 9) · "Chơi gần đây" thẻ ngang · lưới thẻ game.
 - **Nút/chip/banner dùng màu rgba trong suốt** (biến `--t-p`, `--t-n`, `--t-ok`, `--t-bad`…), banner `.annc` info/warn/success dạng rgba. **Nền thẻ `.card .art .bg` dùng pastel trong suốt** theo hue thể loại (`--h`).
 - Nhãn nút thẻ theo loại: game → **Chơi / Chơi ngay**, học tập → **Học / Học ngay**, tiện ích → **Dùng thử** (`verbOf` trong `app.js`).
-- Cạm bẫy CSS: class `.big` (số to, căn giữa) trùng với `.card.big` → đã có rule reset; id `#q` thuộc ô tìm kiếm header (tool dùng `#mq`); CMS có biến/skin riêng trong `#cms` (sidebar tối, nội dung trắng) và override `.btn` trong `css/cms.css`.
+- Cạm bẫy: **không đặt class `.ad` cho nút/phần tử không phải quảng cáo** (`ads.js` điền quảng cáo vào mọi `.ad`; tool dùng `.add`). Class `.big` (số to, căn giữa) trùng với `.card.big` → đã có rule reset; id `#q` thuộc ô tìm kiếm header (tool dùng `#mq`); CMS có biến/skin riêng trong `#cms` (sidebar tối, nội dung trắng) và override `.btn` trong `css/cms.css`.
 - Icon UI là SVG nét Lucide (`js/icons.js`, thêm icon = thêm path). Emoji chỉ còn là biểu tượng của từng game và nội dung bên trong game.
 
 ## 7. Giới hạn đã biết
