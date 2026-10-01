@@ -54,3 +54,10 @@ Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các
 ## 🧰 Tiện ích mới đã thêm (tháng 10/2026)
 - [x] Sổ chi tiêu · Theo dõi thói quen · Tính vay & tiết kiệm · Máy đếm nhịp (`js/tools-new.js`)
 - [ ] Ý tưởng tiếp: mã QR, đổi tiền tệ (cần nguồn tỷ giá miễn phí), lịch âm, nhắc uống nước, đếm calo, ghi chú giọng nói.
+
+## 👩‍🌾 Avatar nông trại – bản 2, 3 (MVP đã xong)
+MVP (`js/games-avatarfarm.js`): nhân vật tuỳ biến, 8 cây, cấp độ, cửa hàng đồ, nhiệm vụ hằng ngày, điểm danh, lưu `localStorage`.
+- [ ] Vật nuôi (gà, bò, lợn): cho ăn, thu trứng/sữa; thêm thành tựu.
+- [ ] Trang trí kéo thả (hàng rào, cây cảnh, nhà kho) và thêm đồ avatar theo mùa lễ.
+- [ ] Bộ sprite đẹp hơn (CC0 hoặc ảnh do chủ cung cấp) thay hình vẽ bằng canvas/emoji.
+- [ ] Lưu đám mây Firebase `farms/<uid>`, ghé thăm bạn bè, bảng xếp hạng tuần (cần Rules mới + chống gian lận cơ bản).

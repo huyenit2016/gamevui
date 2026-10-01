@@ -17,7 +17,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 |---|---|
 | `index.html`, `css/style.css`, `js/app.js` | Trang chủ, router, thẻ game, bộ lọc, tìm kiếm |
 | `js/icons.js`, `js/material.js`, `js/toast.js` | Icon SVG · ripple + FAB · snackbar |
-| `js/games-*.js`, `js/tools-*.js` | Game & tiện ích đơn (mới: `games-new.js` canvas hành động/thể thao, `games-brain.js` trí tuệ & mô phỏng, `games-battle.js` (xe tăng, bắn tỉa, không chiến, phòng thủ tháp, câu cá, người que, đặt bom, nhà ma), `games-word.js` (từ vựng, ghép chữ, vẽ, thời trang, nhà bếp, IQ), `games-season.js` thể thao (bóng rổ, bida, bowling) & lễ hội (lì xì, bầu cua, Valentine, Noel, Halloween), `tools-new.js` sổ chi tiêu/thói quen/vay/metronome) |
+| `js/games-*.js`, `js/tools-*.js` | Game & tiện ích đơn (mới: `games-new.js` canvas hành động/thể thao, `games-brain.js` trí tuệ & mô phỏng, `games-battle.js` (xe tăng, bắn tỉa, không chiến, phòng thủ tháp, câu cá, người que, đặt bom, nhà ma), `games-avatarfarm.js` (**Avatar nông trại**: nhân vật tuỳ biến vẽ bằng canvas, 8 cây, cấp độ, cửa hàng đồ, nhiệm vụ ngày; lưu `gv_avfarm`; bản 2 sẽ thêm vật nuôi/trang trí/Firebase), `games-word.js` (từ vựng, ghép chữ, vẽ, thời trang, nhà bếp, IQ), `games-season.js` thể thao (bóng rổ, bida, bowling) & lễ hội (lì xì, bầu cua, Valentine, Noel, Halloween), `tools-new.js` sổ chi tiêu/thói quen/vay/metronome) |
 | `js/mp-core.js`, `js/mp-*.js` | Game nhiều người (Firebase): loto, uno, tiến lên, ma sói, cờ tướng, cờ vua |
 | `js/learn-*.js` | Học tập: ngoại ngữ, tạo khoá học, gia sư AI, dịch, họp, lớp học 1-1, thư viện khoá |
 | `js/media.js` | Nghe nhạc (Openverse CC), Karaoke (mic/echo/thu âm), Xem TV (iptv-org) |
@@ -44,10 +44,10 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Obfuscator: **`renameGlobals:false`**, `transformObjectKeys:false` (bắt buộc, các file dùng chung biến toàn cục `GV`, khoá Firebase). Hai file `firebase-config.js`, `ads-config.js` chỉ nén. Không sửa trong `dist/` (bị xoá mỗi lần build).
 - Chạy thử cục bộ: `npm install && npm run build`, mở `dist/index.html`.
 - **Test** (Playwright, cần cài global; mạng bị chặn nên dùng mock): `NODE_PATH=$(npm root -g) node tools/tests/<file>`
-  - `mount-all.test.js` — mở cả 98 mục, báo lỗi (luôn chạy sau khi sửa UI)
+  - `mount-all.test.js` — mở cả 99 mục, báo lỗi (luôn chạy sau khi sửa UI)
   - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `86 đạt, 0 lỗi`)
   - `cms-e2e.test.js` — CMS end-to-end với Firebase giả (`hub.js`, `mock_shared.js`)
-  - `new-games.test.js` — 34 game + 4 tiện ích mới (thao tác cơ bản, kiểm tra canvas có vẽ)
+  - `new-games.test.js` — 35 game + 4 tiện ích mới (thao tác cơ bản, kiểm tra canvas có vẽ)
   - `media.test.js` — Nghe nhạc/Karaoke/TV với API giả
   - Chưa thử được: Firebase thật, API AI thật, micro/điện thoại thật.
 - Commit xong chạy thêm `node --check js/*.js`.
