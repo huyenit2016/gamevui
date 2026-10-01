@@ -28,7 +28,7 @@ Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các
 ### Ưu tiên cao (hợp với web hiện tại)
 - [x] **Game 2 người** (cùng máy): Pong ✔ (còn: bắn tàu, đua xe 2 người, đấu kiếm…)
 - [x] **Hành động**: Diệt zombie ✔, Bắn cung ✔ (còn: xạ thủ, bắn tỉa, bắn xe tăng)
-- [x] **Thể thao**: Đá phạt đền ✔ (còn: bóng rổ, bida, bowling)
+- [x] **Thể thao**: Đá phạt đền ✔, Bóng rổ ✔, Bida ✔, Bowling ✔
 - [x] **Mô phỏng**: Nông trại ✔, Tiệm bánh ✔ (còn: nấu ăn, bán hàng)
 - [x] **Toán học**: Toán nhanh ✔ (còn: game từ vựng tiếng Anh, ghép chữ)
 - [x] **Tô màu theo số** ✔ (còn: vẽ tự do, trang trí, thời trang, trang điểm, làm tóc, làm móng)
@@ -36,7 +36,7 @@ Tham khảo từ một trang game lớn (ảnh bạn gửi). Hiện web có các
 - [x] **Mê cung** ✔, **Đào vàng** ✔ (còn: escape room, chọc phá, người que)
 
 ### Theo chủ đề & mùa lễ
-- [ ] **Game Tết**, **Valentine / Tình yêu**, **Noel**, **Halloween / Kinh dị**
+- [x] **Lễ hội**: Hứng lì xì Tết ✔, Bầu cua tôm cá (xu ảo) ✔, Ghép đôi Valentine ✔, Noel giao quà ✔, Halloween nhặt kẹo ✔ (còn: gói bánh chưng, xếp người tuyết, nhà ma…)
 - [ ] **Công chúa / Con gái / Chú khỉ buồn / Trẻ em** (nhóm bé)
 - [ ] **Game Anime, Naruto, Pokemon, Pikachu (nối thú), Minecraft, Lego, 3D**
   *(lưu ý bản quyền: dùng ý tưởng/phong cách gần gũi, không dùng tên/hình nhân vật có bản quyền)*
