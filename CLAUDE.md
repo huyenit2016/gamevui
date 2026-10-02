@@ -28,6 +28,8 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 | `404.html`, `500.html`, `privacy.html` | Trang lỗi phong cách Tết, quyền riêng tư |
 | `database.rules.json` | Rules Firebase — sinh từ `tools/make_rules.py` (chạy lại, đừng sửa tay) |
 | `tools/build.mjs`, `.github/workflows/deploy.yml` | Build làm rối mã + deploy Pages |
+| `manifest.webmanifest`, `sw.js`, `icons/` | PWA (cài lên màn hình chính iOS/Android, network-first + ngoại tuyến) |
+| `mobile/`, `.github/workflows/android.yml` | Vỏ Capacitor đóng gói app Android/iOS từ `dist/` (xem `mobile/README.md`; APK build thủ công trên Actions; iOS cần Mac) |
 
 ## 3. Firebase & phân quyền
 - Khách: đăng nhập **ẩn danh** (Anonymous). Tài khoản CMS: Email/Password.

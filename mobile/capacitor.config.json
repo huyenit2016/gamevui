@@ -1,0 +1,8 @@
+{
+  "appId": "vn.gamevui.app",
+  "appName": "GameVui",
+  "webDir": "../dist",
+  "backgroundColor": "#141316",
+  "server": { "androidScheme": "https" },
+  "ios": { "contentInset": "never" }
+}

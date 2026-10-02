@@ -2,12 +2,15 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>GameVui – Game &amp; Tiện ích online</title>
 <meta name="description" content="Kho game mini và tiện ích miễn phí, chạy ngay trên trình duyệt, không cần cài đặt.">
 <meta name="theme-color" content="#141316">
 <script>try{var t=localStorage.getItem("gv_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎮%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="GameVui"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="m3">
@@ -126,6 +129,6 @@
 <script src="js/media.js"></script>
 <script src="js/account.js"></script>
 <script src="js/stats.js"></script>
-<script>GV.start();</script>
+<script>GV.start();if("serviceWorker"in navigator&&/^https?:$/.test(location.protocol)&&!window.Capacitor)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});</script>
 </body>
 </html>

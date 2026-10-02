@@ -40,5 +40,7 @@ for (const f of fs.readdirSync('.').filter(x => x.endsWith('.html'))) {
   const out = await minifyHtml(src, { collapseWhitespace: true, conservativeCollapse: true, removeComments: true, minifyJS: true, minifyCSS: true });
   put(f, out); stat.html[0] += src.length; stat.html[1] += out.length;
 }
+if (fs.existsSync('icons')) for (const f of fs.readdirSync('icons')) put('icons/' + f, fs.readFileSync('icons/' + f));
+put('sw.js', (await minify(fs.readFileSync('sw.js', 'utf8'))).code); put('manifest.webmanifest', JSON.stringify(JSON.parse(fs.readFileSync('manifest.webmanifest', 'utf8'))));
 for (const f of ['ads.txt', '.nojekyll', 'LICENSE']) if (fs.existsSync(f)) put(f, fs.readFileSync(f));
 console.log('build OK ->', OUT, JSON.stringify(stat));

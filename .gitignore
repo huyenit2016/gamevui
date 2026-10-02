@@ -1,3 +1,7 @@
 node_modules/
 dist/
 *.png
+
+mobile/node_modules
+mobile/android
+mobile/ios
