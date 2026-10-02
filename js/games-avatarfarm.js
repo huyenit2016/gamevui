@@ -2,6 +2,7 @@
 // Dữ liệu lưu trong localStorage (khoá gv_avfarm). Cây vẫn lớn khi thoát web vì tính theo mốc thời gian thật.
 (function () {
   const $ = (el, s) => el.querySelector(s), esc = GV.esc;
+  GV.townZones = GV.townZones || []; // các khu mở rộng (js/town.js đăng ký vào đây)
   const CROPS = [
     { id: 'carrot', e: '🥕', n: 'Cà rốt', lv: 1, cost: 4, gain: 9, sec: 15, xp: 2 },
     { id: 'rice', e: '🌾', n: 'Lúa', lv: 1, cost: 6, gain: 14, sec: 25, xp: 3 },
@@ -10,7 +11,11 @@
     { id: 'melon', e: '🍉', n: 'Dưa hấu', lv: 4, cost: 25, gain: 70, sec: 120, xp: 12 },
     { id: 'berry', e: '🍓', n: 'Dâu tây', lv: 5, cost: 35, gain: 100, sec: 180, xp: 16 },
     { id: 'pumpkin', e: '🎃', n: 'Bí ngô', lv: 6, cost: 50, gain: 150, sec: 300, xp: 22 },
-    { id: 'sunflower', e: '🌻', n: 'Hướng dương', lv: 7, cost: 70, gain: 230, sec: 420, xp: 30 }
+    { id: 'sunflower', e: '🌻', n: 'Hướng dương', lv: 7, cost: 70, gain: 230, sec: 420, xp: 30 },
+    // cây ăn quả: trồng 1 lần, thu hoạch nhiều lần
+    { id: 'apple', e: '🍎', n: 'Cây táo', lv: 2, cost: 60, gain: 34, sec: 150, xp: 10, tree: true, yields: 6 },
+    { id: 'orange', e: '🍊', n: 'Cây cam', lv: 4, cost: 120, gain: 70, sec: 240, xp: 16, tree: true, yields: 7 },
+    { id: 'mango', e: '🥭', n: 'Cây xoài', lv: 6, cost: 220, gain: 130, sec: 360, xp: 26, tree: true, yields: 8 }
   ];
   const CAT = {
     skin: { n: 'Màu da', it: [{ id: 'skin0', v: '#FFE0BD' }, { id: 'skin1', v: '#F1C27D' }, { id: 'skin2', v: '#E0AC69' }, { id: 'skin3', v: '#C68642' }, { id: 'skin4', v: '#8D5524' }] },
@@ -27,7 +32,11 @@
   const isFree = it => !it.p && !it.g;
   const need = l => 15 + l * l * 10, MAXLV = 30, COLS = 5, ROWS = 4, CS = 72, X0 = 30, Y0 = 62;
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
-  const fresh = () => ({ v: 1, coins: 30, gems: 0, xp: 0, lv: 1, plots: 6, field: Array(COLS * ROWS).fill(null), owned: [], av: { skin: 'skin1', hair: 'hair_short', hcol: 'hc_brown', top: 'top_tee', tcol: 'tc_green', pants: 'pa_blue', hat: 'hat_none', acc: 'acc_none' }, day: '', streak: 0, last: '', q: null, tot: { h: 0, c: 0 } });
+  const UNLOCK = 1800; // 30 phút chơi để mở khoá cả làng
+  const fresh = () => ({ v: 1, coins: 30, gems: 12, xp: 0, lv: 1, plots: 6, field: Array(COLS * ROWS).fill(null), owned: [], av: { skin: 'skin1', hair: 'hair_short', hcol: 'hc_brown', top: 'top_tee', tcol: 'tc_green', pants: 'pa_blue', hat: 'hat_none', acc: 'acc_none' }, day: '', streak: 0, last: '', q: null, tot: { h: 0, c: 0 } });
+  // bổ sung trường mới cho dữ liệu cũ
+  function migrate(S) { S.play = S.play || 0; S.unlocked = !!S.unlocked; S.inv = S.inv || {}; S.pens = S.pens || [null, null]; S.house = S.house || { lv: 0, items: [] }; S.biz = S.biz || { lv: [0, 0, 0, 0, 0], pool: 0, t: Date.now() }; S.nick = S.nick || 'Nông dân'; S.rw = S.rw || {}; S.liked = S.liked || {}; S.happy = S.happy || 0; return S; }
+  GV.townLib = { CROPS, CAT, find, need, drawAvatar };
 
   // vẽ nhân vật (dùng cho cả nông trại lẫn khung xem trước)
   function drawAvatar(c, x, y, av, t, walking, s) {
@@ -60,15 +69,15 @@
   }
 
   GV.register({
-    id: 'avatarfarm', type: 'game', cat: 'Mô phỏng', name: 'Avatar nông trại', icon: '👩‍🌾', desc: 'Tạo nhân vật của bạn, chạm đất để nhân vật chạy tới trồng – tưới – thu hoạch. Lên cấp, mở cây mới, mua đồ thời trang và làm nhiệm vụ mỗi ngày!',
+    id: 'avatarfarm', type: 'game', cat: 'Mô phỏng', name: 'Làng Nông Vui', icon: '👩‍🌾', desc: 'Chuyên trang nông trại: trồng rau, cây ăn quả, nuôi gà bò lợn. Chơi 30 phút mở khoá xây nhà, câu cá, đua xe, cờ tỷ phú, cày xu và đi thăm hàng xóm!',
     mount(el) {
-      let S = (() => { const d = GV.store.get('avfarm', null); return d && d.v === 1 ? d : fresh(); })();
+      let S = migrate((() => { const d = GV.store.get('avfarm', null); return d && d.v === 1 ? d : fresh(); })()), zoneClean = null, T = null;
       const save = () => GV.store.set('avfarm', S); let tab = 'farm', sel = 'carrot', avx = X0 + CS * 2.5, avy = Y0 + CS * 4 + 4, tx = avx, ty = avy, pend = -1, fx = [], t = 0, dead = false;
-      el.innerHTML = `<style>.af .tb{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.af .tb button.on{background:var(--t-p);border-color:var(--t-pb);color:var(--t-pt)}.af .crop{height:auto;min-height:66px;border-radius:14px;min-width:78px;display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 8px;line-height:1.25}.af .crop small{color:var(--mut);font-size:11px}.af .crop.lock{opacity:.45}.af .xp{height:8px;border-radius:9px;background:var(--md-sc-lowest,#111);overflow:hidden;min-width:90px}.af .xp i{display:block;height:100%;background:var(--ok);transition:width .3s}.af .it{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:12px;border:1px solid var(--line);background:var(--md-sc-high,#2b292d);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;margin:3px;position:relative}.af .it.eq{border-color:var(--md-primary,#D0BCFF);background:var(--t-p)}.af .it .sw{width:18px;height:18px;border-radius:50%;border:1px solid #fff4}.af .it.lk{opacity:.5}.af .q{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--md-sc-high,#2b292d);margin-bottom:6px;text-align:left}</style><div class="tool af" style="max-width:480px;align-items:center"><div class="hud"><span>🪙 <b class="co">0</b></span><span>💎 <b class="gm">0</b></span><span>Cấp <b class="lv">1</b></span><div class="xp"><i></i></div><span class="hint xt"></span></div><div class="tb"><button class="btn ghost" data-t="farm">🌾 Nông trại</button><button class="btn ghost" data-t="avatar">👕 Nhân vật</button><button class="btn ghost" data-t="quest">🎯 Nhiệm vụ</button></div><div class="pane"></div><p class="msg"></p></div>`;
+      el.innerHTML = `<style>.af .tb{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding:2px;scrollbar-width:none}.af .tb::-webkit-scrollbar{display:none}.af .tb button{flex:0 0 auto;white-space:nowrap;padding:0 14px}.af .tb button.lk{opacity:.55}.af .tb button.on{background:var(--t-p);border-color:var(--t-pb);color:var(--t-pt)}.af .crop{height:auto;min-height:66px;border-radius:14px;min-width:78px;display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 8px;line-height:1.25}.af .crop small{color:var(--mut);font-size:11px}.af .crop.lock{opacity:.45}.af .xp{height:8px;border-radius:9px;background:var(--md-sc-lowest,#111);overflow:hidden;min-width:90px}.af .xp i{display:block;height:100%;background:var(--ok);transition:width .3s}.af .it{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:12px;border:1px solid var(--line);background:var(--md-sc-high,#2b292d);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;margin:3px;position:relative}.af .it.eq{border-color:var(--md-primary,#D0BCFF);background:var(--t-p)}.af .it .sw{width:18px;height:18px;border-radius:50%;border:1px solid #fff4}.af .it.lk{opacity:.5}.af .q{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--md-sc-high,#2b292d);margin-bottom:6px;text-align:left}</style><div class="tool af" style="max-width:520px;align-items:center"><div class="hud"><span>🪙 <b class="co">0</b></span><span>💎 <b class="gm">0</b></span><span>Cấp <b class="lv">1</b></span><div class="xp"><i></i></div><span class="hint xt"></span></div><div class="tb"></div><div class="pane"></div><p class="msg"></p></div>`;
       const pane = $(el, '.pane'); let cv = null, c = null, pv = null, pc = null;
       const cur = () => Math.min(MAXLV, S.lv), prog = p => { const cr = CROPS.find(x => x.id === p.c); return Math.min(1, (Date.now() - p.t) / (cr.sec * 1000)); };
       const toast = (m, ty) => { if (GV.toast) GV.toast(m, { type: ty || 'info', ttl: 2800 }); else $(el, '.msg').textContent = m; };
-      function hudUpdate() { $(el, '.co').textContent = S.coins; $(el, '.gm').textContent = S.gems; $(el, '.lv').textContent = S.lv; const n = need(S.lv); $(el, '.xp i').style.width = (S.lv >= MAXLV ? 100 : Math.min(100, S.xp / n * 100)) + '%'; $(el, '.xt').textContent = S.lv >= MAXLV ? 'MAX' : `${S.xp}/${n} XP`; el.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === tab)); }
+      function hudUpdate() { $(el, '.co').textContent = S.coins; $(el, '.gm').textContent = S.gems; $(el, '.lv').textContent = S.lv; const n = need(S.lv); $(el, '.xp i').style.width = (S.lv >= MAXLV ? 100 : Math.min(100, S.xp / n * 100)) + '%'; $(el, '.xt').textContent = S.lv >= MAXLV ? 'MAX' : `${S.xp}/${n} XP`; el.querySelectorAll('.tb [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === tab)); }
       function addXp(n) { S.xp += n; while (S.lv < MAXLV && S.xp >= need(S.lv)) { S.xp -= need(S.lv); S.lv++; S.gems += 2; toast(`🎉 Lên cấp ${S.lv}! +2 💎` + (CROPS.find(x => x.lv === S.lv) ? ` · Mở khoá ${CROPS.find(x => x.lv === S.lv).n}` : ''), 'success'); GV.beep(900, 150); } }
       function ensureDay() {
         const d = today(); if (S.day !== d) { const y = new Date(); y.setDate(y.getDate() - 1); const ys = y.getFullYear() + '-' + (y.getMonth() + 1) + '-' + y.getDate(); S.streak = S.day === ys ? Math.min(30, S.streak + 1) : 1; S.day = d; const b = 20 + 10 * Math.min(S.streak, 7); S.coins += b; setTimeout(() => !dead && toast(`📅 Điểm danh ngày ${S.streak}: +${b} 🪙`, 'success'), 400);
@@ -78,7 +87,7 @@
       function perform(i) {
         const p = S.field[i];
         if (!p) { const cr = CROPS.find(x => x.id === sel); if (cr.lv > S.lv) return toast(`Cần cấp ${cr.lv} để trồng ${cr.n}.`, 'warn'); if (S.coins < cr.cost) return toast('Không đủ xu mua hạt giống.', 'warn'); S.coins -= cr.cost; S.field[i] = { c: sel, t: Date.now(), w: 0 }; quest('plant', 1); text(i, '-' + cr.cost + '🪙', '#EF9A9A'); GV.beep(500, 40); }
-        else if (prog(p) >= 1) { const cr = CROPS.find(x => x.id === p.c); S.coins += cr.gain; quest('harvest', 1); quest('earn', cr.gain); S.tot.h++; S.tot.c += cr.gain; S.field[i] = null; addXp(cr.xp); text(i, '+' + cr.gain + '🪙  +' + cr.xp + 'XP', '#A5D6A7'); GV.beep(800, 80); }
+        else if (prog(p) >= 1) { const cr = CROPS.find(x => x.id === p.c), gn = Math.round(cr.gain * T.bonus()); S.coins += gn; quest('harvest', 1); quest('earn', gn); S.tot.h++; S.tot.c += gn; if (cr.tree && (p.h = (p.h || 0) + 1) < cr.yields) { p.t = Date.now(); p.w = 0; } else S.field[i] = null; addXp(cr.xp); text(i, '+' + gn + '🪙  +' + cr.xp + 'XP', '#A5D6A7'); GV.beep(800, 80); }
         else if (!p.w) { const cr = CROPS.find(x => x.id === p.c); p.w = 1; p.t -= cr.sec * 1000 * .2; addXp(1); text(i, '💧 -20% thời gian', '#81D4FA'); GV.beep(420, 40); }
         else toast('Cây đang lớn, đã tưới rồi. Chờ thêm chút nhé!');
         save(); hudUpdate();
@@ -104,15 +113,16 @@
           const p = slotPos(i), x = p.x - 31, y = p.y - 29, st = S.field[i];
           if (i >= S.plots) { c.fillStyle = 'rgba(0,0,0,.18)'; c.fillRect(x, y, 62, 58); c.font = '20px serif'; c.fillStyle = '#fff'; c.fillText(i === S.plots ? '🔓' : '🔒', p.x, p.y - 6); if (i === S.plots) { c.font = 'bold 12px Roboto,sans-serif'; c.fillText(40 * (S.plots - 4) + '🪙', p.x, p.y + 14); } continue; }
           c.fillStyle = st && st.w ? '#4E342E' : '#795548'; c.beginPath(); c.roundRect ? c.roundRect(x, y, 62, 58, 8) : c.rect(x, y, 62, 58); c.fill(); c.strokeStyle = '#5D4037'; c.lineWidth = 2; c.stroke();
-          if (st) { const pr = prog(st), cr = CROPS.find(k => k.id === st.c); c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = (pr >= 1 ? 34 : pr > .5 ? 26 : 18) + 'px serif'; c.fillText(pr >= 1 ? cr.e : pr > .5 ? '🌿' : '🌱', p.x, p.y - 2 + (pr >= 1 ? Math.sin(t * 5 + i) * 2 : 0)); if (pr >= 1) { c.font = '14px serif'; c.fillText('✨', p.x + 20, p.y - 18 + Math.sin(t * 4 + i) * 2); } else { c.fillStyle = '#0006'; c.fillRect(x + 6, y + 49, 50, 5); c.fillStyle = st.w ? '#4FC3F7' : '#9CCC65'; c.fillRect(x + 6, y + 49, 50 * pr, 5); } if (st.w && pr < 1) { c.font = '12px serif'; c.fillText('💧', x + 8, y + 10); } }
+          if (st) { const pr = prog(st), cr = CROPS.find(k => k.id === st.c); c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = (pr >= 1 ? 34 : pr > .5 ? 26 : 18) + 'px serif'; c.fillText(pr >= 1 ? cr.e : pr > .5 ? (cr.tree ? '🌳' : '🌿') : '🌱', p.x, p.y - 2 + (pr >= 1 ? Math.sin(t * 5 + i) * 2 : 0)); if (pr >= 1) { c.font = '14px serif'; c.fillText('✨', p.x + 20, p.y - 18 + Math.sin(t * 4 + i) * 2); } else { c.fillStyle = '#0006'; c.fillRect(x + 6, y + 49, 50, 5); c.fillStyle = st.w ? '#4FC3F7' : '#9CCC65'; c.fillRect(x + 6, y + 49, 50 * pr, 5); } if (st.w && pr < 1) { c.font = '12px serif'; c.fillText('💧', x + 8, y + 10); } }
         }
         fx.forEach(f => { f.t -= dt; f.y -= 22 * dt; }); fx = fx.filter(f => f.t > 0); c.font = 'bold 13px Roboto,sans-serif'; fx.forEach(f => { c.globalAlpha = Math.min(1, f.t * 2); c.fillStyle = '#000'; c.fillText(f.s, f.x + 1, f.y + 1); c.fillStyle = f.col; c.fillText(f.s, f.x, f.y); }); c.globalAlpha = 1;
         drawAvatar(c, avx, avy, S.av, t, walking, 1);
       }
       /* ---- tab nhân vật ---- */
       function drawAvatarTab() {
-        pane.innerHTML = `<div class="row" style="align-items:flex-start;gap:14px"><canvas class="cv" width="150" height="210" style="width:150px;background:radial-gradient(circle at 50% 30%,var(--t-p),transparent 70%),var(--md-sc-high,#2b292d)"></canvas><div class="col" style="flex:1;min-width:220px;max-width:none"><button class="btn ghost rnd">🎲 Phối ngẫu nhiên (đồ đã có)</button></div></div><div class="opts" style="text-align:left;margin-top:8px"></div><p class="hint">Chạm món đã có để mặc · món có giá để mua (🪙 xu, 💎 kim cương) · 🔒 cần đạt cấp.</p>`;
+        pane.innerHTML = `<div class="row" style="align-items:flex-start;gap:14px"><canvas class="cv" width="150" height="210" style="width:150px;background:radial-gradient(circle at 50% 30%,var(--t-p),transparent 70%),var(--md-sc-high,#2b292d)"></canvas><div class="col" style="flex:1;min-width:220px;max-width:none"><label>Tên hiển thị (hàng xóm sẽ thấy)<input class="nk" maxlength="20" value="${esc(S.nick)}" style="width:100%"></label><button class="btn ghost rnd">🎲 Phối ngẫu nhiên (đồ đã có)</button></div></div><div class="opts" style="text-align:left;margin-top:8px"></div><p class="hint">Chạm món đã có để mặc · món có giá để mua (🪙 xu, 💎 kim cương) · 🔒 cần đạt cấp.</p>`;
         pv = $(pane, 'canvas'); pc = pv.getContext('2d'); opts();
+        $(pane, '.nk').oninput = e => { S.nick = e.target.value.trim().slice(0, 20) || 'Nông dân'; save(); };
         $(pane, '.rnd').onclick = () => { Object.keys(CAT).forEach(k => { const own = CAT[k].it.filter(i => isFree(i) || S.owned.includes(i.id)); S.av[SLOT[k]] = own[GV.rnd(own.length)].id; }); save(); opts(); };
       }
       function opts() {
@@ -129,12 +139,34 @@
         pane.innerHTML = `<div class="hint">🔥 Chuỗi điểm danh: <b>${S.streak}</b> ngày · Đã thu hoạch <b>${S.tot.h}</b> lần · Tổng xu kiếm được <b>${S.tot.c}</b></div><div style="margin-top:8px">${q.list.map((x, i) => `<div class="q"><span><b>${x.n}</b> ${x.have}/${x.need}<br><small style="color:var(--mut)">Thưởng: ${x.rew.c ? x.rew.c + ' 🪙' : ''}${x.rew.g ? x.rew.g + ' 💎' : ''}</small></span>${x.done ? '<span class="tag ok">Đã nhận ✓</span>' : `<button class="btn ${x.have >= x.need ? '' : 'ghost'}" data-q="${i}" ${x.have >= x.need ? '' : 'disabled'}>Nhận</button>`}</div>`).join('')}</div><p class="hint">Nhiệm vụ làm mới mỗi ngày.</p>`;
         pane.onclick = e => { const b = e.target.closest('[data-q]'); if (!b) return; const x = S.q.list[+b.dataset.q]; if (!x || x.done || x.have < x.need) return; x.done = true; S.coins += x.rew.c || 0; S.gems += x.rew.g || 0; save(); hudUpdate(); GV.beep(900, 100); drawQuests(); };
       }
-      function show(tb) { tab = tb; pane.onclick = null; hudUpdate(); if (tb === 'farm') drawFarm(); else if (tb === 'avatar') { drawAvatarTab(); pane.onclick = onItem; } else drawQuests(); }
+      /* ---- khung tab + các khu mở rộng (js/town.js) ---- */
+      const ZN = () => GV.townZones || [];
+      const tabsDef = () => { const z = id => ZN().find(x => x.id === id); const base = [['farm', '🌾 Nông trại'], ['barn'], ['avatar', '👕 Nhân vật'], ['quest', '🎯 Nhiệm vụ']]; const out = base.map(([id, n]) => id === 'barn' ? (z('barn') ? { id, n: z('barn').ico + ' ' + z('barn').n } : null) : { id, n }).filter(Boolean); ZN().filter(x => x.lock).forEach(x => out.push({ id: x.id, n: x.ico + ' ' + x.n, lk: !S.unlocked })); return out; };
+      function buildTabs() { el.querySelector('.tb').innerHTML = tabsDef().map(x => `<button class="btn ghost${x.lk ? ' lk' : ''}" data-t="${x.id}">${x.lk ? '🔒 ' : ''}${x.n}</button>`).join(''); hudUpdate(); }
+      function lockedPanel() {
+        const left = Math.max(0, UNLOCK - S.play), m = Math.ceil(left / 60);
+        pane.innerHTML = `<div class="res" style="text-align:center;line-height:1.7"><div style="font-size:2.4rem">🔒</div><b>Khu này sẽ mở sau khi bạn chơi đủ 30 phút</b><br><span class="hint">Còn khoảng <b>${m}</b> phút · Mở khoá: ${ZN().filter(x => x.lock).map(x => x.ico + ' ' + x.n).join(' · ')}</span><div class="xp" style="margin:10px auto;max-width:260px"><i style="width:${Math.min(100, S.play / UNLOCK * 100)}%"></i></div><button class="btn ghost ue">⚡ Mở sớm (10 💎)</button></div>`;
+        $(pane, '.ue').onclick = () => { if (S.gems < 10) return toast('Chưa đủ 10 💎. Lên cấp hoặc làm nhiệm vụ để nhận thêm.', 'warn'); S.gems -= 10; S.play = UNLOCK; unlockNow(); show(tab); };
+      }
+      function unlockNow() { if (S.unlocked) return; S.unlocked = true; save(); buildTabs(); toast('🎉 Làng đã mở rộng! Xây nhà, câu cá, đua xe, cờ tỷ phú, cày xu và đi thăm hàng xóm đang chờ bạn.', 'success'); GV.beep(900, 200); }
+      function show(tb) {
+        if (typeof zoneClean === 'function') { try { zoneClean(); } catch (e) {} } zoneClean = null; tab = tb; pane.onclick = null; hudUpdate();
+        if (tb === 'farm') drawFarm(); else if (tb === 'avatar') { drawAvatarTab(); pane.onclick = onItem; } else if (tb === 'quest') drawQuests();
+        else { const z = ZN().find(x => x.id === tb); if (!z) return drawFarm(); if (z.lock && !S.unlocked) return lockedPanel(); pane.innerHTML = ''; zoneClean = z.mount(pane, T) || null; }
+      }
+      T = { get S() { return S; }, save, toast, hud: hudUpdate, addXp, CROPS, bonus: () => 1 + Math.min(.25, (S.happy || 0) / 400), drawAvatar: (c2, x, y, tt, w, sc) => drawAvatar(c2, x, y, S.av, tt, w, sc), show, esc,
+        give(coins, gems, label) { S.coins += coins || 0; S.gems += gems || 0; save(); hudUpdate(); if (label) toast(label, 'success'); },
+        spend(coins, gems) { if (S.coins < (coins || 0) || S.gems < (gems || 0)) return false; S.coins -= coins || 0; S.gems -= gems || 0; save(); hudUpdate(); return true; } };
+      GV.townT = T; // tay cầm gỡ lỗi/kiểm thử
       el.querySelector('.tb').onclick = e => { const b = e.target.closest('[data-t]'); if (b) show(b.dataset.t); };
-      ensureDay(); save(); show('farm');
+      ensureDay(); save(); buildTabs(); show('farm');
       let last = performance.now(), raf = 0; const lp = now => { const dt = Math.min(.05, (now - last) / 1000); last = now; render(dt); if (tab === 'avatar' && pc) { pc.clearRect(0, 0, 150, 210); drawAvatar(pc, 75, 190, S.av, t += 0, false, 2.1); } raf = requestAnimationFrame(lp); }; raf = requestAnimationFrame(lp);
       const tick = setInterval(hudUpdate, 4000);
-      return () => { dead = true; cancelAnimationFrame(raf); clearInterval(tick); save(); };
+      // chia sẻ làng cho hàng xóm (chỉ khi người chơi bật)
+      const pub = setInterval(() => { try { GV.townPublish && GV.townPublish(T); } catch (e) {} }, 60000);
+      // đếm thời gian chơi thật (chỉ khi tab đang mở) để mở khoá làng sau 30 phút
+      let ps = 0; const pt = setInterval(() => { if (document.hidden) return; S.play++; ps++; if (!S.unlocked && S.play >= UNLOCK) unlockNow(); if (ps % 10 === 0) save(); if (!S.unlocked && tab !== 'farm' && ZN().some(x => x.id === tab && x.lock) && ps % 30 === 0) show(tab); }, 1000);
+      return () => { dead = true; cancelAnimationFrame(raf); clearInterval(tick); clearInterval(pt); clearInterval(pub); if (typeof zoneClean === 'function') { try { zoneClean(); } catch (e) {} } save(); };
     }
   });
 })();

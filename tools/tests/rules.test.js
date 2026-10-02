@@ -21,6 +21,14 @@ W('khách tạo phòng (host)', true, 'mprooms/1234/host', 'g1', who.guest); W('
 R('khách KHÔNG đọc toàn bộ mprooms', false, 'mprooms', who.guest); R('khách đọc 1 phòng', true, 'mprooms/1234', who.guest);
 W('khách KHÔNG xoá phòng của người khác', false, 'mprooms/1234', null, who.guest, setAt(T, ['mprooms', '1234'], { host: 'other', meta: {}, players: { other: { online: true } } }));
 
+console.log('--- Làng Nông Vui (hàng xóm) ---');
+const V = { n: 'Bác Tư', lv: 5, at: 1 };
+W('chủ ghi làng của mình', true, 'villages/g1/info', V, who.guest); W('KHÔNG ghi làng của người khác', false, 'villages/stu1/info', V, who.guest);
+W('tên quá dài bị chặn', false, 'villages/g1/info', { n: 'x'.repeat(40), lv: 5, at: 1 }, who.guest); W('thiếu trường bắt buộc bị chặn', false, 'villages/g1/info', { n: 'a' }, who.guest);
+R('khách đọc danh sách làng', true, 'villages', who.guest);
+W('thả tim +1 (làng người khác)', true, 'villages/stu1/likes', 1, who.guest); W('KHÔNG tự đặt tim = 99', false, 'villages/stu1/likes', 99, who.guest, setAt(T, ['villages', 'stu1', 'likes'], 3));
+W('thả tim tăng đúng 1', true, 'villages/stu1/likes', 4, who.guest, setAt(T, ['villages', 'stu1', 'likes'], 3));
+
 console.log('--- Bootstrap quản trị ---');
 W('chủ web nhập đúng mã → admin', true, 'admins/stu2', { k: 'S3cretPhrase' }, who.stu2);
 W('nhập mã cho người KHÁC bị chặn', false, 'admins/stu1', { k: 'S3cretPhrase' }, who.stu2);

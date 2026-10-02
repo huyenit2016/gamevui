@@ -17,7 +17,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 |---|---|
 | `index.html`, `css/style.css`, `js/app.js` | Trang chủ, router, thẻ game, bộ lọc, tìm kiếm |
 | `js/icons.js`, `js/material.js`, `js/toast.js` | Icon SVG · ripple + FAB · snackbar |
-| `js/games-*.js`, `js/tools-*.js` | Game & tiện ích đơn (mới: `games-new.js` canvas hành động/thể thao, `games-brain.js` trí tuệ & mô phỏng, `games-battle.js` (xe tăng, bắn tỉa, không chiến, phòng thủ tháp, câu cá, người que, đặt bom, nhà ma), `games-avatarfarm.js` (**Avatar nông trại**: nhân vật tuỳ biến vẽ bằng canvas, 8 cây, cấp độ, cửa hàng đồ, nhiệm vụ ngày; lưu `gv_avfarm`; bản 2 sẽ thêm vật nuôi/trang trí/Firebase), `games-word.js` (từ vựng, ghép chữ, vẽ, thời trang, nhà bếp, IQ), `games-season.js` thể thao (bóng rổ, bida, bowling) & lễ hội (lì xì, bầu cua, Valentine, Noel, Halloween), `tools-new.js` sổ chi tiêu/thói quen/vay/metronome) |
+| `js/games-*.js`, `js/tools-*.js` | Game & tiện ích đơn (mới: `games-new.js` canvas hành động/thể thao, `games-brain.js` trí tuệ & mô phỏng, `games-battle.js` (xe tăng, bắn tỉa, không chiến, phòng thủ tháp, câu cá, người que, đặt bom, nhà ma), `games-avatarfarm.js` + `town.js` + `games-cotyphu.js` (**Làng Nông Vui**, id `avatarfarm`, lưu `gv_avfarm`: lõi = nông trại + nhân vật + nhiệm vụ; `town.js` đăng ký các khu vào `GV.townZones` {id,ico,n,lock,mount(host,T)}: chăn nuôi, ngôi nhà, cày xu, câu cá/đua xe/cờ tỷ phú/trò chơi nhúng, hàng xóm; **30 phút chơi thật (`S.play`) mới mở khoá các khu `lock:true`**, hoặc 10 💎; game nhúng thưởng xu qua `GV.hooks.score` do `GV.setBest` gọi; hàng xóm dùng Firebase `villages/<uid>/info|likes`, chỉ khi người chơi bật chia sẻ; `GV.townT` là tay cầm kiểm thử), `games-word.js` (từ vựng, ghép chữ, vẽ, thời trang, nhà bếp, IQ), `games-season.js` thể thao (bóng rổ, bida, bowling) & lễ hội (lì xì, bầu cua, Valentine, Noel, Halloween), `tools-new.js` sổ chi tiêu/thói quen/vay/metronome) |
 | `js/mp-core.js`, `js/mp-*.js` | Game nhiều người (Firebase): loto, uno, tiến lên, ma sói, cờ tướng, cờ vua |
 | `js/learn-*.js` | Học tập: ngoại ngữ, tạo khoá học, gia sư AI, dịch, họp, lớp học 1-1, thư viện khoá |
 | `js/media.js` | Nghe nhạc (Openverse CC), Karaoke (mic/echo/thu âm), Xem TV (iptv-org) |
@@ -33,7 +33,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Khách: đăng nhập **ẩn danh** (Anonymous). Tài khoản CMS: Email/Password.
 - Vai trò: `admin` (node `admins/<uid>`), `collab`, `teacher`, `student` (`users/<uid>/role`). Đăng ký mới luôn là `student`, có thể xin `requested`; admin duyệt ở CMS.
 - Lên admin lần đầu: ghi `admins/<uid> = {k: <mã>}` khớp `setup/secret` (chỉ đọc được trong Console). **Sau khi có admin nên đổi/xoá `setup/secret`.**
-- Các nhánh: `mprooms/mpprivate/mpstate/mplobby` (nhiều người), `calls/calllobby` (lớp 1-1), `rooms/lobby` (cũ), `config/site|announce|autoclean`, `users`, `userIndex`, `teacherStudents`, `assign`, `results`, `library/meta|data`, `stats`.
+- Các nhánh: `mprooms/mpprivate/mpstate/mplobby` (nhiều người), `calls/calllobby` (lớp 1-1), `rooms/lobby` (cũ), `config/site|announce|autoclean`, `users`, `userIndex`, `teacherStudents`, `assign`, `results`, `library/meta|data`, `stats`, `villages` (Làng Nông Vui: `info` chỉ chủ ghi, `likes` ai cũng +1).
 - Phòng "rác": không còn người online, bị bỏ quá 2 giờ (TTL 7200000 ms), thiếu dữ liệu, hoặc dữ liệu cũ. CMS tab Phòng quét 20 giây/lần **chỉ khi admin đang mở**; chưa có dọn phía server.
 - **Quy tắc vàng khi xoá phòng:** xoá `calls` và `calllobby` (hay `mprooms/...`) bằng **một lệnh `update` đa đường dẫn** (và `onDisconnect().update`), vì Rules của lobby kiểm tra phòng chính còn tồn tại.
 - Firebase **bỏ mảng rỗng / key null** khi lưu → code phải chịu được (`x || []`).
@@ -44,9 +44,10 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Obfuscator: **`renameGlobals:false`**, `transformObjectKeys:false` (bắt buộc, các file dùng chung biến toàn cục `GV`, khoá Firebase). Hai file `firebase-config.js`, `ads-config.js` chỉ nén. Không sửa trong `dist/` (bị xoá mỗi lần build).
 - Chạy thử cục bộ: `npm install && npm run build`, mở `dist/index.html`.
 - **Test** (Playwright, cần cài global; mạng bị chặn nên dùng mock): `NODE_PATH=$(npm root -g) node tools/tests/<file>`
-  - `mount-all.test.js` — mở cả 99 mục, báo lỗi (luôn chạy sau khi sửa UI)
-  - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `86 đạt, 0 lỗi`)
+  - `mount-all.test.js` — mở cả 100 mục, báo lỗi (luôn chạy sau khi sửa UI)
+  - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `94 đạt, 0 lỗi`)
   - `cms-e2e.test.js` — CMS end-to-end với Firebase giả (`hub.js`, `mock_shared.js`)
+  - `town.test.js` — Làng Nông Vui: khoá/mở khoá, chuồng, nhà, cày xu, game nhúng, cờ tỷ phú, hàng xóm, thưởng xu
   - `new-games.test.js` — 35 game + 4 tiện ích mới (thao tác cơ bản, kiểm tra canvas có vẽ)
   - `media.test.js` — Nghe nhạc/Karaoke/TV với API giả
   - Chưa thử được: Firebase thật, API AI thật, micro/điện thoại thật.

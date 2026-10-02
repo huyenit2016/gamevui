@@ -61,3 +61,10 @@ MVP (`js/games-avatarfarm.js`): nhân vật tuỳ biến, 8 cây, cấp độ, c
 - [ ] Trang trí kéo thả (hàng rào, cây cảnh, nhà kho) và thêm đồ avatar theo mùa lễ.
 - [ ] Bộ sprite đẹp hơn (CC0 hoặc ảnh do chủ cung cấp) thay hình vẽ bằng canvas/emoji.
 - [ ] Lưu đám mây Firebase `farms/<uid>`, ghé thăm bạn bè, bảng xếp hạng tuần (cần Rules mới + chống gian lận cơ bản).
+
+## 🏘️ Làng Nông Vui – đã làm (tham khảo ý tưởng cơ chế từ game trồng trọt/làng phổ biến, KHÔNG dùng hình ảnh hay tên của họ)
+- [x] Giai đoạn đầu: trồng rau, cây ăn quả (táo, cam, xoài thu nhiều lần), nuôi gà/vịt/bò/lợn/cừu, bán sản phẩm.
+- [x] Sau 30 phút chơi: xây & trang trí nhà, câu cá, đua xe, cờ tỷ phú (3 máy), cày xu tự động, trò chơi có sẵn (thưởng xu theo điểm), thăm hàng xóm.
+- [ ] Làng 3D/2.5D, thú cưng, sự kiện theo mùa, bản đồ nhiều khu, nhiệm vụ cốt truyện.
+- [ ] Hàng xóm: nhắn tin/tặng quà, hái giúp, bảng xếp hạng tuần; cờ tỷ phú chơi online nhiều người thật.
+- [ ] Đua xe nhiều người, đua kart 3D; bộ sprite đẹp hơn.

@@ -135,6 +135,21 @@
         ".write": "auth != null && (root.child('calls').child($code).child('host').val() === auth.uid || root.child('admins').child(auth.uid).exists() || (!newData.exists() && (data.child('at').isNumber() && data.child('at').val() < now - 7200000)))"
       }
     },
+    "villages": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "info/at"
+      ],
+      "$u": {
+        "info": {
+          ".write": "auth != null && auth.uid === $u",
+          ".validate": "newData.hasChildren(['n', 'lv', 'at']) && newData.child('n').isString() && newData.child('n').val().length <= 20 && newData.child('lv').isNumber() && newData.child('lv').val() <= 99"
+        },
+        "likes": {
+          ".write": "auth != null && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+        }
+      }
+    },
     "stats": {
       "total": {
         ".read": "auth != null",

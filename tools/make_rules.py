@@ -62,6 +62,11 @@ rules = {"rules": {
   },
   "calllobby": {".read": AUTH, ".indexOn": ["at"], "$code": {".write": f"{AUTH} && ({CH} || {ADMIN} || (!newData.exists() && {stale_self()}))"}},
 
+  # ---- Làng Nông Vui: làng chia sẻ của người chơi (chỉ chủ ghi thông tin, ai cũng thả tim +1) ----
+  "villages": {".read": AUTH, ".indexOn": ["info/at"], "$u": {
+    "info": {".write": f"{AUTH} && auth.uid === $u", ".validate": "newData.hasChildren(['n', 'lv', 'at']) && newData.child('n').isString() && newData.child('n').val().length <= 20 && newData.child('lv').isNumber() && newData.child('lv').val() <= 99"},
+    "likes": {".write": f"{AUTH} && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"}}},
+
   # ---- thống kê truy cập ----
   "stats": {
     "total": {".read": AUTH, ".write": f"{AUTH} && newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"},

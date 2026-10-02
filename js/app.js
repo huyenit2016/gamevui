@@ -12,7 +12,9 @@
     register(o) { this.items.push(o); },
     best(id) { return store.get('best_' + id, 0); },
     // Lưu kỷ lục. low=true nghĩa là điểm càng thấp càng tốt. Trả về true nếu phá kỷ lục.
+    hooks: {}, // móc mở rộng: hooks.score(id, v) được gọi khi game ghi điểm cuối ván (Làng Nông Vui dùng để thưởng xu)
     setBest(id, v, low) {
+      try { if (GV.hooks && GV.hooks.score) GV.hooks.score(id, v, low); } catch (e) {}
       const b = store.get('best_' + id, 0);
       if (!b || (low ? v < b : v > b)) { store.set('best_' + id, v); return true; }
       return false;
@@ -63,8 +65,8 @@
 
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
-  const DEF_HOT = ['aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
-  const DEF_NEW = ['aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+  const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
+  const DEF_NEW = ['avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
   const HOT = () => GV.cfg.hot || DEF_HOT, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
   const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
