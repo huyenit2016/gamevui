@@ -67,6 +67,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - **Nút/chip/banner dùng màu rgba trong suốt** (biến `--t-p`, `--t-n`, `--t-ok`, `--t-bad`…), banner `.annc` info/warn/success dạng rgba. **Nền thẻ `.card .art .bg` dùng pastel trong suốt** theo hue thể loại (`--h`).
 - Nhãn nút thẻ theo loại: game → **Chơi / Chơi ngay**, học tập → **Học / Học ngay**, tiện ích → **Dùng thử** (`verbOf` trong `app.js`).
 - Cạm bẫy: **không đặt class `.ad` cho nút/phần tử không phải quảng cáo** (`ads.js` điền quảng cáo vào mọi `.ad`; tool dùng `.add`). Class `.big` (số to, căn giữa) trùng với `.card.big` → đã có rule reset; id `#q` thuộc ô tìm kiếm header (tool dùng `#mq`); CMS có biến/skin riêng trong `#cms` (sidebar tối, nội dung trắng) và override `.btn` trong `css/cms.css`.
+- **Mobile đang chơi (`body.ingame`, <600px)**: giữ bottom bar, cả trang cố định 1 màn hình (`100dvh`, không cuộn trang; `main` có `flex:none` + chiều cao cố định, `.stage` cuộn nội bộ nếu thừa, canvas `width/height:auto!important` + `max-height`); ẩn quảng cáo/footer/aurora. Làng Nông Vui: canvas có hạt, ngày/đêm theo giờ máy, chim/bướm/gà, khói, cỏ lay, vòng chạm, bong bóng "Chín rồi".
 - Icon UI là SVG nét Lucide (`js/icons.js`, thêm icon = thêm path). Emoji chỉ còn là biểu tượng của từng game và nội dung bên trong game.
 
 ## 7. Giới hạn đã biết

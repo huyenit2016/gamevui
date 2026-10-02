@@ -264,7 +264,17 @@ footer a{color:var(--md-on-surface-var);text-decoration:underline}footer a:hover
   .icon-btn{width:44px;height:44px}
   main{padding:8px 14px 120px}
   .bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--md-sc);padding:10px 4px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--line)}
-  body.ingame .bnav{display:none}body.ingame main{padding-bottom:24px}
+  /* đang chơi: giữ thanh tab dưới, cả trang gói gọn trong 1 màn hình, không cuộn trang */
+  :root{--bn:calc(74px + env(safe-area-inset-bottom));--tp:60px}
+  body.ingame{overflow:hidden;height:100dvh}
+  body.ingame main{flex:none;height:calc(100dvh - var(--tp) - var(--bn));padding:6px 10px 6px;display:flex;flex-direction:column;overflow:hidden}
+  body.ingame #announce,body.ingame footer,body.ingame .ad,body.ingame .aurora{display:none!important}
+  body.ingame #view{flex:1;min-height:0;display:flex;flex-direction:column}
+  body.ingame .vbar{margin-bottom:6px;flex:none}body.ingame .vbar h2{font-size:1.15rem}body.ingame .vbar .btn{height:36px}
+  body.ingame .stage{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 6px;gap:8px;justify-content:flex-start;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  body.ingame .stage canvas{width:auto!important;height:auto!important;max-width:100%;max-height:min(58dvh,100%);flex:0 1 auto}
+  body.ingame .stage .hint{font-size:12px;margin:2px 0}
+  body.ingame .af .pane>.hint{display:none}body.ingame .af canvas.cv{max-height:40dvh}body.ingame .af,body.ingame .af .pane{min-width:0;width:100%;max-width:100%}body.ingame .af .pane{display:flex;flex-direction:column;align-items:center}body.ingame .af .hud{gap:6px}body.ingame .af .cp{flex-wrap:nowrap;overflow-x:auto;width:100%;justify-content:flex-start;scrollbar-width:none}body.ingame .af .cp .crop{flex:0 0 auto}body.ingame .af .hud .xt{display:none}body.ingame .af .crop{min-height:54px;min-width:70px;padding:4px 6px}
   .fab{right:16px;bottom:88px;height:48px;padding:0 18px 0 14px}
   .hero{padding:24px 20px;border-radius:24px}
   .hero h1{font-size:2.1rem}.hero .hsub{font-size:15px}
