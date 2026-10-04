@@ -233,5 +233,97 @@
     [[-26, 1, '#ffb74d'], [26, .8, '#81c784']].forEach(([dx, k, col]) => { c.save(); c.translate(dx, 0); c.scale(k, k); rr(c, -17, -28, 34, 28, 4); fs(c, '#fff3d6', 1.8); c.beginPath(); c.moveTo(-23, -26); c.lineTo(0, -48); c.lineTo(23, -26); c.closePath(); fs(c, col, 1.8); rr(c, -5, -17, 10, 17, 3); fs(c, '#8a5a3c', 1.4); c.restore(); });
     c.font = '18px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('👀', Math.sin(t * 2) * 3, -62); c.restore();
   }
-  GV.chibi = { bus, road, busStop, lamp, sign, fountain, pond, track, tent, arcade, hamlet, house, bigTree, fence, locked, char, crop, soil, shade, rr, ell, fs, hat };
+
+  /* ===== vật nuôi kiểu sticker (nhìn ngang, hướng sang phải) ===== */
+  const circ = (c, x, y, r) => { c.beginPath(); c.arc(x, y, r, 0, TAU); };
+  const legs = (c, xs, h, col, sw, w) => xs.forEach((lx, i) => { const a = sw ? Math.sin(sw + i * 1.6) * 3 : 0; rr(c, lx - w / 2 + a, -h, w, h, w / 2); fs(c, col, 1.6); });
+  // kind: hen chick duck cow pig sheep goat. o: {walk, eat}
+  function animal(c, kind, x, y, t, s, dir, o) {
+    o = o || {}; s = s || 1; c.save(); c.translate(x, y); c.scale(s * (dir < 0 ? -1 : 1), s);
+    const sw = o.walk ? t * 12 : 0, bob = o.walk ? Math.abs(Math.sin(t * 12)) * 1.6 : Math.sin(t * 2 + x) * .6, dip = o.eat ? (Math.sin(t * 9) > 0 ? 7 : 0) : 0;
+    shadow(c, 0, 1, kind === 'chick' ? 9 : kind === 'cow' ? 28 : 21, kind === 'chick' ? 3 : 5);
+    c.translate(0, -bob);
+    if (kind === 'sheep') {
+      legs(c, [-11, -4, 7, 14], 11, '#6a564c', sw, 4.4);
+      const W = [[-13, -22, 11], [0, -27, 13], [13, -23, 11], [-4, -16, 12], [7, -16, 12], [-17, -15, 8], [18, -15, 8]];
+      W.forEach(([a, b, r]) => { circ(c, a, b, r); c.fillStyle = '#fffdf7'; c.fill(); c.lineWidth = 2; c.strokeStyle = OUT; c.stroke(); }); W.forEach(([a, b, r]) => { circ(c, a, b, r - 1); c.fillStyle = '#fffdf7'; c.fill(); });
+      ell(c, 21, -22 + dip * .6, 9, 8.5, '#f4d7c2', 2); circ(c, 19, -33 + dip * .6, 7); c.fillStyle = '#fffdf7'; c.fill(); c.lineWidth = 2; c.strokeStyle = OUT; c.stroke(); ell(c, 14, -25 + dip * .6, 3, 5, '#e8b9a2', 1.4);
+      c.fillStyle = '#3b2a24'; circ(c, 24.5, -24 + dip * .6, 1.7); c.fill(); ell(c, 28.5, -20 + dip * .6, 2.2, 1.6, '#e5a3a0', 0);
+    } else if (kind === 'pig') {
+      legs(c, [-12, -5, 8, 15], 9, '#f19bab', sw, 5);
+      c.beginPath(); c.arc(-22, -23, 5, 0.6, 5); c.lineWidth = 2.2; c.strokeStyle = OUT; c.stroke();
+      ell(c, 0, -19, 22, 14.5, '#fbb7c3', 2.2); ell(c, -4, -24, 12, 5, '#ffd3db', 0);
+      ell(c, 20, -20 + dip * .5, 11, 10, '#fbb7c3', 2.2); c.beginPath(); c.moveTo(13, -28 + dip * .5); c.lineTo(18, -37 + dip * .5); c.lineTo(23, -28 + dip * .5); c.closePath(); fs(c, '#f48fa6', 1.8);
+      ell(c, 29, -17 + dip * .5, 6.2, 5, '#f7a1b5', 1.8); c.fillStyle = '#7a3d4d'; circ(c, 28, -17 + dip * .5, 1); c.fill(); circ(c, 31.5, -17 + dip * .5, 1); c.fill(); c.fillStyle = '#3b2a24'; circ(c, 21, -23 + dip * .5, 1.9); c.fill();
+    } else if (kind === 'cow') {
+      legs(c, [-17, -9, 10, 18], 12, '#fff', sw, 6.2);
+      rr(c, -29, -38, 7, 2, 1); c.strokeStyle = OUT; c.lineWidth = 2.2; c.lineCap = 'round'; c.beginPath(); c.moveTo(-28, -30); c.quadraticCurveTo(-35, -26, -33, -14); c.stroke(); circ(c, -33, -12, 3); c.fillStyle = '#2b2b30'; c.fill();
+      rr(c, -28, -40, 56, 28, 12); fs(c, '#fff', 2.2);
+      c.save(); rr(c, -28, -40, 56, 28, 12); c.clip(); c.fillStyle = '#2b2b30'; ell(c, -12, -34, 9, 7, '#2b2b30', 0); ell(c, 6, -21, 8, 6, '#2b2b30', 0); ell(c, 18, -37, 6, 5, '#2b2b30', 0); ell(c, -22, -20, 5, 5, '#2b2b30', 0); c.restore();
+      ell(c, 3, -11, 6, 3.5, '#f7a1b5', 1.6);
+      rr(c, 21, -43 + dip, 21, 20, 8); fs(c, '#fff', 2.2); ell(c, 36, -29 + dip, 8, 6, '#f7a1b5', 1.8); c.fillStyle = '#7a3d4d'; circ(c, 34, -29 + dip, 1); c.fill(); circ(c, 38.5, -29 + dip, 1); c.fill();
+      ell(c, 25, -44 + dip, 3, 4.5, '#2b2b30', 1.4); rr(c, 28, -49 + dip, 4, 7, 2); fs(c, '#f3e3c0', 1.4); c.fillStyle = '#2b2b30'; circ(c, 31, -37 + dip, 1.9); c.fill();
+    } else if (kind === 'goat') {
+      legs(c, [-11, -5, 8, 14], 13, '#fafafa', sw, 3.8);
+      c.beginPath(); c.moveTo(-17, -29); c.lineTo(-23, -36); c.lineTo(-14, -33); c.closePath(); fs(c, '#fafafa', 1.6);
+      rr(c, -17, -33, 34, 20, 9); fs(c, '#fafafa', 2.2); rr(c, 10, -46 + dip, 11, 20, 5); fs(c, '#fafafa', 2); ell(c, 22, -42 + dip, 7.5, 6.5, '#fafafa', 2);
+      c.strokeStyle = OUT; c.lineWidth = 2.2; c.lineCap = 'round'; c.beginPath(); c.moveTo(15, -48 + dip); c.quadraticCurveTo(10, -58 + dip, 18, -57 + dip); c.stroke(); c.beginPath(); c.moveTo(14, -47 + dip); c.quadraticCurveTo(7, -55 + dip, 11, -58 + dip); c.stroke();
+      ell(c, 12, -43 + dip, 4, 2.4, '#f0c9bd', 1.4); c.beginPath(); c.moveTo(24, -37 + dip); c.lineTo(22, -30 + dip); c.lineTo(27, -36 + dip); c.closePath(); fs(c, '#fafafa', 1.2);
+      c.fillStyle = '#3b2a24'; circ(c, 24, -43 + dip, 1.6); c.fill(); ell(c, 28, -40 + dip, 2, 1.5, '#e5a3a0', 0);
+    } else if (kind === 'hen') {
+      c.strokeStyle = '#f2a03a'; c.lineWidth = 2.2; c.lineCap = 'round'; [-3, 5].forEach((lx, i) => { const a = o.walk ? Math.sin(sw + i * 3) * 3 : 0; c.beginPath(); c.moveTo(lx, -7); c.lineTo(lx + a, 0); c.lineTo(lx + a + 4, 0); c.stroke(); });
+      c.beginPath(); c.moveTo(-9, -18); c.quadraticCurveTo(-24, -34, -17, -12); c.closePath(); fs(c, '#f5f5f5', 1.8);
+      ell(c, 0, -16, 14, 12, '#fff', 2.2); ell(c, -3, -15, 7, 5, '#eceff1', 1.4);
+      const hy = -28 + dip * 1.1, hx = 11 + dip * .5; circ(c, hx, hy, 7.4); fs(c, '#fff', 2.2);
+      [-3, 0, 3].forEach((k, i) => { circ(c, hx + k * 1.7, hy - 7.2 - (i === 1 ? 1.5 : 0), 3); c.fillStyle = '#e53935'; c.fill(); c.lineWidth = 1.4; c.strokeStyle = OUT; c.stroke(); });
+      c.beginPath(); c.moveTo(hx + 6, hy - 1); c.lineTo(hx + 12, hy + 1); c.lineTo(hx + 6, hy + 3); c.closePath(); fs(c, '#ffa726', 1.4); ell(c, hx + 5, hy + 5.5, 2, 3, '#e53935', 1); c.fillStyle = '#3b2a24'; circ(c, hx + 2.5, hy - 1.5, 1.4); c.fill();
+    } else if (kind === 'chick') {
+      c.strokeStyle = '#f2a03a'; c.lineWidth = 1.8; c.lineCap = 'round'; [-2, 3].forEach(lx => { c.beginPath(); c.moveTo(lx, -3); c.lineTo(lx, 0); c.stroke(); });
+      circ(c, 0, -9, 8.5); fs(c, '#ffe45c', 2); circ(c, 6, -15 + dip * .6, 5.8); fs(c, '#ffe45c', 2); c.beginPath(); c.moveTo(10.5, -15 + dip * .6); c.lineTo(15, -14 + dip * .6); c.lineTo(10.5, -12.5 + dip * .6); c.closePath(); fs(c, '#ffa726', 1.2); c.fillStyle = '#3b2a24'; circ(c, 7.5, -16.5 + dip * .6, 1.2); c.fill(); ell(c, -2, -9, 3.6, 2.6, '#ffd54a', 1.2);
+    } else if (kind === 'duck') {
+      c.strokeStyle = '#f2a03a'; c.lineWidth = 2.2; c.lineCap = 'round'; [-3, 5].forEach((lx, i) => { const a = o.walk ? Math.sin(sw + i * 3) * 3 : 0; c.beginPath(); c.moveTo(lx, -6); c.lineTo(lx + a, 0); c.lineTo(lx + a + 5, 0); c.stroke(); });
+      c.beginPath(); c.moveTo(-10, -14); c.lineTo(-19, -20); c.lineTo(-12, -9); c.closePath(); fs(c, '#fff', 1.8); ell(c, 0, -14, 14, 9.5, '#fff', 2.2); ell(c, -2, -13, 7, 4.6, '#e3f2fd', 1.4);
+      rr(c, 7, -30 + dip, 8, 16, 4); fs(c, '#fff', 2); circ(c, 13, -30 + dip, 7); fs(c, '#fff', 2.2); ell(c, 21, -28 + dip, 5.4, 2.8, '#ffa726', 1.6); c.fillStyle = '#3b2a24'; circ(c, 15, -32 + dip, 1.4); c.fill();
+    }
+    c.restore();
+  }
+  const ICO = {};
+  function animalIcon(kind, size) {
+    const k = kind + size; if (ICO[k]) return ICO[k];
+    const cn = document.createElement('canvas'); cn.width = cn.height = size * 2; const c = cn.getContext('2d'); c.scale(2, 2);
+    const sc = { cow: .66, sheep: .8, pig: .85, goat: .72, hen: 1, chick: 1.6, duck: 1 }[kind] * size / 60;
+    animal(c, kind, size / 2 - (kind === 'cow' ? 5 : kind === 'chick' ? 2 : 0), size * .93, 0, sc, 1, {}); return ICO[k] = cn.toDataURL();
+  }
+  /* ===== cây hoa anh đào / cây ăn quả, hàng rào, đống rơm, bụi hoa ===== */
+  function tree2(c, x, y, kind, t, s) {
+    s = s || 1; c.save(); c.translate(x, y); c.scale(s, s); shadow(c, 0, 2, 26, 6);
+    c.beginPath(); c.moveTo(-9, 0); c.quadraticCurveTo(-6, -24, -5, -46); c.lineTo(5, -46); c.quadraticCurveTo(6, -24, 9, 0); c.closePath(); fs(c, '#7d4b34', 2); c.strokeStyle = '#5a3224'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(-1, -8); c.lineTo(-2, -36); c.stroke();
+    const sw = Math.sin(t * 1.3 + x) * 1.2; c.translate(sw, 0);
+    const col = kind === 'pink' ? ['#f48fb1', '#f8bbd0', '#ffe0ea'] : kind === 'fruit' ? ['#3f9d4a', '#58b85a', '#8bdc7a'] : ['#2f9d46', '#47bd5b', '#7ad97c'];
+    [[0, -78, 30], [-24, -62, 20], [24, -62, 20], [-12, -96, 18], [14, -95, 18]].forEach(([a, b, r], i) => { circ(c, a, b, r); c.fillStyle = col[i % 2]; c.fill(); c.lineWidth = 2; c.strokeStyle = OUT; c.stroke(); });
+    [[0, -78, 29], [-24, -62, 19], [24, -62, 19], [-12, -96, 17], [14, -95, 17]].forEach(([a, b, r], i) => { circ(c, a, b, r); c.fillStyle = col[i % 2]; c.fill(); });
+    c.fillStyle = col[2]; circ(c, -8, -92, 9); c.fill(); circ(c, 16, -82, 6); c.fill();
+    if (kind === 'pink') { c.fillStyle = '#fff'; for (let k = 0; k < 14; k++) { const a = k * 2.4, r = 8 + (k * 7) % 26; circ(c, Math.cos(a) * r, -78 + Math.sin(a) * r * .8, 2.2); c.fill(); } }
+    if (kind === 'fruit') { c.fillStyle = '#ffd23f'; for (let k = 0; k < 9; k++) { const a = k * 2.1, r = 10 + (k * 9) % 28; ell(c, Math.cos(a) * r, -76 + Math.sin(a) * r * .8, 4, 5.5, '#ffd23f', 1.2); } }
+    c.restore();
+  }
+  function haystack(c, x, y) {
+    c.save(); c.translate(x, y); shadow(c, 0, 2, 26, 6); c.beginPath(); c.moveTo(-26, 0); c.quadraticCurveTo(-22, -34, -6, -50); c.quadraticCurveTo(0, -56, 6, -50); c.quadraticCurveTo(22, -34, 26, 0); c.closePath(); fs(c, '#f2c04b', 2.2);
+    c.strokeStyle = '#c99a2e'; c.lineWidth = 1.6; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 8, -6); c.lineTo(i * 4, -44 + Math.abs(i) * 4); c.stroke(); } c.beginPath(); c.moveTo(-24, -14); c.quadraticCurveTo(0, -8, 24, -14); c.stroke(); c.restore();
+  }
+  function bale(c, x, y) { c.save(); c.translate(x, y); shadow(c, 0, 2, 20, 5); rr(c, -19, -22, 38, 22, 7); fs(c, '#f2c04b', 2); c.strokeStyle = '#c99a2e'; c.lineWidth = 1.6; for (let i = -10; i <= 12; i += 8) { c.beginPath(); c.moveTo(i, -20); c.lineTo(i, -2); c.stroke(); } c.restore(); }
+  function picket(c, x0, y0, x1, y1, front) { // hàng rào trắng, thẳng ngang hoặc dọc
+    c.save(); const horiz = Math.abs(y1 - y0) < 1, n = Math.max(1, Math.round((horiz ? x1 - x0 : y1 - y0) / 18));
+    if (horiz) { rr(c, x0, y0 - 14, x1 - x0, 4, 2); fs(c, '#f1f1f1', 1.4); rr(c, x0, y0 - 6, x1 - x0, 4, 2); fs(c, '#f1f1f1', 1.4); } else { rr(c, x0 - 2, y0, 4, y1 - y0, 2); fs(c, '#f1f1f1', 1.4); }
+    for (let i = 0; i <= n; i++) { const px = horiz ? x0 + (x1 - x0) * i / n : x0, py = horiz ? y0 : y0 + (y1 - y0) * i / n; c.beginPath(); c.moveTo(px - 5, py + 4); c.lineTo(px - 5, py - 16); c.lineTo(px, py - 23); c.lineTo(px + 5, py - 16); c.lineTo(px + 5, py + 4); c.closePath(); fs(c, '#fafafa', 1.8); }
+    c.restore();
+  }
+  function ropefence(c, x0, y0, x1, y1) { // cột gỗ + dây thừng
+    c.save(); const horiz = Math.abs(y1 - y0) < 1, n = Math.max(1, Math.round((horiz ? x1 - x0 : y1 - y0) / 34)); c.strokeStyle = '#a0522d'; c.lineWidth = 3; c.lineCap = 'round';
+    for (let i = 0; i < n; i++) { const ax = horiz ? x0 + (x1 - x0) * i / n : x0, ay = horiz ? y0 : y0 + (y1 - y0) * i / n, bx = horiz ? x0 + (x1 - x0) * (i + 1) / n : x0, by = horiz ? y0 : y0 + (y1 - y0) * (i + 1) / n; c.beginPath(); c.moveTo(ax, ay - 14); c.quadraticCurveTo((ax + bx) / 2, (ay + by) / 2 - 6, bx, by - 14); c.stroke(); c.strokeStyle = '#d9a35f'; c.lineWidth = 1.4; c.stroke(); c.strokeStyle = '#a0522d'; c.lineWidth = 3; }
+    for (let i = 0; i <= n; i++) { const px = horiz ? x0 + (x1 - x0) * i / n : x0, py = horiz ? y0 : y0 + (y1 - y0) * i / n; shadow(c, px, py + 1, 8, 2.5); rr(c, px - 6, py - 26, 12, 28, 4); fs(c, '#d98a3d', 1.8); c.fillStyle = '#e9a85d'; c.fillRect(px - 4, py - 24, 3, 22); ell(c, px, py - 26, 6, 2.6, '#c06f28', 1.4); }
+    c.restore();
+  }
+  function bush(c, x, y, kind) { c.save(); c.translate(x, y); shadow(c, 0, 1, 15, 4); [[-7, -7, 8], [7, -7, 8], [0, -11, 9]].forEach(([a, b, r]) => { circ(c, a, b, r); c.fillStyle = '#56b45a'; c.fill(); c.lineWidth = 1.8; c.strokeStyle = OUT; c.stroke(); }); [[-7, -7, 7], [7, -7, 7], [0, -11, 8]].forEach(([a, b, r]) => { circ(c, a, b, r); c.fillStyle = '#56b45a'; c.fill(); }); c.fillStyle = kind === 'pink' ? '#f48fb1' : '#fff'; [[-8, -10], [3, -14], [9, -6], [-2, -5]].forEach(([a, b]) => { circ(c, a, b, 2.4); c.fill(); }); c.fillStyle = '#ffd54f'; circ(c, 3, -14, 1); c.fill(); c.restore(); }
+  GV.chibi = { animal, animalIcon, tree2, haystack, bale, picket, ropefence, bush, bus, road, busStop, lamp, sign, fountain, pond, track, tent, arcade, hamlet, house, bigTree, fence, locked, char, crop, soil, shade, rr, ell, fs, hat };
 })();

@@ -144,7 +144,7 @@
         // bướm
         life.bf.forEach(b => { b.p += dt; const bx = b.x + Math.sin(b.p * .9) * 70 + Math.sin(b.p * 2.3) * 14, by = b.y + Math.cos(b.p * .7) * 30, w = Math.abs(Math.sin(t * 18 + b.p)); c.save(); c.translate(bx, by); c.scale(.3 + w * .7, 1); c.font = '14px serif'; c.fillText(b.p % 3 < 1.5 ? '🦋' : '🐝', 0, 0); c.restore(); });
         // gà đi lang thang
-        life.hens.forEach(h => { h.w -= dt; if (h.w <= 0) { h.w = 1.5 + Math.random() * 3; h.dx = [-1, 0, 1][GV.rnd(3)]; } h.x = Math.max(30, Math.min(390, h.x + h.dx * 22 * dt)); c.save(); c.translate(h.x, h.y + (h.dx ? Math.abs(Math.sin(t * 10)) * -2 : 0)); if (h.dx > 0) c.scale(-1, 1); c.font = '20px serif'; c.fillText('🐔', 0, 0); c.restore(); });
+        life.hens.forEach(h => { h.w -= dt; if (h.w <= 0) { h.w = 1.5 + Math.random() * 3; h.dx = [-1, 0, 1][GV.rnd(3)]; } h.x = Math.max(30, Math.min(390, h.x + h.dx * 22 * dt)); GV.chibi.animal(c, 'hen', h.x, h.y + 14, t + h.x, .8, h.dx < 0 ? -1 : h.dx > 0 ? 1 : (h.f || 1), { walk: !!h.dx }); if (h.dx) h.f = h.dx; });
         // vòng đánh dấu chạm
         if (mark) { mark.t += dt; if (mark.t > .7) mark = null; else { c.strokeStyle = 'rgba(255,255,255,' + (1 - mark.t / .7) + ')'; c.lineWidth = 2.5; c.beginPath(); c.ellipse(mark.x, mark.y + 28, 8 + mark.t * 34, 3 + mark.t * 12, 0, 0, 7); c.stroke(); } }
         // hạt

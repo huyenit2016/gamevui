@@ -18,8 +18,57 @@
   GV.townZones.push({
     id: 'barn', ico: '🐔', n: 'Chăn nuôi', lock: false,
     mount(host, T) {
-      const S = T.S; const root = wrap(host, '<div class="inv cardx" style="margin-bottom:10px"></div><div class="pens gridx"></div><p class="hint">Mua con giống → cho ăn → chờ sản phẩm → thu hoạch vào kho → bán lấy xu.</p>');
+      const S = T.S; const root = wrap(host, '<canvas class="bsc" width="840" height="560" style="width:100%;max-width:min(100%,440px);display:block;margin:0 auto 10px;border-radius:18px;border:3px solid #fff;box-shadow:0 0 0 3px #c58a4a,0 4px 0 3px #9a6a35;touch-action:manipulation"></canvas><div class="inv cardx" style="margin-bottom:10px"></div><div class="pens gridx"></div><p class="hint">Mua con giống → cho ăn → chờ sản phẩm → thu hoạch vào kho → bán lấy xu.</p>');
       const penCost = () => 100 * (S.pens.length - 1);
+      /* ---- cảnh chuồng trại (canvas) ---- */
+      const bsc = $(root.parentNode, '.bsc'), bc = bsc.getContext('2d'), PEN_A = { x0: 30, x1: 178, y0: 122, y1: 216 }, PEN_B = { x0: 200, x1: 398, y0: 114, y1: 218 };
+      let sprites = [], sig = '', bt = 0, braf = 0, bdead = false, blast = performance.now();
+      const isPoultry = k => k === 'hen' || k === 'duck';
+      function rebuild() {
+        sprites = []; const hasL = S.pens.some(p => p && !isPoultry(p.a));
+        S.pens.forEach((p, i) => { if (!p) return; const pen = isPoultry(p.a) ? PEN_A : PEN_B, mk = (kind, main) => sprites.push({ pen: i, kind, main, box: pen, x: pen.x0 + 20 + Math.random() * (pen.x1 - pen.x0 - 40), y: pen.y0 + 16 + Math.random() * (pen.y1 - pen.y0 - 24), tx: 0, ty: 0, wait: Math.random() * 2, dir: Math.random() < .5 ? -1 : 1, eat: false, walk: false }); mk(p.a, true); if (isPoultry(p.a)) mk(p.a === 'hen' ? 'chick' : 'chick', false); });
+        if (hasL) { const pen = PEN_B; sprites.push({ pen: -1, kind: 'goat', main: false, box: pen, x: pen.x1 - 40, y: pen.y1 - 12, tx: 0, ty: 0, wait: 1, dir: -1, eat: false, walk: false }); }
+        sig = S.pens.map(p => p ? p.a : '').join();
+      }
+      function bscene(dt) {
+        bt += dt; if (sig !== S.pens.map(p => p ? p.a : '').join()) rebuild();
+        const W = 420, H = 280, c = bc; c.setTransform(2, 0, 0, 2, 0, 0);
+        const hr = new Date().getHours(), night = hr < 5 || hr >= 19;
+        const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#9be06a'); g.addColorStop(.8, '#6cc43c'); g.addColorStop(1, '#5aae32'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+        c.strokeStyle = 'rgba(40,110,20,.35)'; c.lineWidth = 1.5; for (let k = 0; k < 24; k++) { const gx = (k * 67) % 410 + 6, gy = 30 + (k * 41) % 200, sw = Math.sin(bt * 2 + k) * 2; c.beginPath(); c.moveTo(gx, gy); c.quadraticCurveTo(gx + sw, gy - 4, gx + sw * 1.4, gy - 8); c.stroke(); }
+        const A = GV.chibi;
+        [[36, 98, 'green', .8], [126, 94, 'pink', .85], [232, 96, 'fruit', .85], [322, 92, 'pink', .88], [398, 98, 'fruit', .8]].forEach(([x, y, k, sc]) => A.tree2(c, x, y, k, bt, sc));
+        A.haystack(c, 372, PEN_B.y0 + 50); A.bale(c, 14, 224); A.bale(c, 14, 206);
+        // hàng rào sau
+        A.picket(c, PEN_A.x0, PEN_A.y0, PEN_A.x1, PEN_A.y0); A.picket(c, PEN_A.x0, PEN_A.y0, PEN_A.x0, PEN_A.y1); A.picket(c, PEN_A.x1, PEN_A.y0, PEN_A.x1, PEN_A.y1);
+        A.ropefence(c, PEN_B.x0, PEN_B.y0, PEN_B.x1, PEN_B.y0); A.ropefence(c, PEN_B.x0, PEN_B.y0, PEN_B.x0, PEN_B.y1); A.ropefence(c, PEN_B.x1, PEN_B.y0, PEN_B.x1, PEN_B.y1);
+        // vật nuôi (sắp theo y)
+        sprites.forEach(a => {
+          const p = a.pen >= 0 ? S.pens[a.pen] : null, dx = a.tx - a.x, dy = a.ty - a.y, d = Math.hypot(dx, dy);
+          if (a.wait > 0) { a.wait -= dt; a.walk = false; if (a.wait <= 0) { a.eat = false; const b = a.box; a.tx = b.x0 + 14 + Math.random() * (b.x1 - b.x0 - 28); a.ty = b.y0 + 14 + Math.random() * (b.y1 - b.y0 - 22); } }
+          else if (d > 2) { const sp = Math.min(d, (a.kind === 'chick' ? 26 : 16) * dt); a.x += dx / d * sp; a.y += dy / d * sp; a.walk = true; if (Math.abs(dx) > 1) a.dir = dx < 0 ? -1 : 1; }
+          else { a.walk = false; a.wait = 1.2 + Math.random() * 3; a.eat = Math.random() < .5; }
+        });
+        const ord = sprites.slice().sort((a, b) => a.y - b.y);
+        ord.forEach(a => A.animal(c, a.kind, a.x, a.y, bt + a.x, 1, a.dir, { walk: a.walk, eat: a.eat && !a.walk }));
+        ord.forEach(a => { if (!a.main) return; const p = S.pens[a.pen], an = p && AN[p.a]; if (!an) return; const ready = p.fed && Date.now() - p.fed >= an.sec * 1000; if (!p.fed || ready) { const bx = a.x, by = a.y - (a.kind === 'cow' ? 58 : 46) + Math.sin(bt * 4 + a.x) * 2; c.save(); GV.chibi.rr(c, bx - 13, by - 13, 26, 22, 9); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 1.8; c.strokeStyle = '#5a3a2e'; c.stroke(); c.beginPath(); c.moveTo(bx - 3, by + 8); c.lineTo(bx, by + 14); c.lineTo(bx + 3, by + 8); c.fillStyle = '#fff'; c.fill(); c.font = '15px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(ready ? an.p : '🌾', bx, by - 1); c.restore(); } });
+        // hàng rào trước + bảng tên
+        A.picket(c, PEN_A.x0, PEN_A.y1, PEN_A.x1, PEN_A.y1); A.ropefence(c, PEN_B.x0, PEN_B.y1, PEN_B.x1, PEN_B.y1);
+        A.sign(c, (PEN_A.x0 + PEN_A.x1) / 2, PEN_A.y0 - 36, '🐔 Chuồng Gà'); A.sign(c, (PEN_B.x0 + PEN_B.x1) / 2, PEN_B.y0 - 32, '🐄 Chuồng Gia Súc');
+        // đường đất + bụi hoa + đèn
+        c.fillStyle = '#e0c48c'; c.fillRect(0, 236, W, 22); c.fillStyle = '#ecd7a5'; c.fillRect(0, 236, W, 4); c.fillStyle = '#c9a96c'; c.fillRect(0, 258, W, 3);
+        A.bush(c, 40, 278, 'w'); A.bush(c, 110, 280, 'pink'); A.bush(c, 250, 279, 'pink'); A.bush(c, 340, 280, 'w'); A.lamp(c, 180, 276, night);
+        if (!S.pens.some(p => p)) { c.font = '800 12px "Baloo 2",Roboto,sans-serif'; c.fillStyle = '#5a3a1e'; c.textAlign = 'center'; c.fillText('Chuồng còn trống – mua con giống ở bên dưới nhé!', W / 2, 160); }
+        if (night) { c.fillStyle = 'rgba(10,20,70,.3)'; c.fillRect(0, 0, W, H); }
+      }
+      bsc.addEventListener('pointerdown', e => {
+        const r = bsc.getBoundingClientRect(), x = (e.clientX - r.left) * 420 / r.width, y = (e.clientY - r.top) * 280 / r.height;
+        const hit = sprites.filter(a => a.main).find(a => Math.abs(x - a.x) < 26 && y > a.y - 62 && y < a.y + 8); if (!hit) return;
+        const i = hit.pen, p = S.pens[i], an = AN[p.a], b = { dataset: {}, classList: { contains: () => false } };
+        if (!p.fed) b.dataset.feed = String(i); else if (Date.now() - p.fed >= an.sec * 1000) b.dataset.take = String(i); else return T.toast(`${an.e} ${an.n} đang tạo ${an.pn.toLowerCase()}…`);
+        root.parentNode.onclick({ target: { closest: () => b } });
+      });
+      const bloop = now => { if (bdead) return; const dt = Math.min(.05, (now - blast) / 1000); blast = now; try { bscene(dt); } catch (er) {} braf = requestAnimationFrame(bloop); }; rebuild(); braf = requestAnimationFrame(bloop);
       function draw() {
         const now = Date.now(), inv = Object.entries(S.inv).filter(([, n]) => n > 0);
         const worth = inv.reduce((a, [k, n]) => a + n * (Object.values(AN).find(x => x.p + x.pn === k) || { price: 0 }).price, 0);
@@ -27,7 +76,7 @@
         $(root.parentNode, '.pens').innerHTML = S.pens.map((p, i) => {
           if (!p) return `<div class="cardx"><div style="font-size:1.6rem">➕</div><small>Chuồng trống</small><div style="margin-top:6px">${Object.entries(AN).map(([k, a]) => `<button class="chipx" data-buy="${i}:${k}" ${a.lv > S.lv ? 'disabled style="opacity:.45"' : ''}>${a.lv > S.lv ? '🔒 C' + a.lv : a.e + ' ' + a.cost + '🪙'}</button>`).join('')}</div></div>`;
           const a = AN[p.a], pr = p.fed ? Math.min(1, (now - p.fed) / (a.sec * 1000)) : 0;
-          return `<div class="cardx"><div style="font-size:2.4rem">${a.e}</div><b>${a.n}</b><br><small>${a.p} ${a.pn} · ${a.price}🪙</small><div class="bar" style="margin:8px 0"><i style="width:${pr * 100}%"></i></div>${!p.fed ? `<button class="btn" data-feed="${i}">🌾 Cho ăn (${a.feed}🪙)</button>` : pr >= 1 ? `<button class="btn" data-take="${i}">${a.p} Thu hoạch</button>` : `<small>Đang sản xuất… ${Math.ceil(a.sec * (1 - pr))}s</small>`}</div>`;
+          return `<div class="cardx"><img src="${GV.chibi.animalIcon(p.a, 56)}" width="56" height="56" alt="${a.n}" style="display:block;margin:0 auto"><b>${a.n}</b><br><small>${a.p} ${a.pn} · ${a.price}🪙</small><div class="bar" style="margin:8px 0"><i style="width:${pr * 100}%"></i></div>${!p.fed ? `<button class="btn" data-feed="${i}">🌾 Cho ăn (${a.feed}🪙)</button>` : pr >= 1 ? `<button class="btn" data-take="${i}">${a.p} Thu hoạch</button>` : `<small>Đang sản xuất… ${Math.ceil(a.sec * (1 - pr))}s</small>`}</div>`;
         }).join('') + (S.pens.length < 8 ? `<div class="cardx"><div style="font-size:1.6rem">🏗️</div><small>Mở thêm chuồng</small><br><button class="btn ghost" data-pen="1">${penCost()} 🪙</button></div>` : '');
       }
       root.parentNode.onclick = e => {
@@ -40,7 +89,7 @@
         T.save(); T.hud(); draw();
       };
       let dn = false; const pd = () => { dn = true; }, pu = () => { setTimeout(() => dn = false, 50); }; root.parentNode.addEventListener('pointerdown', pd); window.addEventListener('pointerup', pu); window.addEventListener('pointercancel', pu);
-      draw(); const iv = setInterval(() => { if (!dn) draw(); }, 1000); return () => { clearInterval(iv); window.removeEventListener('pointerup', pu); window.removeEventListener('pointercancel', pu); };
+      draw(); const iv = setInterval(() => { if (!dn) draw(); }, 1000); return () => { bdead = true; cancelAnimationFrame(braf); clearInterval(iv); window.removeEventListener('pointerup', pu); window.removeEventListener('pointercancel', pu); };
     }
   });
 
