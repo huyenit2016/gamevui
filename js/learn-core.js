@@ -75,6 +75,27 @@
       data = await res.json(); if (!res.ok) throw new Error((data.error && data.error.message) || 'Lỗi Gemini API ' + res.status);
       return ((data.candidates && data.candidates[0].content.parts) || []).map(p => p.text || '').join('').trim();
     },
+    // Hỏi AI kèm một hình ảnh (dataURL jpeg/png). Dùng cho "Giải bài trên bảng".
+    async vision(dataUrl, prompt, { system = '', maxTokens = 4000 } = {}) {
+      const c = this.cfg(); if (!c.key) throw new Error('Chưa nhập khóa AI (bấm "⚙️ Cài đặt AI").');
+      const m = /^data:(image\/[a-z+]+);base64,(.+)$/i.exec(dataUrl || ''); if (!m) throw new Error('Ảnh không hợp lệ.');
+      const model = this.model(c); let res, data;
+      if (c.provider === 'claude') {
+        const body = { model, max_tokens: maxTokens, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } }, { type: 'text', text: prompt }] }] };
+        if (system) body.system = system;
+        res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': c.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify(body) });
+        data = await res.json(); if (!res.ok) throw new Error((data.error && data.error.message) || 'Lỗi Claude API ' + res.status);
+        return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+      }
+      if (c.provider === 'openai') {
+        res = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + c.key }, body: JSON.stringify({ model, messages: (system ? [{ role: 'system', content: system }] : []).concat([{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: dataUrl } }] }]) }) });
+        data = await res.json(); if (!res.ok) throw new Error((data.error && data.error.message) || 'Lỗi OpenAI API ' + res.status);
+        return (data.choices[0].message.content || '').trim();
+      }
+      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(c.key)}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ systemInstruction: system ? { parts: [{ text: system }] } : undefined, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: m[1], data: m[2] } }, { text: prompt }] }] }) });
+      data = await res.json(); if (!res.ok) throw new Error((data.error && data.error.message) || 'Lỗi Gemini API ' + res.status);
+      return ((data.candidates && data.candidates[0].content.parts) || []).map(p => p.text || '').join('').trim();
+    },
     // Chuyển file âm thanh thành chữ (Gemini hoặc OpenAI Whisper). lang = mã ngôn ngữ của GV.learn.LANGS
     async transcribe(blob, lang) {
       const c = this.cfg(); if (!c.key) throw new Error('Cần nhập khóa Gemini hoặc OpenAI để chuyển file ghi âm thành chữ.');
