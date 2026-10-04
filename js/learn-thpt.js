@@ -1,7 +1,8 @@
 // THPT: học các môn theo chương trình GDPT 2018 (tóm tắt lý thuyết + bài tập có lời giải + trắc nghiệm). Dữ liệu từng lớp nằm ở js/thpt-<lớp>.js
 (function () {
   const esc = GV.esc, $ = (r, s) => r.querySelector(s);
-  const T = GV.thpt = { grades: {}, add(grade, subjects) { T.grades[grade] = subjects; } };
+  const T = GV.thpt = { grades: {}, add(grade, subjects) { T.grades[grade] = subjects; },
+    extend(grade, id, more) { const s = (T.grades[grade] || []).find(x => x.id === id); if (!s) return; (more.chapters || []).forEach(c => s.chapters.push(c)); (more.quiz || []).forEach(q => s.quiz.push(q)); } };
   // định dạng nhẹ: **đậm**, dòng bắt đầu "• " là gạch đầu dòng, khối ``` là mã
   const fmt = t => {
     const out = []; let code = null;
@@ -49,7 +50,7 @@
         root.scrollIntoView && 0;
       }
       function quiz(s, qi, score, picked, QQ) {
-        const Q = QQ || s.quiz.map(q => { const o = q.o.map((_, i) => i).sort(() => Math.random() - .5); return { q: q.q, o: o.map(i => q.o[i]), a: o.indexOf(q.a), e: q.e }; });
+        const Q = QQ || s.quiz.slice().sort(() => Math.random() - .5).slice(0, 10).map(q => { const o = q.o.map((_, i) => i).sort(() => Math.random() - .5); return { q: q.q, o: o.map(i => q.o[i]), a: o.indexOf(q.a), e: q.e }; });
         if (qi >= Q.length) { const key = st.grade + ':' + s.id; if (!st.quiz[key] || score > st.quiz[key]) st.quiz[key] = score; save(); root.innerHTML = `<h3>Kết quả: ${score}/${Q.length}</h3><p>${score === Q.length ? '🎉 Xuất sắc!' : score >= Q.length * .6 ? '👍 Khá tốt, ôn lại các câu sai nhé.' : '💪 Hãy xem lại lý thuyết rồi làm lại.'}</p><div class="nav"><button class="btn" data-quiz="${s.id}">Làm lại</button><button class="btn ghost" data-s2="${s.id}">← ${esc(s.name)}</button></div>`; return; }
         const q = Q[qi];
         root.innerHTML = `<div class="nav"><button class="btn ghost" data-s2="${s.id}">← Thoát</button><span class="hint">Câu ${qi + 1}/${Q.length} · Điểm ${score}</span></div><div class="body">${fmt(q.q)}</div>${q.o.map((o, k) => `<button class="opt${picked != null ? (k === q.a ? ' ok' : k === picked ? ' bad' : '') : ''}" data-opt="${k}" ${picked != null ? 'disabled' : ''}>${String.fromCharCode(65 + k)}. ${esc(o)}</button>`).join('')}${picked != null ? `<div class="sol open"><div class="body">${fmt(q.e)}</div></div><div class="nav"><button class="btn" data-nextq="1">${qi + 1 < Q.length ? 'Câu tiếp →' : 'Xem kết quả'}</button></div>` : ''}`;

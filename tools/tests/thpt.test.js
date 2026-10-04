@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
   await p.click('[data-s=toan]'); await p.click('.ls >> nth=0'); await p.click('[data-sol="0"]'); console.log('lời giải hiện:', await p.locator('.sol.open').count());
   await p.click('[data-done]'); console.log('đã học:', await p.evaluate(() => Object.keys(GV.thptT.st.done).length));
   await p.click('[data-s2=toan]'); await p.click('[data-quiz=toan]');
-  for (let i = 0; i < 6; i++) { await p.locator('.opt').first().click(); await p.click('[data-nextq]'); }
+  for (let i = 0; i < 10; i++) { await p.locator('.opt').first().click(); await p.click('[data-nextq]'); }
   console.log('kết quả:', await p.locator('h3').first().innerText());
   console.log(errs.join('\n') || 'no errors'); await b.close();
 })();
