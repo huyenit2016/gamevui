@@ -3,7 +3,7 @@ const ROOT = require('path').resolve(__dirname, '..', '..');
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(), errs = [], p = await (await b.newContext({ viewport: { width: 390, height: 800 }, isMobile: true, hasTouch: true })).newPage();
-  p.on('pageerror', e => errs.push(e.message));
+  p.on('pageerror', e => errs.push(e.stack.split('\n').slice(0, 3).join(' | ')));
   await p.goto('file://' + ROOT + '/index.html#/game/blocks'); await p.evaluate(() => localStorage.removeItem('gv_blocks')); await p.reload(); await p.waitForTimeout(500);
   const cnt = () => p.evaluate(() => GV.blocksT.g.reduce((a, v) => a + (v ? 1 : 0), 0));
   const tap = async (fx, fy) => { const bb = await p.locator('canvas').boundingBox(); await p.mouse.click(bb.x + bb.width * fx, bb.y + bb.height * fy); await p.waitForTimeout(100); };
@@ -20,5 +20,12 @@ const { chromium } = require('playwright');
   console.log('canvas px:', px);
   await p.selectOption('.tp', 'terrain'); await p.waitForTimeout(200); console.log('địa hình:', await cnt() > 100);
   await p.screenshot({ path: process.env.SHOT || '/tmp/blocks.png' });
+  // hình khối + màu riêng + khôi phục từ bộ nhớ
+  await p.selectOption('.tp', 'clear'); await p.waitForTimeout(150);
+  await p.click('[data-shp="1"]'); await p.fill('.cc', '#12ab34'); await p.click('.addc');
+  const before = await cnt(); for (const [fx, fy] of [[.5, .6], [.45, .65], [.55, .55], [.5, .7], [.4, .6]]) { await tap(fx, fy); if (await cnt() > before) break; }
+  console.log('nửa khối + màu riêng:', await p.evaluate(() => { const t = GV.blocksT; let ok = false; for (let i = 0; i < t.g.length; i++) if (t.g[i] === 21) ok = true; return ok; }), 'màu riêng ở bảng:', await p.locator('.sw').count());
+  await p.waitForTimeout(600); await p.reload(); await p.waitForTimeout(500);
+  console.log('sau tải lại: màu riêng còn', await p.locator('.sw').count() === 21, 'khối còn', await cnt());
   console.log(errs.join('\n') || 'no errors'); await b.close();
 })();
