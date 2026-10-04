@@ -68,3 +68,8 @@ MVP (`js/games-avatarfarm.js`): nhân vật tuỳ biến, 8 cây, cấp độ, c
 - [ ] Làng 3D/2.5D, thú cưng, sự kiện theo mùa, bản đồ nhiều khu, nhiệm vụ cốt truyện.
 - [ ] Hàng xóm: nhắn tin/tặng quà, hái giúp, bảng xếp hạng tuần; cờ tỷ phú chơi online nhiều người thật.
 - [ ] Đua xe nhiều người, đua kart 3D; bộ sprite đẹp hơn.
+
+## Kế hoạch các trang riêng (GitHub Pages) – cập nhật 10/2026
+Đã làm bản đầu trong GameVui (có thể tách ra repo riêng): Bé học cửu chương (#13), Lập trình khối lệnh (#14), cờ vua/cờ tướng (mp-chess, mp-cotuong), nông trại (Làng Nông Vui), game 3D (Xây Khối 3D, Rubik).
+Chưa làm: võ đường (#1), cổng AIGame3D (#2), nông trại vượt thời gian (#5), hội nhóm vs zombie (#6), nhảy Audition (#7), bóng đá online (#8), TeamFarmy (#9), Xôi Vinh (#10, cần backend + pháp lý), rao vặt (#11), game kiểu CS (#12, cần máy chủ thời gian thực).
+Ràng buộc: GitHub Pages chỉ tĩnh – phần thời gian thực/thanh toán cần Firebase/Supabase/Cloudflare Workers hoặc nền tảng khác.
