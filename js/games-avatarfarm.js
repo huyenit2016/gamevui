@@ -40,6 +40,7 @@
 
   // vẽ nhân vật (dùng cho cả nông trại lẫn khung xem trước)
   function drawAvatar(c, x, y, av, t, walking, s, dir) {
+    if (GV.chibi) { const q = id => (find(av[id]) || {}).v; return GV.chibi.char(c, x, y, { skin: q('skin'), hair: av.hair, hcol: q('hcol'), top: av.top, tcol: q('tcol'), pants: q('pants'), hat: av.hat, acc: av.acc }, t, walking, s, dir == null ? 1 : dir); }
     const g = id => find(av[id]) || {}, skin = g('skin').v, hair = av.hair, hc = g('hcol').v, tc = g('tcol').v, pc = g('pants').v, top = av.top;
     const sw = walking ? Math.sin(t * 14) : 0, bob = walking ? Math.abs(Math.sin(t * 14)) * 2 : Math.sin(t * 2) * .6;
     c.save(); c.translate(x, y); c.scale(s * (dir < 0 ? -1 : 1), s);
@@ -72,7 +73,7 @@
     id: 'avatarfarm', type: 'game', cat: 'Mô phỏng', name: 'Làng Nông Vui', icon: '👩‍🌾', desc: 'Chuyên trang nông trại: trồng rau, cây ăn quả, nuôi gà bò lợn. Chơi 30 phút mở khoá xây nhà, câu cá, đua xe, cờ tỷ phú, cày xu và đi thăm hàng xóm!',
     mount(el) {
       let S = migrate((() => { const d = GV.store.get('avfarm', null); return d && d.v === 1 ? d : fresh(); })()), zoneClean = null, T = null;
-      const save = () => GV.store.set('avfarm', S); let tab = 'farm', sel = 'carrot', avx = X0 + CS * 2.5, avy = Y0 + CS * 4 + 4, tx = avx, ty = avy, pend = -1, fx = [], t = 0, dead = false, parts = [], face = 1, mark = null, hov = -1, life = null, step = 0;
+      const save = () => GV.store.set('avfarm', S); let tab = 'farm', sel = 'carrot', avx = X0 + CS * 2.5, avy = Y0 + CS * 4 + 4, tx = avx, ty = avy, pend = -1, fx = [], t = 0, dead = false, parts = [], DPR = 1, face = 1, mark = null, hov = -1, life = null, step = 0;
       el.innerHTML = `<style>.af .tb{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding:2px;scrollbar-width:none}.af .tb::-webkit-scrollbar{display:none}.af .tb button{flex:0 0 auto;white-space:nowrap;padding:0 14px}.af .tb button.lk{opacity:.55}.af .tb button.on{background:var(--t-p);border-color:var(--t-pb);color:var(--t-parts)}.af .crop{height:auto;min-height:66px;border-radius:14px;min-width:78px;display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 8px;line-height:1.25}.af .crop small{color:var(--mut);font-size:11px}.af .crop.lock{opacity:.45}.af .xp{height:8px;border-radius:9px;background:var(--md-sc-lowest,#111);overflow:hidden;min-width:90px}.af .xp i{display:block;height:100%;background:var(--ok);transition:width .3s}.af .it{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:12px;border:1px solid var(--line);background:var(--md-sc-high,#2b292d);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;margin:3px;position:relative}.af .it.eq{border-color:var(--md-primary,#D0BCFF);background:var(--t-p)}.af .it .sw{width:18px;height:18px;border-radius:50%;border:1px solid #fff4}.af .it.lk{opacity:.5}.af .q{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--md-sc-high,#2b292d);margin-bottom:6px;text-align:left}</style><div class="tool af" style="max-width:520px;align-items:center"><div class="hud"><span>🪙 <b class="co">0</b></span><span>💎 <b class="gm">0</b></span><span>Cấp <b class="lv">1</b></span><div class="xp"><i></i></div><span class="hint xt"></span></div><div class="tb"></div><div class="pane"></div><p class="msg"></p></div>`;
       const pane = $(el, '.pane'); let cv = null, c = null, pv = null, pc = null;
       const cur = () => Math.min(MAXLV, S.lv), prog = p => { const cr = CROPS.find(x => x.id === p.c); return Math.min(1, (Date.now() - p.t) / (cr.sec * 1000)); };
@@ -98,11 +99,11 @@
       function buyPlot() { const cost = 40 * (S.plots - 4); if (S.coins < cost) return toast(`Cần ${cost} 🪙 để mở thêm ô đất.`, 'warn'); S.coins -= cost; S.plots++; burst(slotPos(S.plots - 1).x, slotPos(S.plots - 1).y, 18, ['#fff', '#C5E1A5', '#FFF59D'], { v: 90, t: .9 }); save(); hudUpdate(); GV.beep(700, 80); toast('Đã mở thêm 1 ô đất!', 'success'); }
       /* ---- tab nông trại ---- */
       function drawFarm() {
-        pane.innerHTML = `<canvas class="cv" width="420" height="${Y0 + CS * ROWS + 30}" style="width:100%;max-width:440px"></canvas><div class="row cp" style="margin-top:8px"></div><p class="hint">Chọn hạt giống ở dưới, chạm một ô đất để nhân vật chạy tới. Ô trống: gieo · cây đang lớn: tưới (rút 20% thời gian) · cây chín: thu hoạch.</p>`;
+        DPR = Math.max(1, Math.min(2, Math.round(window.devicePixelRatio || 1))); pane.innerHTML = `<canvas class="cv" width="${420 * DPR}" height="${(Y0 + CS * ROWS + 30) * DPR}" style="width:100%;max-width:440px"></canvas><div class="row cp" style="margin-top:8px"></div><p class="hint">Chọn hạt giống ở dưới, chạm một ô đất để nhân vật chạy tới. Ô trống: gieo · cây đang lớn: tưới (rút 20% thời gian) · cây chín: thu hoạch.</p>`;
         cv = $(pane, 'canvas'); c = cv.getContext('2d'); cropBar();
-        cv.addEventListener('pointerdown', e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height, col = Math.floor((x - X0) / CS), row = Math.floor((y - Y0) / CS);
+        cv.addEventListener('pointerdown', e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * 420 / r.width, y = (e.clientY - r.top) * (cv.height / DPR) / r.height, col = Math.floor((x - X0) / CS), row = Math.floor((y - Y0) / CS);
           if (col >= 0 && col < COLS && row >= 0 && row < ROWS) { const i = row * COLS + col; if (i === S.plots) { buyPlot(); return; } if (i > S.plots) return toast('Hãy mở khoá các ô đất phía trước trước nhé.'); const p = slotPos(i); tx = p.x; ty = p.y + 30; pend = i; mark = { x: p.x, y: p.y, t: 0 }; } else { tx = Math.max(24, Math.min(396, x)); ty = Math.max(Y0 - 10, Math.min(Y0 + CS * ROWS + 8, y)); pend = -1; mark = { x: tx, y: ty, t: 0 }; } });
-        cv.addEventListener('pointermove', e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height, col = Math.floor((x - X0) / CS), row = Math.floor((y - Y0) / CS); hov = col >= 0 && col < COLS && row >= 0 && row < ROWS ? row * COLS + col : -1; });
+        cv.addEventListener('pointermove', e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * 420 / r.width, y = (e.clientY - r.top) * (cv.height / DPR) / r.height, col = Math.floor((x - X0) / CS), row = Math.floor((y - Y0) / CS); hov = col >= 0 && col < COLS && row >= 0 && row < ROWS ? row * COLS + col : -1; });
         cv.addEventListener('pointerleave', () => { hov = -1; });
       }
       function cropBar() { const b = $(pane, '.cp'); if (!b) return; b.innerHTML = CROPS.map(cr => `<button class="btn ghost crop${cr.lv > S.lv ? ' lock' : ''}" data-c="${cr.id}" style="${sel === cr.id ? 'outline:2px solid var(--md-primary,#D0BCFF)' : ''}"><span style="font-size:22px">${cr.lv > S.lv ? '🔒' : cr.e}</span><b style="font-size:12px">${cr.n}</b><small>${cr.lv > S.lv ? 'Cấp ' + cr.lv : cr.cost + '→' + cr.gain + ' · ' + (cr.sec >= 60 ? Math.round(cr.sec / 60) + 'p' : cr.sec + 's')}</small></button>`).join(''); b.onclick = e => { const x = e.target.closest('[data-c]'); if (!x) return; const cr = CROPS.find(k => k.id === x.dataset.c); if (cr.lv > S.lv) return toast(`Đạt cấp ${cr.lv} để mở khoá ${cr.n}.`, 'warn'); sel = cr.id; cropBar(); }; }
@@ -111,7 +112,7 @@
         const dx = tx - avx, dy = ty - avy, d = Math.hypot(dx, dy), walking = d > 3;
         if (walking) { const s = Math.min(d, 190 * dt); avx += dx / d * s; avy += dy / d * s; if (Math.abs(dx) > 2) face = dx < 0 ? -1 : 1; step -= dt; if (step <= 0) { step = .12; burst(avx - face * 6, avy, 2, ['#D7CCC8', '#BCAAA4'], { v: 22, t: .5, up: 14, g: -10, r: 2.4 }); } } else if (pend >= 0) { const i = pend; pend = -1; perform(i); }
         if (!life) life = { birds: [{ x: -30, y: 18, v: 38 }, { x: -200, y: 38, v: 30 }], bf: [0, 1, 2].map(k => ({ x: 80 + k * 120, y: 140 + k * 60, p: k * 2 })), hens: [{ x: 120, y: Y0 + CS * ROWS + 12, dx: 1, w: 0 }, { x: 300, y: Y0 + CS * ROWS + 16, dx: -1, w: 0 }] };
-        const W = 420, H = cv.height, hr = new Date().getHours() + new Date().getMinutes() / 60;
+        c.setTransform(DPR, 0, 0, DPR, 0, 0); const W = 420, H = cv.height / DPR, hr = new Date().getHours() + new Date().getMinutes() / 60;
         const day = Math.max(0, Math.min(1, (Math.cos((hr - 13) / 24 * 6.283) + .35) / 1.2)); // 1 = giữa ngày, 0 = đêm
         const g = c.createLinearGradient(0, 0, 0, H); const sk1 = hr >= 5 && hr < 7 || hr >= 17 && hr < 19 ? ['#FFB38A', '#FFE0B2'] : day > .45 ? ['#6EC6FF', '#B3E5FC'] : ['#1A237E', '#3949AB'];
         g.addColorStop(0, sk1[0]); g.addColorStop(.17, sk1[1]); g.addColorStop(.18, '#7CB342'); g.addColorStop(1, '#558B2F'); c.fillStyle = g; c.fillRect(0, 0, W, H);
@@ -120,7 +121,7 @@
         c.font = '30px serif'; c.globalAlpha = day < .45 ? .55 : 1; c.fillText('☁️', 70 + Math.sin(t * .2) * 12 + (t * 3 % 460) * 0, 22); c.fillText('☁️', ((t * 5 + 250) % 520) - 50, 30); c.globalAlpha = 1;
         // cỏ lay động nền
         c.strokeStyle = 'rgba(46,92,20,.55)'; c.lineWidth = 1.6; for (let k = 0; k < 26; k++) { const gx = (k * 71) % 410 + 5, gy = 80 + (k * 37) % (H - 90); if (gx > X0 - 2 && gx < X0 + COLS * CS + 2 && gy > Y0 - 2 && gy < Y0 + ROWS * CS) continue; const sw = Math.sin(t * 2 + k) * 2.5; c.beginPath(); c.moveTo(gx, gy); c.quadraticCurveTo(gx + sw, gy - 5, gx + sw * 1.6, gy - 9); c.moveTo(gx + 3, gy); c.quadraticCurveTo(gx + 3 + sw, gy - 4, gx + 3 + sw * 1.4, gy - 7); c.stroke(); }
-        c.font = '34px serif'; c.fillText('🏡', 380, 52); c.save(); c.translate(38, 66); c.rotate(Math.sin(t * 1.3) * .035); c.fillText('🌳', 0, -16); c.restore();
+        GV.chibi.house(c, 374, 70, .95, day < .45); GV.chibi.bigTree(c, 36, 72, .68, Math.sin(t * 1.3) * .03); GV.chibi.fence(c, 70, 66, 240);
         // khói ống khói
         for (let k = 0; k < 3; k++) { const ph = (t * .5 + k / 3) % 1; c.globalAlpha = (1 - ph) * .45; c.fillStyle = day < .45 ? '#ddd' : '#fff'; c.beginPath(); c.arc(386 + ph * 10 + Math.sin(ph * 6 + k) * 3, 34 - ph * 26, 3 + ph * 5, 0, 7); c.fill(); } c.globalAlpha = 1;
         // chim bay
@@ -128,15 +129,14 @@
         const ripeAny = [];
         for (let i = 0; i < COLS * ROWS; i++) {
           const p = slotPos(i), x = p.x - 31, y = p.y - 29, st = S.field[i];
-          if (i >= S.plots) { c.fillStyle = 'rgba(0,0,0,.18)'; c.fillRect(x, y, 62, 58); c.font = '20px serif'; c.fillStyle = '#fff'; c.fillText(i === S.plots ? '🔓' : '🔒', p.x, p.y - 6 + (i === S.plots ? Math.sin(t * 3) * 2 : 0)); if (i === S.plots) { c.font = 'bold 12px Roboto,sans-serif'; c.fillText(40 * (S.plots - 4) + '🪙', p.x, p.y + 14); } continue; }
-          c.fillStyle = st && st.w ? '#4E342E' : '#795548'; c.beginPath(); c.roundRect ? c.roundRect(x, y, 62, 58, 8) : c.rect(x, y, 62, 58); c.fill(); c.strokeStyle = hov === i ? '#FFF59D' : '#5D4037'; c.lineWidth = hov === i ? 3 : 2; c.stroke();
-          c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = 1.5; for (let r = 1; r < 4; r++) { c.beginPath(); c.moveTo(x + 6, y + r * 14); c.lineTo(x + 56, y + r * 14); c.stroke(); }
+          if (i >= S.plots) { GV.chibi.locked(c, x, y, 62, 58); c.font = '20px serif'; c.fillStyle = '#fff'; c.fillText(i === S.plots ? '🔓' : '🔒', p.x, p.y - 6 + (i === S.plots ? Math.sin(t * 3) * 2 : 0)); if (i === S.plots) { c.font = 'bold 12px Roboto,sans-serif'; c.fillText(40 * (S.plots - 4) + '🪙', p.x, p.y + 14); } continue; }
+          GV.chibi.soil(c, x, y, 62, 58, st && st.w, hov === i, t);
           if (st) {
-            const pr = prog(st), cr = CROPS.find(k => k.id === st.c); c.fillStyle = '#000'; c.textAlign = 'center'; c.textBaseline = 'middle';
-            const sz = pr >= 1 ? 34 : pr > .5 ? 26 : 18, sway = Math.sin(t * 2.2 + i * 1.7) * (pr >= 1 ? .08 : .12), pop = pr >= 1 ? 1 + Math.abs(Math.sin(t * 3 + i)) * .08 : 1;
-            c.save(); c.translate(p.x, p.y + 12); c.rotate(sway); c.scale(pop, pop); c.font = sz + 'px serif'; c.fillText(pr >= 1 ? cr.e : pr > .5 ? (cr.tree ? '🌳' : '🌿') : '🌱', 0, -14); c.restore();
-            if (pr >= 1) { ripeAny.push(i); c.font = '14px serif'; c.fillText('✨', p.x + 20, p.y - 18 + Math.sin(t * 4 + i) * 2); c.globalAlpha = .25 + .2 * Math.sin(t * 4 + i); c.fillStyle = '#FFEB3B'; c.beginPath(); c.arc(p.x, p.y - 2, 28, 0, 7); c.fill(); c.globalAlpha = 1; if (Math.random() < dt * 1.2) burst(p.x + (Math.random() - .5) * 30, p.y - 10, 1, ['#FFF59D', '#fff'], { v: 12, t: .9, up: 20, g: -20, r: 2 }); }
-            else { c.fillStyle = '#0006'; c.fillRect(x + 6, y + 49, 50, 5); c.fillStyle = st.w ? '#4FC3F7' : '#9CCC65'; c.fillRect(x + 6, y + 49, 50 * pr, 5); }
+            const pr = prog(st), cr = CROPS.find(k => k.id === st.c); c.textAlign = 'center'; c.textBaseline = 'middle';
+            const stg = pr >= 1 ? 3 : pr > .5 ? 2 : pr > .12 ? 1 : 0;
+            GV.chibi.crop(c, cr.id, stg, p.x, p.y + 16, t, Math.sin(t * 2.2 + i * 1.7) * (stg >= 3 ? .05 : .08), 1);
+            if (pr >= 1) { ripeAny.push(i); c.font = '14px serif'; c.fillStyle = '#000'; c.fillText('✨', p.x + 22, p.y - 22 + Math.sin(t * 4 + i) * 2); { const gr = c.createRadialGradient(p.x, p.y - 6, 2, p.x, p.y - 6, 30); gr.addColorStop(0, 'rgba(255,240,130,' + (.35 + .15 * Math.sin(t * 4 + i)).toFixed(2) + ')'); gr.addColorStop(1, 'rgba(255,240,130,0)'); c.fillStyle = gr; c.fillRect(p.x - 32, p.y - 40, 64, 64); } if (Math.random() < dt * 1.2) burst(p.x + (Math.random() - .5) * 30, p.y - 10, 1, ['#FFF59D', '#fff'], { v: 12, t: .9, up: 20, g: -20, r: 2 }); }
+            else { c.fillStyle = '#0006'; c.beginPath(); c.roundRect ? c.roundRect(x + 6, y + 47, 50, 6, 3) : c.rect(x + 6, y + 47, 50, 6); c.fill(); c.fillStyle = st.w ? '#4FC3F7' : '#9CCC65'; c.beginPath(); c.roundRect ? c.roundRect(x + 6, y + 47, Math.max(6, 50 * pr), 6, 3) : c.rect(x + 6, y + 47, 50 * pr, 6); c.fill(); }
             if (st.w && pr < 1) { c.font = '12px serif'; c.fillText('💧', x + 8, y + 10 + Math.sin(t * 3 + i) * 1.5); }
           }
         }
