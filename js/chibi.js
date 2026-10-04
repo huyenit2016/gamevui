@@ -145,5 +145,93 @@
     c.restore();
   }
   function locked(c, x, y, w, h) { c.save(); rr(c, x, y, w, h, 12); c.fillStyle = 'rgba(30,60,20,.28)'; c.fill(); c.setLineDash([5, 4]); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.35)'; c.stroke(); c.restore(); }
-  GV.chibi = { house, bigTree, fence, locked, char, crop, soil, shade, rr, ell, fs, hat };
+
+  /* ===== xe bus, đường, bến xe, khu vui chơi ===== */
+  // xe bus xanh trắng kiểu hoạt hình; (x,y) = điểm giữa đáy xe, dài ~150·s
+  function bus(c, x, y, s, t, dir, door) {
+    s = s || 1; c.save(); c.translate(x, y); c.scale(s * (dir < 0 ? -1 : 1), s);
+    shadow(c, 0, 2, 78, 7);
+    const bob = Math.sin(t * 22) * .6; c.translate(0, bob);
+    rr(c, -74, -62, 148, 52, 12); fs(c, '#f4f8ff', 2.2);                       // thân trắng
+    c.save(); rr(c, -74, -62, 148, 52, 12); c.clip(); c.fillStyle = '#1e88e5'; c.beginPath(); c.moveTo(-76, -22); c.quadraticCurveTo(-10, -30, 76, -14); c.lineTo(76, -8); c.lineTo(-76, -8); c.closePath(); c.fill(); c.fillStyle = '#90caf9'; c.fillRect(-76, -26, 152, 3.5); c.restore();
+    rr(c, -74, -62, 148, 52, 12); c.lineWidth = 2.2; c.strokeStyle = OUT; c.stroke();
+    rr(c, -40, -68, 62, 8, 4); fs(c, '#eceff1', 1.6);                           // điều hoà mái
+    for (let i = 0; i < 5; i++) { const wx = -64 + i * 22 + (i > 2 ? 14 : 0); rr(c, wx, -56, 18, 22, 4); fs(c, '#7fd0f5', 1.6); c.fillStyle = '#ffffff66'; c.fillRect(wx + 3, -53, 4, 8); }
+    rr(c, 44, -56, 26, 34, 5); fs(c, '#7fd0f5', 1.6);                           // kính chắn gió
+    const dw = door ? 12 : 17; rr(c, 20, -56, dw, 46, 3); fs(c, door ? '#263238' : '#90a4ae', 1.6); // cửa
+    ell(c, 72, -17, 3.4, 3.4, '#ffe082', 1.4); ell(c, -72, -17, 2.8, 2.8, '#ef5350', 1.2); // đèn
+    [-46, 40].forEach(wx => { ell(c, wx, -9, 13, 13, '#37474f', 2); ell(c, wx, -9, 6, 6, '#cfd8dc', 1.2); c.save(); c.translate(wx, -9); c.rotate(t * 14); c.strokeStyle = '#78909c'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(-5, 0); c.lineTo(5, 0); c.moveTo(0, -5); c.lineTo(0, 5); c.stroke(); c.restore(); });
+    c.restore();
+  }
+  // dải đường + vỉa hè ở đáy cảnh. y0 = mép trên của đường
+  function road(c, W, y0, t, scroll) {
+    c.fillStyle = '#cfae7a'; c.fillRect(0, y0 - 12, W, 12); c.fillStyle = '#e1c895'; c.fillRect(0, y0 - 12, W, 3);
+    c.fillStyle = '#6b6f78'; c.fillRect(0, y0, W, 50); c.fillStyle = '#7b8089'; c.fillRect(0, y0, W, 5);
+    c.fillStyle = '#f5f1d8'; const off = (scroll || 0) % 44; for (let x = -44 + off; x < W; x += 44) c.fillRect(x, y0 + 24, 24, 3.5);
+    c.fillStyle = '#4e5259'; c.fillRect(0, y0 + 50, W, 3);
+  }
+  function busStop(c, x, y, t, label) {
+    c.save(); c.translate(x, y); shadow(c, 0, 0, 20, 5);
+    rr(c, -3, -54, 6, 54, 2); fs(c, '#78909c', 1.6);
+    rr(c, -17, -74, 34, 24, 8); fs(c, '#1e88e5', 2); c.fillStyle = '#fff'; c.font = '800 11px "Baloo 2",Roboto,sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('BUS', 0, -61);
+    rr(c, 10, -20, 30, 6, 3); fs(c, '#d8b07a', 1.4); rr(c, 13, -14, 4, 14, 1.5); fs(c, '#8a5a3c', 1.2); rr(c, 33, -14, 4, 14, 1.5); fs(c, '#8a5a3c', 1.2);
+    if (label) { rr(c, -34, 6, 68, 16, 8); fs(c, '#fffaf0', 1.6); c.fillStyle = '#6b4a2a'; c.font = '800 10px "Baloo 2",Roboto,sans-serif'; c.fillText(label, 0, 14.5); }
+    c.restore();
+  }
+  function lamp(c, x, y, night) {
+    c.save(); c.translate(x, y); shadow(c, 0, 0, 9, 3); rr(c, -2, -64, 4, 64, 2); fs(c, '#90a4ae', 1.4); rr(c, -9, -70, 18, 7, 3.5); fs(c, '#cfd8dc', 1.4);
+    if (night) { const g = c.createRadialGradient(0, -64, 1, 0, -64, 34); g.addColorStop(0, 'rgba(255,240,170,.7)'); g.addColorStop(1, 'rgba(255,240,170,0)'); c.fillStyle = g; c.fillRect(-36, -100, 72, 72); }
+    c.restore();
+  }
+  function sign(c, x, y, text, locked) {
+    c.font = '800 12px "Baloo 2",Roboto,sans-serif'; const w = Math.max(56, c.measureText(text).width + 22 + (locked ? 14 : 0));
+    c.save(); c.translate(x, y); rr(c, -w / 2, -11, w, 22, 9); fs(c, '#fff3d6', 2); c.fillStyle = locked ? '#9a7a58' : '#6b4a2a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText((locked ? '🔒 ' : '') + text, 0, 1); c.restore();
+  }
+  function fountain(c, x, y, t) {
+    c.save(); c.translate(x, y); shadow(c, 0, 4, 34, 8);
+    ell(c, 0, 0, 32, 12, '#cfd8dc'); ell(c, 0, -2, 27, 9, '#4fc3f7', 1.6); rr(c, -5, -26, 10, 24, 4); fs(c, '#b0bec5', 1.6); ell(c, 0, -27, 12, 4.5, '#cfd8dc', 1.6);
+    c.strokeStyle = 'rgba(190,235,255,.9)'; c.lineWidth = 2.2; c.lineCap = 'round';
+    for (let k = -2; k <= 2; k++) { const a = k * .38, ph = (t * 1.4 + k * .3) % 1; c.beginPath(); c.moveTo(0, -29); c.quadraticCurveTo(k * 11, -52 + Math.abs(k) * 5, k * 22, -6); c.stroke(); }
+    c.fillStyle = '#e3f6ff'; for (let k = 0; k < 6; k++) { const ph = (t * 1.2 + k / 6) % 1; c.beginPath(); c.arc(-20 + k * 8, -4 - Math.sin(ph * 3.14) * 6, 1.6, 0, TAU); c.fill(); }
+    c.restore();
+  }
+  // các điểm vui chơi (x,y = chân công trình)
+  function pond(c, x, y, t) {
+    c.save(); c.translate(x, y); ell(c, 0, -8, 46, 24, '#ccb27a', 2); ell(c, 0, -9, 41, 20, '#3fb4f0', 0);
+    c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1.6; for (let k = 0; k < 3; k++) { const ph = (t * .5 + k / 3) % 1; c.beginPath(); c.ellipse(-8 + k * 10, -8 + (k % 2) * 4, 5 + ph * 12, 2 + ph * 5, 0, 0, TAU); c.globalAlpha = 1 - ph; c.stroke(); c.globalAlpha = 1; }
+    c.save(); c.translate(10, -12 + Math.sin(t * 1.6) * 1.5); c.rotate(Math.sin(t * 1.2) * .05); c.beginPath(); c.moveTo(-16, 0); c.lineTo(16, 0); c.lineTo(11, 8); c.lineTo(-11, 8); c.closePath(); fs(c, '#c58a4a', 1.8); c.strokeStyle = OUT; c.lineWidth = 1.8; c.beginPath(); c.moveTo(2, 0); c.lineTo(2, -22); c.stroke(); c.fillStyle = '#ef5350'; c.fillRect(2, -22, 9, 6); c.restore();
+    rr(c, -52, -20, 18, 6, 2); fs(c, '#d8b07a', 1.4); c.restore();
+    c.font = '22px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('🎣', x - 38, y - 30);
+  }
+  function track(c, x, y, t) {
+    c.save(); c.translate(x, y); shadow(c, 0, 2, 50, 8);
+    ell(c, 0, -14, 48, 22, '#8d949c', 2); ell(c, 0, -14, 30, 11, '#7cc04f', 0); c.strokeStyle = '#fff'; c.lineWidth = 1.6; c.setLineDash([5, 5]); c.beginPath(); c.ellipse(0, -14, 39, 16.5, 0, 0, TAU); c.stroke(); c.setLineDash([]);
+    const a = t * 1.6; c.save(); c.translate(Math.cos(a) * 39, -14 + Math.sin(a) * 16.5); rr(c, -7, -4, 14, 8, 3); fs(c, '#e53935', 1.4); c.restore();
+    rr(c, -50, -42, 5, 40, 2); fs(c, '#eceff1', 1.4); rr(c, 45, -42, 5, 40, 2); fs(c, '#eceff1', 1.4); rr(c, -52, -50, 104, 12, 5); fs(c, '#fff', 1.6);
+    for (let i = 0; i < 13; i++) { c.fillStyle = i % 2 ? '#212121' : '#fff'; c.fillRect(-48 + i * 7.4, -48, 7.4, 4); c.fillStyle = i % 2 ? '#fff' : '#212121'; c.fillRect(-48 + i * 7.4, -44, 7.4, 4); }
+    c.restore();
+  }
+  function tent(c, x, y, t) {
+    c.save(); c.translate(x, y); shadow(c, 0, 2, 40, 7);
+    rr(c, -30, -34, 60, 34, 4); fs(c, '#fff3d6', 2);
+    c.beginPath(); c.moveTo(-40, -32); c.lineTo(0, -64); c.lineTo(40, -32); c.closePath(); fs(c, '#e53935', 2);
+    for (let i = -1; i <= 1; i++) { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(i * 14 - 6, -32); c.lineTo(i * 14, -61 + Math.abs(i) * 6); c.lineTo(i * 14 + 6, -32); c.closePath(); c.fill(); }
+    rr(c, -9, -22, 18, 22, 4); fs(c, '#8a5a3c', 1.6);
+    c.save(); c.translate(0, -76); c.rotate(Math.sin(t * 1.8) * .12); rr(c, -9, -9, 18, 18, 4); fs(c, '#fff', 1.8); c.fillStyle = '#212121'; [[-4, -4], [4, 4], [0, 0], [4, -4], [-4, 4]].forEach(([dx, dy]) => { c.beginPath(); c.arc(dx, dy, 1.5, 0, TAU); c.fill(); }); c.restore();
+    c.restore();
+  }
+  function arcade(c, x, y, t) {
+    c.save(); c.translate(x, y); shadow(c, 0, 2, 38, 7);
+    rr(c, -34, -56, 68, 56, 8); fs(c, '#7e57c2', 2); rr(c, -26, -46, 52, 30, 6); fs(c, '#1b1b2f', 1.8);
+    const hue = (t * 80) % 360; c.fillStyle = 'hsl(' + hue + ',90%,60%)'; c.font = '16px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(['👾', '🕹️', '🎯'][Math.floor(t) % 3], 0, -31);
+    ell(c, -12, -9, 4.5, 4.5, '#ef5350', 1.4); ell(c, 2, -9, 4.5, 4.5, '#ffd54f', 1.4); rr(c, 12, -13, 10, 8, 3); fs(c, '#42a5f5', 1.4);
+    for (let i = 0; i < 6; i++) { c.fillStyle = i % 2 ? '#ffd54f' : '#ef5350'; c.beginPath(); c.arc(-30 + i * 12, -58, 2.4 + (Math.floor(t * 3) % 2 === i % 2 ? .8 : 0), 0, TAU); c.fill(); }
+    c.restore();
+  }
+  function hamlet(c, x, y, t) {
+    c.save(); c.translate(x, y); shadow(c, 0, 2, 50, 7);
+    [[-26, 1, '#ffb74d'], [26, .8, '#81c784']].forEach(([dx, k, col]) => { c.save(); c.translate(dx, 0); c.scale(k, k); rr(c, -17, -28, 34, 28, 4); fs(c, '#fff3d6', 1.8); c.beginPath(); c.moveTo(-23, -26); c.lineTo(0, -48); c.lineTo(23, -26); c.closePath(); fs(c, col, 1.8); rr(c, -5, -17, 10, 17, 3); fs(c, '#8a5a3c', 1.4); c.restore(); });
+    c.font = '18px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('👀', Math.sin(t * 2) * 3, -62); c.restore();
+  }
+  GV.chibi = { bus, road, busStop, lamp, sign, fountain, pond, track, tent, arcade, hamlet, house, bigTree, fence, locked, char, crop, soil, shade, rr, ell, fs, hat };
 })();
