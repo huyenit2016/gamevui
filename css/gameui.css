@@ -1,0 +1,47 @@
+/* Giao diện game kiểu hoạt hình (chibi): nút 3D, thẻ kem, thanh gỗ, viên thuốc trắng – áp dụng cho Làng Nông Vui (.af.gvu) */
+@font-face{font-family:"Baloo 2";font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/baloo-2-vietnamese-wght-normal.woff2) format("woff2-variations");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:"Baloo 2";font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/baloo-2-latin-ext-wght-normal.woff2) format("woff2-variations");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Baloo 2";font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/baloo-2-latin-wght-normal.woff2) format("woff2-variations");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+.af.gvu{--fg:#5a3a1e;--mut:#a1805c;--line:#ecd9b4;--inp:#fffaf0;--md-sc-high:#fff4d8;--md-sc-highest:#ffe8b8;--md-sc-lowest:#f1e4c8;--t-p:rgba(255,193,7,.22);--t-pb:#f5b83d;--t-pt:#8a4b08;--md-primary:#f5a623;--ok:#4caf50;--bad:#e5534b;
+  font-family:"Baloo 2","Roboto",system-ui,sans-serif;color:var(--fg);width:100%;box-sizing:border-box;padding:12px;border-radius:28px;border:3px solid #fff;
+  background:linear-gradient(180deg,#a9e0ff 0,#d5f2b5 55%,#b9e283 100%);box-shadow:0 6px 0 #7fb35a,0 14px 26px rgba(0,0,0,.28)}
+.af.gvu *{font-family:inherit}
+.af.gvu .hud{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;width:100%}
+.af.gvu .hud{color:var(--fg)}
+.af.gvu .prof{display:flex;align-items:center;gap:10px;background:#fff;border-radius:22px;padding:6px 14px 6px 8px;box-shadow:0 3px 0 rgba(0,0,0,.12),inset 0 0 0 2px #f1e4c8;min-width:0;flex:1 1 170px}
+.af.gvu .pav{position:relative;flex:none;width:44px;height:44px;border-radius:50%;background:#ffe9b5;box-shadow:0 0 0 3px #f5b83d;display:grid;place-items:center;font-size:26px}
+.af.gvu .lvb{position:absolute;left:-4px;bottom:-6px;min-width:30px;padding:0 6px;height:20px;border-radius:12px;background:#4caf50;color:#fff;font-size:12px;font-weight:800;line-height:20px;text-align:center;box-shadow:0 0 0 2px #fff;white-space:nowrap}
+.af.gvu .pin{min-width:0;flex:1}.af.gvu .nm{display:block;font-size:16px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.af.gvu .xp{height:10px;border-radius:9px;background:#efe3c7;overflow:hidden;margin:3px 0 1px;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.af.gvu .xp i{background:linear-gradient(#9be564,#4caf50)}
+.af.gvu .xt{color:var(--mut);font-size:11px;font-weight:700}
+.af.gvu .rsx{display:flex;gap:8px;flex:none}
+.af.gvu .cpl{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:3px 12px 3px 4px;box-shadow:0 3px 0 rgba(0,0,0,.12),inset 0 0 0 2px #f1e4c8;color:var(--fg);font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.af.gvu .cpl .ico{font-style:normal;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(#ffe69a,#ffc93a);font-size:17px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.af.gvu .cpl b{color:var(--fg)}
+/* nút 3D */
+.af.gvu .btn{border:0;border-radius:16px;background:linear-gradient(#86e855,#4fc22f);color:#fff;font-weight:800;text-shadow:0 1px 0 rgba(0,0,0,.25);box-shadow:0 4px 0 #2f8f1c,0 7px 10px rgba(0,0,0,.14);transition:transform .08s,box-shadow .08s}
+.af.gvu .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #2f8f1c}
+.af.gvu .btn.ghost{background:#fff;color:#7a4a1c;text-shadow:none;box-shadow:0 4px 0 #e2cfa6,inset 0 0 0 2px #f1e4c8}
+.af.gvu .btn.ghost:active{box-shadow:0 1px 0 #e2cfa6,inset 0 0 0 2px #f1e4c8}
+.af.gvu .btn:disabled{filter:grayscale(.6);opacity:.65}
+/* thanh tab dạng viên thuốc trắng */
+.af.gvu .tb{background:#fff;border-radius:999px;padding:5px;gap:4px;box-shadow:inset 0 0 0 2px #f1e4c8,0 3px 0 rgba(0,0,0,.1);width:100%;box-sizing:border-box}
+.af.gvu .tb button{background:transparent;box-shadow:none;border:0;color:#9a7a55;height:38px;border-radius:999px;padding:0 16px;font-size:15px}
+.af.gvu .tb button:active{transform:none;box-shadow:none}
+.af.gvu .tb button.on{background:linear-gradient(#ffd54a,#ffb300);color:#7a3d00;box-shadow:0 3px 0 #d98a00;border:0}
+/* khung nội dung kem + khung gỗ quanh canvas */
+.af.gvu .pane{background:#fffaf0;border-radius:22px;border:3px solid #f0dcb0;padding:10px;box-shadow:0 4px 0 #e2cfa6;box-sizing:border-box}
+.af.gvu canvas.cv{border-radius:18px;border:4px solid #fff;box-shadow:0 0 0 3px #c58a4a,0 5px 0 3px #9a6a35}
+.af.gvu .crop{background:#fff8e6;border:3px solid #f0dcb0;border-radius:18px;box-shadow:0 3px 0 #e2cfa6;color:var(--fg);text-shadow:none}
+.af.gvu .crop b{font-size:13px}.af.gvu .crop small{color:var(--mut);font-weight:700}
+.af.gvu .crop.sel{border-color:#ffb300;background:#fff3c4;box-shadow:0 3px 0 #d98a00}
+.af.gvu .crop.lock{opacity:.5;filter:grayscale(.5)}
+.af.gvu .it{background:#fff8e6;border:2px solid #f0dcb0;color:var(--fg);border-radius:14px;box-shadow:0 2px 0 #e2cfa6}
+.af.gvu .it.eq{border-color:#ffb300;background:#fff3c4}
+.af.gvu .q{background:#fff8e6;border:2px solid #f0dcb0;border-radius:16px;color:var(--fg)}
+.af.gvu .hint,.af.gvu .msg{color:var(--mut);font-weight:600}
+.af.gvu input,.af.gvu select,.af.gvu textarea{background:#fff;color:var(--fg);border:2px solid #ecd9b4;border-radius:12px;font-weight:700}
+.af.gvu .hud b{color:var(--fg)}
+.af.gvu .pane:has(>canvas.cv){background:none;border:0;box-shadow:none;padding:0}
+@media(max-width:599px){.af.gvu{padding:8px;border-radius:22px;gap:8px}.af.gvu .hud{flex-wrap:nowrap;gap:6px}.af.gvu .prof{flex:1 1 auto;padding:4px 10px 4px 6px;min-width:0}.af.gvu .pav{width:38px;height:38px;font-size:22px}.af.gvu .rsx{flex-direction:column;gap:4px}.af.gvu .cpl{font-size:15px;padding-right:10px}.af.gvu .cpl .ico{width:24px;height:24px;font-size:13px}.af.gvu .xt{display:none}}
