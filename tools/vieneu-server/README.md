@@ -10,3 +10,6 @@ Trong Sách nói: ⚙ VieNeu → địa chỉ `http://localhost:8000` → tên g
 
 - Nếu đặt máy chủ lên mạng, dùng HTTPS (trang chạy HTTPS không gọi được http ngoài localhost) và đặt `ALLOW_ORIGINS`.
 - API: `POST /tts {text, voice?}` → `audio/wav`. Chưa kiểm tra với VieNeu thật; nếu tên hàm của phiên bản bạn cài khác (`infer`, `save`, `get_preset_voice`), sửa trong `server.py`.
+
+## Chạy trên Google Colab (không cần cài gì)
+Mở [vieneu_colab.ipynb](https://colab.research.google.com/github/huyenit2016/gamevui/blob/main/tools/vieneu-server/vieneu_colab.ipynb), chạy cả 3 ô, lấy địa chỉ `https://….trycloudflare.com` in ra và dán vào ⚙ VieNeu. Địa chỉ đổi mỗi lần chạy lại.
