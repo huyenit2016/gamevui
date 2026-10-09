@@ -35,6 +35,7 @@ for (const f of fs.readdirSync('css').filter(x => x.endsWith('.css'))) {
   put('css/' + f, out.styles); stat.css[0] += src.length; stat.css[1] += out.styles.length;
 }
 if (fs.existsSync('css/fonts')) for (const f of fs.readdirSync('css/fonts')) put('css/fonts/' + f, fs.readFileSync('css/fonts/' + f));
+if (fs.existsSync('vendor')) for (const f of fs.readdirSync('vendor')) put('vendor/' + f, fs.readFileSync('vendor/' + f));
 for (const f of fs.readdirSync('.').filter(x => x.endsWith('.html'))) {
   const src = fs.readFileSync(f, 'utf8');
   const out = await minifyHtml(src, { collapseWhitespace: true, conservativeCollapse: true, removeComments: true, minifyJS: true, minifyCSS: true });

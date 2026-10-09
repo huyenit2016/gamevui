@@ -1,0 +1,3 @@
+Dòng một của tệp TXT. Câu thứ hai.
+
+Đoạn thứ hai của tệp TXT.
