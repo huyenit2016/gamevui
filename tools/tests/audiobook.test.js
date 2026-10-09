@@ -25,5 +25,10 @@ const BOOKS = process.env.BOOKS || path.join(__dirname, 'fixtures');
   await p.waitForTimeout(3000); console.log('hết trang tự sang trang kế / dừng ở cuối:', await p.evaluate(() => GV.abT.st.pg), 'của', pages);
   await p.click('.spd'); console.log('tốc độ:', await p.locator('.spd').innerText());
   await p.click('.x'); console.log('thư viện sách:', await p.locator('.bkl').count());
-  console.log(errs.join('\n') || 'no errors'); await b.close(); srv.close();
+  // VieNeu: máy chủ giả trả WAV rỗng
+  let vnCalls = 0; await p.route('http://vn.test/tts', r => { vnCalls++; r.fulfill({ status: 200, contentType: 'audio/wav', headers: { 'access-control-allow-origin': '*' }, body: Buffer.from('UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=', 'base64') }); });
+  await p.evaluate(() => { GV.store.set('audiobook', Object.assign(GV.store.get('audiobook', {}), { voice: 'vieneu', vnUrl: 'http://vn.test' })); });
+  await p.reload(); await p.waitForTimeout(500); await p.evaluate(() => { location.hash = '#/tool/audiobook'; }); await p.waitForTimeout(500);
+  await p.click('.demo'); await p.click('.pl'); await p.waitForTimeout(800); console.log('VieNeu gọi máy chủ:', vnCalls >= 1);
+  console.log(errs.filter(e => !/vn\.test|Audio|play|media/i.test(e)).join('\n') || 'no errors'); await b.close(); srv.close();
 })();
