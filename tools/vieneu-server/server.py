@@ -15,7 +15,23 @@ ORIGINS = os.environ.get("ALLOW_ORIGINS", "https://huyenit2016.github.io,http://
 
 app = FastAPI(title="VieNeu cho GameVui")
 app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_methods=["*"], allow_headers=["*"])
-tts = Vieneu()  # tải mô hình ONNX chạy CPU lần đầu
+
+
+def load_model():
+    """Tải mô hình về thư mục thật (không symlink). onnxruntime mới từ chối đọc dữ liệu ngoài
+    (*.data) khi file là symlink trong cache Hugging Face -> lỗi "External data path escapes model directory"."""
+    from huggingface_hub import snapshot_download
+    base = os.environ.get("VIENEU_DIR", os.path.join(os.path.expanduser("~"), "vieneu_models"))
+    m = snapshot_download("pnnbao-ump/VieNeu-TTS-v3-Turbo", allow_patterns=["onnx_update/*", "*.json"], local_dir=os.path.join(base, "model"))
+    c = snapshot_download("OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX", local_dir=os.path.join(base, "codec"))
+    return Vieneu(onnx_dir=os.path.join(m, "onnx_update"), codec_dir=c)
+
+
+try:
+    tts = load_model()
+except Exception as e:  # dự phòng: cách tải mặc định của thư viện
+    print("Tải thủ công lỗi, thử cách mặc định:", repr(e))
+    tts = Vieneu()
 
 
 class Req(BaseModel):
