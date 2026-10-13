@@ -54,6 +54,7 @@
     ['config', '⚙️ Cấu hình web', ['admin']],
     ['announce', '📢 Thông báo', ['admin', 'collab']],
     ['library', '📚 Thư viện khoá học', ['admin', 'collab', 'teacher']],
+    ['story', '📖 Câu chuyện (Story)', ['admin', 'collab']],
     ['class', '🎓 Lớp & bài giao', ['admin', 'teacher']],
     ['mywork', '🧑‍🎓 Bài của tôi', ['admin', 'collab', 'teacher', 'student']]
   ];
@@ -73,7 +74,7 @@
     $('.lo').onclick = () => A.signOut();
     $('.rr').onclick = () => recheck(true);
     $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', '#' + tab); panelView(); });
-    const fn = { home, rooms, users, config, announce, library, class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
+    const fn = { home, rooms, users, config, announce, library, story: c => GV.cmsStory(c, $, $$, fdate), class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
     if (A.isAdmin) watchJunk();
   }
   const db = () => A.db;

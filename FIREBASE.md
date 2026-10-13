@@ -268,6 +268,29 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
         }
       }
     },
+    "stories": {
+      "meta": {
+        ".read": "true",
+        "$id": {
+          ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab')",
+          ".validate": "newData.hasChildren(['title', 'slug', 'by', 'at']) && newData.child('title').isString() && newData.child('title').val().length <= 160 && newData.child('slug').isString() && newData.child('slug').val().matches(/^[a-z0-9]+(-[a-z0-9]+)*$/) && newData.child('slug').val().length <= 60"
+        }
+      },
+      "data": {
+        "$id": {
+          ".read": "root.child('stories').child('meta').child($id).child('pub').val() === true || (auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab'))",
+          ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab')",
+          ".validate": "newData.isString() && newData.val().length < 400000"
+        }
+      },
+      "slugs": {
+        "$slug": {
+          ".read": "true",
+          ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab') && (!newData.exists() || !data.exists() || data.val() === newData.val())",
+          ".validate": "newData.isString() && $slug.matches(/^[a-z0-9]+(-[a-z0-9]+)*$/) && $slug.length <= 60"
+        }
+      }
+    },
     "teacherStudents": {
       "$t": {
         ".read": "auth != null && ($t === auth.uid || root.child('admins').child(auth.uid).exists())",

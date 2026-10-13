@@ -77,5 +77,25 @@ W('admin xoá phòng mprooms của người khác', true, 'mprooms/1111', null, 
 W('admin xoá calls + calllobby', true, 'calls/2222', null, who.adm, RT); W('admin xoá calllobby', true, 'calllobby/2222', null, who.adm, RT); W('admin xoá rooms cũ', true, 'rooms/3333', null, who.adm, RT); W('admin xoá lobby cũ', true, 'lobby/3333', null, who.adm, RT);
 W('khách dọn mplobby quá 2 giờ (janitor)', true, 'mplobby/1111', null, who.guest, RT); W('khách KHÔNG xoá mplobby còn mới', false, 'mplobby/1111', null, who.guest, setAt(RT, ['mplobby', '1111', 'at'], NOW - 60000));
 W('khách KHÔNG xoá calls mới của người khác', false, 'calls/2222', null, who.guest, setAt(RT, ['calllobby', '2222', 'at'], NOW - 60000)); W('janitor dọn calls quá hạn? (chỉ calllobby)', true, 'calllobby/2222', null, who.guest, RT);
+console.log('--- Story (trang kể chuyện) ---');
+const sm = (by, pub) => ({ title: 'Chuyện A', slug: 'chuyen-a', by, at: 1, pub });
+W('CTV tạo meta story', true, 'stories/meta/s1', sm('col1', false), who.col); W('admin tạo meta story', true, 'stories/meta/s1', sm('adm1', true), who.adm);
+W('giáo viên KHÔNG tạo story', false, 'stories/meta/s1', sm('tea1', false), who.tea); W('khách KHÔNG tạo story', false, 'stories/meta/s1', sm('g1', true), who.guest);
+W('slug sai định dạng bị chặn', false, 'stories/meta/s1', Object.assign(sm('col1', false), { slug: 'Chuyen A' }), who.col);
+W('thiếu tiêu đề bị chặn', false, 'stories/meta/s1', { slug: 'a', by: 'col1', at: 1 }, who.col);
+R('khách đọc danh sách meta', true, 'stories/meta', who.guest);
+const st = setAt(setAt(setAt(T, ['stories', 'meta', 's1'], sm('col1', true)), ['stories', 'data', 's1'], '{"blocks":[]}'), ['stories', 'meta', 's2'], sm('col1', false));
+const st2 = setAt(st, ['stories', 'data', 's2'], '{"blocks":[]}');
+R('khách đọc nội dung story đã xuất bản', true, 'stories/data/s1', who.guest, st2); R('khách KHÔNG đọc bản nháp', false, 'stories/data/s2', who.guest, st2); R('CTV đọc bản nháp', true, 'stories/data/s2', who.col, st2);
+W('CTV ghi nội dung story', true, 'stories/data/s1', '{"blocks":[{}]}', who.col, st2); W('khách KHÔNG sửa nội dung story', false, 'stories/data/s1', '{}', who.guest, st2);
+W('nội dung quá 400KB bị chặn', false, 'stories/data/s1', 'x'.repeat(400001), who.col, st2);
+R('khách tra slug', true, 'stories/slugs/chuyen-a', who.guest);
+W('CTV đăng ký slug mới', true, 'stories/slugs/chuyen-b', 's2', who.col, st2); W('slug viết hoa bị chặn', false, 'stories/slugs/Chuyen-B', 's2', who.col, st2);
+const sl = setAt(st2, ['stories', 'slugs', 'chuyen-a'], 's1');
+W('KHÔNG chiếm slug đã có cho story khác', false, 'stories/slugs/chuyen-a', 's2', who.col, sl); W('cùng story ghi lại slug của mình', true, 'stories/slugs/chuyen-a', 's1', who.col, sl); W('gỡ slug khi xoá story', true, 'stories/slugs/chuyen-a', null, who.col, sl);
+W('khách KHÔNG xoá slug', false, 'stories/slugs/chuyen-a', null, who.guest, sl);
+// update đa đường dẫn: Firebase kiểm từng đường dẫn con nên mô phỏng từng ghi
+W('lưu: meta mới', true, 'stories/meta/s9', sm('col1', true), who.col, T); W('lưu: data mới', true, 'stories/data/s9', '{"blocks":[]}', who.col, T); W('lưu: slug mới', true, 'stories/slugs/chuyen-z', 's9', who.col, T);
+
 console.log(`\n${pass} đạt, ${fail} lỗi`);
 process.exit(fail ? 1 : 0);

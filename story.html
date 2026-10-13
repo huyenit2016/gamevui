@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Câu chuyện – GameVui</title>
+<meta name="description" content="Những câu chuyện kể bằng hình ảnh và chuyển động của GameVui.">
+<meta name="theme-color" content="#0e1a2b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📖%3C/text%3E%3C/svg%3E">
+<style>
+html,body{margin:0;background:#fff}
+.sx-back{position:fixed;top:12px;left:12px;z-index:60;background:#000a;color:#fff;text-decoration:none;font:700 13px system-ui,sans-serif;padding:7px 14px;border-radius:99px;backdrop-filter:blur(6px)}
+.sx-msg{min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px;font:16px/1.6 system-ui,sans-serif;color:#333}
+.sx-msg h1{font-size:1.5rem;margin:0 0 6px}
+.sx-ix{max-width:1000px;margin:0 auto;padding:70px 20px 40px;font-family:system-ui,sans-serif}
+.sx-ix h1{font-size:2rem;margin:0 0 4px}.sx-ix p.s{color:#666;margin:0 0 26px}
+.sx-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.sx-c{display:block;text-decoration:none;color:inherit;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 2px 14px #0002;transition:transform .2s}.sx-c:hover{transform:translateY(-3px)}
+.sx-c i{display:block;aspect-ratio:16/10;background:var(--img,none) center/cover,linear-gradient(135deg,#0e1a2b,#3a1c71)}
+.sx-c b{display:block;padding:12px 14px 2px;font-size:1.05rem}.sx-c span{display:block;padding:0 14px 14px;color:#666;font-size:.88rem}
+</style>
+</head>
+<body>
+<a class="sx-back" href="./">‹ GameVui</a>
+<div id="app"><div class="sx-msg"><div>Đang tải câu chuyện…</div></div></div>
+<noscript><div class="sx-msg"><div><h1>Cần bật JavaScript</h1>Trang kể chuyện cần JavaScript để hiển thị.</div></div></noscript>
+<script src="js/app.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/fb.js"></script>
+<script src="js/story-render.js"></script>
+<script src="js/story.js"></script>
+</body>
+</html>

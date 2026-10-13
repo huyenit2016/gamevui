@@ -101,6 +101,19 @@ rules = {"rules": {
       ".write": f"{AUTH} && ({MOD} || ({TEACHER} && root.child('library').child('meta').child($id).child('by').val() === auth.uid))",
       ".validate": "newData.isString() && newData.val().length < 300000"}}
   },
+  # ---- Story (trang kể chuyện): ai cũng đọc được bản xuất bản; admin/CTV soạn ----
+  "stories": {
+    "meta": {".read": "true", "$id": {
+      ".write": f"{AUTH} && {MOD}",
+      ".validate": "newData.hasChildren(['title', 'slug', 'by', 'at']) && newData.child('title').isString() && newData.child('title').val().length <= 160 && newData.child('slug').isString() && newData.child('slug').val().matches(/^[a-z0-9]+(-[a-z0-9]+)*$/) && newData.child('slug').val().length <= 60"}},
+    "data": {"$id": {
+      ".read": f"root.child('stories').child('meta').child($id).child('pub').val() === true || ({AUTH} && {MOD})",
+      ".write": f"{AUTH} && {MOD}",
+      ".validate": "newData.isString() && newData.val().length < 400000"}},
+    "slugs": {"$slug": {".read": "true",
+      ".write": f"{AUTH} && {MOD} && (!newData.exists() || !data.exists() || data.val() === newData.val())",
+      ".validate": "newData.isString() && $slug.matches(/^[a-z0-9]+(-[a-z0-9]+)*$/) && $slug.length <= 60"}}
+  },
   "teacherStudents": {"$t": {".read": f"{AUTH} && ($t === auth.uid || {ADMIN})", ".write": f"{AUTH} && (($t === auth.uid && {TEACHER}) || {ADMIN})"}},
   "assign": {"$s": {".read": f"{AUTH} && ($s === auth.uid || {TEACHER} || {ADMIN})", "$c": {
     ".write": f"{AUTH} && ({ADMIN} || ({TEACHER} && ((newData.exists() && newData.child('by').val() === auth.uid) || (!newData.exists() && data.child('by').val() === auth.uid))))"}}},
