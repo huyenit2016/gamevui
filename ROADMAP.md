@@ -81,3 +81,8 @@ Ràng buộc: GitHub Pages chỉ tĩnh – phần thời gian thực/thanh toán
 - [ ] Thêm khối: bản đồ, so sánh trước/sau, câu hỏi tương tác; nhúng video YouTube/Vimeo (cân nhắc bản quyền).
 - [ ] Link rút gọn thật (không qua 404) nếu chuyển sang tên miền riêng/Cloudflare.
 - [ ] **Nhớ publish lại `database.rules.json`** (có nhánh `stories`) trên Firebase Console trước khi dùng.
+
+## 🪘 Tích Đức Online – đã làm / chưa làm
+- [x] Gõ mõ, cảnh giới, thỉnh chuông, quẻ, cửa hàng, hồ cá, nhạc nền, lịch âm + Hoàng đạo.
+- [ ] Bảng xếp hạng (cần Firebase + Rules chống gian lận), Tâm Viên/Tưởng niệm (thắp nến), trò chơi nhỏ, phòng tu tập cùng bạn bè.
+- [ ] Âm thanh mõ/chuông thật (hiện tổng hợp bằng WebAudio), giọng đọc kinh, nhắc nhở hằng ngày, đồ hoạ tượng đẹp hơn do chủ cung cấp.
