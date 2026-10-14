@@ -86,3 +86,4 @@ Ràng buộc: GitHub Pages chỉ tĩnh – phần thời gian thực/thanh toán
 - [x] Gõ mõ, cảnh giới, thỉnh chuông, quẻ, cửa hàng, hồ cá, nhạc nền, lịch âm + Hoàng đạo.
 - [ ] Bảng xếp hạng (cần Firebase + Rules chống gian lận), Tâm Viên/Tưởng niệm (thắp nến), trò chơi nhỏ, phòng tu tập cùng bạn bè.
 - [ ] Âm thanh mõ/chuông thật (hiện tổng hợp bằng WebAudio), giọng đọc kinh, nhắc nhở hằng ngày, đồ hoạ tượng đẹp hơn do chủ cung cấp.
+- [x] Trang Tích đức giao diện sáng (`#/tool/accumulating-merit`) + menu riêng. [ ] Bảng xếp hạng toàn cầu, đồng bộ công đức với game Tích Đức Online (hiện 2 lưu trữ riêng), tạo thiệp có ảnh nền đẹp hơn.

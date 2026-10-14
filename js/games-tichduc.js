@@ -36,6 +36,7 @@
   const SKINS = [{ n: 'Chùa đêm', c: ['#241408', '#0c0603'], g: '#ffd27a', cost: 0 }, { n: 'Chùa sen', c: ['#2b1220', '#0d0509'], g: '#ffb3c9', cost: 400 }, { n: 'Chùa trúc', c: ['#10241a', '#050c08'], g: '#bff0a8', cost: 900 }];
   const fmt = n => Math.floor(n).toLocaleString('vi-VN');
 
+  GV.lunarCal = { lunar, today, CAN, CHI, QUE, HD };
   GV.register({
     id: 'tichduc', type: 'game', cat: 'Mô phỏng', name: 'Tích Đức Online', icon: '🪘', desc: 'Gõ mõ tích công đức, thăng cảnh giới, rút quẻ mỗi ngày, nuôi cá, ngắm lịch âm. Thư giãn, không dính tiền.',
     mount(el) {
