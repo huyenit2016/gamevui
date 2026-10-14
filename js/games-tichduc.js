@@ -71,15 +71,20 @@
 .td input{width:100%;background:#0c0603;color:#fff1c8;border:1px solid #e8c36a77;border-radius:10px;padding:8px 10px;font:inherit}
 .td .que{border:1px dashed #e8c36a99;border-radius:14px;padding:14px;text-align:center;margin:10px 0}.td .que b{display:block;font-size:1.25rem;color:#ffe9b0;margin-bottom:4px}
 .td .pond{width:100%!important;height:200px!important;border-radius:12px;background:#0d2a30;display:block}
+/* máy tính: trò chơi phủ kín cả màn hình (trên thanh bên/đầu trang của site); điện thoại giữ khung trong trang */
+.td .tdh{display:none}
+@media(min-width:900px){.td{position:fixed;inset:0;z-index:70;width:auto;max-width:none;height:auto;min-height:0;margin:0;border-radius:0}.td .tdh{display:block;background:#1a120acc;border:1px solid #e8c36a77;color:#f5e6c4;border-radius:99px;padding:7px 16px;cursor:pointer;font:600 13px Georgia,serif}.td .tdt{padding:12px 22px}.td .tdt b{font-size:1.3rem}.td .tdn button{width:62px;padding:6px 0 5px;font-size:11px}.td .tdn button i{font-size:22px}.td .tdd{top:74px;padding:8px 26px}.td .tdd b{font-size:15px}.td .tdp{width:min(430px,92%);bottom:18px;padding:10px 20px 8px}.td .tdp .n{font-size:2.6rem}.td .tdp .rl{font-size:1.5rem}.td .tdbell{font-size:14px;padding:8px 20px}.td .tdsay{font-size:14px}}
 @media(max-width:600px){.td{height:calc(100dvh - 190px);min-height:420px}.td .tdn{width:100%;justify-content:space-between}.td .tdn button{flex:1;width:auto;font-size:8.5px}.td .tdn button i{font-size:16px}.td .tdt b{display:none}.td .tdp .n{font-size:1.9rem}.td .tdp .rl{font-size:1.1rem}.td .tdp{padding:8px 12px 6px}.td .tdd{top:52px}}
 </style><div class="td"><canvas></canvas>
-<div class="tdt"><b>🪘 Tích Đức Online</b><div class="tdn"><button data-m="me"><i>🙂</i>Tôi</button><button data-m="que"><i>🎋</i>Quẻ</button><button data-m="shop"><i>🛍️</i>Cửa hàng</button><button data-m="pond"><i>🐟</i>Hồ cá</button><button class="mu"><i>🎵</i>Nhạc</button><button data-m="help"><i>ℹ️</i>Trợ giúp</button></div></div>
+<div class="tdt"><button class="tdh" title="Về trang chủ GameVui">‹ Trang chủ</button><b>🪘 Tích Đức Online</b><div class="tdn"><button data-m="me"><i>🙂</i>Tôi</button><button data-m="que"><i>🎋</i>Quẻ</button><button data-m="shop"><i>🛍️</i>Cửa hàng</button><button data-m="pond"><i>🐟</i>Hồ cá</button><button class="mu"><i>🎵</i>Nhạc</button><button data-m="help"><i>ℹ️</i>Trợ giúp</button></div></div>
 <div class="tdd ${TD.special ? 'sp' : ''}"><b>${GV.esc(TD.txt)}</b>${GV.esc(TD.name)} · ${TD.hd ? 'Hoàng đạo (Tốt)' : 'Hắc đạo (Thường)'}${TD.special ? ' · ' + (TD.l.d === 1 ? 'Mùng một' : 'Rằm') + ' công đức ×2' : ''}</div>
 <div class="tdsay"></div><button class="tdbell">🔔 Thỉnh chuông</button>
 <div class="tdp"><small>Công đức</small><div class="n">0</div><div class="x"></div><small style="margin-top:2px">Cảnh giới hiện tại</small><div class="rl"></div><div class="bar"><i></i></div><div class="pg"></div>
 <div class="st"><div><b class="s1">0</b><span>Lần gõ</span></div><div><b class="s2"></b><span>Đỉnh cao</span></div><div><b class="s3">0p</b><span>Tu tập</span></div></div></div>
 <div class="tdm"><div class="tdc"></div></div></div>`;
       const $ = s => el.querySelector(s), root = $('.td'), cv = $('canvas'), ctx = cv.getContext('2d');
+      // phủ kín màn hình (position:fixed) cần các khung cha không có transform (animation `rise` của .stage tạo ra transform)
+      const anc = []; for (let n = el; n && n !== document.body; n = n.parentElement) { if (n.id !== 'app') { anc.push([n, n.style.animation, n.style.transform]); n.style.animation = 'none'; n.style.transform = 'none'; } }
       let W = 0, H = 0, DPR = 1;
       const fit = () => { DPR = Math.min(2, window.devicePixelRatio || 1); const r = root.getBoundingClientRect(); W = r.width; H = r.height; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); place(); };
       const place = () => { const pH = $('.tdp').offsetHeight; $('.tdbell').style.bottom = (pH + 20) + 'px'; $('.tdsay').style.bottom = (pH + 56) + 'px'; };
@@ -89,23 +94,35 @@
       function knock() { const a = AC(); if (!a) return; const t = a.currentTime, o = a.createOscillator(), g = a.createGain(), o2 = a.createOscillator(), g2 = a.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(260, t + .09); g.gain.setValueAtTime(.22, t); g.gain.exponentialRampToValueAtTime(.001, t + .16); o2.type = 'triangle'; o2.frequency.setValueAtTime(1300, t); o2.frequency.exponentialRampToValueAtTime(700, t + .03); g2.gain.setValueAtTime(.09, t); g2.gain.exponentialRampToValueAtTime(.001, t + .05); o.connect(g); g.connect(a.destination); o2.connect(g2); g2.connect(a.destination); o.start(t); o.stop(t + .2); o2.start(t); o2.stop(t + .06); }
       function bell() { const a = AC(); if (!a) return; const t = a.currentTime; [[440, .12], [880, .06], [1320, .035], [1768, .02]].forEach(([f, v]) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = f * (1 + (Math.random() - .5) * .004); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + 3.2); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 3.3); }); }
       let pad = null;
-      // Nhạc thiền: tiếng chuông xoay (bát hát) thưa, nốt ngũ cung Rê trưởng, nền ngân thấp + vang (reverb) – không giai điệu dồn dập
+      // Nhạc thiền: ưu tiên bài thật `audio/thien.mp3` (chủ tự đặt vào, loop); không có thì phát bản tự soạn bằng WebAudio:
+      // giai điệu sáo chậm (~55 nhịp/phút) trên ngũ cung Rê trưởng, hợp âm nền Rê–Si thứ–Sol–La, bát hát + vang (reverb).
+      let song = null, songChk = null;
+      const NOTE = [293.66, 329.63, 369.99, 440, 493.88, 587.33, 659.25, 739.99, 880]; // D4 E4 F#4 A4 B4 D5 E5 F#5 A5
+      const PHRASE = [ // [chỉ số nốt (-1 = nghỉ), số phách]
+        [[3, 2], [4, 1], [3, 1], [2, 2], [1, 2], [0, 4], [-1, 2]], [[2, 2], [3, 1], [2, 1], [1, 2], [0, 2], [1, 2], [2, 4], [-1, 2]],
+        [[5, 3], [4, 1], [3, 2], [4, 2], [3, 2], [2, 4], [-1, 2]], [[3, 2], [2, 1], [1, 1], [0, 2], [1, 2], [0, 6], [-1, 2]]];
+      const CHORD = [[73.42, 146.83, 185, 220, 329.63], [61.74, 123.47, 146.83, 185, 246.94], [98, 196, 246.94, 293.66, 392], [110, 220, 277.18, 329.63, 440]]; // D · Bm · G · A
+      function synthSong(a) {
+        const out = a.createGain(); out.gain.value = 0; out.connect(a.destination); out.gain.linearRampToValueAtTime(.9, a.currentTime + 3);
+        const len = Math.floor(a.sampleRate * 3.6), ir = a.createBuffer(2, len, a.sampleRate); for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5); }
+        const cvb = a.createConvolver(); cvb.buffer = ir; const wet = a.createGain(), dry = a.createGain(), bus = a.createGain(); wet.gain.value = .65; dry.gain.value = .65; cvb.connect(wet); wet.connect(out); dry.connect(out); bus.connect(dry); bus.connect(cvb);
+        const timers = [], P = { out, timers, stop() { } }, BEAT = 1.1;
+        const tone = (f, t, dur, type, vol, att, rel, vib) => { const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f; if (vib) { const l = a.createOscillator(), lg = a.createGain(); l.frequency.value = 5.2; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * .006, t + .6); l.connect(lg); lg.connect(o.frequency); l.start(t); l.stop(t + dur + rel + .1); } g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + att); g.gain.setValueAtTime(vol, t + Math.max(att, dur - .1)); g.gain.linearRampToValueAtTime(0, t + dur + rel); o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + rel + .1); };
+        const bowl = (f, t) => [[1, .12], [2.76, .05], [5.4, .02]].forEach(([m, v]) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = f * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .04); g.gain.exponentialRampToValueAtTime(.0004, t + 7); o.connect(g); g.connect(bus); o.start(t); o.stop(t + 7.2); });
+        let ci = 0, pi = 0, ni = 0;
+        const chord = () => { if (pad !== P) return; const t = a.currentTime, d = BEAT * 8; CHORD[ci % 4].forEach((f, k) => { tone(f, t, d, 'sine', .03 - k * .003, 3, 2.5, false); tone(f * 1.004, t, d, 'sine', .02, 3.5, 2.5, false); }); bowl(CHORD[ci % 4][0] * 4, t + .05); ci++; timers.push(setTimeout(chord, d * 1000)); };
+        const melody = () => { if (pad !== P) return; const ph = PHRASE[pi % 4], [n, bt] = ph[ni]; const t = a.currentTime + .05, dur = bt * BEAT; if (n >= 0) { tone(NOTE[n], t, dur * .9, 'sine', .11, .22, 1.6, true); tone(NOTE[n] * 2, t, dur * .7, 'sine', .015, .3, 1.2, true); } ni++; if (ni >= ph.length) { ni = 0; pi++; } timers.push(setTimeout(melody, dur * 1000)); };
+        pad = P; chord(); timers.push(setTimeout(melody, 4200));
+        return P;
+      }
       function music(on) {
         const a = AC(); if (!a) return;
-        if (on && !pad) {
-          const out = a.createGain(); out.gain.value = 0; out.connect(a.destination); out.gain.linearRampToValueAtTime(.9, a.currentTime + 3);
-          const len = Math.floor(a.sampleRate * 3.4), ir = a.createBuffer(2, len, a.sampleRate); for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
-          const cvb = a.createConvolver(); cvb.buffer = ir; const wet = a.createGain(), dry = a.createGain(), bus = a.createGain(); wet.gain.value = .6; dry.gain.value = .7; cvb.connect(wet); wet.connect(out); dry.connect(out); bus.connect(dry); bus.connect(cvb);
-          const dr = a.createGain(); dr.gain.value = .5; dr.connect(bus);
-          const oscs = [73.42, 110, 146.83].map((f, i) => { const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.value = [.05, .03, .018][i]; o.connect(g); g.connect(dr); o.start(); return o; });
-          const lfo = a.createOscillator(), lg = a.createGain(); lfo.frequency.value = .07; lg.gain.value = .22; lfo.connect(lg); lg.connect(dr.gain); lfo.start(); oscs.push(lfo);
-          const SC = [293.66, 329.63, 369.99, 440, 493.88, 587.33], timers = [], P = { out, oscs, timers };
-          const bowl = () => { if (pad !== P) return; const t = a.currentTime, f = SC[GV.rnd(SC.length)] * (Math.random() < .35 ? .5 : 1); [[1, .15], [2.76, .06], [5.4, .025]].forEach(([m, v]) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = f * m * (1 + (Math.random() - .5) * .004); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .04); g.gain.exponentialRampToValueAtTime(.0004, t + 8); o.connect(g); g.connect(bus); o.start(t); o.stop(t + 8.2); }); timers.push(setTimeout(bowl, 6000 + Math.random() * 6000)); };
-          const swell = () => { if (pad !== P) return; const t = a.currentTime, f = SC[GV.rnd(5)] * .5; [1, 1.005].forEach(m => { const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.035, t + 3.5); g.gain.linearRampToValueAtTime(0, t + 9); o.connect(g); g.connect(bus); o.start(t); o.stop(t + 9.2); }); timers.push(setTimeout(swell, 10000 + Math.random() * 6000)); };
-          pad = P; bowl(); timers.push(setTimeout(swell, 2500));
-        } else if (!on && pad) {
-          const P = pad; pad = null; P.timers.forEach(clearTimeout);
-          try { P.out.gain.cancelScheduledValues(a.currentTime); P.out.gain.setValueAtTime(P.out.gain.value, a.currentTime); P.out.gain.linearRampToValueAtTime(0, a.currentTime + 1); setTimeout(() => P.oscs.forEach(o => { try { o.stop(); } catch (e) {} }), 1200); } catch (e) {}
+        if (on && !pad && !song) {
+          // thử bài thật trước
+          const myChk = songChk = {}; fetch('audio/thien.mp3', { method: 'HEAD' }).then(r => { if (songChk !== myChk) return; if (r.ok) { song = new Audio('audio/thien.mp3'); song.loop = true; song.volume = .55; song.play().catch(() => {}); } else synthSong(a); }).catch(() => { if (songChk === myChk) synthSong(a); });
+        } else if (!on) {
+          songChk = null; if (song) { try { song.pause(); } catch (e) {} song = null; }
+          if (pad) { const P = pad; pad = null; P.timers.forEach(clearTimeout); try { P.out.gain.cancelScheduledValues(a.currentTime); P.out.gain.setValueAtTime(P.out.gain.value, a.currentTime); P.out.gain.linearRampToValueAtTime(0, a.currentTime + 1.2); } catch (e) {} }
         }
       }
 
@@ -120,8 +137,9 @@
         if (navigator.vibrate && D.taps % 3 === 0) { try { navigator.vibrate(8); } catch (e) {} }
       }
       function say(t) { const s = $('.tdsay'); s.textContent = t; s.style.opacity = .9; clearTimeout(say.t); say.t = setTimeout(() => { s.style.opacity = 0; }, 4000); }
-      cv.addEventListener('pointerdown', e => { const r = cv.getBoundingClientRect(); tap(e.clientX - r.left, e.clientY - r.top); try { if (D.music && !pad) music(true); } catch (x) {} });
+      cv.addEventListener('pointerdown', e => { const r = cv.getBoundingClientRect(); tap(e.clientX - r.left, e.clientY - r.top); try { if (D.music && !pad && !song) music(true); } catch (x) {} });
       const offKeys = GV.keys(e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) tap(); });
+      $('.tdh').onclick = () => { location.hash = '#/'; };
       $('.tdbell').onclick = () => { const n = Date.now(); if (n - D.bell < 20000) return; D.bell = n; bell(); add(mul() * 8, W / 2, H * .55, '+' + fmt(mul() * 8) + ' 🔔'); sparks.push(...Array.from({ length: 16 }, () => ({ x: W / 2, y: H * .55, vx: (Math.random() - .5) * 160, vy: -Math.random() * 140, l: 1 }))); };
 
       /* ---------- Bảng thông tin ---------- */
@@ -248,7 +266,7 @@
       const ro = new ResizeObserver(fit); ro.observe(root); fit(); hud(); raf = requestAnimationFrame(frame);
       if (!D.name) say('Chạm vào mõ để bắt đầu tích đức 🙏'); else say('Chào ' + D.name + ', an yên nhé 🙏');
       GV.tdT = { D, tap, open, close, get modal() { return modal; }, lunar, today: TD, realmOf, REALMS };
-      return () => { dead = true; cancelAnimationFrame(raf); stopPond(); ro.disconnect(); offKeys(); document.removeEventListener('visibilitychange', onVis); music(false); save(); clearTimeout(say.t); };
+      return () => { dead = true; anc.forEach(([n, a, t]) => { n.style.animation = a; n.style.transform = t; }); cancelAnimationFrame(raf); stopPond(); ro.disconnect(); offKeys(); document.removeEventListener('visibilitychange', onVis); music(false); save(); clearTimeout(say.t); };
     }
   });
 })();

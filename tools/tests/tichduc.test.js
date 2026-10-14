@@ -32,6 +32,12 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   await p.click('[data-x]'); await p.evaluate(() => { GV.tdT.D.m = 500; }); await p.click('[data-m=pond]'); await p.waitForSelector('[data-f]'); await p.click('[data-f]'); ok('thả cá', await p.evaluate(() => GV.tdT.D.fish === 1));
   await p.waitForTimeout(500); ok('hồ cá có vẽ', await p.evaluate(() => { const c = document.querySelector('.pond'), d = c.getContext('2d').getImageData(0, 0, 400, 200).data; let n = 0; for (let i = 0; i < d.length; i += 16) if (d[i] > 120) n++; return n; }) > 10);
   await p.click('[data-x]');
+  // toàn màn hình trên máy tính + nhạc thiền
+  const bb = await p.evaluate(() => { const r = document.querySelector('.td').getBoundingClientRect(); return [r.x, r.y, Math.round(r.width), Math.round(r.height), innerWidth, innerHeight]; });
+  ok('máy tính: trò chơi phủ kín màn hình', bb[0] === 0 && bb[1] === 0 && bb[2] === bb[4] && bb[3] === bb[5], JSON.stringify(bb));
+  await p.click('.mu'); await p.waitForTimeout(6500);
+  ok('bật nhạc thiền: AudioContext chạy, không lỗi, nút sáng', await p.evaluate(() => GV._ac && GV._ac.state === 'running') && await p.locator('.mu.on').count() === 1, await p.evaluate(() => GV._ac && GV._ac.state));
+  await p.click('.mu'); ok('tắt nhạc', await p.locator('.mu.on').count() === 0);
   // thỉnh chuông + tên + lưu
   const m2 = await p.evaluate(() => GV.tdT.D.m); await p.click('.tdbell'); ok('thỉnh chuông thưởng công đức', (await p.evaluate(() => GV.tdT.D.m)) > m2);
   await p.click('[data-m=me]'); await p.fill('.nm', 'Minh'); await p.click('[data-x]');
