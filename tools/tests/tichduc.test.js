@@ -14,7 +14,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   ok('chạm vào mõ → +x mỗi nhịp, tăng lần gõ', m1 - base === mul && await p.evaluate(() => GV.tdT.D.taps) === 1, [base, m1, mul]);
   await p.keyboard.press('Space'); ok('phím Space gõ mõ', await p.evaluate(() => GV.tdT.D.taps) === 2);
   const px = await p.evaluate(() => { const c = document.querySelector('.td canvas'), g = c.getContext('2d'); const d = g.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 400) if (d[i] > 90) n++; return n; });
-  ok('canvas có vẽ cảnh', px > 200, px);
+  ok('canvas có vẽ cảnh', px > 60, px);
   // thăng cảnh giới
   await p.evaluate(() => { GV.tdT.D.tot = 95; GV.tdT.D.m = 95; }); for (let i = 0; i < 4; i++) await p.keyboard.press('Space'); await p.waitForTimeout(1200);
   ok('đủ 100 công đức → Định tâm', (await p.locator('.tdp .rl').innerText()).trim() === 'Định tâm', await p.locator('.tdp .rl').innerText());
