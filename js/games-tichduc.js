@@ -136,7 +136,7 @@
         rings.push({ r: 20, a: .6 }); if (D.taps % 12 === 0) sayI = (sayI + 1) % SAY.length, say(SAY[sayI]);
         if (navigator.vibrate && D.taps % 3 === 0) { try { navigator.vibrate(8); } catch (e) {} }
       }
-      function say(t) { const s = $('.tdsay'); s.textContent = t; s.style.opacity = .9; clearTimeout(say.t); say.t = setTimeout(() => { s.style.opacity = 0; }, 4000); }
+      function say(t) { const s = $('.tdsay'); s.textContent = t; s.style.opacity = .9; }
       cv.addEventListener('pointerdown', e => { const r = cv.getBoundingClientRect(); tap(e.clientX - r.left, e.clientY - r.top); try { if (D.music && !pad && !song) music(true); } catch (x) {} });
       const offKeys = GV.keys(e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) tap(); });
       $('.tdh').onclick = () => { location.hash = '#/'; };
@@ -266,7 +266,7 @@
       const ro = new ResizeObserver(fit); ro.observe(root); fit(); hud(); raf = requestAnimationFrame(frame);
       if (!D.name) say('Chạm vào mõ để bắt đầu tích đức 🙏'); else say('Chào ' + D.name + ', an yên nhé 🙏');
       GV.tdT = { D, tap, open, close, get modal() { return modal; }, lunar, today: TD, realmOf, REALMS };
-      return () => { dead = true; anc.forEach(([n, a, t]) => { n.style.animation = a; n.style.transform = t; }); cancelAnimationFrame(raf); stopPond(); ro.disconnect(); offKeys(); document.removeEventListener('visibilitychange', onVis); music(false); save(); clearTimeout(say.t); };
+      return () => { dead = true; anc.forEach(([n, a, t]) => { n.style.animation = a; n.style.transform = t; }); cancelAnimationFrame(raf); stopPond(); ro.disconnect(); offKeys(); document.removeEventListener('visibilitychange', onVis); music(false); save(); };
     }
   });
 })();
