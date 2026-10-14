@@ -44,6 +44,7 @@
       const TD = today(), save = () => GV.store.set('tichduc', D);
       let dead = false, raf = 0, shake = 0, swing = 0, glow = 0, last = performance.now(), saveT = 0, tickT = 0, fishT = 0, incT = 0, modal = '', sayI = 0, vis = true;
       const floats = [], rings = [], smoke = [], sparks = [];
+      const BG = new Image(); BG.src = 'img/bg-temple.webp'; // ảnh chính điện do chủ cung cấp; chưa tải xong/thiếu thì vẽ cảnh dự phòng bằng canvas
       el.innerHTML = `<style>
 .td{position:relative;width:100%;max-width:880px;height:min(calc(100dvh - 215px),720px);min-height:480px;margin:0 auto;border-radius:18px;overflow:hidden;background:#0c0603;color:#f5e6c4;font-family:Georgia,"Times New Roman",serif;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .td canvas{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;display:block;cursor:pointer}
@@ -55,12 +56,12 @@
 .td .tdd b{display:block;font-size:13px;color:#ffe9b0}.td .tdd.sp{border-color:#ffd96a;box-shadow:0 0 14px #ffd96a55}
 .td .tdbell{position:absolute;left:50%;transform:translateX(-50%);z-index:3;background:#1a120acc;border:1px solid #e8c36a77;color:#f5e6c4;border-radius:99px;padding:6px 16px;cursor:pointer;font:600 12.5px inherit}.td .tdbell[disabled]{opacity:.5;cursor:default}
 .td .tdsay{position:absolute;left:50%;transform:translateX(-50%);z-index:3;font-size:12px;font-style:italic;color:#e8d3a0;opacity:.85;white-space:nowrap;text-shadow:0 1px 4px #000}
-.td .tdp{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(350px,94%);z-index:3;background:linear-gradient(#2a1c0ee6,#150d06f2);border:1px solid #e8c36a66;border-radius:16px;padding:10px 16px 8px;text-align:center;box-shadow:0 8px 30px #000b}
-.td .tdp small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#a58c5c}.td .tdp .n{font-size:2.5rem;font-weight:700;line-height:1.05;color:#fff1c8;text-shadow:0 0 18px #ffcc5566}
-.td .tdp .x{font-size:12px;color:#e8d3a0}.td .tdp .rl{font-size:1.45rem;font-weight:700;color:#f3dca5;margin:1px 0 4px}
+.td .tdp{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(350px,94%);z-index:3;background:linear-gradient(#2a1c0ee6,#150d06f2);border:1px solid #e8c36a66;border-radius:16px;padding:7px 16px 6px;text-align:center;box-shadow:0 8px 30px #000b}
+.td .tdp small{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#a58c5c}.td .tdp .n{font-size:2.1rem;font-weight:700;line-height:1.05;color:#fff1c8;text-shadow:0 0 18px #ffcc5566}
+.td .tdp .x{font-size:12px;color:#e8d3a0}.td .tdp .rl{font-size:1.25rem;font-weight:700;color:#f3dca5;margin:0 0 3px}
 .td .tdp .bar{height:6px;border-radius:4px;background:#3a2a16;overflow:hidden}.td .tdp .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#e8b84a,#fff0b0)}
-.td .tdp .pg{font-size:10px;color:#9d855a;margin:3px 0 6px}
-.td .tdp .st{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e8c36a33;padding-top:6px}.td .tdp .st b{display:block;font-size:1.05rem;color:#fff1c8}.td .tdp .st span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8d7650}
+.td .tdp .pg{font-size:10px;color:#9d855a;margin:2px 0 4px}
+.td .tdp .st{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e8c36a33;padding-top:4px}.td .tdp .st b{display:block;font-size:.95rem;color:#fff1c8}.td .tdp .st span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8d7650}
 .td .tdm{position:absolute;inset:0;z-index:5;background:#000b;display:none;align-items:center;justify-content:center;padding:14px}.td .tdm.on{display:flex}
 .td .tdc{width:min(430px,100%);max-height:100%;overflow:auto;background:linear-gradient(#2a1c0e,#150d06);border:1px solid #e8c36a88;border-radius:18px;padding:16px 18px;box-shadow:0 10px 40px #000}
 .td .tdc h3{margin:0 0 8px;font-size:1.2rem;color:#ffe9b0;display:flex;justify-content:space-between;align-items:center}.td .tdc h3 button{background:none;border:0;color:#e8c36a;font-size:20px;cursor:pointer}
@@ -70,12 +71,12 @@
 .td input{width:100%;background:#0c0603;color:#fff1c8;border:1px solid #e8c36a77;border-radius:10px;padding:8px 10px;font:inherit}
 .td .que{border:1px dashed #e8c36a99;border-radius:14px;padding:14px;text-align:center;margin:10px 0}.td .que b{display:block;font-size:1.25rem;color:#ffe9b0;margin-bottom:4px}
 .td .pond{width:100%!important;height:200px!important;border-radius:12px;background:#0d2a30;display:block}
-@media(max-width:600px){.td{height:calc(100dvh - 190px);min-height:420px}.td .tdn{width:100%;justify-content:space-between}.td .tdn button{flex:1;width:auto;font-size:8.5px}.td .tdn button i{font-size:16px}.td .tdt b{display:none}.td .tdp .n{font-size:2.1rem}.td .tdp .rl{font-size:1.25rem}.td .tdp{padding:8px 12px 6px}.td .tdd{top:52px}}
+@media(max-width:600px){.td{height:calc(100dvh - 190px);min-height:420px}.td .tdn{width:100%;justify-content:space-between}.td .tdn button{flex:1;width:auto;font-size:8.5px}.td .tdn button i{font-size:16px}.td .tdt b{display:none}.td .tdp .n{font-size:1.9rem}.td .tdp .rl{font-size:1.1rem}.td .tdp{padding:8px 12px 6px}.td .tdd{top:52px}}
 </style><div class="td"><canvas></canvas>
 <div class="tdt"><b>🪘 Tích Đức Online</b><div class="tdn"><button data-m="me"><i>🙂</i>Tôi</button><button data-m="que"><i>🎋</i>Quẻ</button><button data-m="shop"><i>🛍️</i>Cửa hàng</button><button data-m="pond"><i>🐟</i>Hồ cá</button><button class="mu"><i>🎵</i>Nhạc</button><button data-m="help"><i>ℹ️</i>Trợ giúp</button></div></div>
 <div class="tdd ${TD.special ? 'sp' : ''}"><b>${GV.esc(TD.txt)}</b>${GV.esc(TD.name)} · ${TD.hd ? 'Hoàng đạo (Tốt)' : 'Hắc đạo (Thường)'}${TD.special ? ' · ' + (TD.l.d === 1 ? 'Mùng một' : 'Rằm') + ' công đức ×2' : ''}</div>
 <div class="tdsay"></div><button class="tdbell">🔔 Thỉnh chuông</button>
-<div class="tdp"><small>Công đức</small><div class="n">0</div><div class="x"></div><small style="margin-top:6px">Cảnh giới hiện tại</small><div class="rl"></div><div class="bar"><i></i></div><div class="pg"></div>
+<div class="tdp"><small>Công đức</small><div class="n">0</div><div class="x"></div><small style="margin-top:2px">Cảnh giới hiện tại</small><div class="rl"></div><div class="bar"><i></i></div><div class="pg"></div>
 <div class="st"><div><b class="s1">0</b><span>Lần gõ</span></div><div><b class="s2"></b><span>Đỉnh cao</span></div><div><b class="s3">0p</b><span>Tu tập</span></div></div></div>
 <div class="tdm"><div class="tdc"></div></div></div>`;
       const $ = s => el.querySelector(s), root = $('.td'), cv = $('canvas'), ctx = cv.getContext('2d');
@@ -88,7 +89,25 @@
       function knock() { const a = AC(); if (!a) return; const t = a.currentTime, o = a.createOscillator(), g = a.createGain(), o2 = a.createOscillator(), g2 = a.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(260, t + .09); g.gain.setValueAtTime(.22, t); g.gain.exponentialRampToValueAtTime(.001, t + .16); o2.type = 'triangle'; o2.frequency.setValueAtTime(1300, t); o2.frequency.exponentialRampToValueAtTime(700, t + .03); g2.gain.setValueAtTime(.09, t); g2.gain.exponentialRampToValueAtTime(.001, t + .05); o.connect(g); g.connect(a.destination); o2.connect(g2); g2.connect(a.destination); o.start(t); o.stop(t + .2); o2.start(t); o2.stop(t + .06); }
       function bell() { const a = AC(); if (!a) return; const t = a.currentTime; [[440, .12], [880, .06], [1320, .035], [1768, .02]].forEach(([f, v]) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = f * (1 + (Math.random() - .5) * .004); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + 3.2); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 3.3); }); }
       let pad = null;
-      function music(on) { const a = AC(); if (!a) return; if (on && !pad) { const g = a.createGain(); g.gain.value = 0; g.connect(a.destination); const os = [110, 165, 220.5].map((f, i) => { const o = a.createOscillator(); o.type = 'sine'; o.frequency.value = f; const og = a.createGain(); og.gain.value = [.5, .3, .15][i]; o.connect(og); og.connect(g); o.start(); return o; }); const lfo = a.createOscillator(), lg = a.createGain(); lfo.frequency.value = .08; lg.gain.value = .012; lfo.connect(lg); lg.connect(g.gain); lfo.start(); g.gain.linearRampToValueAtTime(.03, a.currentTime + 2); pad = { g, os, lfo }; } else if (!on && pad) { const p = pad; pad = null; try { p.g.gain.linearRampToValueAtTime(0, a.currentTime + .6); setTimeout(() => { p.os.forEach(o => o.stop()); p.lfo.stop(); }, 800); } catch (e) {} } }
+      // Nhạc thiền: tiếng chuông xoay (bát hát) thưa, nốt ngũ cung Rê trưởng, nền ngân thấp + vang (reverb) – không giai điệu dồn dập
+      function music(on) {
+        const a = AC(); if (!a) return;
+        if (on && !pad) {
+          const out = a.createGain(); out.gain.value = 0; out.connect(a.destination); out.gain.linearRampToValueAtTime(.9, a.currentTime + 3);
+          const len = Math.floor(a.sampleRate * 3.4), ir = a.createBuffer(2, len, a.sampleRate); for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+          const cvb = a.createConvolver(); cvb.buffer = ir; const wet = a.createGain(), dry = a.createGain(), bus = a.createGain(); wet.gain.value = .6; dry.gain.value = .7; cvb.connect(wet); wet.connect(out); dry.connect(out); bus.connect(dry); bus.connect(cvb);
+          const dr = a.createGain(); dr.gain.value = .5; dr.connect(bus);
+          const oscs = [73.42, 110, 146.83].map((f, i) => { const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.value = [.05, .03, .018][i]; o.connect(g); g.connect(dr); o.start(); return o; });
+          const lfo = a.createOscillator(), lg = a.createGain(); lfo.frequency.value = .07; lg.gain.value = .22; lfo.connect(lg); lg.connect(dr.gain); lfo.start(); oscs.push(lfo);
+          const SC = [293.66, 329.63, 369.99, 440, 493.88, 587.33], timers = [], P = { out, oscs, timers };
+          const bowl = () => { if (pad !== P) return; const t = a.currentTime, f = SC[GV.rnd(SC.length)] * (Math.random() < .35 ? .5 : 1); [[1, .15], [2.76, .06], [5.4, .025]].forEach(([m, v]) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = f * m * (1 + (Math.random() - .5) * .004); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .04); g.gain.exponentialRampToValueAtTime(.0004, t + 8); o.connect(g); g.connect(bus); o.start(t); o.stop(t + 8.2); }); timers.push(setTimeout(bowl, 6000 + Math.random() * 6000)); };
+          const swell = () => { if (pad !== P) return; const t = a.currentTime, f = SC[GV.rnd(5)] * .5; [1, 1.005].forEach(m => { const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.035, t + 3.5); g.gain.linearRampToValueAtTime(0, t + 9); o.connect(g); g.connect(bus); o.start(t); o.stop(t + 9.2); }); timers.push(setTimeout(swell, 10000 + Math.random() * 6000)); };
+          pad = P; bowl(); timers.push(setTimeout(swell, 2500));
+        } else if (!on && pad) {
+          const P = pad; pad = null; P.timers.forEach(clearTimeout);
+          try { P.out.gain.cancelScheduledValues(a.currentTime); P.out.gain.setValueAtTime(P.out.gain.value, a.currentTime); P.out.gain.linearRampToValueAtTime(0, a.currentTime + 1); setTimeout(() => P.oscs.forEach(o => { try { o.stop(); } catch (e) {} }), 1200); } catch (e) {}
+        }
+      }
 
       /* ---------- Lõi trò chơi ---------- */
       const mul = () => (1 + D.mal) * (TD.special ? 2 : 1);
@@ -166,6 +185,14 @@
       function scene(t, dt) {
         const sk = SKINS[D.skin] || SKINS[0], g = sk.g, pH = $('.tdp').offsetHeight, top = 96, sh = Math.max(200, H - pH - top - 24), u = Math.min(W / 520, sh / 470) , ox = W / 2 - 260 * u, oy = top + (sh - 470 * u) / 2;
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, sk.c[0]); bg.addColorStop(1, sk.c[1]); ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+        const photo = BG.complete && BG.naturalWidth > 0;
+        let mu = u, mox = ox, moy = oy;
+        if (photo) {
+          const sc = Math.max(W / 1920, H / 1047, (pH + 95) / 420), iw = 1920 * sc, ih = 1047 * sc, ix = (W - iw) / 2, iy = Math.min(0, Math.max(H - ih, H - pH - 95 - 40 * sc - 585 * sc)); // dịch ảnh lên để mõ nằm trên bảng thông tin
+          ctx.drawImage(BG, ix, iy, iw, ih); ctx.fillStyle = D.skin ? sk.c[0] + '99' : 'rgba(8,4,2,.5)'; ctx.fillRect(0, 0, W, H);
+          const hr = 215 * sc * (1 + Math.sin(t / 900) * .03 + glow * .15), hg = ctx.createRadialGradient(ix + 960 * sc, iy + 345 * sc, 8, ix + 960 * sc, iy + 345 * sc, hr); hg.addColorStop(0, g + '88'); hg.addColorStop(.5, g + '33'); hg.addColorStop(1, g + '00'); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(ix + 960 * sc, iy + 345 * sc, hr, 0, 6.28); ctx.fill(); ctx.globalCompositeOperation = 'source-over';
+          mu = sc * .94; mox = ix + 960 * sc - 260 * mu; moy = iy + 585 * sc - 300 * mu; ctx.save(); ctx.translate(mox, moy); ctx.scale(mu, mu);
+        } else {
         // xà ngang + cột gỗ + câu đối
         const px = Math.min(W * .17, 150 * u + 30), pw = Math.max(34, 46 * u);
         [[W / 2 - 245 * u - pw / 2, 'LÒNG TỪ BI LAN TỎA'], [W / 2 + 245 * u - pw / 2, 'PHƯỚC ĐỨC VIÊN MÃN']].forEach(([x, txt], i) => {
@@ -191,15 +218,16 @@
         // nến + hương
         [[70, 1], [450, 2]].forEach(([x, k]) => { ctx.fillStyle = '#f4e8c8'; ctx.fillRect(x - 8, 330, 16, 60); ctx.fillStyle = '#6b3d14'; ctx.fillRect(x - 14, 388, 28, 8); const f = 1 + Math.sin(t / 130 + k * 3) * .15; const fg = ctx.createRadialGradient(x, 322, 1, x, 322, 40); fg.addColorStop(0, '#ffe08a99'); fg.addColorStop(1, '#ffa00000'); ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(x, 322, 40, 0, 6.28); ctx.fill(); ctx.fillStyle = '#ffb340'; ctx.beginPath(); ctx.ellipse(x, 320, 5 * f, 11 * f, 0, 0, 6.28); ctx.fill(); ctx.fillStyle = '#fff2b0'; ctx.beginPath(); ctx.ellipse(x, 322, 2.4, 6, 0, 0, 6.28); ctx.fill(); });
         ctx.fillStyle = '#8a5a1e'; ctx.beginPath(); ctx.ellipse(440 - 60, 392, 26, 10, 0, 0, 6.28); ctx.fill(); ctx.fillStyle = '#c0392b'; for (let i = -1; i <= 1; i++) ctx.fillRect(380 + i * 8 - 1, 360, 2, 32);
+        }
         // hương khói
-        if (Math.random() < .35) smoke.push({ x: 380 + (Math.random() - .5) * 20, y: 360, vx: (Math.random() - .5) * 6, vy: -26 - Math.random() * 12, r: 3, a: .28 }); smoke.forEach(p => { p.x += p.vx * dt + Math.sin(t / 500 + p.y / 30) * .15; p.y += p.vy * dt; p.r += 6 * dt; p.a -= .09 * dt; ctx.fillStyle = `rgba(230,220,200,${Math.max(0, p.a)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }); for (let i = smoke.length - 1; i >= 0; i--) if (smoke[i].a <= 0) smoke.splice(i, 1);
+        if (Math.random() < .35) smoke.push({ x: (photo ? 276 : 380) + (Math.random() - .5) * 20, y: photo ? 481 : 360, vx: (Math.random() - .5) * 6, vy: -26 - Math.random() * 12, r: 3, a: .28 }); smoke.forEach(p => { p.x += p.vx * dt + Math.sin(t / 500 + p.y / 30) * .15; p.y += p.vy * dt; p.r += 6 * dt; p.a -= .09 * dt; ctx.fillStyle = `rgba(230,220,200,${Math.max(0, p.a)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }); for (let i = smoke.length - 1; i >= 0; i--) if (smoke[i].a <= 0) smoke.splice(i, 1);
         // mõ
         const sq = 1 - shake * .06, cx = 260, cy = 300 + shake * 3;
         ctx.save(); ctx.translate(cx, cy); ctx.scale(1 + shake * .03, sq); ctx.shadowColor = '#000a'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 8;
         const mg = ctx.createRadialGradient(-20, -26, 8, 0, 0, 100); mg.addColorStop(0, '#c9936b'); mg.addColorStop(.6, '#8a5a38'); mg.addColorStop(1, '#5a3520'); ctx.fillStyle = mg; ctx.beginPath(); ctx.ellipse(0, 0, 90, 62, 0, 0, 6.28); ctx.fill(); ctx.shadowColor = 'transparent';
         ctx.strokeStyle = '#4a2a16'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, -2, 62, 40, 0, 0, 6.28); ctx.stroke(); ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(-20, -4, 9, .1 * Math.PI, .9 * Math.PI); ctx.stroke(); ctx.beginPath(); ctx.arc(20, -4, 9, .1 * Math.PI, .9 * Math.PI); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 8, 14, .15 * Math.PI, .85 * Math.PI); ctx.stroke(); ctx.restore();
-        // dùi
-        ctx.save(); ctx.translate(372, 252); ctx.rotate(-.5 + swing * .75); ctx.fillStyle = '#9a6a42'; rr(-4, -4, 12, 120, 5); ctx.fill(); ctx.fillStyle = '#7d4d2a'; ctx.beginPath(); ctx.arc(2, -8, 22, 0, 6.28); ctx.fill(); ctx.fillStyle = '#b07a4a'; ctx.beginPath(); ctx.arc(-4, -14, 8, 0, 6.28); ctx.fill(); ctx.restore();
+        // dùi: xoay quanh đầu cán (tay cầm), đầu dùi vung xuống gõ vào mõ rồi nâng lên
+        ctx.save(); ctx.translate(400, 390); const hit = swing > .8 ? (1 - swing) / .2 : swing / .8; ctx.rotate(.12 - hit * .74); ctx.fillStyle = '#9a6a42'; rr(-6, -150, 12, 150, 5); ctx.fill(); ctx.fillStyle = '#c28a58'; rr(-2, -146, 3, 140, 2); ctx.fill(); ctx.fillStyle = '#7d4d2a'; ctx.beginPath(); ctx.arc(0, -160, 22, 0, 6.28); ctx.fill(); ctx.fillStyle = '#b07a4a'; ctx.beginPath(); ctx.arc(-6, -167, 8, 0, 6.28); ctx.fill(); ctx.restore();
         rings.forEach(r => { r.r += 150 * dt; r.a -= .9 * dt; ctx.strokeStyle = `rgba(255,220,130,${Math.max(0, r.a)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(260, 300, r.r * 1.5, r.r, 0, 0, 6.28); ctx.stroke(); }); for (let i = rings.length - 1; i >= 0; i--) if (rings[i].a <= 0) rings.splice(i, 1);
         ctx.restore();
         // hạt sáng + chữ nổi (toạ độ màn hình)

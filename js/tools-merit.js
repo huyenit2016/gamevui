@@ -44,8 +44,8 @@
 .mr .main .tx{font-style:italic;color:#6a766e;font-size:14px;line-height:1.8}.mr .main .tx svg{display:block;margin-bottom:12px}
 .mr .fz{position:relative}.mr .fishsvg{width:100%;max-height:260px;display:block}.mr .tap{position:absolute;right:4%;bottom:6%;background:linear-gradient(#1f6a52,#134536);color:#fff;border:0;border-radius:99px;padding:14px 26px;font:600 1.1rem Georgia,serif;cursor:pointer;box-shadow:0 8px 22px #17503f66,0 0 0 4px #fff8;display:flex;gap:8px;align-items:center}.mr .tap:active{transform:scale(.97)}
 .mr .mr-glow{transform-origin:190px 120px;animation:mrg 4s ease-in-out infinite}@keyframes mrg{50%{transform:scale(1.08);opacity:.8}}
-.mr .mr-mallet{transform-origin:96px 244px}.mr .hit .mr-mallet{animation:mrm .22s ease}.mr .hit .mr-body{animation:mrb .22s ease}
-@keyframes mrm{40%{transform:rotate(-14deg)}}@keyframes mrb{40%{transform:translateY(5px) scale(1.015,.97)}}.mr .mr-body{transform-origin:160px 180px}
+.mr .mr-mallet{transform-origin:252px 196px}.mr .hit .mr-mallet{animation:mrm .22s ease}.mr .hit .mr-body{animation:mrb .22s ease}
+@keyframes mrm{40%{transform:rotate(15deg)}}@keyframes mrb{40%{transform:translateY(5px) scale(1.015,.97)}}.mr .mr-body{transform-origin:160px 180px}
 .mr .stats{display:flex;flex-direction:column;gap:12px}.mr .stat{display:flex;gap:14px;align-items:center;cursor:pointer}.mr .stat .mric{width:58px;height:58px;border-radius:50%;background:#e1ecde;display:grid;place-items:center;font-size:1.7rem;flex:0 0 auto}
 .mr .stat small{color:var(--mut);font-size:14px}.mr .stat b{display:block;font-size:1.75rem;color:#1f2f28;line-height:1.15}.mr .stat .mrbar{height:7px;border-radius:5px;background:#e8e2cf;margin:6px 0 4px;overflow:hidden}.mr .stat .mrbar i{display:block;height:100%;background:var(--g2);border-radius:5px}.mr .stat .pg{font-size:13px;color:var(--mut)}.mr .stat>.mrgo{margin-left:auto;color:#7a8a80;font-size:1.3rem}.mr .stat .tx{flex:1}
 .mr h3{margin:0 0 10px;font-size:1.25rem;display:flex;align-items:center;gap:8px;color:#1f2f28}.mr h3 a,.mr h3 button{margin-left:auto;font:13px Georgia,serif;color:var(--g);background:none;border:0;cursor:pointer;text-decoration:underline}
