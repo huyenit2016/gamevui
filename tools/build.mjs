@@ -41,6 +41,10 @@ for (const f of fs.readdirSync('.').filter(x => x.endsWith('.html'))) {
   const out = await minifyHtml(src, { collapseWhitespace: true, conservativeCollapse: true, removeComments: true, minifyJS: true, minifyCSS: true });
   put(f, out); stat.html[0] += src.length; stat.html[1] += out.length;
 }
+// trang học /claude-learning (thư mục riêng): nén js/css, giữ nguyên html/json/ảnh
+(function copyDir(d) { if (!fs.existsSync(d)) return; for (const n of fs.readdirSync(d)) { const p = path.join(d, n); if (fs.statSync(p).isDirectory()) { copyDir(p); continue; } const buf = fs.readFileSync(p); put(p.split(path.sep).join('/'), buf); } })('claude-learning');
+for (const f of ['claude-learning/app.js', 'claude-learning/tracks.js', 'claude-learning/sw.js']) put(f, (await minify(fs.readFileSync(f, 'utf8'), { compress: { passes: 2 }, mangle: true, format: { comments: false } })).code);
+put('claude-learning/style.css', new CleanCSS({ level: 1 }).minify(fs.readFileSync('claude-learning/style.css', 'utf8')).styles);
 if (fs.existsSync('audio')) for (const f of fs.readdirSync('audio')) put('audio/' + f, fs.readFileSync('audio/' + f));
 if (fs.existsSync('img')) for (const f of fs.readdirSync('img')) put('img/' + f, fs.readFileSync('img/' + f));
 if (fs.existsSync('icons')) for (const f of fs.readdirSync('icons')) put('icons/' + f, fs.readFileSync('icons/' + f));

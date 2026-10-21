@@ -87,3 +87,8 @@ Ràng buộc: GitHub Pages chỉ tĩnh – phần thời gian thực/thanh toán
 - [ ] Bảng xếp hạng (cần Firebase + Rules chống gian lận), Tâm Viên/Tưởng niệm (thắp nến), trò chơi nhỏ, phòng tu tập cùng bạn bè.
 - [ ] Âm thanh mõ/chuông thật (hiện tổng hợp bằng WebAudio), giọng đọc kinh, nhắc nhở hằng ngày, đồ hoạ tượng đẹp hơn do chủ cung cấp.
 - [x] Trang Tích đức giao diện sáng (`#/tool/accumulating-merit`) + menu riêng. [ ] Bảng xếp hạng toàn cầu, đồng bộ công đức với game Tích Đức Online (hiện 2 lưu trữ riêng), tạo thiệp có ảnh nền đẹp hơn.
+
+## 🎓 Claude How To (/claude-learning) – đã làm / chưa làm
+- [x] Trang học riêng: 10 bài + lộ trình + tham khảo nhanh + danh mục (tiếng Việt, sơ đồ SVG dựng sẵn), tìm kiếm, tiến độ, tự đánh giá, lộ trình AI/mobile/web/SA, file mẫu, tải bản offline .html.
+- [ ] Bản EPUB tải về (chưa có công cụ dựng EPUB ở môi trường này), bản tiếng Anh/Trung/Nhật, bài kiểm tra cuối mỗi module, đồng bộ tiến độ qua tài khoản.
+- [ ] Cập nhật nội dung khi kho gốc thay đổi: chạy lại `tools/claude-learning/build.cjs`.
