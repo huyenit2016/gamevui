@@ -92,3 +92,8 @@ Ràng buộc: GitHub Pages chỉ tĩnh – phần thời gian thực/thanh toán
 - [x] Trang học riêng: 10 bài + lộ trình + tham khảo nhanh + danh mục (tiếng Việt, sơ đồ SVG dựng sẵn), tìm kiếm, tiến độ, tự đánh giá, lộ trình AI/mobile/web/SA, file mẫu, tải bản offline .html.
 - [ ] Bản EPUB tải về (chưa có công cụ dựng EPUB ở môi trường này), bản tiếng Anh/Trung/Nhật, bài kiểm tra cuối mỗi module, đồng bộ tiến độ qua tài khoản.
 - [ ] Cập nhật nội dung khi kho gốc thay đổi: chạy lại `tools/claude-learning/build.cjs`.
+
+## 🦖 Phiêu lưu Tiếng Anh 10 – đã làm / chưa làm
+- [x] Game phiêu lưu (bản đồ, mini boss, boss cuối), 23 bộ đề/230 câu Tiếng Anh 10, thầy cô tạo đề riêng (dán/tải .txt .csv .json) và gửi link giao bài, chứng chỉ PNG + mã hoàn thành.
+- [ ] Mở rộng ngân hàng đề (mục tiêu 100 bộ), thêm Toán/Tiếng Việt, lớp 11–12; nên nhờ giáo viên rà soát đáp án.
+- [ ] Nhập đề từ Word/Excel (.docx/.xlsx), bảng kết quả cho lớp (cần Firebase), nhiều nhân vật/bối cảnh, giọng đọc tốt hơn, chế độ kiểm tra giới hạn thời gian.
