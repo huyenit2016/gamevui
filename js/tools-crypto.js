@@ -108,7 +108,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
       let rows = [], cur = null, curK = null, busy = false, dead = false;
       el.innerHTML = `<style>
 .cx{max-width:980px;margin:0 auto;text-align:left}.cx h2{margin:.2em 0}.cxw{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.4);border-radius:12px;padding:10px 12px;font-size:.85rem;margin:8px 0}
-.cxbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:10px 0}.cxbar label{display:flex;flex-direction:column;font-size:.78rem;gap:2px}.cxbar input,.cxbar select{padding:6px 8px;width:96px}
+.cxbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:10px 0}.cxbar label{display:flex;flex-direction:column;font-size:.78rem;gap:2px}.cxbar input,.cxbar select{padding:6px 8px;width:96px;font-size:16px}/* ≥16px để iOS không tự phóng to/cuộn trang khi chạm ô nhập */
 .cxg{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:14px}@media(max-width:760px){.cxg{grid-template-columns:1fr}}
 .cxbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}.cxlist{max-height:430px;overflow:auto}
 .cxr{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:7px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px}.cxr:hover,.cxr.on{background:rgba(120,120,255,.12)}
@@ -196,7 +196,10 @@ ${p.tp.map((v, i) => `<div><small>Chốt lời TP${i + 1} (R:R 1:${p.rr[i]})</sm
         } catch (e) { msg('Không tải được dữ liệu từ Binance: ' + e.message + ' (mạng/vùng có thể bị chặn).'); }
         busy = false; if (!dead) $(el, '.scan').disabled = false;
       }
-      $(el, '.scan').onclick = scan;
+      // iOS có thể đẩy cả trang lên khi mở bàn phím → để lại khoảng trống dưới đáy; trả trang về vị trí cũ
+      const home = () => setTimeout(() => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 60);
+      el.querySelectorAll('.cxbar input,.cxbar select').forEach(i => i.addEventListener('blur', home));
+      $(el, '.scan').onclick = () => { home(); scan(); };
       $(el, '.cxlist').onclick = e => { const r = e.target.closest('.cxr'); if (r) pick(r.dataset.s); };
       const rs = () => { if (cur) draw($(el, '.cxdet canvas'), curK, cur); }; window.addEventListener('resize', rs);
       return () => { dead = true; window.removeEventListener('resize', rs); };
