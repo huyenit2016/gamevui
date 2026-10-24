@@ -83,7 +83,9 @@
 
   /* ---------- biểu đồ nến ---------- */
   function draw(cv, k, a) {
-    const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth || 640, H = 300; cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+    const dpr = Math.min(2, window.devicePixelRatio || 1), W = (cv.parentNode && cv.parentNode.clientWidth - 24) || 640, H = 300; cv.width = W * dpr; cv.height = H * dpr;
+    // CSS toàn cục khi đang chơi trên mobile ép canvas width:auto → đặt kích thước cố định với !important
+    cv.style.setProperty('width', W + 'px', 'important'); cv.style.setProperty('height', H + 'px', 'important'); cv.style.setProperty('max-height', 'none', 'important'); cv.style.setProperty('max-width', '100%', 'important'); const g = cv.getContext('2d'); g.scale(dpr, dpr);
     const N = Math.min(80, k.length), off = k.length - N, d = k.slice(off); let lo = Math.min(...d.map(x => x.l)), hi = Math.max(...d.map(x => x.h));
     if (a) [a.plan.sl, a.plan.tp[2]].forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); }); const pad = (hi - lo) * 0.05; lo -= pad; hi += pad;
     const X = i => 8 + (i + 0.5) * (W - 70) / N, Y = v => H - 8 - (v - lo) / (hi - lo) * (H - 16), cw = Math.max(2, (W - 70) / N * 0.62);
