@@ -56,12 +56,14 @@
     const risk = Math.abs(entry - sl), tp = [1.5, 2.5, 4].map(m => entry + dir * risk * m);
     const slPct = risk / entry * 100;
     const cap = +opt.capital || 1000, rp = +opt.riskPct || 1, riskUsd = cap * rp / 100, notional = riskUsd / (slPct / 100);
-    const levNeed = Math.max(1, Math.ceil(notional / cap)), levSafe = Math.max(1, Math.floor(66 / slPct)), lev = Math.min(levNeed, levSafe, 20);
+    const levNeed = Math.max(1, Math.ceil(notional / cap)), levSafe = Math.max(1, Math.floor(66 / slPct)), levAuto = Math.min(levNeed, levSafe, 20), lev = +opt.lev > 0 ? Math.round(+opt.lev) : levAuto;
+    // đòn bẫy người dùng tự chọn: khối lượng bị giới hạn bởi vốn × đòn bẫy → lỗ thực tế khi chạm SL có thể nhỏ hơn mức rủi ro đặt ra
+    const notionalUsed = Math.min(notional, cap * lev), liq = entry * (1 - dir * (0.9 / lev));
     const nearRes = dir > 0 ? res[0] : sup[0];
     return {
       px, side, score: sc, dir, why, rsi: r, macdH: h, atr: atrv, atrPct, volRatio: vr,
       ema20: e20[n], ema50: e50[n], ema200: e200[n], bb: b, sup: sup.slice(0, 3), res: res.slice(0, 3),
-      plan: { entry, sl, tp, slPct, rr: [1.5, 2.5, 4], lev, levSafe, levNeed, notional: Math.min(notional, cap * lev), margin: Math.min(notional, cap * lev) / lev, riskUsd, liq: entry * (1 - dir * (0.9 / lev)), nearLevel: nearRes },
+      plan: { entry, sl, tp, slPct, rr: [1.5, 2.5, 4], lev, levAuto, manual: +opt.lev > 0, levSafe, levNeed, notional: notionalUsed, margin: notionalUsed / lev, riskUsd, loss: notionalUsed * slPct / 100, liq, liqFirst: dir > 0 ? liq >= sl : liq <= sl, nearLevel: nearRes },
       series: { e20, e50, e200, B }
     };
   }
@@ -113,7 +115,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}.cxlist{max-height:430px;overflow:auto}
 .cxr{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:7px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px}.cxr:hover,.cxr.on{background:rgba(120,120,255,.12)}
 .cxs{font-weight:700;padding:2px 8px;border-radius:999px;font-size:.78rem}.cxs.L{background:rgba(46,204,113,.2);color:#2ecc71}.cxs.S{background:rgba(239,83,80,.2);color:#ef5350}.cxs.W{background:rgba(150,150,150,.2)}
-.cxk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.cxk div{background:rgba(128,128,128,.1);border-radius:10px;padding:8px}.cxk small{display:block;opacity:.7;font-size:.72rem}.cxk b{font-size:1rem}
+.cxk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.cxk div{background:rgba(128,128,128,.1);border-radius:10px;padding:8px}.cxk small{display:block;opacity:.7;font-size:.72rem}.cxk b{font-size:1rem}.cxk select{width:100%;font-size:16px;font-weight:700;padding:2px 4px;margin-top:2px}
 .cxup{color:#2ecc71}.cxdn{color:#ef5350}.cxwhy li{margin:3px 0;font-size:.86rem}.cxlog{white-space:pre-wrap;font-size:.74rem;max-height:320px;overflow:auto;background:rgba(128,128,128,.1);border-radius:10px;padding:8px;word-break:break-word}.cxai{white-space:pre-wrap;font-size:.9rem;line-height:1.5}.cx canvas{width:100%;height:300px;display:block;border-radius:10px}
 .cxtop{display:flex;align-items:center;justify-content:space-between;gap:8px}.cxtop h2{font-size:1.1rem;margin:0}.cxmsg{margin:2px 0;font-size:.74rem}.cxset{margin:6px 0}.cxset summary{cursor:pointer;font-size:.85rem;opacity:.85;padding:4px 0}
 .cxpick{display:flex;gap:6px;margin:6px 0}.cxpick input{flex:1;padding:7px 10px;font-size:16px;text-transform:uppercase}.cxpick input::placeholder{text-transform:none}
@@ -149,8 +151,9 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 <div class="cxp on" data-p="plan">${a.side === 'CHỜ' ? `<div class="cxw">Chưa đủ rõ (|điểm| &lt; 35) → <b>nên chờ</b>. Kế hoạch dưới chỉ để tham khảo (${long ? 'LONG' : 'SHORT'}).</div>` : ''}
 <div class="cxk"><div><small>Giá hiện tại</small><b>${fmt(a.px)}</b></div><div><small>Vào (${long ? 'Long' : 'Short'})</small><b>${fmt(p.entry)}</b></div><div><small>Cắt lỗ −${p.slPct.toFixed(2)}%</small><b class="cxdn">${fmt(p.sl)}</b></div>
 ${p.tp.map((v, i) => `<div><small>TP${i + 1} (1:${p.rr[i]})</small><b class="cxup">${fmt(v)}</b></div>`).join('')}
-<div><small>Đòn bẫy</small><b>${p.lev}x</b></div><div><small>Khối lượng</small><b>${money(p.notional)}</b></div><div><small>Ký quỹ</small><b>${p.margin.toFixed(1)}$</b></div><div><small>Lỗ tối đa</small><b class="cxdn">−${p.riskUsd.toFixed(1)}$</b></div><div><small>Thanh lý ~</small><b>${fmt(p.liq)}</b></div></div>
-<div class="hint">Đòn bẫy = min(cần theo rủi ro ${S.riskPct}%: ${p.levNeed}x · an toàn: ${p.levSafe}x · trần 20x). SL sau hỗ trợ/kháng cự gần nhất hoặc 1,5×ATR (ATR ${a.atrPct.toFixed(2)}%).</div></div>
+<div><small>Đòn bẫy${p.manual ? ' (tự chọn)' : ' gợi ý'}</small><select class="lvsel"><option value="0">Tự động · ${p.levAuto}x</option>${[1, 2, 3, 5, 10, 15, 20, 25, 50, 75, 100, 125].map(v => `<option value="${v}" ${p.manual && v === p.lev ? 'selected' : ''}>${v}x</option>`).join('')}</select></div><div><small>Khối lượng</small><b>${money(p.notional)}</b></div><div><small>Ký quỹ</small><b>${p.margin.toFixed(1)}$</b></div><div><small>Lỗ nếu chạm SL</small><b class="cxdn">−${p.loss.toFixed(1)}$</b></div><div><small>Thanh lý ~</small><b>${fmt(p.liq)}</b></div></div>
+${p.liqFirst ? `<div class="cxw" style="background:rgba(239,83,80,.14);border-color:rgba(239,83,80,.5)">⚠️ Với ${p.lev}x, giá thanh lý (${fmt(p.liq)}) đến <b>trước</b> điểm cắt lỗ → bị thanh lý mất ký quỹ trước khi SL kịp chạy. Hãy giảm đòn bẫy (an toàn ≤ ${p.levSafe}x).</div>` : p.manual && p.lev > p.levSafe ? `<div class="cxw">Đòn bẫy ${p.lev}x cao hơn mức an toàn ${p.levSafe}x: giá thanh lý khá sát SL.</div>` : ''}
+<div class="hint">Gợi ý tự động = min(cần theo rủi ro ${S.riskPct}%: ${p.levNeed}x · an toàn: ${p.levSafe}x · trần 20x). SL sau hỗ trợ/kháng cự gần nhất hoặc 1,5×ATR (ATR ${a.atrPct.toFixed(2)}%).</div></div>
 <div class="cxp" data-p="chart"><canvas></canvas><div class="hint">Đường: <span style="color:#4fc3f7">EMA20</span> · <span style="color:#ffb74d">EMA50</span> · <span style="color:#ba68c8">EMA200</span></div></div>
 <div class="cxp" data-p="why"><ul class="cxwhy" style="margin:4px 0">${a.why.map(w => `<li class="${w.v > 0 ? 'cxup' : w.v < 0 ? 'cxdn' : ''}">${w.v > 0 ? '▲' : w.v < 0 ? '▼' : '•'} ${esc(w.t)} <span class="hint">(${w.v > 0 ? '+' : ''}${w.v})</span></li>`).join('')}</ul>
 <div class="hint">Kháng cự gần: ${a.res.length ? a.res.map(fmt).join(' · ') : '—'} | Hỗ trợ gần: ${a.sup.length ? a.sup.map(fmt).join(' · ') : '—'} | RSI ${a.rsi != null ? a.rsi.toFixed(0) : '—'} · Vol ${a.volRatio.toFixed(1)}×</div></div>
@@ -158,6 +161,7 @@ ${p.tp.map((v, i) => `<div><small>TP${i + 1} (1:${p.rr[i]})</small><b class="cxu
 <div style="margin-top:8px"><button class="btn ghost lg2">🧪 Ghi log kiểm tra chỉ báo</button></div><div class="cxlogbox" style="display:none"><pre class="cxlog"></pre><button class="btn ghost lgcp">📋 Sao chép</button> <button class="btn ghost lgdl">⬇️ Tải .txt</button></div>
 <div class="cxaicfg">${GV.learn && GV.learn.ai ? GV.learn.ai.panelHTML() : ''}</div><div class="hint" style="margin-top:6px">Công cụ giáo dục, không phải lời khuyên đầu tư.</div></div>`;
         D.querySelectorAll('.cxtb button').forEach(b => { b.onclick = () => { D.querySelectorAll('.cxtb button,.cxp').forEach(x => x.classList.toggle('on', x.dataset.p === b.dataset.p)); if (b.dataset.p === 'chart') draw($(D, 'canvas'), curK, a); }; });
+        $(D, '.lvsel').onchange = e => { S.lev = +e.target.value; save(); cur = analyze(curK, S); renderDet(); };
         if (GV.learn && GV.learn.ai && GV.learn.ai.bindPanel) GV.learn.ai.bindPanel($(D, '.cxaicfg'));
         $(D, '.ai').onclick = askAI; $(D, '.lg2').onclick = showLog;
       }
