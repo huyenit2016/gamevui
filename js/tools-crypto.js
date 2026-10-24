@@ -116,7 +116,6 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.cxk div{background:rgba(128,128,128,.1);border-radius:10px;padding:8px}.cxk small{display:block;opacity:.7;font-size:.72rem}.cxk b{font-size:1rem}
 .cxup{color:#2ecc71}.cxdn{color:#ef5350}.cxwhy li{margin:3px 0;font-size:.86rem}.cxlog{white-space:pre-wrap;font-size:.74rem;max-height:320px;overflow:auto;background:rgba(128,128,128,.1);border-radius:10px;padding:8px;word-break:break-word}.cxai{white-space:pre-wrap;font-size:.9rem;line-height:1.5}.cx canvas{width:100%;height:300px;display:block;border-radius:10px}
 </style><div class="cx"><h2>📈 AI-Agent phân tích thị trường</h2>
-<div class="cxw">⚠️ Công cụ giáo dục, <b>không phải lời khuyên đầu tư</b>. Chỉ báo kỹ thuật không đảm bảo kết quả; giao dịch ký quỹ/đòn bẫy có thể mất toàn bộ vốn. Dữ liệu giá công khai từ Binance (có thể bị chặn ở một số vùng), tính toán ngay trong trình duyệt của bạn.</div>
 <div class="cxbar"><label>Khung nến<select class="tf">${Object.keys(TFS).map(t => `<option value="${t}" ${t === S.tf ? 'selected' : ''}>${TFS[t]}</option>`).join('')}</select></label>
 <label>Số coin quét<select class="nn">${[15, 30, 50].map(t => `<option ${t === S.n ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
 <label>Vốn (USDT)<input class="cap" type="number" min="10" value="${S.capital}"></label><label>Rủi ro / lệnh (%)<input class="rk" type="number" min="0.1" max="10" step="0.1" value="${S.riskPct}"></label>
