@@ -23,5 +23,8 @@ const kl = (seed, dir) => { let p = 100, out = []; for (let i = 0; i < 250; i++)
   ok('xu hướng giảm → SHORT, SL > vào > TP', dn.d === -1 && dn.sl > dn.e && dn.tp < dn.e, JSON.stringify(dn));
   await p.click('.cxr >> nth=1'); await p.waitForTimeout(200); ok('chọn coin khác → đổi chi tiết', /\/USDT/.test(await p.locator('.cxdet h3').innerText()));
   await p.click('.ai'); ok('AI chưa có khoá → nhắc nhập khoá', /Chưa có khoá AI/.test(await p.locator('.cxai').innerText()));
+  await p.click('.lg2'); const lg = await p.locator('.cxlog').innerText();
+  ok('log có nến cuối, chỉ báo, điểm, kế hoạch', /5 NẾN CUỐI/.test(lg) && /EMA20 [\d.]+/.test(lg) && /RSI14/.test(lg) && /CHẤM ĐIỂM/.test(lg) && /KẾ HOẠCH LỆNH/.test(lg), lg.slice(0, 200));
+  ok('tự kiểm toàn ĐẠT', /ĐẠT  RSI/.test(lg) && !/LỖI  /.test(lg), lg.slice(-300));
   ok('không lỗi JS', errs.length === 0, errs.join('|')); console.log(`\n${pass} đạt, ${fail} lỗi`); await b.close(); process.exit(fail ? 1 : 0);
 })();

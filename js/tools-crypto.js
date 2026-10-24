@@ -114,7 +114,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxr{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:7px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px}.cxr:hover,.cxr.on{background:rgba(120,120,255,.12)}
 .cxs{font-weight:700;padding:2px 8px;border-radius:999px;font-size:.78rem}.cxs.L{background:rgba(46,204,113,.2);color:#2ecc71}.cxs.S{background:rgba(239,83,80,.2);color:#ef5350}.cxs.W{background:rgba(150,150,150,.2)}
 .cxk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.cxk div{background:rgba(128,128,128,.1);border-radius:10px;padding:8px}.cxk small{display:block;opacity:.7;font-size:.72rem}.cxk b{font-size:1rem}
-.cxup{color:#2ecc71}.cxdn{color:#ef5350}.cxwhy li{margin:3px 0;font-size:.86rem}.cxai{white-space:pre-wrap;font-size:.9rem;line-height:1.5}.cx canvas{width:100%;height:300px;display:block;border-radius:10px}
+.cxup{color:#2ecc71}.cxdn{color:#ef5350}.cxwhy li{margin:3px 0;font-size:.86rem}.cxlog{white-space:pre-wrap;font-size:.74rem;max-height:320px;overflow:auto;background:rgba(128,128,128,.1);border-radius:10px;padding:8px;word-break:break-word}.cxai{white-space:pre-wrap;font-size:.9rem;line-height:1.5}.cx canvas{width:100%;height:300px;display:block;border-radius:10px}
 </style><div class="cx"><h2>📈 AI-Agent phân tích thị trường</h2>
 <div class="cxw">⚠️ Công cụ giáo dục, <b>không phải lời khuyên đầu tư</b>. Chỉ báo kỹ thuật không đảm bảo kết quả; giao dịch ký quỹ/đòn bẫy có thể mất toàn bộ vốn. Dữ liệu giá công khai từ Binance (có thể bị chặn ở một số vùng), tính toán ngay trong trình duyệt của bạn.</div>
 <div class="cxbar"><label>Khung nến<select class="tf">${Object.keys(TFS).map(t => `<option value="${t}" ${t === S.tf ? 'selected' : ''}>${TFS[t]}</option>`).join('')}</select></label>
@@ -142,11 +142,35 @@ ${p.tp.map((v, i) => `<div><small>Chốt lời TP${i + 1} (R:R 1:${p.rr[i]})</sm
 <h4 style="margin:10px 0 4px">Vì sao ${a.score >= 0 ? 'nghiêng tăng' : 'nghiêng giảm'}?</h4><ul class="cxwhy">${a.why.map(w => `<li class="${w.v > 0 ? 'cxup' : w.v < 0 ? 'cxdn' : ''}">${w.v > 0 ? '▲' : w.v < 0 ? '▼' : '•'} ${esc(w.t)} <span class="hint">(${w.v > 0 ? '+' : ''}${w.v})</span></li>`).join('')}</ul>
 <div class="hint">Kháng cự gần: ${a.res.length ? a.res.map(fmt).join(' · ') : '—'} &nbsp;|&nbsp; Hỗ trợ gần: ${a.sup.length ? a.sup.map(fmt).join(' · ') : '—'} &nbsp;|&nbsp; RSI ${a.rsi != null ? a.rsi.toFixed(0) : '—'} · Vol ${a.volRatio.toFixed(1)}×</div>
 <div style="margin-top:10px"><button class="btn ai">🤖 Nhờ AI viết nhận định</button> <span class="hint">cần khoá AI của bạn (cài ở mục dưới)</span></div><div class="cxai box" style="display:none"></div>
+<div style="margin-top:10px"><button class="btn ghost lg2">🧪 Ghi log kiểm tra chỉ báo</button> <span class="hint">để đối chiếu với TradingView</span></div><div class="cxlogbox" style="display:none"><pre class="cxlog"></pre><button class="btn ghost lgcp">📋 Sao chép</button> <button class="btn ghost lgdl">⬇️ Tải .txt</button></div>
 <div class="cxaicfg">${GV.learn && GV.learn.ai ? GV.learn.ai.panelHTML() : ''}</div>`;
         draw($(D, 'canvas'), curK, a);
         if (GV.learn && GV.learn.ai && GV.learn.ai.bindPanel) GV.learn.ai.bindPanel($(D, '.cxaicfg'));
-        $(D, '.ai').onclick = askAI;
+        $(D, '.ai').onclick = askAI; $(D, '.lg2').onclick = showLog;
       }
+      // Log để đối chiếu: nến đầu vào (đã đóng), giá trị từng chỉ báo, từng điều kiện chấm điểm, kế hoạch lệnh
+      function buildLog() {
+        const a = cur, k = curK, T = GV.cryptoT, c = k.map(x => x.c), n = k.length - 1, f = (v, d = 6) => v == null ? '—' : (+v).toFixed(d), pad = x => String(x).padStart(2, '0');
+        const dt = t => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+        const e = T.ema(c, 20), m = T.macd(c), r = T.rsi(c), A = T.atr(k), B = T.bb(c);
+        const L = [`LOG KIỂM TRA CHỈ BÁO – ${S.sel} – khung ${S.tf} – tạo lúc ${new Date().toLocaleString('vi-VN')}`, `Số nến đã đóng: ${k.length} · nến cuối: ${dt(k[n].t)} (giờ máy bạn)`, '', '== 5 NẾN CUỐI (đối chiếu O/H/L/C/Vol với biểu đồ sàn) =='];
+        k.slice(-5).forEach(x => L.push(`${dt(x.t)}  O ${f(x.o, 4)}  H ${f(x.h, 4)}  L ${f(x.l, 4)}  C ${f(x.c, 4)}  V ${f(x.v, 2)}`));
+        L.push('', '== CHỈ BÁO TẠI NẾN CUỐI (TradingView mặc định: RMA cho RSI/ATR, EMA 12-26-9, BB 20 ±2) ==',
+          `EMA20 ${f(a.ema20)} | EMA50 ${f(a.ema50)} | EMA200 ${f(a.ema200)}`, `RSI14 ${f(a.rsi, 2)} (nến trước: ${f(r[n - 1], 2)})`,
+          `MACD ${f(m.m[n])} | Signal ${f(m.sig[n])} | Hist ${f(m.h[n])} (nến trước: ${f(m.h[n - 1])})`, `Bollinger20: trên ${f(a.bb && a.bb.u)} | giữa ${f(a.bb && a.bb.m)} | dưới ${f(a.bb && a.bb.l)}`,
+          `ATR14 ${f(a.atr)} = ${f(a.atrPct, 3)}% giá | Khối lượng / TB20 = ${f(a.volRatio, 2)}`, `Hỗ trợ gần: ${a.sup.map(x => f(x, 4)).join(', ') || '—'} | Kháng cự gần: ${a.res.map(x => f(x, 4)).join(', ') || '—'}`);
+        L.push('', '== CHẤM ĐIỂM (cộng/trừ từng điều kiện) ==');
+        a.why.forEach(w => L.push(`${w.v >= 0 ? '+' : ''}${w.v}\t${w.t}`));
+        L.push(`Tổng thô → quy đổi: ${a.score} → ${a.side}`, '', '== KẾ HOẠCH LỆNH ==', `Vào ${f(a.plan.entry, 4)} | SL ${f(a.plan.sl, 4)} (${f(a.plan.slPct, 2)}%) | TP ${a.plan.tp.map(x => f(x, 4)).join(' / ')}`,
+          `Vốn ${S.capital} · rủi ro ${S.riskPct}% = ${f(a.plan.riskUsd, 2)} USDT · đòn bẫy cần ${a.plan.levNeed}x / an toàn ${a.plan.levSafe}x → dùng ${a.plan.lev}x`);
+        // tự kiểm: các phép thử có đáp án biết trước
+        const up = Array.from({ length: 60 }, (_, i) => 100 + i), flat = Array(60).fill(50), tests = [['RSI chuỗi tăng đều = 100', T.rsi(up)[59] === 100], ['RSI chuỗi phẳng ≈ 100 hoặc 50 (không NaN)', isFinite(T.rsi(flat)[59])], ['EMA chuỗi phẳng = giá trị đó', Math.abs(T.ema(flat, 20)[59] - 50) < 1e-9], ['Bollinger chuỗi phẳng: trên = dưới', Math.abs(T.bb(flat)[59].u - T.bb(flat)[59].l) < 1e-9]];
+        L.push('', '== TỰ KIỂM (đáp án biết trước) ==', ...tests.map(t => (t[1] ? 'ĐẠT  ' : 'LỖI  ') + t[0]));
+        return L.join('\n');
+      }
+      function showLog() { const box = $(el, '.cxlogbox'), txt = buildLog(); box.style.display = 'block'; $(el, '.cxlog').textContent = txt; console.log('[crypto-agent]\n' + txt); box.scrollIntoView && box.scrollIntoView({ block: 'nearest' });
+        $(el, '.lgcp').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => GV.toast && GV.toast('Đã sao chép log'), () => { const r = document.createRange(); r.selectNodeContents($(el, '.cxlog')); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(r); GV.toast && GV.toast('Đã chọn log, hãy nhấn Copy'); }); };
+        $(el, '.lgdl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = `log-${S.sel}-${S.tf}.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }; }
       async function askAI() {
         const out = $(el, '.cxai'), a = cur, p = a.plan; out.style.display = 'block';
         if (!GV.learn || !GV.learn.ai || !GV.learn.ai.ready()) { out.textContent = 'Chưa có khoá AI. Mở "⚙️ Cài đặt AI" bên dưới, dán khoá rồi bấm lại.'; return; }
