@@ -72,7 +72,8 @@
     for (const h of HOSTS) { try { const r = await fetch(h + path); if (r.ok) return await r.json(); err = new Error('HTTP ' + r.status); } catch (e) { err = e; } }
     throw err || new Error('Không tải được dữ liệu');
   }
-  const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=${sym}&interval=${tf}&limit=${lim}`)).map(r => ({ t: r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[5] }));
+  // r[6] = giờ đóng nến: bỏ nến đang chạy dở (chưa đóng) để chỉ báo không đổi liên tục; vào lệnh tính theo giá nến đã đóng gần nhất
+const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=${sym}&interval=${tf}&limit=${lim}`)).filter(r => !r[6] || +r[6] < Date.now()).map(r => ({ t: r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[5] }));
   async function topPairs(n) {
     const all = await jget('/api/v3/ticker/24hr');
     return all.filter(t => /USDT$/.test(t.symbol) && !/(UP|DOWN|BULL|BEAR)USDT$/.test(t.symbol) && !STABLE.test(t.symbol.replace(/USDT$/, ''))).sort((a, b) => b.quoteVolume - a.quoteVolume).slice(0, n)
