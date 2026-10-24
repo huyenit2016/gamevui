@@ -25,7 +25,9 @@ const kl = (seed, dir) => { let p = 100, out = []; for (let i = 0; i < 250; i++)
   await p.fill('.cs', 'pepe'); await p.click('.cgo'); await p.waitForFunction(() => /PEPE\/USDT/.test(document.querySelector('.cxdet h3') ? document.querySelector('.cxdet h3').textContent : ''));
   ok('chọn coin tự do (PEPE) → phân tích + thêm vào danh sách', await p.locator('.cxr').first().innerText().then(x => /PEPE/.test(x)));
   await p.selectOption('.lvsel', '125'); await p.waitForTimeout(100);
-  ok('chọn đòn bẫy 125x → cảnh báo thanh lý trước SL', /\(tự chọn\)/.test(await p.locator('.cxk').innerText()) && /thanh lý.*trước/s.test(await p.locator('.cxdet').innerText()));
+  ok('chọn 125x → phân tích lại: SL dời vào trước giá thanh lý', /\(tự chọn\)/.test(await p.locator('.cxk').innerText()) && /Đã phân tích lại/.test(await p.locator('.cxdet').innerText()));
+  const hi = await p.evaluate(() => { const k = Array.from({ length: 250 }, (_, i) => { const c = 100 + i * 0.3 + Math.sin(i) * 2; return { t: i, o: c - .3, h: c + 1, l: c - 1, c, v: 100 }; }); return [10, 25, 50, 125].map(l => GV.cryptoT.analyze(k, { capital: 1000, riskPct: 1, lev: l }).plan); });
+  ok('mọi đòn bẫy: SL luôn trước thanh lý, lỗ ≈ 1% vốn, TP > vào', hi.every(q => q.sl > q.liq && !q.liqFirst && q.loss <= 10 + 1e-6 && q.tp[0] > q.entry), JSON.stringify(hi.map(q => [q.lev, q.sl, q.liq, q.loss])));
   const pm = await p.evaluate(() => { const k = Array.from({ length: 250 }, (_, i) => { const c = 100 + i * 0.3 + Math.sin(i) * 2; return { t: i, o: c - .3, h: c + 1, l: c - 1, c, v: 100 }; }); const a = GV.cryptoT.analyze(k, { capital: 1000, riskPct: 1, lev: 1 }), b = GV.cryptoT.analyze(k, { capital: 1000, riskPct: 1, lev: 0 }); return { a: a.plan, b: b.plan }; });
   ok('đòn bẫy 1x tự chọn: khối lượng ≤ vốn, lỗ ≤ 1% vốn', pm.a.lev === 1 && pm.a.notional <= 1000 && pm.a.loss <= 10 + 1e-9 && pm.b.lev === pm.b.levAuto, JSON.stringify(pm.a));
   await p.selectOption('.lvsel', '0');

@@ -53,17 +53,22 @@
     const entry = px, buf = 0.2 * atrv;
     let sl = dir > 0 ? Math.min(px - 1.5 * atrv, (sup[0] != null ? sup[0] - buf : Infinity)) : Math.max(px + 1.5 * atrv, (res[0] != null ? res[0] + buf : -Infinity));
     if (dir > 0 && sl > px - 1.0 * atrv) sl = px - 1.0 * atrv; if (dir < 0 && sl < px + 1.0 * atrv) sl = px + 1.0 * atrv;
-    const risk = Math.abs(entry - sl), tp = [1.5, 2.5, 4].map(m => entry + dir * risk * m);
-    const slPct = risk / entry * 100;
-    const cap = +opt.capital || 1000, rp = +opt.riskPct || 1, riskUsd = cap * rp / 100, notional = riskUsd / (slPct / 100);
-    const levNeed = Math.max(1, Math.ceil(notional / cap)), levSafe = Math.max(1, Math.floor(66 / slPct)), levAuto = Math.min(levNeed, levSafe, 20), lev = +opt.lev > 0 ? Math.round(+opt.lev) : levAuto;
-    // đòn bẫy người dùng tự chọn: khối lượng bị giới hạn bởi vốn × đòn bẫy → lỗ thực tế khi chạm SL có thể nhỏ hơn mức rủi ro đặt ra
-    const notionalUsed = Math.min(notional, cap * lev), liq = entry * (1 - dir * (0.9 / lev));
+    const slTech = sl, cap = +opt.capital || 1000, rp = +opt.riskPct || 1, riskUsd = cap * rp / 100;
+    const slPctTech = Math.abs(entry - slTech) / entry * 100, levSafe = Math.max(1, Math.floor(66 / slPctTech));
+    const levNeed = Math.max(1, Math.ceil(riskUsd / (slPctTech / 100) / cap)), levAuto = Math.min(levNeed, levSafe, 20);
+    const manual = +opt.lev > 0, lev = manual ? Math.round(+opt.lev) : levAuto;
+    // Tự chọn đòn bẫy cao hơn mức an toàn → phân tích lại: kéo SL vào trong vùng an toàn (≤ 2/3 khoảng cách tới giá thanh lý ≈ 0,9/lev),
+    // tính lại TP theo rủi ro mới và khối lượng sao cho lỗ khi chạm SL vẫn đúng % rủi ro → luôn cắt lỗ trước khi bị thanh lý.
+    let adjusted = false; const maxSlPct = 60 / lev; // % giá
+    if (slPctTech > maxSlPct) { sl = entry * (1 - dir * maxSlPct / 100); adjusted = true; }
+    const risk = Math.abs(entry - sl), slPct = risk / entry * 100, tp = [1.5, 2.5, 4].map(m => entry + dir * risk * m);
+    const notional = riskUsd / (slPct / 100), notionalUsed = Math.min(notional, cap * lev), liq = entry * (1 - dir * (0.9 / lev));
+    const tight = adjusted && risk < 0.8 * atrv; // SL hẹp hơn biến động bình thường → dễ bị quét
     const nearRes = dir > 0 ? res[0] : sup[0];
     return {
       px, side, score: sc, dir, why, rsi: r, macdH: h, atr: atrv, atrPct, volRatio: vr,
       ema20: e20[n], ema50: e50[n], ema200: e200[n], bb: b, sup: sup.slice(0, 3), res: res.slice(0, 3),
-      plan: { entry, sl, tp, slPct, rr: [1.5, 2.5, 4], lev, levAuto, manual: +opt.lev > 0, levSafe, levNeed, notional: notionalUsed, margin: notionalUsed / lev, riskUsd, loss: notionalUsed * slPct / 100, liq, liqFirst: dir > 0 ? liq >= sl : liq <= sl, nearLevel: nearRes },
+      plan: { entry, sl, slTech, adjusted, tight, tp, slPct, rr: [1.5, 2.5, 4], lev, levAuto, manual, levSafe, levNeed, notional: notionalUsed, margin: notionalUsed / lev, riskUsd, loss: notionalUsed * slPct / 100, liq, liqFirst: dir > 0 ? liq >= sl : liq <= sl, nearLevel: nearRes },
       series: { e20, e50, e200, B }
     };
   }
@@ -152,7 +157,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 <div class="cxk"><div><small>Giá hiện tại</small><b>${fmt(a.px)}</b></div><div><small>Vào (${long ? 'Long' : 'Short'})</small><b>${fmt(p.entry)}</b></div><div><small>Cắt lỗ −${p.slPct.toFixed(2)}%</small><b class="cxdn">${fmt(p.sl)}</b></div>
 ${p.tp.map((v, i) => `<div><small>TP${i + 1} (1:${p.rr[i]})</small><b class="cxup">${fmt(v)}</b></div>`).join('')}
 <div><small>Đòn bẫy${p.manual ? ' (tự chọn)' : ' gợi ý'}</small><select class="lvsel"><option value="0">Tự động · ${p.levAuto}x</option>${[1, 2, 3, 5, 10, 15, 20, 25, 50, 75, 100, 125].map(v => `<option value="${v}" ${p.manual && v === p.lev ? 'selected' : ''}>${v}x</option>`).join('')}</select></div><div><small>Khối lượng</small><b>${money(p.notional)}</b></div><div><small>Ký quỹ</small><b>${p.margin.toFixed(1)}$</b></div><div><small>Lỗ nếu chạm SL</small><b class="cxdn">−${p.loss.toFixed(1)}$</b></div><div><small>Thanh lý ~</small><b>${fmt(p.liq)}</b></div></div>
-${p.liqFirst ? `<div class="cxw" style="background:rgba(239,83,80,.14);border-color:rgba(239,83,80,.5)">⚠️ Với ${p.lev}x, giá thanh lý (${fmt(p.liq)}) đến <b>trước</b> điểm cắt lỗ → bị thanh lý mất ký quỹ trước khi SL kịp chạy. Hãy giảm đòn bẫy (an toàn ≤ ${p.levSafe}x).</div>` : p.manual && p.lev > p.levSafe ? `<div class="cxw">Đòn bẫy ${p.lev}x cao hơn mức an toàn ${p.levSafe}x: giá thanh lý khá sát SL.</div>` : ''}
+${p.adjusted ? `<div class="cxw">🔄 Đã phân tích lại cho <b>${p.lev}x</b>: SL kỹ thuật ${fmt(p.slTech)} nằm sau giá thanh lý, nên dời SL về <b>${fmt(p.sl)}</b> (−${p.slPct.toFixed(2)}%, trước thanh lý ${fmt(p.liq)}), TP và khối lượng tính lại để lỗ khi chạm SL vẫn ≈ ${S.riskPct}% vốn.${p.tight ? ` <b style="color:#ef5350">SL này hẹp hơn biến động bình thường (ATR ${a.atrPct.toFixed(2)}%) nên rất dễ bị quét.</b> Nên dùng ≤ ${p.levSafe}x.` : ''}</div>` : p.liqFirst ? `<div class="cxw">⚠️ Giá thanh lý đến trước SL – hãy giảm đòn bẫy.</div>` : ''}
 <div class="hint">Gợi ý tự động = min(cần theo rủi ro ${S.riskPct}%: ${p.levNeed}x · an toàn: ${p.levSafe}x · trần 20x). SL sau hỗ trợ/kháng cự gần nhất hoặc 1,5×ATR (ATR ${a.atrPct.toFixed(2)}%).</div></div>
 <div class="cxp" data-p="chart"><canvas></canvas><div class="hint">Đường: <span style="color:#4fc3f7">EMA20</span> · <span style="color:#ffb74d">EMA50</span> · <span style="color:#ba68c8">EMA200</span></div></div>
 <div class="cxp" data-p="why"><ul class="cxwhy" style="margin:4px 0">${a.why.map(w => `<li class="${w.v > 0 ? 'cxup' : w.v < 0 ? 'cxdn' : ''}">${w.v > 0 ? '▲' : w.v < 0 ? '▼' : '•'} ${esc(w.t)} <span class="hint">(${w.v > 0 ? '+' : ''}${w.v})</span></li>`).join('')}</ul>
