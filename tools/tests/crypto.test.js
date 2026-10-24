@@ -14,7 +14,7 @@ const kl = (seed, dir) => { let p = 100, out = []; for (let i = 0; i < 250; i++)
   ok('RSI chuỗi tăng đều = 100', t.rsi === 100, t.rsi); ok('EMA20 bám dưới giá khi tăng', t.e < 159 && t.e > 140, t.e);
   await p.click('.scan'); await p.waitForSelector('.cxr', { timeout: 8000 }); await p.waitForFunction(() => /Xong/.test(document.querySelector('.cxmsg').textContent));
   const n = await p.locator('.cxr').count(); ok('quét 4 coin, loại stablecoin + token đòn bẩy', n === 4, n);
-  ok('có canvas + kế hoạch lệnh', await p.locator('.cxdet canvas').count() === 1 && /Đòn bẫy gợi ý/.test(await p.locator('.cxdet').innerText()));
+  ok('có canvas + kế hoạch lệnh', await p.locator('.cxdet canvas').count() === 1 && /Đòn bẫy/.test(await p.locator('.cxdet').innerText()));
   const pl = await p.evaluate(() => { const T = GV.cryptoT; const k = Array.from({ length: 250 }, (_, i) => { const c = 100 + i * 0.3 + Math.sin(i) * 2; return { t: i, o: c - .3, h: c + 1, l: c - 1, c, v: 100 }; }); return T.analyze(k, { capital: 1000, riskPct: 1 }); });
   ok('xu hướng tăng → LONG, SL < vào < TP1 < TP2 < TP3', pl.dir === 1 && pl.plan.sl < pl.plan.entry && pl.plan.tp[0] > pl.plan.entry && pl.plan.tp[0] < pl.plan.tp[1] && pl.plan.tp[1] < pl.plan.tp[2], JSON.stringify(pl.plan));
   ok('lỗ tối đa = 1% vốn, đòn bẫy 1..20', Math.abs(pl.plan.riskUsd - 10) < 1e-9 && pl.plan.lev >= 1 && pl.plan.lev <= 20, pl.plan.lev);
@@ -22,7 +22,7 @@ const kl = (seed, dir) => { let p = 100, out = []; for (let i = 0; i < 250; i++)
   const dn = await p.evaluate(() => { const k = Array.from({ length: 250 }, (_, i) => { const c = 300 - i * 0.3 + Math.sin(i) * 2; return { t: i, o: c + .3, h: c + 1, l: c - 1, c, v: 100 }; }); const a = GV.cryptoT.analyze(k, {}); return { d: a.dir, sl: a.plan.sl, e: a.plan.entry, tp: a.plan.tp[0] }; });
   ok('xu hướng giảm → SHORT, SL > vào > TP', dn.d === -1 && dn.sl > dn.e && dn.tp < dn.e, JSON.stringify(dn));
   await p.click('.cxr >> nth=1'); await p.waitForTimeout(200); ok('chọn coin khác → đổi chi tiết', /\/USDT/.test(await p.locator('.cxdet h3').innerText()));
-  await p.click('.ai'); ok('AI chưa có khoá → nhắc nhập khoá', /Chưa có khoá AI/.test(await p.locator('.cxai').innerText()));
+  await p.click('.cxtb [data-p=ai]'); await p.click('.ai'); ok('AI chưa có khoá → nhắc nhập khoá', /Chưa có khoá AI/.test(await p.locator('.cxai').innerText()));
   await p.click('.lg2'); const lg = await p.locator('.cxlog').innerText();
   ok('log có nến cuối, chỉ báo, điểm, kế hoạch', /5 NẾN CUỐI/.test(lg) && /EMA20 [\d.]+/.test(lg) && /RSI14/.test(lg) && /CHẤM ĐIỂM/.test(lg) && /KẾ HOẠCH LỆNH/.test(lg), lg.slice(0, 200));
   ok('tự kiểm toàn ĐẠT', /ĐẠT  RSI/.test(lg) && !/LỖI  /.test(lg), lg.slice(-300));

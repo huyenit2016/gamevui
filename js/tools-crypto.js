@@ -84,7 +84,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 
   /* ---------- biểu đồ nến ---------- */
   function draw(cv, k, a) {
-    const dpr = Math.min(2, window.devicePixelRatio || 1), W = (cv.parentNode && cv.parentNode.clientWidth - 24) || 640, H = 300; cv.width = W * dpr; cv.height = H * dpr;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), W = (cv.parentNode && cv.parentNode.clientWidth - 24) || 640, H = W < 500 ? 230 : 300; cv.width = W * dpr; cv.height = H * dpr;
     // CSS toàn cục khi đang chơi trên mobile ép canvas width:auto → đặt kích thước cố định với !important
     cv.style.setProperty('width', W + 'px', 'important'); cv.style.setProperty('height', H + 'px', 'important'); cv.style.setProperty('max-height', 'none', 'important'); cv.style.setProperty('max-width', '100%', 'important'); const g = cv.getContext('2d'); g.scale(dpr, dpr);
     const N = Math.min(80, k.length), off = k.length - N, d = k.slice(off); let lo = Math.min(...d.map(x => x.l)), hi = Math.max(...d.map(x => x.h));
@@ -107,7 +107,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
       const S = Object.assign({ tf: '4h', capital: 1000, riskPct: 1, n: 30, sel: 'BTCUSDT' }, GV.store.get('cryptoagent', {}));
       let rows = [], cur = null, curK = null, busy = false, dead = false;
       el.innerHTML = `<style>
-.cx{max-width:980px;margin:0 auto;text-align:left}.cx h2{margin:.2em 0}.cxw{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.4);border-radius:12px;padding:10px 12px;font-size:.85rem;margin:8px 0}
+.cx{width:100%;max-width:980px;min-width:0;margin:0 auto;text-align:left;box-sizing:border-box}.cx *{min-width:0}.cxg>*{min-width:0}.cx h2{margin:.2em 0}.cxw{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.4);border-radius:12px;padding:10px 12px;font-size:.85rem;margin:8px 0}
 .cxbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:10px 0}.cxbar label{display:flex;flex-direction:column;font-size:.78rem;gap:2px}.cxbar input,.cxbar select{padding:6px 8px;width:96px;font-size:16px}/* ≥16px để iOS không tự phóng to/cuộn trang khi chạm ô nhập */
 .cxg{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:14px}@media(max-width:760px){.cxg{grid-template-columns:1fr}}
 .cxbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}.cxlist{max-height:430px;overflow:auto}
@@ -115,35 +115,47 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxs{font-weight:700;padding:2px 8px;border-radius:999px;font-size:.78rem}.cxs.L{background:rgba(46,204,113,.2);color:#2ecc71}.cxs.S{background:rgba(239,83,80,.2);color:#ef5350}.cxs.W{background:rgba(150,150,150,.2)}
 .cxk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.cxk div{background:rgba(128,128,128,.1);border-radius:10px;padding:8px}.cxk small{display:block;opacity:.7;font-size:.72rem}.cxk b{font-size:1rem}
 .cxup{color:#2ecc71}.cxdn{color:#ef5350}.cxwhy li{margin:3px 0;font-size:.86rem}.cxlog{white-space:pre-wrap;font-size:.74rem;max-height:320px;overflow:auto;background:rgba(128,128,128,.1);border-radius:10px;padding:8px;word-break:break-word}.cxai{white-space:pre-wrap;font-size:.9rem;line-height:1.5}.cx canvas{width:100%;height:300px;display:block;border-radius:10px}
-</style><div class="cx"><h2>📈 AI-Agent phân tích thị trường</h2>
-<div class="cxbar"><label>Khung nến<select class="tf">${Object.keys(TFS).map(t => `<option value="${t}" ${t === S.tf ? 'selected' : ''}>${TFS[t]}</option>`).join('')}</select></label>
-<label>Số coin quét<select class="nn">${[15, 30, 50].map(t => `<option ${t === S.n ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-<label>Vốn (USDT)<input class="cap" type="number" min="10" value="${S.capital}"></label><label>Rủi ro / lệnh (%)<input class="rk" type="number" min="0.1" max="10" step="0.1" value="${S.riskPct}"></label>
-<button class="btn scan">🔍 Quét thị trường</button></div><div class="cxmsg hint" role="status"></div>
-<div class="cxg"><div class="cxbox"><b>Xếp hạng cơ hội</b> <span class="hint">(điểm −100…+100)</span><div class="cxlist"></div></div><div class="cxbox cxdet"><div class="hint">Bấm "Quét thị trường" rồi chọn 1 coin để xem kế hoạch lệnh chi tiết.</div></div></div></div>`;
+.cxtop{display:flex;align-items:center;justify-content:space-between;gap:8px}.cxtop h2{font-size:1.1rem;margin:0}.cxmsg{margin:2px 0;font-size:.74rem}.cxset{margin:6px 0}.cxset summary{cursor:pointer;font-size:.85rem;opacity:.85;padding:4px 0}
+.cxtb{display:flex;gap:4px;margin:8px 0;border-bottom:1px solid var(--line)}.cxtb button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:inherit;padding:8px 2px;font:inherit;font-size:.85rem;cursor:pointer;opacity:.7}.cxtb button.on{opacity:1;border-color:var(--acc,#8b8bff);font-weight:700}
+.cxp{display:none}.cxp.on{display:block}
+@media(max-width:760px){
+.cx{padding:0}.cxbar{margin:4px 0;gap:6px}.cxbar label{flex:1;min-width:70px}.cxbar input,.cxbar select{width:100%;padding:5px 6px}
+.cxg{gap:8px}.cxbox{padding:8px 8px;border-radius:12px}.cxlisth{display:none}
+.cxlist{max-height:none;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.cxr{display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;border:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px 9px;min-width:64px;border-radius:10px}.cxr .cxinfo{display:none}.cxr .cxs{font-size:.66rem;padding:1px 6px}.cxr.on{border-color:var(--acc,#8b8bff)}
+.cxk{grid-template-columns:repeat(3,1fr);gap:6px}.cxk div{padding:6px}.cxk b{font-size:.92rem}.cxk small{font-size:.66rem}
+.cxdet h3{font-size:1rem}.cx canvas{height:230px}}
+
+</style><div class="cx"><div class="cxtop"><h2>📈 AI-Agent crypto</h2><button class="btn scan">🔍 Quét</button></div>
+<details class="cxset" ${innerWidth > 760 ? 'open' : ''}><summary class="cxsum"></summary><div class="cxbar"><label>Khung nến<select class="tf">${Object.keys(TFS).map(t => `<option value="${t}" ${t === S.tf ? 'selected' : ''}>${TFS[t]}</option>`).join('')}</select></label>
+<label>Số coin<select class="nn">${[15, 30, 50].map(t => `<option ${t === S.n ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+<label>Vốn (USDT)<input class="cap" type="number" min="10" value="${S.capital}"></label><label>Rủi ro/lệnh (%)<input class="rk" type="number" min="0.1" max="10" step="0.1" value="${S.riskPct}"></label></div></details><div class="cxmsg hint" role="status"></div>
+<div class="cxg"><div class="cxbox"><div class="cxlisth"><b>Xếp hạng cơ hội</b> <span class="hint">(điểm −100…+100)</span></div><div class="cxlist"></div></div><div class="cxbox cxdet"><div class="hint">Bấm "Quét thị trường" rồi chọn 1 coin để xem kế hoạch lệnh chi tiết.</div></div></div></div>`;
       const msg = t => { if (!dead) $(el, '.cxmsg').textContent = t || ''; };
       const sideCls = s => s === 'LONG' ? 'L' : s === 'SHORT' ? 'S' : 'W';
       const save = () => GV.store.set('cryptoagent', S);
-      function readOpts() { S.tf = $(el, '.tf').value; S.n = +$(el, '.nn').value; S.capital = Math.max(10, +$(el, '.cap').value || 1000); S.riskPct = Math.min(10, Math.max(0.1, +$(el, '.rk').value || 1)); save(); }
+      function readOpts() { S.tf = $(el, '.tf').value; S.n = +$(el, '.nn').value; S.capital = Math.max(10, +$(el, '.cap').value || 1000); S.riskPct = Math.min(10, Math.max(0.1, +$(el, '.rk').value || 1)); save(); sum(); }
+      const sum = () => { $(el, '.cxsum').textContent = `⚙️ ${TFS[S.tf]} · ${S.n} coin · vốn ${S.capital}$ · rủi ro ${S.riskPct}%`; };
       function renderList() {
         const L = $(el, '.cxlist'); if (!rows.length) { L.innerHTML = ''; return; }
-        L.innerHTML = rows.map(r => `<div class="cxr ${r.sym === S.sel ? 'on' : ''}" data-s="${esc(r.sym)}"><div><b>${esc(r.base)}</b> <span class="hint">${fmt(r.price)} · ${r.chg >= 0 ? '+' : ''}${r.chg.toFixed(1)}% · ${money(r.qv)}</span></div><span class="cxs ${sideCls(r.a.side)}">${r.a.side}</span><b class="${r.a.score >= 0 ? 'cxup' : 'cxdn'}">${r.a.score > 0 ? '+' : ''}${r.a.score}</b></div>`).join('');
+        L.innerHTML = rows.map(r => `<div class="cxr ${r.sym === S.sel ? 'on' : ''}" data-s="${esc(r.sym)}"><div><b>${esc(r.base)}</b> <span class="hint cxinfo">${fmt(r.price)} · ${r.chg >= 0 ? '+' : ''}${r.chg.toFixed(1)}% · ${money(r.qv)}</span></div><span class="cxs ${sideCls(r.a.side)}">${r.a.side}</span><b class="${r.a.score >= 0 ? 'cxup' : 'cxdn'}">${r.a.score > 0 ? '+' : ''}${r.a.score}</b></div>`).join('');
       }
       function renderDet() {
         const D = $(el, '.cxdet'), a = cur; if (!a) return; const p = a.plan, base = S.sel.replace(/USDT$/, ''), long = a.dir > 0;
-        D.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${esc(base)}/USDT · ${TFS[S.tf]}</h3><span class="cxs ${sideCls(a.side)}" style="font-size:1rem">${a.side} · ${a.score > 0 ? '+' : ''}${a.score}</span></div>
-<canvas></canvas><div class="hint">Đường: <span style="color:#4fc3f7">EMA20</span> · <span style="color:#ffb74d">EMA50</span> · <span style="color:#ba68c8">EMA200</span></div>
-${a.side === 'CHỜ' ? `<div class="cxw">Tín hiệu chưa đủ rõ (|điểm| &lt; 35) → <b>nên chờ</b>. Bảng dưới là kế hoạch <i>tham khảo</i> nếu vẫn muốn thiên về ${long ? 'LONG' : 'SHORT'}.</div>` : ''}
-<div class="cxk"><div><small>Giá hiện tại</small><b>${fmt(a.px)}</b></div><div><small>Điểm vào (${long ? 'Long' : 'Short'})</small><b>${fmt(p.entry)}</b></div><div><small>Cắt lỗ (SL) −${p.slPct.toFixed(2)}%</small><b class="cxdn">${fmt(p.sl)}</b></div>
-${p.tp.map((v, i) => `<div><small>Chốt lời TP${i + 1} (R:R 1:${p.rr[i]})</small><b class="cxup">${fmt(v)}</b></div>`).join('')}
-<div><small>Đòn bẫy gợi ý</small><b>${p.lev}x</b></div><div><small>Khối lượng lệnh</small><b>${money(p.notional)}</b></div><div><small>Ký quỹ cần</small><b>${p.margin.toFixed(1)} USDT</b></div><div><small>Lỗ tối đa nếu chạm SL</small><b class="cxdn">−${p.riskUsd.toFixed(1)} USDT</b></div><div><small>Giá thanh lý ước tính</small><b>${fmt(p.liq)}</b></div></div>
-<div class="hint">Đòn bẫy = min(đòn bẫy cần để mở đủ khối lượng theo rủi ro ${S.riskPct}%: ${p.levNeed}x · mức an toàn để giá thanh lý xa SL: ${p.levSafe}x · trần 20x). SL đặt sau hỗ trợ/kháng cự gần nhất hoặc 1,5×ATR. ATR = ${a.atrPct.toFixed(2)}% giá.</div>
-<h4 style="margin:10px 0 4px">Vì sao ${a.score >= 0 ? 'nghiêng tăng' : 'nghiêng giảm'}?</h4><ul class="cxwhy">${a.why.map(w => `<li class="${w.v > 0 ? 'cxup' : w.v < 0 ? 'cxdn' : ''}">${w.v > 0 ? '▲' : w.v < 0 ? '▼' : '•'} ${esc(w.t)} <span class="hint">(${w.v > 0 ? '+' : ''}${w.v})</span></li>`).join('')}</ul>
-<div class="hint">Kháng cự gần: ${a.res.length ? a.res.map(fmt).join(' · ') : '—'} &nbsp;|&nbsp; Hỗ trợ gần: ${a.sup.length ? a.sup.map(fmt).join(' · ') : '—'} &nbsp;|&nbsp; RSI ${a.rsi != null ? a.rsi.toFixed(0) : '—'} · Vol ${a.volRatio.toFixed(1)}×</div>
-<div style="margin-top:10px"><button class="btn ai">🤖 Nhờ AI viết nhận định</button> <span class="hint">cần khoá AI của bạn (cài ở mục dưới)</span></div><div class="cxai box" style="display:none"></div>
-<div style="margin-top:10px"><button class="btn ghost lg2">🧪 Ghi log kiểm tra chỉ báo</button> <span class="hint">để đối chiếu với TradingView</span></div><div class="cxlogbox" style="display:none"><pre class="cxlog"></pre><button class="btn ghost lgcp">📋 Sao chép</button> <button class="btn ghost lgdl">⬇️ Tải .txt</button></div>
-<div class="cxaicfg">${GV.learn && GV.learn.ai ? GV.learn.ai.panelHTML() : ''}</div>`;
-        draw($(D, 'canvas'), curK, a);
+        D.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${esc(base)}/USDT · ${TFS[S.tf]}</h3><span class="cxs ${sideCls(a.side)}" style="font-size:.95rem">${a.side} · ${a.score > 0 ? '+' : ''}${a.score}</span></div>
+<div class="cxtb"><button data-p="plan" class="on">Kế hoạch</button><button data-p="chart">Biểu đồ</button><button data-p="why">Lý do</button><button data-p="ai">AI · Log</button></div>
+<div class="cxp on" data-p="plan">${a.side === 'CHỜ' ? `<div class="cxw">Chưa đủ rõ (|điểm| &lt; 35) → <b>nên chờ</b>. Kế hoạch dưới chỉ để tham khảo (${long ? 'LONG' : 'SHORT'}).</div>` : ''}
+<div class="cxk"><div><small>Giá hiện tại</small><b>${fmt(a.px)}</b></div><div><small>Vào (${long ? 'Long' : 'Short'})</small><b>${fmt(p.entry)}</b></div><div><small>Cắt lỗ −${p.slPct.toFixed(2)}%</small><b class="cxdn">${fmt(p.sl)}</b></div>
+${p.tp.map((v, i) => `<div><small>TP${i + 1} (1:${p.rr[i]})</small><b class="cxup">${fmt(v)}</b></div>`).join('')}
+<div><small>Đòn bẫy</small><b>${p.lev}x</b></div><div><small>Khối lượng</small><b>${money(p.notional)}</b></div><div><small>Ký quỹ</small><b>${p.margin.toFixed(1)}$</b></div><div><small>Lỗ tối đa</small><b class="cxdn">−${p.riskUsd.toFixed(1)}$</b></div><div><small>Thanh lý ~</small><b>${fmt(p.liq)}</b></div></div>
+<div class="hint">Đòn bẫy = min(cần theo rủi ro ${S.riskPct}%: ${p.levNeed}x · an toàn: ${p.levSafe}x · trần 20x). SL sau hỗ trợ/kháng cự gần nhất hoặc 1,5×ATR (ATR ${a.atrPct.toFixed(2)}%).</div></div>
+<div class="cxp" data-p="chart"><canvas></canvas><div class="hint">Đường: <span style="color:#4fc3f7">EMA20</span> · <span style="color:#ffb74d">EMA50</span> · <span style="color:#ba68c8">EMA200</span></div></div>
+<div class="cxp" data-p="why"><ul class="cxwhy" style="margin:4px 0">${a.why.map(w => `<li class="${w.v > 0 ? 'cxup' : w.v < 0 ? 'cxdn' : ''}">${w.v > 0 ? '▲' : w.v < 0 ? '▼' : '•'} ${esc(w.t)} <span class="hint">(${w.v > 0 ? '+' : ''}${w.v})</span></li>`).join('')}</ul>
+<div class="hint">Kháng cự gần: ${a.res.length ? a.res.map(fmt).join(' · ') : '—'} | Hỗ trợ gần: ${a.sup.length ? a.sup.map(fmt).join(' · ') : '—'} | RSI ${a.rsi != null ? a.rsi.toFixed(0) : '—'} · Vol ${a.volRatio.toFixed(1)}×</div></div>
+<div class="cxp" data-p="ai"><div><button class="btn ai">🤖 Nhờ AI viết nhận định</button></div><div class="cxai box" style="display:none"></div>
+<div style="margin-top:8px"><button class="btn ghost lg2">🧪 Ghi log kiểm tra chỉ báo</button></div><div class="cxlogbox" style="display:none"><pre class="cxlog"></pre><button class="btn ghost lgcp">📋 Sao chép</button> <button class="btn ghost lgdl">⬇️ Tải .txt</button></div>
+<div class="cxaicfg">${GV.learn && GV.learn.ai ? GV.learn.ai.panelHTML() : ''}</div><div class="hint" style="margin-top:6px">Công cụ giáo dục, không phải lời khuyên đầu tư.</div></div>`;
+        D.querySelectorAll('.cxtb button').forEach(b => { b.onclick = () => { D.querySelectorAll('.cxtb button,.cxp').forEach(x => x.classList.toggle('on', x.dataset.p === b.dataset.p)); if (b.dataset.p === 'chart') draw($(D, 'canvas'), curK, a); }; });
         if (GV.learn && GV.learn.ai && GV.learn.ai.bindPanel) GV.learn.ai.bindPanel($(D, '.cxaicfg'));
         $(D, '.ai').onclick = askAI; $(D, '.lg2').onclick = showLog;
       }
@@ -190,7 +202,7 @@ ${p.tp.map((v, i) => `<div><small>Chốt lời TP${i + 1} (R:R 1:${p.rr[i]})</sm
           const worker = async () => { while (q.length && !dead) { const t = q.shift(); try { const k = await klines(t.sym, S.tf); const a = analyze(k, S); if (a) rows.push(Object.assign(t, { a, k })); } catch (e) { /* bỏ qua coin lỗi */ } msg(`Đang phân tích ${++done}/${pairs.length}…`); } };
           await Promise.all([worker(), worker(), worker(), worker(), worker()]);
           if (dead) return; rows.sort((x, y) => Math.abs(y.a.score) - Math.abs(x.a.score)); renderList();
-          msg(rows.length ? `Xong: ${rows.length} coin. Cơ hội rõ nhất xếp trên cùng (điểm tuyệt đối cao).` : 'Không phân tích được coin nào.');
+          msg(rows.length ? `Xong ${rows.length} coin · điểm tuyệt đối cao = cơ hội rõ hơn` : 'Không phân tích được coin nào.');
           if (rows.length) await pick(rows[0].sym);
         } catch (e) { msg('Không tải được dữ liệu từ Binance: ' + e.message + ' (mạng/vùng có thể bị chặn).'); }
         busy = false; if (!dead) $(el, '.scan').disabled = false;
@@ -198,9 +210,10 @@ ${p.tp.map((v, i) => `<div><small>Chốt lời TP${i + 1} (R:R 1:${p.rr[i]})</sm
       // iOS có thể đẩy cả trang lên khi mở bàn phím → để lại khoảng trống dưới đáy; trả trang về vị trí cũ
       const home = () => setTimeout(() => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 60);
       el.querySelectorAll('.cxbar input,.cxbar select').forEach(i => i.addEventListener('blur', home));
+      sum();
       $(el, '.scan').onclick = () => { home(); scan(); };
       $(el, '.cxlist').onclick = e => { const r = e.target.closest('.cxr'); if (r) pick(r.dataset.s); };
-      const rs = () => { if (cur) draw($(el, '.cxdet canvas'), curK, cur); }; window.addEventListener('resize', rs);
+      const rs = () => { if (cur && $(el, '.cxp[data-p=chart].on')) draw($(el, '.cxdet canvas'), curK, cur); }; window.addEventListener('resize', rs);
       return () => { dead = true; window.removeEventListener('resize', rs); };
     }
   });
