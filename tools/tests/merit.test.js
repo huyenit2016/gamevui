@@ -30,7 +30,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   const px = await p.evaluate(() => { const c = document.querySelector('.modal canvas'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 64) if (d[i + 1] < 120) n++; return n; }); ok('thiệp có vẽ chữ/viền', px > 100, px);
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('.modal .dl')]); ok('tải ảnh thiệp PNG', dl.suggestedFilename() === 'thiep-hoi-huong.png');
   await p.click('.modal .cl');
-  // mobile: thanh dưới có Tích đức
-  await p.setViewportSize({ width: 390, height: 780 }); await p.goto('file://' + ROOT + '/index.html'); await p.waitForTimeout(300); ok('thanh dưới điện thoại có Tích đức', await p.locator('#bnav a[href="#/tool/accumulating-merit"]').isVisible());
+  // mobile: thanh dưới đã bỏ Tích đức (chủ yêu cầu)
+  await p.setViewportSize({ width: 390, height: 780 }); await p.goto('file://' + ROOT + '/index.html'); await p.waitForTimeout(300); ok('thanh dưới điện thoại không còn Tích đức', await p.locator('#bnav a[href="#/tool/accumulating-merit"]').count() === 0);
   console.log(errs.join('\n') || 'không có lỗi JS'); console.log(`\n${pass} đạt, ${fail} lỗi`); await b.close(); process.exit(fail || errs.length ? 1 : 0);
 })();
