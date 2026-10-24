@@ -22,6 +22,8 @@ const kl = (seed, dir) => { let p = 100, out = []; for (let i = 0; i < 250; i++)
   const dn = await p.evaluate(() => { const k = Array.from({ length: 250 }, (_, i) => { const c = 300 - i * 0.3 + Math.sin(i) * 2; return { t: i, o: c + .3, h: c + 1, l: c - 1, c, v: 100 }; }); const a = GV.cryptoT.analyze(k, {}); return { d: a.dir, sl: a.plan.sl, e: a.plan.entry, tp: a.plan.tp[0] }; });
   ok('xu hướng giảm → SHORT, SL > vào > TP', dn.d === -1 && dn.sl > dn.e && dn.tp < dn.e, JSON.stringify(dn));
   await p.click('.cxr >> nth=1'); await p.waitForTimeout(200); ok('chọn coin khác → đổi chi tiết', /\/USDT/.test(await p.locator('.cxdet h3').innerText()));
+  await p.fill('.cs', 'pepe'); await p.click('.cgo'); await p.waitForFunction(() => /PEPE\/USDT/.test(document.querySelector('.cxdet h3') ? document.querySelector('.cxdet h3').textContent : ''));
+  ok('chọn coin tự do (PEPE) → phân tích + thêm vào danh sách', await p.locator('.cxr').first().innerText().then(x => /PEPE/.test(x)));
   await p.click('.cxtb [data-p=ai]'); await p.click('.ai'); ok('AI chưa có khoá → nhắc nhập khoá', /Chưa có khoá AI/.test(await p.locator('.cxai').innerText()));
   await p.click('.lg2'); const lg = await p.locator('.cxlog').innerText();
   ok('log có nến cuối, chỉ báo, điểm, kế hoạch', /5 NẾN CUỐI/.test(lg) && /EMA20 [\d.]+/.test(lg) && /RSI14/.test(lg) && /CHẤM ĐIỂM/.test(lg) && /KẾ HOẠCH LỆNH/.test(lg), lg.slice(0, 200));

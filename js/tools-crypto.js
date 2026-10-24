@@ -116,6 +116,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}.cxk div{background:rgba(128,128,128,.1);border-radius:10px;padding:8px}.cxk small{display:block;opacity:.7;font-size:.72rem}.cxk b{font-size:1rem}
 .cxup{color:#2ecc71}.cxdn{color:#ef5350}.cxwhy li{margin:3px 0;font-size:.86rem}.cxlog{white-space:pre-wrap;font-size:.74rem;max-height:320px;overflow:auto;background:rgba(128,128,128,.1);border-radius:10px;padding:8px;word-break:break-word}.cxai{white-space:pre-wrap;font-size:.9rem;line-height:1.5}.cx canvas{width:100%;height:300px;display:block;border-radius:10px}
 .cxtop{display:flex;align-items:center;justify-content:space-between;gap:8px}.cxtop h2{font-size:1.1rem;margin:0}.cxmsg{margin:2px 0;font-size:.74rem}.cxset{margin:6px 0}.cxset summary{cursor:pointer;font-size:.85rem;opacity:.85;padding:4px 0}
+.cxpick{display:flex;gap:6px;margin:6px 0}.cxpick input{flex:1;padding:7px 10px;font-size:16px;text-transform:uppercase}.cxpick input::placeholder{text-transform:none}
 .cxtb{display:flex;gap:4px;margin:8px 0;border-bottom:1px solid var(--line)}.cxtb button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:inherit;padding:8px 2px;font:inherit;font-size:.85rem;cursor:pointer;opacity:.7}.cxtb button.on{opacity:1;border-color:var(--acc,#8b8bff);font-weight:700}
 .cxp{display:none}.cxp.on{display:block}
 @media(max-width:760px){
@@ -127,6 +128,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxdet h3{font-size:1rem}.cx canvas{height:230px}}
 
 </style><div class="cx"><div class="cxtop"><h2>📈 AI-Agent crypto</h2><button class="btn scan">🔍 Quét</button></div>
+<div class="cxpick"><input class="cs" list="cxdl" placeholder="Nhập coin: BTC, PEPE, SOL…" autocapitalize="characters" autocomplete="off" spellcheck="false"><datalist id="cxdl"></datalist><button class="btn cgo">Phân tích</button></div>
 <details class="cxset" ${innerWidth > 760 ? 'open' : ''}><summary class="cxsum"></summary><div class="cxbar"><label>Khung nến<select class="tf">${Object.keys(TFS).map(t => `<option value="${t}" ${t === S.tf ? 'selected' : ''}>${TFS[t]}</option>`).join('')}</select></label>
 <label>Số coin<select class="nn">${[15, 30, 50].map(t => `<option ${t === S.n ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
 <label>Vốn (USDT)<input class="cap" type="number" min="10" value="${S.capital}"></label><label>Rủi ro/lệnh (%)<input class="rk" type="number" min="0.1" max="10" step="0.1" value="${S.riskPct}"></label></div></details><div class="cxmsg hint" role="status"></div>
@@ -137,7 +139,7 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
       function readOpts() { S.tf = $(el, '.tf').value; S.n = +$(el, '.nn').value; S.capital = Math.max(10, +$(el, '.cap').value || 1000); S.riskPct = Math.min(10, Math.max(0.1, +$(el, '.rk').value || 1)); save(); sum(); }
       const sum = () => { $(el, '.cxsum').textContent = `⚙️ ${TFS[S.tf]} · ${S.n} coin · vốn ${S.capital}$ · rủi ro ${S.riskPct}%`; };
       function renderList() {
-        const L = $(el, '.cxlist'); if (!rows.length) { L.innerHTML = ''; return; }
+        const L = $(el, '.cxlist'), dl = $(el, '#cxdl'); if (dl) dl.innerHTML = rows.map(r => `<option value="${esc(r.base)}">`).join(''); if (!rows.length) { L.innerHTML = ''; return; }
         L.innerHTML = rows.map(r => `<div class="cxr ${r.sym === S.sel ? 'on' : ''}" data-s="${esc(r.sym)}"><div><b>${esc(r.base)}</b> <span class="hint cxinfo">${fmt(r.price)} · ${r.chg >= 0 ? '+' : ''}${r.chg.toFixed(1)}% · ${money(r.qv)}</span></div><span class="cxs ${sideCls(r.a.side)}">${r.a.side}</span><b class="${r.a.score >= 0 ? 'cxup' : 'cxdn'}">${r.a.score > 0 ? '+' : ''}${r.a.score}</b></div>`).join('');
       }
       function renderDet() {
@@ -191,6 +193,19 @@ ${p.tp.map((v, i) => `<div><small>TP${i + 1} (1:${p.rr[i]})</small><b class="cxu
           out.textContent = await GV.learn.ai.chat([{ role: 'user', content: 'Dữ liệu kỹ thuật (JSON):\n' + JSON.stringify(data) }], { maxTokens: 1500, system: 'Bạn là chuyên gia phân tích kỹ thuật crypto, trả lời tiếng Việt, ngắn gọn (tối đa ~250 từ): 1) bức tranh xu hướng, 2) kịch bản vào lệnh và điều kiện xác nhận/huỷ kịch bản, 3) quản trị vốn & đòn bẫy hợp lý, 4) rủi ro chính. Chỉ dựa trên dữ liệu được cung cấp, không bịa tin tức, không hứa chắc thắng. Kết thúc bằng một câu nhắc đây không phải lời khuyên đầu tư.' });
         } catch (e) { out.textContent = 'Lỗi AI: ' + e.message; }
       }
+      // Phân tích 1 coin do người dùng tự chọn (không cần quét cả thị trường)
+      async function analyzeOne() {
+        const inp = $(el, '.cs'); let sym = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); if (!sym) { msg('Nhập mã coin, ví dụ BTC hoặc PEPE.'); return; }
+        if (!/USDT$/.test(sym)) sym += 'USDT'; if (sym.length < 5) { msg('Mã coin chưa hợp lệ.'); return; }
+        readOpts(); msg('Đang tải ' + sym + '…'); $(el, '.cgo').disabled = true;
+        try {
+          const k = await klines(sym, S.tf), a = analyze(k, S); if (!a) throw new Error('quá ít nến để phân tích');
+          let t = {}; try { t = await jget('/api/v3/ticker/24hr?symbol=' + sym); } catch (e) { /* không có thống kê 24h cũng được */ }
+          const base = sym.replace(/USDT$/, ''), row = { sym, base, price: +t.lastPrice || k[k.length - 1].c, chg: +t.priceChangePercent || 0, qv: +t.quoteVolume || 0, a, k };
+          rows = rows.filter(x => x.sym !== sym); rows.unshift(row); renderList(); msg('Đã phân tích ' + base + ' (' + TFS[S.tf] + ')'); await pick(sym);
+        } catch (e) { msg('Không phân tích được ' + sym + ': ' + (/HTTP 400/.test(e.message) ? 'Binance không có cặp này' : e.message)); }
+        if (!dead) $(el, '.cgo').disabled = false;
+      }
       async function pick(sym) {
         S.sel = sym; save(); renderList(); const r = rows.find(x => x.sym === sym);
         try { curK = r && r.k ? r.k : await klines(sym, S.tf); cur = analyze(curK, S); renderDet(); } catch (e) { msg('Lỗi tải ' + sym + ': ' + e.message); }
@@ -210,7 +225,7 @@ ${p.tp.map((v, i) => `<div><small>TP${i + 1} (1:${p.rr[i]})</small><b class="cxu
       // iOS có thể đẩy cả trang lên khi mở bàn phím → để lại khoảng trống dưới đáy; trả trang về vị trí cũ
       const home = () => setTimeout(() => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 60);
       el.querySelectorAll('.cxbar input,.cxbar select').forEach(i => i.addEventListener('blur', home));
-      sum();
+      sum(); $(el, '.cgo').onclick = analyzeOne; $(el, '.cs').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeOne(); });
       $(el, '.scan').onclick = () => { home(); scan(); };
       $(el, '.cxlist').onclick = e => { const r = e.target.closest('.cxr'); if (r) pick(r.dataset.s); };
       const rs = () => { if (cur && $(el, '.cxp[data-p=chart].on')) draw($(el, '.cxdet canvas'), curK, cur); }; window.addEventListener('resize', rs);
