@@ -187,3 +187,13 @@
     route();
   };
 })();
+
+/* Mobile đang chơi: trang bị khoá 1 màn hình. iOS/Chrome có thể đẩy cả trang lên khi mở bàn phím hoặc scrollIntoView → che đầu trang, trống đáy.
+   Khi rời ô nhập, đóng bàn phím hoặc xoay màn hình thì trả document về vị trí 0 (nội dung cuộn riêng trong .stage). */
+(function () {
+  const back = () => { if (document.body.classList.contains('ingame') && innerWidth < 600) setTimeout(() => { if (window.scrollY || document.documentElement.scrollTop) window.scrollTo(0, 0); }, 80); };
+  document.addEventListener('focusout', back); window.addEventListener('orientationchange', back);
+  if (window.visualViewport) { let h = visualViewport.height; visualViewport.addEventListener('resize', () => { if (visualViewport.height > h) back(); h = visualViewport.height; }); }
+  // không để document tự cuộn quá 1px khi đang chơi (trừ lúc bàn phím mở: có ô nhập đang focus)
+  window.addEventListener('scroll', () => { const a = document.activeElement; if (document.body.classList.contains('ingame') && innerWidth < 600 && window.scrollY > 1 && !(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) window.scrollTo(0, 0); }, { passive: true });
+})();

@@ -167,6 +167,8 @@
   const chatItem = (m, esc) => m.sys ? `<div class="lsr-msg sys"><span class="si">📣</span><div><b>Hệ thống</b><time>${hm(m.at)}</time><p>${esc(m.text)}</p></div></div>` : `<div class="lsr-msg">${face(m.uid)}<div><b>${esc(m.name)}</b><time>${hm(m.at)}</time><p>${esc(m.text)}</p></div></div>`;
   const VARS = { s0: '#0b141b', s1: '#0f1a24', s2: '#132232', sa: '#dfbc7a', sa2: '#9e7944', sa3: '#ecd09a', sb: '#8fc8ff', sb2: '#16304a', sb3: '#2f5d86' };
 
+  // cuộn trong khung .stage (không cuộn cả trang: trên mobile đang chơi trang bị khoá 1 màn hình, scrollIntoView làm trang trượt lên và che nội dung)
+  const inView = (n, block) => { const st = n.closest('.stage'); if (!st) return n.scrollIntoView({ behavior: 'smooth', block }); const a = n.getBoundingClientRect(), b = st.getBoundingClientRect(); st.scrollTo({ top: st.scrollTop + (a.top - b.top) - (block === 'center' ? (b.height - a.height) / 2 : 8), behavior: 'smooth' }); };
   function make(T) {
     T = Object.assign({ min: 2, max: 8, bots: true, fire: false, skip: false, logEvents: false, waitTitle: 'Phòng đang chờ…', cfgTitle: 'Thiết lập ván', cfgNote: 'Chủ phòng bắt đầu khi mọi người đã sẵn sàng.', rulesBrief: '', mode: 'Cơ bản',
       voiceNote: 'Bật voice để nói chuyện trực tiếp với cả phòng.', guideTab: 'Hướng dẫn', guide: [], feats: [], steps: [], formTitle: 'Mở phòng chơi', roomPh: 'Ví dụ: Nhóm tối thứ 7', cta: '▶ Tạo phòng ngay' }, T);
@@ -251,8 +253,8 @@
         if (t.classList.contains('vjoin')) { VC.on ? vcLeave() : vcJoin(L2).then(() => roomRender(el, cur())); return roomRender(el, L2); }
         if (t.classList.contains('vmute')) { VC.muted = !VC.muted; vcApply(); return roomRender(el, L2); }
         if (t.classList.contains('vskip') && L2.isHost) { L2.roomRef.child('act/' + L2.me).set({ n: Date.now(), a: { t: 'skip' } }); return; }
-        if (t.classList.contains('lsr-gear')) { el.querySelector('.lsr-cfg').scrollIntoView({ behavior: 'smooth', block: 'center' }); if (!L2.isHost) L2.toast('Chỉ chủ phòng chỉnh được thiết lập.'); return; }
-        if (t.classList.contains('lsr-guide')) { el.querySelector('[data-st=roles]').click(); el.querySelector('.lsr-side').scrollIntoView({ behavior: 'smooth' }); return; }
+        if (t.classList.contains('lsr-gear')) { inView(el.querySelector('.lsr-cfg'), 'center'); if (!L2.isHost) L2.toast('Chỉ chủ phòng chỉnh được thiết lập.'); return; }
+        if (t.classList.contains('lsr-guide')) { el.querySelector('[data-st=roles]').click(); inView(el.querySelector('.lsr-side'), 'start'); return; }
         if (t.classList.contains('lsr-rdy')) { const m = L2.seats.find(s => s.id === L2.me) || {}; return L2.setReady(!m.ready); }
         if (t.dataset.st) { el.querySelectorAll('.lsr-tabs button').forEach(b => b.classList.toggle('on', b === t)); el.querySelectorAll('.lsr-pane').forEach(p => { p.hidden = p.dataset.sp !== t.dataset.st; }); return; }
         if (T.cfg && T.cfg.click(t, L2)) return;
