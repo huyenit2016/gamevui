@@ -97,3 +97,8 @@ Ràng buộc: GitHub Pages chỉ tĩnh – phần thời gian thực/thanh toán
 - [x] Game phiêu lưu (bản đồ, mini boss, boss cuối), 23 bộ đề/230 câu Tiếng Anh 10, thầy cô tạo đề riêng (dán/tải .txt .csv .json) và gửi link giao bài, chứng chỉ PNG + mã hoàn thành.
 - [ ] Mở rộng ngân hàng đề (mục tiêu 100 bộ), thêm Toán/Tiếng Việt, lớp 11–12; nên nhờ giáo viên rà soát đáp án.
 - [ ] Nhập đề từ Word/Excel (.docx/.xlsx), bảng kết quả cho lớp (cần Firebase), nhiều nhân vật/bối cảnh, giọng đọc tốt hơn, chế độ kiểm tra giới hạn thời gian.
+
+## Ma Sói · Lời Nguyền Làng Sương (online)
+- [x] 5–16 người + bot, 6 vai, đủ pha đêm/bình minh/hội đồng/bỏ phiếu/thợ săn, Sói thì thầm, ghi chú nghi ngờ
+- [ ] Chưa thử với Firebase thật / nhiều điện thoại thật
+- [ ] Có thể thêm: âm thanh, bot biết "nói" trong chat, chế độ luyện một mình

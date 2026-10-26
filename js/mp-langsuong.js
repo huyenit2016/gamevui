@@ -1,0 +1,343 @@
+// Ma Sói · Lời Nguyền Làng Sương – bản online nhiều người (5–16 người, có bot), chạy trên khung phòng GV.mp (Firebase).
+// Chủ phòng là quản trò tự động. Pha: nhận vai → đêm (bảo vệ → sói → tiên tri → phù thủy) → bình minh → hội đồng → bỏ phiếu → phán quyết (→ thợ săn).
+(function () {
+  const ROLES = {
+    villager: { n: 'Dân làng', team: 'village', i: '🧑‍🌾', d: 'Không có năng lực ban đêm. Lắng nghe, suy luận và bỏ phiếu để tìm ra hết Ma Sói.' },
+    wolf: { n: 'Ma Sói', team: 'wolf', i: '🐺', d: 'Biết đồng bọn. Mỗi đêm cả đàn chọn một người để cắn. Ban ngày che giấu thân phận, dẫn dắt cuộc bỏ phiếu.' },
+    seer: { n: 'Tiên tri', team: 'village', i: '🔮', d: 'Mỗi đêm soi một người còn sống, biết người đó có phải Sói không. Chỉ mình bạn biết kết quả.' },
+    guard: { n: 'Bảo vệ', team: 'village', i: '🛡️', d: 'Mỗi đêm che chở một người (kể cả bản thân) khỏi vết cắn của Sói. Không chặn được thuốc độc hay phát bắn.' },
+    witch: { n: 'Phù thủy', team: 'village', i: '🧪', d: 'Có 1 thuốc cứu và 1 thuốc độc cho cả ván, biết ai bị Sói cắn. Mỗi đêm dùng tối đa một thuốc.' },
+    hunter: { n: 'Thợ săn', team: 'village', i: '🏹', d: 'Khi chết vì Sói cắn hoặc bị treo cổ, được bắn mang theo một người. Chết vì thuốc độc thì không bắn được.' }
+  };
+  const JOBS = ['Người giữ rừng', 'Thợ làm bánh', 'Người bán hoa', 'Thợ rèn', 'Người hái thuốc', 'Người chăn cừu', 'Thợ may', 'Người đưa thư', 'Chủ quán trọ', 'Người làm vườn', 'Thợ mộc', 'Người gác cầu', 'Người chèo đò', 'Thầy đồ', 'Người kéo chuông', 'Bà mụ'];
+  const VILLAGES = [
+    ['Làng Sương', 'Đừng tin mọi lời thì thầm.', 'Sương dâng kín cây cầu đá. Trong quán trọ, một chiếc ghế còn ấm nhưng người ngồi đã biến mất. Chuông làng gọi mọi người về quảng trường.'],
+    ['Thung Lũng Trăng', 'Dưới cùng một vầng trăng, ai đang giấu nanh?', 'Đã ba đêm đàn cừu không chịu về chuồng. Trên cửa đình hằn vết móng vuốt. Già làng khoá cổng trước khi mặt trời lặn.'],
+    ['Bến Tro Tàn', 'Tro đã nguội. Bí mật thì chưa.', 'Cối xay cũ đứng im từ mùa đông. Có người thấy bóng đen sau khung cửa. Dân làng quây quanh đống lửa, đếm lại từng gương mặt quen.'],
+    ['Đồi Chuông', 'Chuông ngân một tiếng, làng vắng một người.', 'Người giữ tháp nhặt được chiếc áo rách ở bìa rừng, không ai nhận là của mình. Chuông chiều vang lên, mọi cánh cửa đều đóng.'],
+    ['Hồ Tĩnh Lặng', 'Mặt hồ không kể hết những gì nó thấy.', 'Một con thuyền không người trôi dạt vào bờ lúc rạng sáng. Trên mạn thuyền là dấu tay ướt. Cả làng im lặng nhìn nhau.']
+  ];
+  const T = { role: 15000, step: 30000, dummy: 3500, dawn: 7000, day: 120000, vote: 60000, verdict: 6000, hunter: 25000 };
+  const STEPS = ['guard', 'wolves', 'seer', 'witch'], STEP_ROLE = { guard: 'guard', seer: 'seer', witch: 'witch' };
+  const log = (S, t) => { S.log.push(t); if (S.log.length > 60) S.log.shift(); };
+  const alive = S => S.order.filter(i => S.alive[i]);
+  const has = (S, r) => alive(S).some(i => S.roles[i] === r);
+  function rolesFor(n, api) {
+    const w = n <= 6 ? 1 : n <= 9 ? 2 : n <= 12 ? 3 : 4, r = Array(w).fill('wolf');
+    r.push('seer', 'guard'); if (n >= 6) r.push('hunter'); if (n >= 7) r.push('witch');
+    while (r.length < n) r.push('villager'); return api.shuffle(r);
+  }
+
+  /* ---------- luật ---------- */
+  function startStep(S, step, now) {
+    S.phase = 'night'; S.step = step; S.acted = {};
+    const need = step === 'wolves' || has(S, STEP_ROLE[step]);
+    S.deadline = now + (need ? T.step : T.dummy); // vẫn chờ một chút khi vai đã chết để không lộ ai còn sống
+  }
+  function nextStep(S, now) { const i = STEPS.indexOf(S.step); i + 1 < STEPS.length ? startStep(S, STEPS[i + 1], now) : dawn(S, now); }
+  function resolveWolves(S, api) {
+    const c = {}; Object.values(S.wolfVotes).forEach(t => { c[t] = (c[t] || 0) + 1; });
+    const mx = Math.max(0, ...Object.values(c)), top = Object.keys(c).filter(k => c[k] === mx);
+    S.victim = top.length ? top[api.rnd(top.length)] : null;
+  }
+  function kill(S, id, how) { if (!S.alive[id]) return false; S.alive[id] = false; S.dead.push({ id, role: S.roles[id], how, day: S.day }); return true; }
+  function checkWin(S) {
+    const w = alive(S).filter(i => S.roles[i] === 'wolf').length, o = alive(S).length - w;
+    if (w === 0) S.over = { winner: 'village' }; else if (w >= o) S.over = { winner: 'wolf' };
+    if (!S.over) return false;
+    S.over.roles = S.roles; S.phase = 'end'; S.deadline = null;
+    log(S, S.over.winner === 'village' ? '🔥 Ngọn lửa làng vẫn cháy – Dân làng chiến thắng!' : '🌑 Màn sương nuốt trọn ngôi làng – Ma Sói chiến thắng!'); return true;
+  }
+  function dawn(S, now) {
+    const died = [];
+    if (S.victim && S.guardPick !== S.victim && !S.saved) died.push([S.victim, 'bite']);
+    if (S.poisoned && !died.some(d => d[0] === S.poisoned)) died.push([S.poisoned, 'poison']);
+    died.forEach(([id, how]) => kill(S, id, how));
+    S.news = died.map(([id, how]) => ({ id, role: S.roles[id], how }));
+    log(S, `☀️ Bình minh ngày ${S.day}: ` + (died.length ? died.map(([id]) => S.names[id] + ' (' + ROLES[S.roles[id]].n + ')').join(', ') + ' đã không qua khỏi đêm qua.' : 'không ai chết, sương tan dần.'));
+    const h = died.find(([id, how]) => S.roles[id] === 'hunter' && how !== 'poison');
+    S.victim = S.poisoned = S.guardPick = null; S.saved = false; S.wolfVotes = {};
+    S.phase = 'dawn'; S.deadline = now + T.dawn; S.after = h ? { hunter: h[0], next: 'day' } : { next: 'day' };
+  }
+  function afterDawn(S, now) {
+    if (checkWin(S)) return;
+    const a = S.after || {}; S.after = null;
+    if (a.hunter) { S.phase = 'hunter'; S.hunter = { id: a.hunter, next: a.next }; S.deadline = now + T.hunter; return; }
+    a.next === 'night' ? startNight(S, now) : startDay(S, now);
+  }
+  function startDay(S, now) { S.phase = 'day'; S.ready = {}; S.deadline = now + T.day; log(S, `🏛️ Hội đồng làng ngày ${S.day} bắt đầu.`); }
+  function startVote(S, now) { S.phase = 'vote'; S.votes = {}; S.voted = {}; S.deadline = now + T.vote; log(S, '🗳️ Bỏ phiếu treo cổ.'); }
+  function startNight(S, now) { S.day++; S.votes = {}; S.voted = {}; log(S, `🌙 Đêm ${S.day} buông xuống.`); startStep(S, 'guard', now); }
+  function tally(S, now) {
+    const c = {}; Object.values(S.votes).forEach(t => { if (t) c[t] = (c[t] || 0) + 1; });
+    const mx = Math.max(0, ...Object.values(c)), top = Object.keys(c).filter(k => c[k] === mx);
+    let hunter = null;
+    if (mx > 0 && top.length === 1) {
+      const id = top[0]; kill(S, id, 'hang'); S.verdict = { id, n: mx, role: S.roles[id] };
+      log(S, `⚖️ Làng treo cổ ${S.names[id]} với ${mx} phiếu – là ${ROLES[S.roles[id]].n}.`); if (S.roles[id] === 'hunter') hunter = id;
+    } else { S.verdict = { id: null, tie: top.length > 1 }; log(S, top.length > 1 ? '⚖️ Phiếu hoà – không ai bị treo cổ.' : '⚖️ Không ai nhận phiếu – làng tha cho mọi người.'); }
+    S.phase = 'verdict'; S.deadline = now + T.verdict; S.after = hunter ? { hunter, next: 'night' } : { next: 'night' };
+  }
+
+  /* ---------- bot ---------- */
+  function bot(S, id, api) {
+    if (S.over) return null;
+    const pick = a => a.length ? a[api.rnd(a.length)] : null;
+    if (S.phase === 'role') return S.seen[id] ? null : { t: 'seen' };
+    if (S.phase === 'hunter' && S.hunter && S.hunter.id === id) return { t: 'shoot', target: pick(alive(S).filter(i => i !== id && (S.roles[id] !== 'wolf'))) };
+    if (!S.alive[id]) return null;
+    const role = S.roles[id], al = alive(S), others = al.filter(i => i !== id);
+    if (S.phase === 'night') {
+      if (S.acted[id]) return null;
+      if (S.step === 'guard' && role === 'guard') return { t: 'guard', target: pick(al) };
+      if (S.step === 'wolves' && role === 'wolf') return { t: 'bite', target: pick(al.filter(i => S.roles[i] !== 'wolf')) };
+      if (S.step === 'seer' && role === 'seer') { const seen = (S.seerLog[id] || []).map(x => x.target); const t = pick(others.filter(i => !seen.includes(i))); return t ? { t: 'peek', target: t } : null; }
+      if (S.step === 'witch' && role === 'witch') {
+        if (S.victim && S.witch.heal && Math.random() < .55) return { t: 'witch', heal: true };
+        if (S.witch.poison && Math.random() < .12) return { t: 'witch', poison: pick(others) };
+        return { t: 'witch' };
+      }
+      return null;
+    }
+    if (S.phase === 'day') return S.ready[id] ? null : { t: 'ready' };
+    if (S.phase === 'vote') {
+      if (S.voted[id]) return null;
+      if (role === 'seer') { const w = (S.seerLog[id] || []).find(x => x.wolf && S.alive[x.target]); if (w) return { t: 'vote', target: w.target }; }
+      // bot nghiêng theo đa số đang có để ván không quá loạn
+      const c = {}; Object.values(S.votes).forEach(t => { if (t && t !== id) c[t] = (c[t] || 0) + 1; });
+      const lead = Object.keys(c).sort((a, b) => c[b] - c[a])[0];
+      let pool = role === 'wolf' ? others.filter(i => S.roles[i] !== 'wolf') : others;
+      if (lead && pool.includes(lead) && Math.random() < .6) return { t: 'vote', target: lead };
+      return { t: 'vote', target: pick(pool) };
+    }
+    return null;
+  }
+
+  /* ---------- hình chân dung (SVG tự vẽ, theo seed) ---------- */
+  const SKIN = ['#f1c9a5', '#e0ac85', '#c98e64', '#a86f4c', '#f5d6bd'], HAIR = ['#2b1d14', '#4a2f1d', '#6b4a2b', '#1c1c22', '#8a6a3c', '#5a3a4a', '#c9c2b8'], CLOTH = ['#3d5a5b', '#5b4a3a', '#4a3d5b', '#2f4a3a', '#5b3a3a', '#3a4a5b'];
+  function face(seed, st) {
+    let h = 0; for (const ch of String(seed)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const s = SKIN[h % 5], hr = HAIR[(h >> 3) % 7], cl = CLOTH[(h >> 6) % 6], style = (h >> 9) % 3;
+    const hair = style === 0 ? `<path d="M22 44c0-16 9-25 18-25s18 9 18 25c-3-9-9-13-18-13s-15 4-18 13z" fill="${hr}"/>`
+      : style === 1 ? `<path d="M20 50c-1-20 8-31 20-31s21 11 20 31l-4-1c0-12-6-18-16-19-10 1-16 7-16 19z" fill="${hr}"/>`
+        : `<path d="M24 40c1-13 8-20 16-20 9 0 15 7 16 20-5-5-10-7-16-7s-11 2-16 7z" fill="${hr}"/><path d="M22 34q18-20 36 0q-2-12-18-14q-16 2-18 14z" fill="${hr}" opacity=".8"/>`;
+    return `<svg viewBox="0 0 80 80" class="lsface${st === 'dead' ? ' dead' : ''}" aria-hidden="true"><defs><radialGradient id="g${h}" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#2a4048"/><stop offset="1" stop-color="#0f1b22"/></radialGradient></defs>
+<circle cx="40" cy="40" r="39" fill="url(#g${h})"/><path d="M14 80c2-15 12-22 26-22s24 7 26 22z" fill="${cl}"/><rect x="35" y="50" width="10" height="10" rx="4" fill="${s}"/><ellipse cx="40" cy="41" rx="14" ry="16" fill="${s}"/>${hair}
+<circle cx="35" cy="42" r="1.6" fill="#2a1e18"/><circle cx="45" cy="42" r="1.6" fill="#2a1e18"/><path d="M36 50q4 2.5 8 0" stroke="#7a4a3a" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`;
+  }
+
+  const CSS = `
+.ls{--bg:#0b141b;--pn:#111e27;--pn2:#162630;--ln:#ffffff14;--tx:#e6e8e4;--mu:#98a8ae;--gd:#dfbc7a;--gd2:#9e7944;--te:#88c8b7;--rd:#ec9290;--sf:Georgia,'Times New Roman',serif;
+  background:radial-gradient(120% 80% at 50% 0,#14252e,var(--bg));color:var(--tx);border-radius:18px;padding:14px;text-align:left;border:1px solid var(--ln)}
+.ls .lsh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ls .lsk{font:700 .68rem/1.4 system-ui;letter-spacing:.18em;color:var(--gd);text-transform:uppercase}
+.ls h3{font:400 1.55rem/1.15 var(--sf);margin:2px 0 2px;color:#f1ece2}.ls .lsq{font:italic 1rem var(--sf);color:var(--mu);margin:0}
+.ls .lsc{display:flex;gap:14px;text-align:center}.ls .lsc b{display:block;font:400 1.5rem var(--sf);color:var(--te)}.ls .lsc .d b{color:var(--rd)}.ls .lsc small{font-size:.7rem;color:var(--mu)}
+.ls .lsst{display:grid;grid-template-columns:repeat(5,1fr);margin:12px 0;border:1px solid var(--ln);border-radius:12px;overflow:hidden;background:#0d1820}
+.ls .lsst span{padding:7px 4px;font-size:.72rem;color:var(--mu);text-align:center;border-right:1px solid var(--ln)}.ls .lsst span:last-child{border:0}.ls .lsst span.on{color:var(--gd);background:#dfbc7a1a;font-weight:700}
+.ls .lstb{display:flex;gap:4px;border-bottom:1px solid var(--ln);margin-bottom:10px;overflow-x:auto}.ls .lstb button{background:none;border:0;color:var(--mu);padding:8px 10px;font:600 .85rem system-ui;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}.ls .lstb button.on{color:var(--gd);border-color:var(--gd)}
+.ls .lsscene{background:linear-gradient(#162630cc,#0f1b22ee);border:1px solid var(--ln);border-radius:16px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.ls .lsscene.night{background:linear-gradient(#0b1424,#0a1018);}.ls .lsscene .em{font-size:2rem;animation:lsfl 2.4s ease-in-out infinite}@keyframes lsfl{50%{transform:translateY(-3px) scale(1.06)}}
+.ls .lsscene .lsn{font:italic 1.08rem/1.45 var(--sf);color:#efe8da;margin:6px 0}.ls .lsm{font-size:.78rem;color:var(--mu)}.ls .lstime{color:var(--gd);font-weight:700}
+.ls .lsact{margin:10px 0;padding:10px;border:1px solid #dfbc7a55;border-radius:14px;background:#dfbc7a12;text-align:center}.ls .lsact b{font:400 1.08rem var(--sf);color:var(--gd)}
+.ls .lsbtn{background:var(--gd);color:#1b1408;border:0;border-radius:10px;padding:9px 14px;font:700 .9rem system-ui;cursor:pointer;margin:4px}.ls .lsbtn.alt{background:transparent;color:var(--tx);border:1px solid var(--ln)}.ls .lsbtn:disabled{opacity:.4}
+.ls .lsgr{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));min-width:0;gap:8px;margin-top:10px}
+.ls .lsp{min-width:0;position:relative;background:#132129;border:1px solid var(--ln);border-radius:14px;padding:6px 6px 8px;text-align:center;cursor:default;transition:transform .15s,border-color .15s}
+.ls .lsp.can{cursor:pointer;border-color:#dfbc7a66}.ls .lsp.can:hover{transform:translateY(-2px);border-color:var(--gd)}.ls .lsp.sel{border-color:var(--gd);box-shadow:0 0 0 2px #dfbc7a55}
+.ls .lsp.isdead{opacity:.55}.ls .lsp.ally{border-color:#ec929088}.ls .lsp svg{width:62px;height:62px;display:block;margin:2px auto}.ls .lsface.dead{filter:grayscale(1) brightness(.6)}
+.ls .lsp b{display:block;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ls .lsp small{display:block;font-size:.66rem;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls .lstag{position:absolute;top:4px;right:6px;font:800 .58rem system-ui;letter-spacing:.08em;color:var(--gd)}.ls .lsvc{position:absolute;top:4px;left:5px;background:var(--rd);color:#250c0c;border-radius:99px;font:800 .68rem system-ui;padding:1px 6px}
+.ls .lsnote{position:absolute;bottom:36px;right:6px;font-size:.9rem}.ls .lsdie{font-size:.66rem;color:var(--rd)}
+.ls .lsrole{display:flex;gap:12px;align-items:center;background:#132129;border:1px solid #dfbc7a44;border-radius:16px;padding:12px}.ls .lsrole .ri{font-size:2.6rem}.ls .lsrole h4{margin:0;font:400 1.3rem var(--sf);color:var(--gd)}.ls .lsrole p{margin:4px 0 0;font-size:.86rem;color:#cfd6d4}
+.ls .lslog{font-size:.84rem;line-height:1.55;color:#cfd6d4;max-height:320px;overflow:auto}.ls .lslog div{border-bottom:1px solid var(--ln);padding:4px 0}
+.ls .lswc{margin-top:8px;text-align:left}.ls .lswc .cl{max-height:110px;overflow:auto;font-size:.82rem;background:#0d1820;border-radius:10px;padding:6px}.ls .lswc input{width:100%;margin-top:4px;font-size:16px}
+.ls .lsrl div{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln)}.ls .lsrl span{font-size:1.5rem}.ls .lsrl p{margin:2px 0 0;font-size:.82rem;color:#cfd6d4}
+.ls .lsend{text-align:center;padding:12px;border-radius:14px;margin:8px 0;font:400 1.3rem var(--sf)}.ls .lsend.v{background:#88c8b722;color:var(--te)}.ls .lsend.w{background:#ec929022;color:var(--rd)}
+@media(max-width:600px){.ls{padding:10px;border-radius:14px}.ls h3{font-size:1.25rem}.ls .lsst span{font-size:.62rem;padding:6px 2px}.ls .lsgr{grid-template-columns:repeat(4,1fr);gap:6px}.ls .lsp svg{width:48px;height:48px}.ls .lsp b{font-size:.76rem}.ls .lsscene .lsn{font-size:.98rem}}
+@media(max-width:380px){.ls .lsgr{grid-template-columns:repeat(3,1fr)}}`;
+
+  const NOTE = ['', '🐺', '✅', '❓']; // ghi chú cá nhân trên thẻ (lưu trên máy)
+
+  GV.mp.define({
+    id: 'langsuong', name: 'Ma Sói · Lời Nguyền Làng Sương', icon: '🌫️', min: 5, max: 16, css: CSS,
+    desc: 'Ma Sói online nhiều người theo phong cách truyện: nhận vai, đêm sương, bình minh, hội đồng làng, bỏ phiếu. 6 vai, 5–16 người, thiếu người có bot.',
+    init(seats, api) {
+      const now = Date.now(), roles = rolesFor(seats.length, api), v = api.rnd(VILLAGES.length), jobs = api.shuffle(JOBS.slice());
+      const S = { order: seats.map(s => s.id), names: Object.fromEntries(seats.map(s => [s.id, s.name])), jobs: {}, roles: {}, alive: {}, dead: [], day: 1, log: [], over: null,
+        phase: 'role', step: null, deadline: now + T.role, seen: {}, acted: {}, wolfVotes: {}, victim: null, saved: false, poisoned: null, guardPick: null,
+        witch: { heal: 1, poison: 1 }, seerLog: {}, votes: {}, voted: {}, ready: {}, hunter: null, news: [], verdict: null, village: v, wchat: [] };
+      S.order.forEach((id, i) => { S.roles[id] = roles[i]; S.alive[id] = true; S.jobs[id] = jobs[i % jobs.length]; });
+      log(S, `📜 ${VILLAGES[v][0]}: ${roles.filter(r => r === 'wolf').length} Ma Sói đang ẩn mình giữa ${seats.length} người.`);
+      return S;
+    },
+    reduce(S, id, a, api) {
+      if (S.over) return 'Ván đã kết thúc.';
+      const now = Date.now(), role = S.roles[id], ok = t => t && S.alive[t];
+      if (S.phase === 'role') { if (a.t === 'seen') { S.seen[id] = 1; if (S.order.every(i => S.seen[i])) startStep(S, 'guard', now); } return; }
+      if (S.phase === 'hunter') {
+        if (!S.hunter || S.hunter.id !== id || a.t !== 'shoot') return 'Đang chờ Thợ săn.';
+        if (a.target) { if (!ok(a.target) || a.target === id) return 'Mục tiêu không hợp lệ.'; kill(S, a.target, 'shot'); S.news = [{ id: a.target, role: S.roles[a.target], how: 'shot' }]; log(S, `🏹 Thợ săn ${S.names[id]} bắn ${S.names[a.target]} – là ${ROLES[S.roles[a.target]].n}.`); }
+        else log(S, `🏹 Thợ săn ${S.names[id]} hạ cung, không bắn ai.`);
+        const nx = S.hunter.next; S.hunter = null; if (checkWin(S)) return; nx === 'night' ? startNight(S, now) : startDay(S, now); return;
+      }
+      if (!S.alive[id]) return 'Bạn đã chết, hãy dõi theo ván chơi.';
+      if (a.t === 'wchat') { if (role !== 'wolf' || S.phase !== 'night') return 'Chỉ Sói nói chuyện được trong đêm.'; const tx = String(a.text || '').trim().slice(0, 120); if (tx) { S.wchat.push({ id, tx }); if (S.wchat.length > 30) S.wchat.shift(); } return; }
+      if (S.phase === 'night') {
+        if (S.acted[id]) return 'Bạn đã hành động đêm nay.';
+        if (S.step === 'guard' && role === 'guard' && a.t === 'guard') { if (a.target && !ok(a.target)) return 'Mục tiêu không hợp lệ.'; S.guardPick = a.target || null; S.acted[id] = 1; nextStep(S, now); return; }
+        if (S.step === 'wolves' && role === 'wolf' && a.t === 'bite') {
+          if (!ok(a.target) || S.roles[a.target] === 'wolf') return 'Hãy chọn một người không phải Sói.';
+          S.wolfVotes[id] = a.target; S.acted[id] = 1;
+          if (alive(S).filter(i => S.roles[i] === 'wolf').every(i => S.wolfVotes[i])) { resolveWolves(S, api); nextStep(S, now); }
+          return;
+        }
+        if (S.step === 'seer' && role === 'seer' && a.t === 'peek') {
+          if (!ok(a.target) || a.target === id) return 'Hãy chọn một người khác còn sống.';
+          (S.seerLog[id] = S.seerLog[id] || []).push({ target: a.target, wolf: S.roles[a.target] === 'wolf', day: S.day }); S.acted[id] = 1; S.deadline = Math.min(S.deadline, now + 5000); return;
+        }
+        if (S.step === 'witch' && role === 'witch' && a.t === 'witch') {
+          if (a.heal && a.poison) return 'Mỗi đêm chỉ dùng một thuốc.';
+          if (a.heal) { if (!S.witch.heal || !S.victim) return 'Không thể dùng thuốc cứu.'; S.saved = true; S.witch.heal = 0; }
+          if (a.poison) { if (!S.witch.poison || !ok(a.poison) || a.poison === id) return 'Không thể dùng thuốc độc.'; S.poisoned = a.poison; S.witch.poison = 0; }
+          S.acted[id] = 1; nextStep(S, now); return;
+        }
+        return 'Chưa đến lượt của bạn.';
+      }
+      if (S.phase === 'day') { if (a.t === 'ready') { S.ready[id] = 1; return; } return 'Hội đồng đang thảo luận.'; }
+      if (S.phase === 'vote') {
+        if (a.t !== 'vote') return;
+        if (a.target && (!ok(a.target) || a.target === id)) return 'Phiếu không hợp lệ.';
+        S.votes[id] = a.target || null; S.voted[id] = 1; return;
+      }
+      return 'Hãy chờ một chút.';
+    },
+    tick(S, now) {
+      if (S.over || !S.deadline) return false;
+      const al = alive(S);
+      if (S.phase === 'day' && al.every(i => S.ready[i])) { startVote(S, now); return true; }
+      if (S.phase === 'vote' && al.every(i => S.voted[i])) { tally(S, now); return true; }
+      if (now < S.deadline) return false;
+      if (S.phase === 'role') startStep(S, 'guard', now);
+      else if (S.phase === 'night') { if (S.step === 'wolves') resolveWolves(S, { rnd: n => Math.floor(Math.random() * n) }); nextStep(S, now); }
+      else if (S.phase === 'dawn' || S.phase === 'verdict') afterDawn(S, now);
+      else if (S.phase === 'day') startVote(S, now);
+      else if (S.phase === 'vote') tally(S, now);
+      else if (S.phase === 'hunter') { log(S, '🏹 Thợ săn không kịp bắn.'); const nx = S.hunter.next; S.hunter = null; if (!checkWin(S)) nx === 'night' ? startNight(S, now) : startDay(S, now); }
+      return true;
+    },
+    bot,
+    pub(S) {
+      return { phase: S.phase, step: S.phase === 'night' ? S.step : null, day: S.day, deadline: S.deadline, order: S.order, names: S.names, jobs: S.jobs, alive: S.alive, dead: S.dead,
+        log: S.log.slice(-30), village: S.village, news: S.phase === 'dawn' || S.phase === 'hunter' ? S.news : null, verdict: S.phase === 'verdict' ? S.verdict : null,
+        votes: S.phase === 'vote' || S.phase === 'verdict' ? S.votes : null, voted: S.phase === 'vote' ? Object.keys(S.voted).length : 0, ready: S.phase === 'day' ? Object.keys(S.ready).length : 0,
+        seen: S.phase === 'role' ? Object.keys(S.seen).length : 0, hunter: S.hunter ? S.hunter.id : null, over: S.over, turn: null };
+    },
+    priv(S, id) {
+      const role = S.roles[id], p = { role, alive: !!S.alive[id], act: null };
+      if (role === 'wolf') { p.allies = S.order.filter(i => S.roles[i] === 'wolf' && i !== id); p.wchat = S.wchat.slice(-20); if (S.phase === 'night' && S.step === 'wolves') p.picks = S.wolfVotes; }
+      if (role === 'seer') p.seer = S.seerLog[id] || [];
+      if (role === 'witch') p.potions = S.witch;
+      if (S.over) return p;
+      if (S.phase === 'role' && !S.seen[id]) p.act = 'seen';
+      if (S.phase === 'hunter' && S.hunter && S.hunter.id === id) p.act = 'shoot';
+      if (!S.alive[id]) return p;
+      if (S.phase === 'night' && !S.acted[id]) {
+        if (S.step === 'guard' && role === 'guard') p.act = 'guard';
+        if (S.step === 'wolves' && role === 'wolf') p.act = 'bite';
+        if (S.step === 'seer' && role === 'seer') p.act = 'peek';
+        if (S.step === 'witch' && role === 'witch') { p.act = 'witch'; p.victim = S.witch.heal ? S.victim : null; }
+      }
+      if (S.phase === 'day' && !S.ready[id]) p.act = 'ready';
+      if (S.phase === 'vote' && !S.voted[id]) p.act = 'vote';
+      return p;
+    },
+    summary(S) { return { title: S.over.winner === 'village' ? '🔥 Dân làng thắng' : '🐺 Ma Sói thắng', lines: S.order.map(i => `${S.names[i]}: ${ROLES[S.roles[i]].i} ${ROLES[S.roles[i]].n}${S.alive[i] ? '' : ' (đã chết)'}`) }; },
+    render(box, c) {
+      const p = c.pub, me = c.priv || {}, ui = c.ui, al = p.order.filter(i => (p.alive || {})[i]), dead = p.dead || [], V = VILLAGES[p.village || 0];
+      const nm = i => c.esc((p.names || {})[i] || c.names[i] || '?'), R = me.role ? ROLES[me.role] : null;
+      ui.tab = ui.tab || 'board'; if (ui.lastAct !== me.act) { ui.sel = null; ui.lastAct = me.act; }
+      const notes = GV.store.get('ls_notes_' + c.code + '_' + c.round, {});
+      const dl = p.deadline ? ` · <span class="lstime" data-dl="${p.deadline}"></span>` : '';
+      const stepIdx = { role: 0, night: 1, dawn: 2, hunter: 2, day: 3, vote: 4, verdict: 4, end: 4 }[p.phase];
+      const stepper = ['Nhận vai', 'Đêm ' + p.day, 'Bình minh', 'Hội đồng', 'Bỏ phiếu'].map((t, i) => `<span class="${i === stepIdx && !p.over ? 'on' : ''}">${t}</span>`).join('');
+      const deadHow = { bite: 'bị Sói cắn', poison: 'trúng độc', hang: 'bị treo cổ', shot: 'bị bắn' };
+      // lời dẫn từng pha
+      let em = '🔥', nar = '', meta = '', night = false;
+      const STEP_TXT = { guard: 'Người Bảo vệ thức giấc, lặng lẽ chọn người để che chở…', wolves: 'Tiếng hú vọng từ rừng. Bầy Sói đang chọn con mồi…', seer: 'Tiên tri nhìn vào quả cầu, tìm kiếm sự thật…', witch: 'Phù thủy mở hòm thuốc dưới ánh trăng…' };
+      if (p.over) { em = p.over.winner === 'village' ? '🔥' : '🌑'; nar = p.over.winner === 'village' ? 'Bình minh trở lại. Lời nguyền đã tan.' : 'Sương đặc quánh. Không còn ai thắp đèn nữa.'; }
+      else if (p.phase === 'role') { em = '📜'; nar = V[2]; meta = `Đã xem vai: ${p.seen}/${p.order.length}${dl}`; }
+      else if (p.phase === 'night') { em = '🌙'; night = true; nar = STEP_TXT[p.step] || 'Cả làng chìm trong giấc ngủ…'; meta = `Đêm ${p.day}${dl}`; }
+      else if (p.phase === 'dawn' || p.phase === 'hunter') { em = '🌅'; const nw = p.news || []; nar = nw.length ? nw.map(d => `${nm(d.id)} đã ${deadHow[d.how] || 'chết'}. Họ là ${ROLES[d.role].n}.`).join(' ') : 'Sương tan. Đêm qua không ai mất mạng.'; meta = p.phase === 'hunter' ? `🏹 ${nm(p.hunter)} là Thợ săn – đang giương cung…${dl}` : `Ngày ${p.day}${dl}`; }
+      else if (p.phase === 'day') { em = '🏛️'; nar = 'Dân làng tụ về quảng trường. Ai đang nói dối?'; meta = `Thảo luận ở Chat · sẵn sàng ${p.ready}/${al.length}${dl}`; }
+      else if (p.phase === 'vote') { em = '🗳️'; nar = 'Mỗi người một lá phiếu. Chọn người đáng nghi nhất.'; meta = `Đã bỏ phiếu ${p.voted}/${al.length}${dl}`; }
+      else if (p.phase === 'verdict') { em = '⚖️'; const v = p.verdict || {}; nar = v.id ? `Với ${v.n} phiếu, ${nm(v.id)} bị đưa lên giàn treo. Họ là ${ROLES[v.role].n}.` : v.tie ? 'Phiếu chia đôi. Làng chưa thể quyết định.' : 'Không ai bị buộc tội hôm nay.'; meta = dl.replace(' · ', ''); }
+      // hành động của tôi
+      let act = '', can = () => false;
+      const sel = id => `${ui.sel === id ? 'sel' : ''}`;
+      switch (me.act) {
+        case 'seen': act = `<b>Bạn là ${R.i} ${R.n}</b><p style="margin:6px 0;font-size:.86rem">${R.d}</p>${me.allies && me.allies.length ? `<p class="lsdie">Đồng bọn: ${me.allies.map(nm).join(', ')}</p>` : ''}<button class="lsbtn" data-a="seen">Tôi đã nhớ vai</button>`; break;
+        case 'guard': act = '<b>Che chở ai đêm nay?</b><div class="lsm">Chạm vào một thẻ (có thể chọn bản thân)</div><button class="lsbtn alt" data-a="guard-none">Không bảo vệ ai</button>'; can = i => true; break;
+        case 'bite': act = `<b>Cắn ai đêm nay?</b>${Object.keys(me.picks || {}).length ? `<div class="lsm">Bầy đã chọn: ${Object.entries(me.picks).map(([k, v]) => nm(k) + ' → ' + nm(v)).join(', ')}</div>` : '<div class="lsm">Chạm vào thẻ con mồi</div>'}`; can = i => i !== c.me && !(me.allies || []).includes(i); break;
+        case 'peek': act = '<b>Soi ai đêm nay?</b><div class="lsm">Chạm vào một thẻ</div>'; can = i => i !== c.me; break;
+        case 'witch': act = `<b>Hòm thuốc của Phù thủy</b><div style="margin:4px 0">${me.victim ? `Đêm nay <b>${nm(me.victim)}</b> bị Sói cắn.` : 'Bạn không thấy nạn nhân nào (hoặc đã hết thuốc cứu).'}</div>${me.victim ? '<button class="lsbtn" data-a="heal">💧 Dùng thuốc cứu</button>' : ''}<button class="lsbtn alt" data-a="witch-skip">Không dùng thuốc</button>${me.potions && me.potions.poison ? '<div class="lsm">…hoặc chạm vào một thẻ để dùng ☠️ thuốc độc</div>' : ''}`; can = i => me.potions && me.potions.poison && i !== c.me; break;
+        case 'ready': act = '<b>Hội đồng làng</b><div class="lsm">Trao đổi ở khung Chat bên dưới, rồi báo sẵn sàng.</div><button class="lsbtn" data-a="ready">Sẵn sàng bỏ phiếu</button>'; break;
+        case 'vote': act = '<b>Bỏ phiếu treo cổ</b><div class="lsm">Chạm vào thẻ người bạn nghi ngờ</div><button class="lsbtn alt" data-a="vote-skip">Bỏ phiếu trắng</button>'; can = i => i !== c.me; break;
+        case 'shoot': act = '<b>🏹 Bạn là Thợ săn – bắn một người trước khi gục ngã</b><div class="lsm">Chạm vào một thẻ</div><button class="lsbtn alt" data-a="shoot-none">Không bắn</button>'; can = i => i !== c.me; break;
+      }
+      if (!act && !p.over && me.alive !== false && night) act = '<div class="lsm">😴 Nhắm mắt lại… chờ trời sáng.</div>';
+      if (!act && me.alive === false && !p.over) act = '<div class="lsm">👻 Bạn đã chết. Hãy dõi theo, đừng tiết lộ gì trong Chat nhé.</div>';
+      // đếm phiếu
+      const vc = {}; Object.values(p.votes || {}).forEach(t => { if (t) vc[t] = (vc[t] || 0) + 1; });
+      const seerMap = Object.fromEntries((me.seer || []).map(x => [x.target, x.wolf]));
+      const cards = p.order.map(i => {
+        const dd = dead.find(d => d.id === i), isMe = i === c.me, isAlly = (me.allies || []).includes(i), ck = !dd && can(i);
+        const tag = isMe ? 'BẠN' : isAlly ? 'SÓI' : seerMap[i] === true ? '🐺 SÓI' : seerMap[i] === false ? '✓ NGƯỜI' : '';
+        const roleTxt = dd ? `<span class="lsdie">${ROLES[dd.role].i} ${ROLES[dd.role].n} · ${deadHow[dd.how] || ''}</span>` : p.over ? `${ROLES[p.over.roles[i]].i} ${ROLES[p.over.roles[i]].n}` : c.esc((p.jobs || {})[i] || '');
+        return `<div class="lsp${dd ? ' isdead' : ''}${ck ? ' can' : ''}${isAlly ? ' ally' : ''} ${sel(i)}" data-pid="${i}">${vc[i] ? `<span class="lsvc">${vc[i]}</span>` : ''}${tag ? `<span class="lstag">${tag}</span>` : ''}${face(i, dd ? 'dead' : '')}${notes[i] ? `<span class="lsnote">${NOTE[notes[i]]}</span>` : ''}<b>${nm(i)}</b><small>${roleTxt}</small></div>`;
+      }).join('');
+      const tabs = [['board', 'Bàn chơi'], ['me', 'Vai của tôi'], ['book', 'Sổ tay'], ['rules', 'Luật']].map(([k, t]) => `<button data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('');
+      let body = '';
+      if (ui.tab === 'board') {
+        body = `<div class="lsscene${night ? ' night' : ''}"><div class="em">${em}</div><div class="lsn">“${c.esc(nar)}”</div><div class="lsm">${meta}</div></div>
+${p.over ? `<div class="lsend ${p.over.winner === 'village' ? 'v' : 'w'}">${p.over.winner === 'village' ? '🔥 Dân làng chiến thắng' : '🐺 Ma Sói chiến thắng'}</div>` : ''}
+${act ? `<div class="lsact">${act}</div>` : ''}
+${me.role === 'wolf' && p.phase === 'night' && me.alive ? `<div class="lswc"><div class="lsm">🐺 Thì thầm cùng bầy (chỉ Sói thấy)</div><div class="cl">${(me.wchat || []).map(m => `<div><b>${nm(m.id)}:</b> ${c.esc(m.tx)}</div>`).join('') || '<span class="lsm">Chưa có lời nào.</span>'}</div><input class="lswi" maxlength="120" placeholder="Nhắn cho bầy… (Enter để gửi)"></div>` : ''}
+<div class="lsgr">${cards}</div><div class="lsm" style="margin-top:6px">Giữ lâu/nhấn đúp vào thẻ để ghi chú riêng: 🐺 nghi Sói · ✅ tin tưởng · ❓ chưa rõ (chỉ bạn thấy).</div>`;
+      } else if (ui.tab === 'me') {
+        body = R ? `<div class="lsrole"><div class="ri">${R.i}</div><div><h4>${R.n}${me.alive === false ? ' · đã chết' : ''}</h4><p>${R.d}</p><p class="lsm">Phe: ${R.team === 'wolf' ? 'Ma Sói' : 'Dân làng'}</p></div></div>
+${me.allies && me.allies.length ? `<p>🐺 Đồng bọn: <b>${me.allies.map(nm).join(', ')}</b></p>` : ''}
+${me.seer ? `<p>🔮 Kết quả soi: ${me.seer.length ? me.seer.map(x => `${nm(x.target)} (đêm ${x.day}) = ${x.wolf ? '<b style="color:var(--rd)">SÓI</b>' : '<b style="color:var(--te)">không phải Sói</b>'}`).join(' · ') : 'chưa soi ai.'}</p>` : ''}
+${me.potions ? `<p>🧪 Thuốc còn lại: cứu ${me.potions.heal ? '✔' : '✘'} · độc ${me.potions.poison ? '✔' : '✘'}</p>` : ''}` : '<p class="lsm">Chưa có vai.</p>';
+      } else if (ui.tab === 'book') {
+        body = `<div class="lslog">${(p.log || []).slice().reverse().map(l => `<div>${c.esc(l)}</div>`).join('')}</div>`;
+      } else {
+        body = `<div class="lsrl">${Object.values(ROLES).map(r => `<div><span>${r.i}</span><div><b>${r.n}</b> <span class="lsm">(${r.team === 'wolf' ? 'phe Sói' : 'phe Dân'})</span><p>${r.d}</p></div></div>`).join('')}</div>
+<p class="lsm">Dân làng thắng khi loại hết Sói. Sói thắng khi số Sói còn sống bằng hoặc nhiều hơn số người còn lại. Người chết lộ vai. Phiếu hoà thì không ai bị treo.</p>`;
+      }
+      box.innerHTML = `<div class="ls"><div class="lsh"><div><div class="lsk">Lời nguyền · ván ${c.round}</div><h3>${c.esc(V[0])}</h3><p class="lsq">${c.esc(V[1])}</p></div>
+<div class="lsc"><div><b>${al.length}</b><small>Còn sống</small></div><div class="d"><b>${String(dead.length).padStart(2, '0')}</b><small>Đã chết</small></div></div></div>
+<div class="lsst">${stepper}</div><div class="lstb">${tabs}</div>${body}</div>`;
+      const wi = box.querySelector('.lswi');
+      if (wi) { if (ui.wtext) wi.value = ui.wtext; wi.oninput = () => { ui.wtext = wi.value; }; wi.onkeydown = e => { if (e.key === 'Enter' && wi.value.trim()) { c.send({ t: 'wchat', text: wi.value.trim() }); ui.wtext = ''; wi.value = ''; } }; if (ui.wfocus) { wi.focus(); } wi.onfocus = () => { ui.wfocus = 1; }; wi.onblur = () => { ui.wfocus = 0; }; }
+      const setNote = id => { const n = GV.store.get('ls_notes_' + c.code + '_' + c.round, {}); n[id] = ((n[id] || 0) + 1) % NOTE.length; GV.store.set('ls_notes_' + c.code + '_' + c.round, n); this_render(); };
+      const this_render = () => { const def = GV.mp.defs.langsuong; def.render(box, c); };
+      let pressT = null, longFired = false;
+      box.onpointerdown = e => { const pc = e.target.closest('.lsp'); if (!pc) return; longFired = false; clearTimeout(pressT); pressT = setTimeout(() => { longFired = true; setNote(pc.dataset.pid); }, 550); };
+      box.onpointerup = box.onpointerleave = () => clearTimeout(pressT);
+      box.ondblclick = e => { const pc = e.target.closest('.lsp'); if (pc) setNote(pc.dataset.pid); };
+      box.onclick = e => {
+        const tb = e.target.closest('[data-tab]'); if (tb) { ui.tab = tb.dataset.tab; return this_render(); }
+        const a = e.target.closest('[data-a]'), pc = e.target.closest('.lsp.can');
+        if (pc && !longFired && me.act) {
+          const id = pc.dataset.pid; ui.sel = id;
+          const m = { guard: { t: 'guard', target: id }, bite: { t: 'bite', target: id }, peek: { t: 'peek', target: id }, witch: { t: 'witch', poison: id }, vote: { t: 'vote', target: id }, shoot: { t: 'shoot', target: id } }[me.act];
+          if (m && (me.act !== 'witch' || confirm('Dùng thuốc độc lên ' + ((p.names || {})[id] || '') + '?'))) c.send(m);
+          return this_render();
+        }
+        if (!a) return;
+        const k = a.dataset.a, M = { seen: { t: 'seen' }, 'guard-none': { t: 'guard', target: null }, heal: { t: 'witch', heal: true }, 'witch-skip': { t: 'witch' }, ready: { t: 'ready' }, 'vote-skip': { t: 'vote', target: null }, 'shoot-none': { t: 'shoot', target: null } };
+        if (M[k]) c.send(M[k]);
+      };
+    }
+  });
+  GV.lsT = { ROLES, rolesFor, VILLAGES, face };
+})();
