@@ -78,7 +78,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Chỉ tạo PR khi được yêu cầu.
 
 ## 6. Thiết kế giao diện hiện tại
-- **Material Design 3** thuần CSS (không MUI/React): token `--md-*` (màu, surface 5 tầng), biến cũ ánh xạ sang token; font **Roboto** tự host (`css/fonts`); dark mặc định, light qua nút đổi (`data-theme=light`, lưu `gv_theme`).
+- **Material Design 3** thuần CSS (không MUI/React): token `--md-*` (màu, surface 5 tầng), biến cũ ánh xạ sang token; font **Roboto** tự host (`css/fonts`); dark mặc định (tông ĐÊM SƯƠNG: nền xanh đêm #0b141b, nhấn vàng #dfbc7a, tiêu đề serif, sao/trăng ở hero), light qua nút đổi (`data-theme=light`, lưu `gv_theme`).
 - Bố cục: top app bar + ô tìm kiếm (`#q`) · **navigation rail** trái (≥600px) · **bottom bar 5 mục** (<600px, ẩn khi đang chơi, class `body.ingame`) · FAB "Chơi ngẫu nhiên" · hero gọn có 4 thẻ game · "Đang hot" dạng bento (thẻ đầu 2×2, tối đa 9) · "Chơi gần đây" thẻ ngang · lưới thẻ game.
 - **Nút/chip/banner dùng màu rgba trong suốt** (biến `--t-p`, `--t-n`, `--t-ok`, `--t-bad`…), banner `.annc` info/warn/success dạng rgba. **Nền thẻ `.card .art .bg` dùng pastel trong suốt** theo hue thể loại (`--h`).
 - Nhãn nút thẻ theo loại: game → **Chơi / Chơi ngay**, học tập → **Học / Học ngay**, tiện ích → **Dùng thử** (`verbOf` trong `app.js`).

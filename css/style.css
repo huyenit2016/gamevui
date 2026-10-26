@@ -4,18 +4,19 @@
    Không dùng thư viện: chỉ CSS thuần theo quy chuẩn Material 3 (màu, hình khối, state layer, ripple, elevation).
    ========================================================= */
 :root{
-  --md-primary:#D0BCFF;--md-on-primary:#381E72;--md-primary-container:#4F378B;--md-on-primary-container:#EADDFF;
-  --md-secondary-container:#4A4458;--md-on-secondary-container:#E8DEF8;--md-tertiary:#EFB8C8;
-  --md-surface:#141316;--md-sc-lowest:#0F0E11;--md-sc-low:#1C1B1F;--md-sc:#211F23;--md-sc-high:#2B292D;--md-sc-highest:#363438;
-  --md-on-surface:#E6E1E5;--md-on-surface-var:#CAC4D0;--md-outline:#938F99;--md-outline-var:#49454F;
-  --md-error:#F2B8B5;--md-on-error:#601410;--md-inverse-surface:#E6E1E5;--md-inverse-on-surface:#313033;--md-inverse-primary:#6750A4;
+  /* tông ĐÊM SƯƠNG (theo Ma Sói · Lời Nguyền Làng Sương): nền xanh đêm, nhấn vàng */
+  --md-primary:#DFBC7A;--md-on-primary:#1B1408;--md-primary-container:#3A2F18;--md-on-primary-container:#F3DFB4;
+  --md-secondary-container:#1B3347;--md-on-secondary-container:#CFE3F2;--md-tertiary:#88C8B7;
+  --md-surface:#0B141B;--md-sc-lowest:#070E13;--md-sc-low:#0F1A24;--md-sc:#132232;--md-sc-high:#182B3B;--md-sc-highest:#1F3548;
+  --md-on-surface:#E6E8E4;--md-on-surface-var:#B9C4C8;--md-outline:#7E9098;--md-outline-var:#2B3F4F;
+  --md-error:#F2B8B5;--md-on-error:#601410;--md-inverse-surface:#E6E1E5;--md-inverse-on-surface:#313033;--md-inverse-primary:#8A6A2C;
   /* tên cũ mà các game/tiện ích đang dùng -> ánh xạ sang token Material */
   --bg:var(--md-surface);--surface:var(--md-sc-low);--card:var(--md-sc-low);--card2:var(--md-sc-high);--inp:var(--md-sc-lowest);
-  --line:rgba(202,196,208,.14);--fg:var(--md-on-surface);--mut:var(--md-on-surface-var);--mut2:var(--md-outline);
-  --acc:var(--md-primary);--acc-h:var(--md-primary);--acc2:#7FCFFF;--warn:#FFB74D;--ok:#6DD58C;--bad:#F2B8B5;
-  --grad:linear-gradient(135deg,#6750A4,#7F67BE);
+  --line:rgba(255,255,255,.09);--fg:var(--md-on-surface);--mut:var(--md-on-surface-var);--mut2:var(--md-outline);
+  --acc:var(--md-primary);--acc-h:var(--md-primary);--acc2:#8FC8FF;--warn:#FFB74D;--ok:#6DD58C;--bad:#F2B8B5;
+  --grad:linear-gradient(135deg,#B8924A,#DFBC7A);
   /* nút/chip/banner dạng màu trong suốt (rgba): nền nhạt + viền cùng tông */
-  --t-p:rgba(139,92,246,.18);--t-pb:rgba(139,92,246,.45);--t-pt:#DCD0FF;--t-n:rgba(255,255,255,.06);--t-nb:rgba(255,255,255,.14);
+  --t-p:rgba(223,188,122,.14);--t-pb:rgba(223,188,122,.42);--t-pt:#F0DDB0;--t-n:rgba(255,255,255,.06);--t-nb:rgba(255,255,255,.14);
   --t-ok:rgba(34,197,94,.12);--t-okb:rgba(34,197,94,.4);--t-okt:#86EFAC;--t-bad:rgba(239,68,68,.12);--t-badb:rgba(239,68,68,.4);--t-badt:#FCA5A5;
   --r:16px;--r-sm:12px;--r-lg:28px;
   --e1:0 1px 2px rgba(0,0,0,.3),0 1px 3px 1px rgba(0,0,0,.15);--e2:0 1px 2px rgba(0,0,0,.3),0 2px 6px 2px rgba(0,0,0,.15);--e3:0 1px 3px rgba(0,0,0,.3),0 4px 8px 3px rgba(0,0,0,.15);
@@ -39,7 +40,7 @@
 @font-face{font-family:"Roboto";font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/roboto-latin-wght-normal.woff2) format("woff2-variations");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}html{scroll-behavior:smooth}
-body{background:var(--md-surface);color:var(--md-on-surface);font:400 16px/1.5 var(--font);letter-spacing:.01em;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+body{background:radial-gradient(1100px 520px at 85% -8%,#16283a 0,transparent 62%),radial-gradient(900px 480px at 0 100%,#101e2b 0,transparent 60%),var(--md-surface);background-attachment:fixed;color:var(--md-on-surface);font:400 16px/1.5 var(--font);letter-spacing:.01em;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
 a{color:inherit;text-decoration:none}
 .i{flex:0 0 auto;vertical-align:-.18em}
 :focus-visible{outline:2px solid var(--md-primary);outline-offset:2px;border-radius:8px}
@@ -318,3 +319,24 @@ footer a{color:var(--md-on-surface-var);text-decoration:underline}footer a:hover
 .sech .sec svg{color:#dfbc7a}
 @media(max-width:860px){.hero{padding:30px 22px;min-height:0}.hero h1{font-size:2.5rem}}
 @media(max-width:600px){.hero{padding:26px 18px;border-radius:20px}.hero h1{font-size:2.2rem}.hero .hsub{font-size:.92rem;line-height:1.6}.hero .btn.big{height:44px;padding:0 20px}}
+
+/* ---------- Đêm sương: thanh trên, rail, bottom bar, thẻ, nút ---------- */
+:root:not([data-theme=light]){--ns-glass:rgba(11,20,27,.78)}
+:root:not([data-theme=light]) body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;background:
+  radial-gradient(1.2px 1.2px at 8% 14%,#fff9 50%,transparent 51%),radial-gradient(1px 1px at 22% 38%,#fff7 50%,transparent 51%),radial-gradient(1.3px 1.3px at 37% 9%,#fffb 50%,transparent 51%),
+  radial-gradient(1px 1px at 52% 27%,#fff8 50%,transparent 51%),radial-gradient(1.2px 1.2px at 66% 12%,#fff9 50%,transparent 51%),radial-gradient(1px 1px at 79% 33%,#fff7 50%,transparent 51%),
+  radial-gradient(1.3px 1.3px at 91% 8%,#fffa 50%,transparent 51%),radial-gradient(1px 1px at 14% 66%,#fff6 50%,transparent 51%),radial-gradient(1px 1px at 47% 72%,#fff6 50%,transparent 51%),radial-gradient(1px 1px at 83% 61%,#fff6 50%,transparent 51%)}
+:root:not([data-theme=light]) .top{background:var(--ns-glass);backdrop-filter:blur(10px);border-bottom:1px solid #ffffff10}
+:root:not([data-theme=light]) .rail{background:linear-gradient(180deg,#0d1822,#0a1218);border-right:1px solid #ffffff10}
+:root:not([data-theme=light]) .rail .on .ind,:root:not([data-theme=light]) .bnav .on .ind{background:#dfbc7a26;color:#f3dfb4}
+:root:not([data-theme=light]) .rail .on,:root:not([data-theme=light]) .bnav .on{color:#dfbc7a}
+:root:not([data-theme=light]) .bnav{background:var(--ns-glass);backdrop-filter:blur(12px);border-top:1px solid #dfbc7a24;box-shadow:0 -10px 30px #0006}
+:root:not([data-theme=light]) #q{background:#122030;box-shadow:inset 0 0 0 1px #ffffff12}:root:not([data-theme=light]) #q:focus{box-shadow:inset 0 0 0 2px #dfbc7a}
+:root:not([data-theme=light]) .card,:root:not([data-theme=light]) .rc,:root:not([data-theme=light]) .stage{border:1px solid #ffffff0f}
+:root:not([data-theme=light]) .card:hover{border-color:#dfbc7a55;box-shadow:0 14px 40px #0008,0 0 0 1px #dfbc7a33}
+:root:not([data-theme=light]) .btn:not(.ghost){background:linear-gradient(#ecd09a,#d6ad62);color:#1b1408;border:0;font-weight:700}
+:root:not([data-theme=light]) .btn.ghost{background:#ffffff0a;border:1px solid #ffffff22;color:var(--md-on-surface)}
+:root:not([data-theme=light]) .acct{background:#122030}
+:root:not([data-theme=light]) .brand b,:root:not([data-theme=light]) .logo b{color:#dfbc7a}
+:root:not([data-theme=light]) .fab{background:linear-gradient(#ecd09a,#d6ad62);color:#1b1408;border:0}
+h2.sec,.sech h2{font-family:Georgia,'Times New Roman',serif}
