@@ -12,7 +12,12 @@
   }
 
   GV.mp.define({
-    id: 'lotoonline', name: 'Lô tô online', icon: '🌐', desc: 'Lô tô nhiều người: chủ phòng gọi số, bạn tự dò và bấm KINH!', min: 2, max: 20,
+    id: 'lotoonline', theme: GV.mpShell.themeFor({ scene: GV.mpShell.scenes.fair, mascotG: ['🎟️','#fde68a'], colors: { s0: '#1a0b24', s1: '#26102f', s2: '#341642', sa: '#fbbf24', sa2: '#b45309', sa3: '#fde68a', sb: '#fda4af', sb2: '#4c1d3d', sb3: '#9d3a6a' },
+  kicker: 'Hội xuân · Số may · Cả nhà cùng chơi', h1: 'Lô tô đêm hội.<br>Ai kinh trước?', em: 'Lô tô online', lead: 'Rủ cả nhà vào phòng, mỗi người một tờ vé, nghe hô số và dò từng ô. Ai đủ một hàng trước thì hô "Kinh!" – hồi hộp như ngày Tết.',
+  feats: ['👥 2–20 người', '🎟️ Vé tự sinh', '🎙 Hô số qua voice', '🤖 Có bot'], formTitle: 'Mở sới lô tô', roomPh: 'Ví dụ: Sới nhà bà Tư', cta: '🎟️ Vào sới ngay', waitTitle: 'Sới lô tô đang chờ…', mode: 'Lô tô cơ bản',
+  rulesBrief: 'Chủ sới hô số ngẫu nhiên. Ai có đủ một hàng ngang trên vé thì bấm KINH để thắng.', cfgTitle: 'Luật chơi', cfgNote: 'Chủ phòng bấm bắt đầu khi mọi người đã sẵn sàng.',
+  voiceNote: 'Bật voice để hô số và trêu nhau cho vui.', guideTab: 'Cách chơi', guide: [['🎟️','Vé','Mỗi người nhận một tờ vé nhiều số.'],['🔢','Hô số','Máy chủ quay số lần lượt, mọi người tự dò.'],['🏆','Kinh!','Đủ một hàng thì bấm Kinh để thắng ván.']],
+  steps: [['🏕️','Mở sới','Tạo phòng, gửi mã cho bạn bè.'],['🎟️','Nhận vé','Mỗi người một vé khác nhau.'],['🔢','Dò số','Số được hô lần lượt, ô trúng tự đánh dấu.'],['🏆','Kinh!','Ai đủ hàng trước là người thắng.']] }), name: 'Lô tô online', icon: '🌐', desc: 'Lô tô nhiều người: chủ phòng gọi số, bạn tự dò và bấm KINH!', min: 2, max: 20,
     opts: [{ k: 'k', label: 'Số vé của bạn (1–16):', values: Array.from({ length: 16 }, (_, i) => i + 1), def: 4 }],
     css: GV.lotoCSS + `.lo .code{font-size:2rem}.lo .kmsg{font-weight:700;font-size:13px;min-height:1.3em}.lo .wn{font-size:13px;margin-top:6px}`,
     init(seats, api) {

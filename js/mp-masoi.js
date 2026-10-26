@@ -64,7 +64,12 @@
   function afterHunter(S, now) { const nx = S.hunter.next; S.hunter = null; if (checkWin(S)) return; nx === 'day' ? startDay(S, now) : startNight(S, now); }
 
   GV.mp.define({
-    id: 'masoi', name: 'Ma sói online', icon: '🐺', desc: 'Trò chơi suy luận: sói cắn đêm, dân làng bỏ phiếu ban ngày. 5–12 người (có bot).', min: 5, max: 12,
+    id: 'masoi', theme: GV.mpShell.themeFor({ scene: GV.mpShell.scenes.village, mascotG: ['🐺','#e5e7eb'], mascot: 'wolf', fire: true, colors: { s0: '#0b141b', s1: '#0f1a24', s2: '#132232', sa: '#dfbc7a' },
+  kicker: 'Bản cổ điển · Sói cắn đêm, dân bỏ phiếu ngày', h1: 'Ma sói<br>online', em: 'Phiên bản cổ điển', lead: 'Phiên bản gọn nhẹ của Ma Sói: Sói, Tiên tri, Bảo vệ, Thợ săn, Phù thủy. Muốn bản có cốt truyện, voice và cấu hình vai, hãy thử "Lời Nguyền Làng Sương".',
+  feats: ['👥 5–12 người', '🎭 6 vai', '🎙 Voice chat', '🤖 Có bot'], formTitle: 'Mở phòng', roomPh: 'Ví dụ: Làng nhà mình', cta: '🐺 Bắt đầu', waitTitle: 'Làng đang chờ…', mode: 'Ma sói cơ bản',
+  rulesBrief: 'Máy chủ chia vai bí mật và điều phối đêm – ngày – bỏ phiếu.', cfgTitle: 'Luật chơi', cfgNote: 'Vai chia ngẫu nhiên và bí mật khi bắt đầu.', voiceNote: 'Bật voice để thảo luận ban ngày (tự nói nhỏ ban đêm nhé).',
+  guideTab: 'Vai trò', guide: [['🐺','Ma sói','Đêm chọn người để cắn.'],['🔮','Tiên tri','Mỗi đêm soi một người.'],['🛡️','Bảo vệ','Che chở một người mỗi đêm.'],['🏹','Thợ săn','Chết được bắn một người.'],['🧙‍♀️','Phù thủy','1 thuốc cứu, 1 thuốc độc.']],
+  steps: [['🏕️','Tụ họp','Tạo phòng, mời bạn.'],['📜','Nhận vai','Vai được chia bí mật.'],['🌙','Màn đêm','Các vai hành động.'],['⚖️','Bỏ phiếu','Ban ngày treo cổ người đáng ngờ.']] }), name: 'Ma sói online', icon: '🐺', desc: 'Trò chơi suy luận: sói cắn đêm, dân làng bỏ phiếu ban ngày. 5–12 người (có bot).', min: 5, max: 12,
     css: `.ms .role{font-size:1.4rem;font-weight:800;text-align:center}.ms .tgt{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
       .ms .night{background:#0b1030;color:#cfd6ff;border-radius:12px;padding:10px;text-align:center}.ms .day{background:#fff6d6;color:#3a2f00;border-radius:12px;padding:10px;text-align:center}
       .ms .dead{text-decoration:line-through;opacity:.6}.ms .votes{font-size:12px;color:var(--mut)}`,

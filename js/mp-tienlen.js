@@ -54,7 +54,12 @@
   }
 
   GV.mp.define({
-    id: 'tienlen', name: 'Tiến lên miền Nam', icon: '♠️', desc: 'Bài Tiến lên online 2–4 người (có bot), đủ chặt heo.', min: 2, max: 4,
+    id: 'tienlen', theme: GV.mpShell.themeFor({ scene: GV.mpShell.scenes.felt, mascotG: ['♠️','#fff'], colors: { s0: '#07140e', s1: '#0c1f16', s2: '#122b1e', sa: '#fbbf24', sa2: '#a16207', sa3: '#fde68a', sb: '#86efac', sb2: '#0f3a24', sb3: '#22804a' },
+  kicker: 'Bàn xanh · Bài tây · Miền Nam', h1: 'Tiến lên!<br>Chặt heo đi!', em: 'Tiến lên miền Nam', lead: 'Bốn người một bàn, đánh đôi, sảnh, tứ quý, đè heo và chặt đúng lúc. Ai hết bài trước là nhất.',
+  feats: ['👥 2–4 người', '♠️ Luật miền Nam', '🎙 Voice chat', '🤖 Có bot'], formTitle: 'Mở bàn tiến lên', roomPh: 'Ví dụ: Bàn chiếu trên', cta: '♠️ Vào bàn', waitTitle: 'Bàn bài đang chờ…', mode: 'Tiến lên miền Nam',
+  rulesBrief: 'Đánh lên bộ lớn hơn, cùng loại. Hai là quân to nhất; tứ quý và 3 đôi thông chặt được heo.', cfgTitle: 'Luật chơi', cfgNote: 'Chủ phòng bắt đầu khi đủ người.', voiceNote: 'Bật voice để bình luận, ai chặt heo là cả bàn ồ lên.',
+  guideTab: 'Cách chơi', guide: [['🂡','Bộ bài','Lẻ, đôi, ba, sảnh, đôi thông, tứ quý.'],['🐷','Heo','Hai là to nhất, chỉ tứ quý/3 đôi thông chặt được.'],['🏁','Về nhất','Hết bài trước là nhất.']],
+  steps: [['🏕️','Lập bàn','Tạo phòng, mời đủ 4 người.'],['🂡','Chia bài','Mỗi người 13 lá.'],['⚔️','Đánh bài','Đánh lên cùng loại, chặt đúng lúc.'],['🏆','Về nhất','Hết bài trước là thắng.']] }), name: 'Tiến lên miền Nam', icon: '♠️', desc: 'Bài Tiến lên online 2–4 người (có bot), đủ chặt heo.', min: 2, max: 4,
     css: `.tl .c{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:68px;border-radius:8px;background:#fff;color:#111;font-weight:800;font-size:16px;margin:2px;border:2px solid #ccc;box-shadow:0 1px 4px #0005;user-select:none}
       .tl .c.r{color:#d11}.tl .hand .c{cursor:pointer;transition:transform .1s}.tl .hand .c.sel{transform:translateY(-14px);border-color:var(--acc);box-shadow:0 4px 10px #6c8cff88}
       .tl .c.pick{outline:3px dashed var(--acc2);outline-offset:2px}.tl.arr .hand .c{cursor:grab}.tl .arrhint .pbtn{padding:2px 10px;margin:0 3px}.tl .hand{display:flex;flex-wrap:wrap;justify-content:center;margin:8px 0}.tl .table{min-height:80px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap}`,

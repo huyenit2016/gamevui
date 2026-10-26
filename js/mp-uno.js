@@ -26,7 +26,12 @@
   }
 
   GV.mp.define({
-    id: 'uno', name: 'Uno online', icon: '🃏', desc: 'Bài Uno nhiều người (có bot). Hết bài trước là thắng!', min: 2, max: 8,
+    id: 'uno', theme: GV.mpShell.themeFor({ scene: GV.mpShell.scenes.cards, mascotG: ['🃏','#a78bfa'], colors: { s0: '#0c0618', s1: '#150b2a', s2: '#1e1140', sa: '#facc15', sa2: '#a16207', sa3: '#fde047', sb: '#93c5fd', sb2: '#1e2a5a', sb3: '#4a62c9' },
+  kicker: 'Đỏ · Vàng · Xanh lá · Xanh dương', h1: 'Hết bài trước<br>là thắng!', em: 'Uno online', lead: 'Đánh bài cùng bạn bè theo màu và số, dùng thẻ đặc biệt để chặn đường đối thủ. Nhớ hô UNO khi chỉ còn một lá!',
+  feats: ['👥 2–8 người', '🎴 Thẻ đặc biệt', '🎙 Voice chat', '🤖 Có bot'], formTitle: 'Mở bàn Uno', roomPh: 'Ví dụ: Bàn Uno tối nay', cta: '🃏 Chia bài thôi', waitTitle: 'Bàn Uno đang chờ…', mode: 'Uno cổ điển',
+  rulesBrief: 'Đánh lá cùng màu hoặc cùng số/ký hiệu. Hết bài trước là thắng.', cfgTitle: 'Luật chơi', cfgNote: 'Chủ phòng bắt đầu khi mọi người sẵn sàng.', voiceNote: 'Bật voice để cùng la hét khi bị cấm lượt.',
+  guideTab: 'Cách chơi', guide: [['🎨','Khớp màu/số','Đánh lá cùng màu hoặc cùng số với lá trên bàn.'],['⛔','Thẻ đặc biệt','Cấm lượt, đảo chiều, +2, đổi màu, +4.'],['📣','UNO!','Còn một lá phải hô UNO, quên sẽ bị phạt.']],
+  steps: [['🏕️','Mở bàn','Tạo phòng và mời bạn.'],['🃏','Chia bài','Mỗi người 7 lá.'],['⚡','Đánh bài','Khớp màu hoặc số, dùng thẻ chặn.'],['🏆','Hết bài','Ai hết bài trước thắng.']] }), name: 'Uno online', icon: '🃏', desc: 'Bài Uno nhiều người (có bot). Hết bài trước là thắng!', min: 2, max: 8,
     css: `.uno .card{display:inline-flex;align-items:center;justify-content:center;width:54px;height:80px;border-radius:10px;border:3px solid #fff;color:#fff;font-weight:900;font-size:22px;margin:3px;box-shadow:0 2px 6px #0006;user-select:none;cursor:default}
       .uno .hand .card{cursor:pointer;transition:transform .12s}.uno .hand .card.ok:hover{transform:translateY(-8px)}.uno .hand .card.no{opacity:.45}
       .uno .hand{display:flex;flex-wrap:wrap;justify-content:center}.uno .mid{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}

@@ -129,7 +129,12 @@
   const setPos = (S, p) => { S.b = p.b.join(''); S.t = p.t; S.c = p.c; S.ep = p.ep; S.hm = p.hm; S.fm = p.fm; };
 
   GV.mp.define({
-    id: 'chess', name: 'Cờ vua online', icon: '♞', desc: 'Cờ vua 2 người qua mạng hoặc đấu với máy. Đủ luật nhập thành, bắt tốt qua đường, phong cấp.', min: 2, max: 2,
+    id: 'chess', theme: GV.mpShell.themeFor({ scene: GV.mpShell.scenes.hall, mascotG: ['♞','#bfdbfe'], colors: { s0: '#0a1022', s1: '#0f1830', s2: '#152142', sa: '#60a5fa', sa2: '#1d4ed8', sa3: '#bfdbfe', sb: '#a5b4fc', sb2: '#1e2a5a', sb3: '#4f63c4' },
+  kicker: '64 ô · 32 quân · Một vua', h1: 'Chiếu hết<br>bằng trí tuệ.', em: 'Cờ vua online', lead: 'Đối đầu bạn bè trên bàn cờ quốc tế: nhập thành, bắt tốt qua đường, phong cấp. Tạo phòng, gửi mã và bắt đầu ván đấu.',
+  feats: ['👥 2 người', '♞ Luật FIDE', '🎙 Voice chat', '🔁 Chơi lại nhanh'], formTitle: 'Mở bàn cờ vua', roomPh: 'Ví dụ: Ván tối thứ 7', cta: '♞ Vào ván cờ', waitTitle: 'Bàn cờ đang chờ đối thủ…', bots: true, mode: 'Cờ vua tiêu chuẩn',
+  rulesBrief: 'Trắng đi trước. Chiếu hết vua đối phương để thắng.', cfgTitle: 'Luật chơi', cfgNote: 'Chủ phòng bắt đầu khi đối thủ đã vào.', voiceNote: 'Bật voice để cùng phân tích nước đi.',
+  guideTab: 'Cách chơi', guide: [['♔','Vua','Đi một ô mọi hướng; không được tự vào thế chiếu.'],['♕','Hậu','Đi ngang, dọc, chéo không giới hạn.'],['♘','Mã','Đi chữ L, nhảy qua quân khác.'],['♙','Tốt','Đi thẳng, ăn chéo, phong cấp ở cuối bàn.']],
+  steps: [['🏕️','Mở bàn','Tạo phòng và gửi mã.'],['🤝','Vào bàn','Đối thủ vào, bấm sẵn sàng.'],['♞','Đi cờ','Trắng đi trước, luân phiên.'],['👑','Chiếu hết','Chiếu hết vua để thắng.']] }), name: 'Cờ vua online', icon: '♞', desc: 'Cờ vua 2 người qua mạng hoặc đấu với máy. Đủ luật nhập thành, bắt tốt qua đường, phong cấp.', min: 2, max: 2,
     css: `.ch svg{width:100%;max-width:440px;display:block;margin:0 auto;touch-action:manipulation;user-select:none}.ch .hit{cursor:pointer}.ch .cap{font-size:13px}`,
     init(seats, api) {
       const sh = api.shuffle(seats.slice()), p = newPos();

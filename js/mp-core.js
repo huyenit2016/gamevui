@@ -27,6 +27,8 @@
   GV.mp = {
     defs: {},
     define(def) {
+      // game khai báo theme → dùng khung giao diện chung (trang đầu + phòng chờ máy chủ + voice) của mp-shell.js
+      if (def.theme && GV.mpShell && !def.roomTpl) { const SH = GV.mpShell.make(Object.assign({ min: def.min, max: def.max }, def.theme)); def = Object.assign({}, def, { css: (def.css || '') + SH.css, entryTpl: SH.entryTpl, lobbyItem: SH.lobbyItem, roomTpl: SH.roomTpl, roomRender: SH.roomRender, roomCleanup: SH.roomCleanup, chatItem: SH.chatItem }); }
       GV.mp.defs[def.id] = def;
       GV.register({ id: def.id, type: 'game', cat: def.cat || 'Nhiều người', name: def.name, icon: def.icon, desc: def.desc, mount: el => mount(def, el) });
     },
@@ -119,7 +121,7 @@
       const errs = {}, ui = {};
             const isHost = () => R && R.host === uid;
 
-      if (def.roomTpl) el.innerHTML = `<style>${CSS}${def.css || ''}</style>` + def.roomTpl({ code, esc: GV.esc, summary: !!def.summary });
+      if (def.roomTpl) el.innerHTML = `<style>${CSS}${def.css || ''}</style>` + def.roomTpl({ code, esc: GV.esc, summary: !!def.summary, opts: def.opts });
       else el.innerHTML = `<style>${CSS}${def.css || ''}</style>
       <div class="mp">
         <div class="bar"><span><b class="rname"></b> <span class="code">${code}</span></span>

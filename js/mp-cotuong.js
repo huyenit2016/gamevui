@@ -114,7 +114,12 @@
   const sq = i => 'abcdefghi'[i % 9] + (10 - ((i / 9) | 0));
 
   GV.mp.define({
-    id: 'cotuong', name: 'Cờ tướng online', icon: '♟️', desc: 'Cờ tướng 2 người qua mạng hoặc đấu với máy. Đỏ đi trước.', min: 2, max: 2,
+    id: 'cotuong', theme: GV.mpShell.themeFor({ scene: GV.mpShell.scenes.palace, mascotG: ['帥','#fecaca'], colors: { s0: '#1b0a0a', s1: '#261010', s2: '#341615', sa: '#f59e0b', sa2: '#92400e', sa3: '#fcd34d', sb: '#fca5a5', sb2: '#4a1a1a', sb3: '#b04545' },
+  kicker: 'Hai bên · Một bàn · Trăm nước đi', h1: 'Xe pháo mã tượng,<br>chiếu tướng!', em: 'Cờ tướng online', lead: 'Đấu trí trực tuyến với bạn bè: sông Sở – Hán, cung tướng, pháo gác. Mời bạn qua mã phòng và ngồi vào bàn cờ.',
+  feats: ['👥 2 người', '♟️ Luật chuẩn', '🎙 Voice chat', '⏱ Đồng hồ nước đi'], formTitle: 'Mở bàn cờ', roomPh: 'Ví dụ: Ván giao hữu', cta: '♟️ Lên bàn cờ', waitTitle: 'Bàn cờ đang chờ đối thủ…', bots: true, mode: 'Cờ tướng chuẩn',
+  rulesBrief: 'Hai người luân phiên đi quân, chiếu bí tướng đối phương để thắng.', cfgTitle: 'Luật chơi', cfgNote: 'Chủ phòng bắt đầu khi đối thủ đã vào.', voiceNote: 'Bật voice để cùng bình cờ.',
+  guideTab: 'Cách chơi', guide: [['帥','Tướng','Chỉ đi trong cung, không được đối mặt tướng.'],['車','Xe','Đi ngang dọc, không giới hạn.'],['炮','Pháo','Đi như xe, ăn phải nhảy qua một quân.'],['馬','Mã','Đi chữ nhật, bị cản chân.']],
+  steps: [['🏕️','Mở bàn','Tạo phòng và gửi mã.'],['🤝','Vào bàn','Đối thủ vào, bấm sẵn sàng.'],['♟️','Đi cờ','Luân phiên từng nước.'],['👑','Chiếu bí','Bắt tướng để thắng.']] }), name: 'Cờ tướng online', icon: '♟️', desc: 'Cờ tướng 2 người qua mạng hoặc đấu với máy. Đỏ đi trước.', min: 2, max: 2,
     css: `.ct svg{width:100%;max-width:440px;display:block;margin:0 auto;touch-action:manipulation;user-select:none}.ct .hit{cursor:pointer}`,
     init(seats, api) {
       const sh = api.shuffle(seats.slice());
