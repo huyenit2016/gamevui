@@ -13,7 +13,7 @@
     const R = {
       key: p.split('/').pop(), child: c => ref(p + '/' + c),
       set: async v => { await window.__hub('set', p, v); }, update: async o => { await window.__hub('update', p, o); }, remove: async () => { await window.__hub('set', p, null); },
-      push: v => { const k = 'k' + Date.now().toString(36) + (seq++).toString(36).padStart(4, '0'); const r = ref(p + '/' + k); r.set(v); return r; },
+      push: v => { const k = 'k' + Date.now().toString(36) + (seq++).toString(36).padStart(4, '0'); const r = ref(p + '/' + k); const pr = r.set(v); r.catch = f => (pr.catch(f), r); return r; }, // như ThenableReference thật
       once: async () => snapOf(await window.__hub('get', p)),
       transaction: async fn => { for (let i = 0; i < 8; i++) { const cur = await window.__hub('get', p); const nv = fn(cur === undefined ? null : cur); if (nv === undefined) return { committed: false }; const r = await window.__hub('cas', p, cur, nv); if (r.ok) return { committed: true }; } return { committed: false }; },
       on: (type, cb) => { const l = { p, type, cb, seen: new Set(), last: undefined, init: false }; L.push(l); (async () => { const v = await window.__hub('get', p); if (type === 'value') { l.init = true; l.last = v; cb(snapOf(v)); } else { for (const k of Object.keys(v || {})) { l.seen.add(k); cb(snapOf(v[k], k)); } } })(); },

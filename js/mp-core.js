@@ -117,7 +117,8 @@
       const errs = {}, ui = {};
             const isHost = () => R && R.host === uid;
 
-      el.innerHTML = `<style>${CSS}${def.css || ''}</style>
+      if (def.roomTpl) el.innerHTML = `<style>${CSS}${def.css || ''}</style>` + def.roomTpl({ code, esc: GV.esc, summary: !!def.summary });
+      else el.innerHTML = `<style>${CSS}${def.css || ''}</style>
       <div class="mp">
         <div class="bar"><span><b class="rname"></b> <span class="code">${code}</span></span>
           <span class="row"><button class="btn ghost share" style="padding:5px 12px">🔗 Chia sẻ</button><button class="btn ghost leave" style="padding:5px 12px">🚪 Rời</button></span></div>
@@ -138,8 +139,8 @@
       /* --- người chơi & bot --- */
       const seats = () => {
         const a = [];
-        Object.entries(R.players || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || '?', bot: false, online: p.online !== false, at: p.at || 0, opts: p.opts || {} }));
-        Object.entries(R.bots || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || 'Bot', bot: true, online: true, at: p.at || 0 }));
+        Object.entries(R.players || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || '?', bot: false, online: p.online !== false, at: p.at || 0, opts: p.opts || {}, ready: !!p.ready }));
+        Object.entries(R.bots || {}).forEach(([id, p]) => p && a.push({ id, name: p.name || 'Bot', bot: true, online: true, at: p.at || 0, ready: true }));
         return a.sort((x, y) => x.at - y.at || (x.id < y.id ? -1 : 1));
       };
 
@@ -229,7 +230,16 @@
         el.querySelectorAll('.opt').forEach(sel => { const v = ((R.players[uid] || {}).opts || {})[sel.dataset.k]; const o = def.opts.find(x => x.k === sel.dataset.k); if (document.activeElement !== sel) sel.value = v != null ? v : o.def; });
         renderHist();
         renderChat();
+        if (def.roomRender) try { def.roomRender(el, lctx()); } catch (e) { console.error(e); }
         if (P && P._err && P._err.at > lastErr) { lastErr = P._err.at; showErr(P._err.msg); }
+      }
+      // ngữ cảnh cho giao diện phòng riêng của từng game (sảnh, sẵn sàng, cấu hình)
+      function lctx() {
+        return { R, me: uid, code, host: R.host, isHost: isHost(), status: R.meta.status, roomName: R.meta.name || '', seats: seats(), esc: GV.esc, round: R.meta.round || 1,
+          myOpts: (R.players[uid] || {}).opts || {}, hostOpts: ((R.players || {})[R.host] || {}).opts || {},
+          setReady: v => me.child('ready').set(!!v), setOpt: (k, v) => me.child('opts/' + k).set(v), toast: showErr, start: startGame,
+          roomRef: ref, pub: R.pub || null, priv: P || {},
+          inviteUrl: location.origin + location.pathname + `#/game/${def.id}/${code}` };
       }
       function ctx() {
         return {
@@ -268,7 +278,7 @@
         const list = Object.values(R.chat || {}).filter(Boolean).sort((a, b) => a.at - b.at).slice(-40);
         const sig = list.length + ':' + (list.length ? list[list.length - 1].at : 0);
         if (sig === chatSig) return; chatSig = sig;
-        const cl = $('.cl'); cl.innerHTML = list.map(m => `<div><b>${GV.esc(m.name)}:</b> ${GV.esc(m.text)}</div>`).join('') || '<span class="hint">Chưa có tin nhắn.</span>';
+        const cl = $('.cl'); cl.innerHTML = list.map(m => def.chatItem ? def.chatItem(m, GV.esc) : `<div><b>${GV.esc(m.name)}:</b> ${GV.esc(m.text)}</div>`).join('') || '<span class="hint">Chưa có tin nhắn.</span>';
         cl.scrollTop = cl.scrollHeight;
       }
       const sendChat = () => { const t = $('.ci').value.trim(); if (!t) return; $('.ci').value = ''; ref.child('chat').push({ uid, name, text: t.slice(0, 200), at: Date.now() }).catch(e => showErr(F.explain(e))); };
@@ -289,7 +299,7 @@
         $('.clh').onclick = () => { if (confirm('Xoá toàn bộ lịch sử các ván?')) ref.child('history').remove(); };
         $('.hl').onclick = e => { const r = e.target.dataset.h; if (r === undefined) return; e.preventDefault(); if (isHost() && confirm('Xoá ván ' + r + ' khỏi lịch sử?')) ref.child('history/' + r).remove(); };
       }
-      $('.newg').onclick = () => { S = null; root.update({ [`mprooms/${code}/meta/status`]: 'lobby', [`mprooms/${code}/meta/round`]: (R.meta.round || 1) + 1, [`mprooms/${code}/pub`]: null, [`mprooms/${code}/act`]: null, [`mpprivate/${code}`]: null, [`mpstate/${code}`]: null }); seen = null; };
+      $('.newg').onclick = () => { S = null; root.update({ [`mprooms/${code}/meta/status`]: 'lobby', ...Object.fromEntries(Object.keys(R.players || {}).map(k => [`mprooms/${code}/players/${k}/ready`, null])), [`mprooms/${code}/meta/round`]: (R.meta.round || 1) + 1, [`mprooms/${code}/pub`]: null, [`mprooms/${code}/act`]: null, [`mpprivate/${code}`]: null, [`mpstate/${code}`]: null }); seen = null; };
       // Xoá hẳn dữ liệu phòng (tránh để rác trong database)
       async function deleteRoom() {
         cleanup(); history.replaceState(null, '', `#/game/${def.id}`);
@@ -313,7 +323,7 @@
       };
     }
 
-    function cleanup() { if (roomOff) roomOff(); roomOff = null; clearInterval(loopT); clearInterval(tickT); loopT = tickT = null; }
+    function cleanup() { if (def.roomCleanup) try { def.roomCleanup(); } catch (e) {} if (roomOff) roomOff(); roomOff = null; clearInterval(loopT); clearInterval(tickT); loopT = tickT = null; }
 
     entry();
     return () => { dead = true; if (listOff) listOff(); cleanup(); };

@@ -60,7 +60,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Chạy thử cục bộ: `npm install && npm run build`, mở `dist/index.html`.
 - **Test** (Playwright, cần cài global; mạng bị chặn nên dùng mock): `NODE_PATH=$(npm root -g) node tools/tests/<file>`
   - `mount-all.test.js` — mở cả 100 mục, báo lỗi (luôn chạy sau khi sửa UI)
-  - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `117 đạt, 0 lỗi`)
+  - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `124 đạt, 0 lỗi`)
   - `cms-e2e.test.js` — CMS end-to-end với Firebase giả (`hub.js`, `mock_shared.js`)
   - `town.test.js` — Làng Nông Vui: khoá/mở khoá, chuồng, nhà, cày xu, game nhúng, cờ tỷ phú, hàng xóm, thưởng xu
   - `new-games.test.js` — 35 game + 4 tiện ích mới (thao tác cơ bản, kiểm tra canvas có vẽ)

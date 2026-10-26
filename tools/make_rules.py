@@ -42,7 +42,9 @@ rules = {"rules": {
       "history": {".write": f"{AUTH} && {MH}"},
       "players": {"$uid": {".write": f"{AUTH} && (auth.uid === $uid || {MH})"}},
       "act": {".write": f"{AUTH} && {MH}", "$uid": {".write": f"{AUTH} && auth.uid === $uid"}},
-      "chat": {".write": f"{AUTH} && {MH}", "$id": {".write": f"{AUTH} && !data.exists() && newData.child('uid').val() === auth.uid", ".validate": "newData.child('text').isString() && newData.child('text').val().length <= 200"}}
+      "chat": {".write": f"{AUTH} && {MH}", "$id": {".write": f"{AUTH} && !data.exists() && newData.child('uid').val() === auth.uid", ".validate": "newData.child('text').isString() && newData.child('text').val().length <= 200"}},
+      # tín hiệu WebRTC cho voice chat: voice/<người nhận>/<người gửi>/<id> – người gửi phải là thành viên phòng; người nhận được xoá hộp thư của mình
+      "voice": {".write": f"{AUTH} && {MH}", "$to": {".write": f"{AUTH} && auth.uid === $to && !newData.exists()", "$from": {".write": f"{AUTH} && auth.uid === $from && {MEM}", "$id": {".write": f"{AUTH} && auth.uid === $to && !newData.exists()", ".validate": "newData.hasChildren(['t']) && newData.child('t').isString() && (!newData.child('d').exists() || newData.child('d').val().length <= 12000)"}}}}
     }
   },
   "mpprivate": {"$room": {".write": f"{AUTH} && ({MH} || ({MDELI}))", "$uid": {".read": f"{AUTH} && auth.uid === $uid", ".write": f"{AUTH} && auth.uid === $uid && !newData.exists()"}}},

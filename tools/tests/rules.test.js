@@ -21,6 +21,16 @@ W('khách tạo phòng (host)', true, 'mprooms/1234/host', 'g1', who.guest); W('
 R('khách KHÔNG đọc toàn bộ mprooms', false, 'mprooms', who.guest); R('khách đọc 1 phòng', true, 'mprooms/1234', who.guest);
 W('khách KHÔNG xoá phòng của người khác', false, 'mprooms/1234', null, who.guest, setAt(T, ['mprooms', '1234'], { host: 'other', meta: {}, players: { other: { online: true } } }));
 
+console.log('--- Voice chat phòng (tín hiệu WebRTC) ---');
+{ const VT = setAt(T, ['mprooms', '1234'], { host: 'other', meta: {}, players: { other: { online: true }, g1: { online: true } } });
+  W('thành viên gửi tín hiệu voice cho người khác', true, 'mprooms/1234/voice/other/g1/k1', { t: 'offer', d: 'sdp' }, who.guest, VT);
+  W('KHÔNG giả danh người gửi khác', false, 'mprooms/1234/voice/g1/other/k1', { t: 'offer', d: 'x' }, who.guest, VT);
+  W('người ngoài phòng KHÔNG gửi tín hiệu', false, 'mprooms/1234/voice/other/stu1/k1', { t: 'ice', d: 'x' }, who.stu, VT);
+  W('người nhận được xoá hộp thư của mình', true, 'mprooms/1234/voice/g1', null, who.guest, setAt(VT, ['mprooms', '1234', 'voice', 'g1', 'other', 'k1'], { t: 'ice', d: 'x' }));
+  W('người nhận xoá từng tin đã xử lý', true, 'mprooms/1234/voice/g1/other/k1', null, who.guest, setAt(VT, ['mprooms', '1234', 'voice', 'g1', 'other'], { k1: { t: 'ice', d: 'x' }, k2: { t: 'ice', d: 'y' } }));
+  W('người nhận KHÔNG sửa nội dung tin', false, 'mprooms/1234/voice/g1/other/k1', { t: 'offer', d: 'fake' }, who.guest, setAt(VT, ['mprooms', '1234', 'voice', 'g1', 'other', 'k1'], { t: 'ice', d: 'x' }));
+  W('tín hiệu thiếu loại t bị chặn', false, 'mprooms/1234/voice/other/g1/k2', { d: 'x' }, who.guest, VT); }
+
 console.log('--- Làng Nông Vui (hàng xóm) ---');
 const V = { n: 'Bác Tư', lv: 5, at: 1 };
 W('chủ ghi làng của mình', true, 'villages/g1/info', V, who.guest); W('KHÔNG ghi làng của người khác', false, 'villages/stu1/info', V, who.guest);
