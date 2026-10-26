@@ -340,3 +340,11 @@ footer a{color:var(--md-on-surface-var);text-decoration:underline}footer a:hover
 :root:not([data-theme=light]) .brand b,:root:not([data-theme=light]) .logo b{color:#dfbc7a}
 :root:not([data-theme=light]) .fab{background:linear-gradient(#ecd09a,#d6ad62);color:#1b1408;border:0}
 h2.sec,.sech h2{font-family:Georgia,'Times New Roman',serif}
+
+/* Mobile đang chơi: khoá body bằng position:fixed (iOS không cuộn/đẩy body được), header nằm trong luồng flex nên không đè nội dung,
+   main chiếm phần còn lại và chừa chỗ cho bottom bar → chiều cao luôn khớp màn hình, không bị header che. */
+@media(max-width:599.98px){
+  body.ingame{position:fixed;inset:0;height:auto;width:100%;overflow:hidden}
+  body.ingame .top{position:relative;flex:none}
+  body.ingame main{flex:1 1 0;height:auto;min-height:0;padding-bottom:calc(var(--bn) + 6px)}
+}
