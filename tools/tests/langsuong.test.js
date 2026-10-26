@@ -10,7 +10,8 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   const mk = async (name, w) => { const ctx = await b.newContext({ viewport: { width: w, height: 900 } }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(name + ': ' + e.message)); p.on('dialog', d => d.accept()); await hub.attach(p, 'u-' + name); await p.addInitScript({ path: path.join(__dirname, 'mock_shared.js') }); return p; };
   const H = await mk('host', 1280), G = await mk('guest', 390);
   // nhận diện vai/tiện ích độc lập
-  await H.goto(URL + '#/game/langsuong'); await H.waitForSelector('.mk');
+  await H.goto(URL + '#/game/langsuong'); await H.waitForSelector('.lse .mk');
+  ok('trang đầu kiểu bản mẫu: tiêu đề + form + 4 bước', /Ai còn là người/.test(await H.locator('.lse h1').innerText()) && await H.locator('.lse .how > div').count() === 4);
   const rc = await H.evaluate(() => [5, 8, 12, 16].map(n => { const r = GV.lsT.rolesFor(n, { shuffle: a => a }); return [n, r.filter(x => x === 'wolf').length, r.length, r.includes('seer'), r.includes('witch')]; }));
   ok('chia vai đúng số người và số Sói (5→1, 8→2, 12→3, 16→4)', JSON.stringify(rc.map(x => x[1])) === '[1,2,3,4]' && rc.every(x => x[0] === x[2] && x[3]), JSON.stringify(rc));
   ok('chân dung SVG khác nhau theo người', await H.evaluate(() => GV.lsT.face('a') !== GV.lsT.face('b') && /<svg/.test(GV.lsT.face('a'))));

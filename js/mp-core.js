@@ -45,7 +45,8 @@
       if (dead) return;
       if (listOff) listOff(), listOff = null;
       if (!F.cfg()) { el.innerHTML = '<p class="msg">Chưa cấu hình Firebase – xem FIREBASE.md.</p>'; return; }
-      el.innerHTML = `<style>${CSS}</style><div class="tool" style="max-width:420px"><div class="big">${def.icon} ${GV.esc(def.name)}</div>
+      if (def.entryTpl) el.innerHTML = `<style>${CSS}${def.css || ''}</style>` + def.entryTpl({ esc: GV.esc, name: GV.store.get('lo_name', ''), room: GV.store.get('lo_room', ''), code: hashCode(), err: err || '' });
+      else el.innerHTML = `<style>${CSS}</style><div class="tool" style="max-width:420px"><div class="big">${def.icon} ${GV.esc(def.name)}</div>
         <p class="hint">${def.min}–${def.max} người · thiếu người có thể thêm bot</p>
         <label>Tên của bạn <input class="nm" maxlength="16" placeholder="Ví dụ: Huyền" style="width:100%" value="${GV.esc(GV.store.get('lo_name', ''))}"></label>
         <label>Tên phòng / nhóm <input class="rn" maxlength="24" placeholder="Ví dụ: Nhóm tối thứ 7" style="width:100%" value="${GV.esc(GV.store.get('lo_room', ''))}"></label>
@@ -66,6 +67,7 @@
         const q = db.ref('mplobby').orderByChild('at').startAt(Date.now() - 2 * 3600e3), cb = snap => {
           const box = $('.rl'); if (!box) return;
           const rows = Object.entries(snap.val() || {}).filter(([, r]) => r && r.game === def.id && r.status !== 'closed').sort((a, b) => b[1].at - a[1].at);
+          if (def.lobbyItem) { box.innerHTML = rows.length ? rows.map(([c, r]) => def.lobbyItem(c, r, GV.esc)).join('') : '<div class="hint">Chưa có phòng nào đang mở. Hãy tạo phòng đầu tiên!</div>'; return; }
           box.innerHTML = rows.length ? rows.map(([c, r]) => `<div class="row" style="justify-content:space-between;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span><b>${GV.esc(r.name || 'Phòng ' + c)}</b><br><span class="hint">#${c} · ${GV.esc(r.hostName || '')} · ${r.count || 0} người · ${r.status === 'lobby' ? '⏳ đang chờ' : '🎲 đang chơi'}</span></span><button class="btn ghost" data-c="${c}" style="padding:6px 12px">Vào</button></div>`).join('') : 'Chưa có phòng nào đang mở – hãy tạo phòng mới!';
         };
         q.on('value', cb); listOff = () => q.off('value', cb);

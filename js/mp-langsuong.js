@@ -389,10 +389,57 @@ ${Array.from({ length: 40 }, (_, i) => `<circle cx="${(i * 137) % 800}" cy="${(i
   function roomRenderWrap(el, L) { roomRender.L = L; if (bound && !document.body.contains(bound)) bound = null; roomRender(el, L); }
   const chatItem = (m, esc) => m.sys ? `<div class="lsr-msg sys"><span class="si">📣</span><div><b>Hệ thống</b><time>${hm(m.at)}</time><p>${esc(m.text)}</p></div></div>` : `<div class="lsr-msg">${face(m.uid)}<div><b>${esc(m.name)}</b><time>${hm(m.at)}</time><p>${esc(m.text)}</p></div></div>`;
 
+
+  /* ---------- màn hình đầu (trang chủ game) theo phong cách bản mẫu ---------- */
+  const ECSS = `
+.lse{position:relative;overflow:hidden;border-radius:20px;color:#e6e8e4;text-align:left;background:#0b141b;border:1px solid #ffffff14;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.lse .lsr-bg{position:absolute;inset:0;width:100%;height:100%;opacity:.75}.lse .lsfog{animation:lsfog 18s linear infinite}.lse .lsfog.b{animation-duration:26s;animation-direction:reverse}
+.lse:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#0b141bf2 0,#0b141bcc 45%,#0b141b55 100%),linear-gradient(0deg,#0b141b 0,#0b141b00 40%);pointer-events:none}
+.lse>.in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:28px;padding:44px 40px 34px;align-items:center}
+.lse>.in>*{min-width:0}.lse .k{font:700 .72rem/1.6 system-ui;letter-spacing:.32em;color:#dfbc7a;text-transform:uppercase}
+.lse h1{font:400 clamp(2.3rem,5.2vw,4.1rem)/1.04 Georgia,'Times New Roman',serif;margin:.25em 0 .1em;color:#f1ece2;letter-spacing:-.01em}
+.lse h1 em{display:block;font-style:italic;color:#dfbc7a;font-size:.62em;margin-top:.2em}
+.lse .lead{font-size:1rem;line-height:1.75;color:#b9c4c8;max-width:34em;margin:14px 0 20px}
+.lse .feat{display:flex;flex-wrap:wrap;gap:10px}.lse .feat span{border:1px solid #ffffff1f;background:#ffffff08;border-radius:99px;padding:6px 12px;font-size:.8rem;color:#cfd6d4}
+.lse .cardx{background:#0f1a24e6;backdrop-filter:blur(6px);border:1px solid #dfbc7a33;border-radius:18px;padding:20px;box-shadow:0 18px 70px #0006}
+.lse .cardx h3{margin:0 0 12px;font:400 1.3rem Georgia,serif;color:#f1ece2}.lse label{display:block;font-size:.8rem;color:#98a8ae;margin:8px 0 4px}
+.lse input{width:100%;box-sizing:border-box;background:#0b141b;border:1px solid #ffffff24;border-radius:10px;color:#e6e8e4;padding:11px 12px;font-size:16px}
+.lse input:focus{outline:none;border-color:#dfbc7a}.lse .mk{width:100%;margin-top:14px;background:linear-gradient(#ecd09a,#d6ad62);color:#1b1408;border:0;border-radius:12px;padding:13px;font:700 1rem system-ui;cursor:pointer;box-shadow:0 8px 24px #dfbc7a33}
+.lse .mk:hover{filter:brightness(1.06)}.lse .or{display:flex;align-items:center;gap:10px;color:#6b7c86;font-size:.76rem;margin:16px 0 8px}.lse .or:before,.lse .or:after{content:'';flex:1;height:1px;background:#ffffff1a}
+.lse .jr{display:flex;gap:8px}.lse .jr input{text-align:center;letter-spacing:.3em;font-weight:700;font-size:1.15rem}.lse .jn{flex:none;background:#16304a;border:1px solid #2f5d86;color:#8fc8ff;border-radius:10px;padding:0 16px;font-weight:700;cursor:pointer}
+.lse .rl{max-height:190px;overflow:auto;display:flex;flex-direction:column;gap:6px;font-size:.84rem}.lse .rli{display:flex;align-items:center;gap:10px;background:#132232;border:1px solid #ffffff14;border-radius:12px;padding:8px 10px}
+.lse .rli b{display:block;color:#f1ece2}.lse .rli small{color:#98a8ae}.lse .rli .st{margin-left:auto;font-size:.72rem;border-radius:99px;padding:2px 8px;background:#10b98122;color:#4ade80}.lse .rli .st.p{background:#dfbc7a22;color:#dfbc7a}
+.lse .rli button{background:none;border:1px solid #dfbc7a77;color:#dfbc7a;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700}.lse .msg{color:#fca5a5;min-height:1.2em;font-size:.86rem;margin-top:8px}
+.lse .how{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 40px 34px}.lse .how div{background:#0f1a24cc;border:1px solid #ffffff14;border-radius:14px;padding:14px}
+.lse .how i{font-style:normal;font-size:1.4rem}.lse .how b{display:block;margin:6px 0 4px;font:400 1.05rem Georgia,serif;color:#dfbc7a}.lse .how p{margin:0;font-size:.8rem;color:#b9c4c8;line-height:1.5}
+.lse .wolf{position:absolute;right:4%;bottom:0;width:min(30%,260px);opacity:.5;z-index:0}
+@media(max-width:860px){.lse>.in{grid-template-columns:1fr;padding:28px 18px 18px;gap:18px}.lse .how{grid-template-columns:1fr 1fr;padding:0 18px 18px}.lse:after{background:linear-gradient(0deg,#0b141b 10%,#0b141bb3 60%,#0b141b80)}.lse .lead{font-size:.92rem;margin:10px 0 14px}}
+@media(max-width:480px){.lse{border-radius:14px}.lse>.in{padding:20px 14px 14px;gap:14px}.lse .k{font-size:.6rem;letter-spacing:.2em}.lse h1{font-size:2rem}.lse .lead{display:none}.lse .feat{flex-wrap:nowrap;overflow-x:auto;margin-top:10px;padding-bottom:2px}.lse .feat span{font-size:.72rem;white-space:nowrap}.lse .cardx{padding:14px}.lse .cardx h3{display:none}.lse .how{grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 14px}.lse .how p{display:none}.lse .how div{padding:10px}}`;
+  const WOLF = '<svg class="wolf" viewBox="0 0 200 200" aria-hidden="true"><path fill="#05090d" d="M40 200c6-30 14-52 30-66-10-6-16-16-17-28 8 3 15 3 20 0-4-10-4-22 2-34l12 18c6-6 14-10 22-11l-4-20 16 16c14 4 24 14 28 30 8 2 14 8 16 16-10-2-18 0-24 6 6 14 8 34 6 73z"/><circle cx="118" cy="62" r="2.4" fill="#dfbc7a"/></svg>';
+  function entryTpl({ esc, name, room, code, err }) {
+    return `<div class="lse">${SCENE}${WOLF}<div class="in"><div>
+<div class="k">Một ngôi làng · Hai phe · Vô vàn bí mật</div>
+<h1>Đêm xuống.<br>Ai còn là người?<em>Lời Nguyền Làng Sương</em></h1>
+<p class="lead">Giữa những gương mặt quen là một lời nói dối. Tụ họp bạn bè, nhận vai bí mật, trò chuyện bằng giọng nói qua từng đêm sương – và tìm ra Ma Sói trước khi quá muộn.</p>
+<div class="feat"><span>👥 5–16 người online</span><span>🎭 6 vai bí mật</span><span>🎙 Voice chat trong phòng</span><span>🤖 Thiếu người có bot</span></div></div>
+<div class="cardx"><h3>Thắp đèn, mở phòng</h3>
+<label>Tên của bạn</label><input class="nm" maxlength="16" placeholder="Ví dụ: Huyền" value="${esc(name)}">
+<label>Tên phòng / nhóm</label><input class="rn" maxlength="24" placeholder="Ví dụ: Làng Sương tối thứ 7" value="${esc(room)}">
+<button class="mk">▶ Bước vào màn đêm</button>
+<div class="or">hoặc vào bằng mã phòng</div><div class="jr"><input class="cd" inputmode="numeric" maxlength="4" placeholder="0000" value="${esc(code)}"><button class="jn">Vào phòng</button></div>
+<div class="or">phòng đang mở</div><div class="rl"><div class="hint">Đang tải danh sách phòng…</div></div>
+<p class="msg">${esc(err)}</p></div></div>
+<div class="how"><div><i>🏕️</i><b>Tụ họp</b><p>Chủ phòng tạo phòng, gửi mã hoặc link mời. Mọi người bấm sẵn sàng.</p></div>
+<div><i>📜</i><b>Nhận vai</b><p>Máy chủ chia vai ngẫu nhiên, bí mật – chỉ bạn biết mình là ai.</p></div>
+<div><i>🌙</i><b>Màn đêm</b><p>Sói chọn con mồi, Tiên tri soi, Bảo vệ che chở, Phù thủy dùng thuốc.</p></div>
+<div><i>⚖️</i><b>Hội đồng</b><p>Ban ngày tranh luận, bỏ phiếu treo cổ kẻ đáng ngờ nhất.</p></div></div></div>`;
+  }
+  const lobbyItem = (c, r, esc) => `<div class="rli"><div><b>${esc(r.name || 'Phòng ' + c)}</b><small>#${c} · ${esc(r.hostName || '')} · ${r.count || 0} người</small></div><span class="st${r.status === 'lobby' ? '' : ' p'}">${r.status === 'lobby' ? 'Đang chờ' : 'Đang chơi'}</span>${r.status === 'lobby' ? `<button data-c="${c}">Vào</button>` : ''}</div>`;
+
   const NOTE = ['', '🐺', '✅', '❓']; // ghi chú cá nhân trên thẻ (lưu trên máy)
 
   GV.mp.define({
-    id: 'langsuong', name: 'Ma Sói · Lời Nguyền Làng Sương', icon: '🌫️', min: 5, max: 16, css: CSS + RCSS, roomTpl, roomRender: roomRenderWrap, roomCleanup, chatItem,
+    id: 'langsuong', name: 'Ma Sói · Lời Nguyền Làng Sương', icon: '🌫️', min: 5, max: 16, css: CSS + RCSS + ECSS, entryTpl, lobbyItem, roomTpl, roomRender: roomRenderWrap, roomCleanup, chatItem,
     desc: 'Ma Sói online nhiều người theo phong cách truyện: nhận vai, đêm sương, bình minh, hội đồng làng, bỏ phiếu. 6 vai, 5–16 người, thiếu người có bot.',
     init(seats, api) {
       const hs = seats.find(x => x.id === api.host) || {}, now = Date.now(), roles = rolesFor(seats.length, api, (hs.opts || {}).cfg), v = api.rnd(VILLAGES.length), jobs = api.shuffle(JOBS.slice());
