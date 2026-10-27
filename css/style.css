@@ -449,3 +449,11 @@ body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:
 .acct{padding:0 14px 0 4px;height:46px;border-left:1px solid #1e293b;border-radius:14px;background:transparent}
 @media(min-width:900px){.ptitle{display:flex}.wbtn{display:inline-flex}}
 @media(max-width:599px){.acct .an small{display:none}.acct{padding:0 6px 0 4px}.acct .an b{max-width:5.5em;overflow:hidden;text-overflow:ellipsis}}
+.lgb{font:700 12px/1 system-ui;letter-spacing:.06em;color:#cbd5e1;min-width:40px;border:1px solid #ffffff14;background:var(--gl,rgba(15,23,42,.65));border-radius:12px}
+/* header: các nút biểu tượng đồng bộ cỡ/kính */
+.top .bar .icon-btn{width:40px;height:40px;min-width:40px;padding:0;border-radius:12px;border:1px solid #ffffff14;background:var(--gl,rgba(15,23,42,.65));color:#cbd5e1}
+.top .bar .icon-btn:hover{border-color:#00f2fe55;color:#fff}
+.top .bar .lgb{width:auto;min-width:42px;padding:0 10px}
+.bellb .dot{top:6px;right:7px}
+@media(max-width:599px){.top .bar{gap:6px}.top .bar .icon-btn{width:38px;height:38px;min-width:38px}.top .bar .lgb{min-width:40px;padding:0 6px;font-size:11px}.search{min-width:0;flex:1 1 0}.acct{min-width:0;flex:none}}
+@media(max-width:440px){.acct .an{display:none}.acct{padding:0 4px;border-left:0;background:transparent;height:44px}.top .bar .search{flex:1 1 auto}}

@@ -91,10 +91,10 @@
     if (A.user) {
       const nm = (A.profile && A.profile.name) || A.user.email, ini = esc(String(nm).trim().charAt(0).toUpperCase());
       a.innerHTML = `<span class="av on">${ini}</span><span class="an"><b>${esc(String(nm).split(' ').pop())}</b><small>${({ admin: 'ADMIN', collab: 'EDITOR', teacher: 'TEACHER', student: 'MEMBER' })[A.role] || 'MEMBER'}</small></span>`; a.title = ROLES[A.role] + ' – ' + A.user.email; a.setAttribute('aria-label', 'Tài khoản: ' + nm);
-    } else { a.innerHTML = `<span class="av">${ico}</span><span class="an"><b>Sign in</b><small>GUEST</small></span>`; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; a.setAttribute('aria-label', 'Đăng nhập'); }
-    const b = $('#acct2'); if (b) { const lb = b.querySelector('.lb'); if (lb) lb.textContent = A.user ? 'Account' : 'Sign in'; b.classList.toggle('authed', !!A.user); }
+    } else { a.innerHTML = `<span class="av">${ico}</span><span class="an"><b>${GV.t('acc.in')}</b><small>${GV.t('acc.guest')}</small></span>`; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; a.setAttribute('aria-label', 'Đăng nhập'); }
+    const b = $('#acct2'); if (b) { const lb = b.querySelector('.lb'); if (lb) lb.textContent = GV.t(A.user ? 'acc.out' : 'acc.in'); b.classList.toggle('authed', !!A.user); }
   }
-  A.onChange(paintHeader);
+  A.onChange(paintHeader); document.addEventListener('gv:lang', paintHeader);
   // Quản trị viên: nhắc phòng rác ngay khi vào web
   A.onChange(async () => {
     if (!A.isAdmin || !$('#acct') || !GV.toast) return;
