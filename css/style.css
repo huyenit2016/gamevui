@@ -583,3 +583,4 @@ body.tv .stage .hud>span{background:#1e293b99;border:1px solid #334155;border-ra
 :root[data-theme=light] .top .acct .an small{color:#0e7490}
 :root[data-theme=light] .rail .rbrand{border-bottom-color:#0f172a1a;background:transparent!important}:root[data-theme=light] .rail .rbrand .lt{color:#0f172a}:root[data-theme=light] .rail .rbrand .lt b{color:#0e7490}
 :root[data-theme=light] .top .bar .ptitle{color:#0f172a}
+body.novbar .vbar{display:none}

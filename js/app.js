@@ -179,7 +179,7 @@
     document.body.classList.toggle('cmsv', isCms);
     if (isCms) {
       unmountWS(); const stage0 = $('#stage'); stage0.innerHTML = ''; stage0.onclick = null; if (cleanup) { try { cleanup(); } catch (e) {} cleanup = null; }
-      document.body.classList.remove('ingame', 'tv'); document.body.classList.add('omni');
+      document.body.classList.remove('ingame', 'tv', 'novbar'); document.body.classList.add('omni');
       $('#home').hidden = true; $('#view').hidden = true; document.title = 'CMS – OmniHub';
       const pt = $('#ptitle span'); if (pt) { pt.setAttribute('data-i18n', 'title.cms'); pt.textContent = GV.t('title.cms'); }
       document.querySelectorAll('.rail button,.bnav button').forEach(b => b.classList.remove('on')); const nc = $('#navcms'); if (nc) nc.classList.add('on');
@@ -197,6 +197,7 @@
     document.body.classList.toggle('ingame', !!item);
     if (item) unmountWS(); // rời trang chủ: gỡ widget (tránh trùng selector/timer ngầm)
     document.body.classList.toggle('omni', !item);
+    document.body.classList.toggle('novbar', !!item && item.id === 'tv');
     document.body.classList.toggle('tv', !!item && item.type === 'tool'); // trang tiện ích: áp giao diện "Utility Workstation" kính mờ + neon
     const pt = $('#ptitle span'); if (pt) { pt.textContent = item ? item.name : GV.t('title.home'); if (item) pt.removeAttribute('data-i18n'); else pt.setAttribute('data-i18n', 'title.home'); }
     document.querySelectorAll('.rail a.rl,.bnav a.rl').forEach(x => x.classList.toggle('on', !!item && x.getAttribute('href') === '#/' + item.type + '/' + item.id));
