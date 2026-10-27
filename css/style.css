@@ -261,7 +261,7 @@ footer a{color:var(--md-on-surface-var);text-decoration:underline}footer a:hover
   .acct{padding:0 4px}.acct .an{display:none}
   .icon-btn{width:44px;height:44px}
   main{padding:8px 14px 120px}
-  .bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--md-sc);padding:10px 4px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--line)}
+  .bnav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--md-sc);padding:10px 4px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--line)}
   /* đang chơi: giữ thanh tab dưới, cả trang gói gọn trong 1 màn hình, không cuộn trang */
   :root{--bn:calc(74px + env(safe-area-inset-bottom));--tp:calc(60px + env(safe-area-inset-top))}
   body.ingame{overflow:hidden;height:100dvh}
@@ -584,3 +584,4 @@ body.tv .stage .hud>span{background:#1e293b99;border:1px solid #334155;border-ra
 :root[data-theme=light] .rail .rbrand{border-bottom-color:#0f172a1a;background:transparent!important}:root[data-theme=light] .rail .rbrand .lt{color:#0f172a}:root[data-theme=light] .rail .rbrand .lt b{color:#0e7490}
 :root[data-theme=light] .top .bar .ptitle{color:#0f172a}
 body.novbar .vbar{display:none}
+@media(max-width:599px){.bnav .ind{width:48px}.bnav .lb{font-size:10.5px}}

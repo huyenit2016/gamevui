@@ -4,7 +4,7 @@
   const D = {
     en: {
       'nav.home': 'Dashboard', 'nav.game': 'Game Hub', 'nav.online': 'Multiplayer', 'nav.crypto': 'Crypto Trading', 'nav.tv': 'Online TV', 'nav.learn': 'Learning Platform', 'nav.tool': 'Utilities & Tools', 'nav.cms': 'CMS Admin', 'title.cms': 'CMS Admin Panel',
-      'nb.crypto': 'Crypto', 'nb.learn': 'Learning', 'acc.in': 'Sign in', 'acc.out': 'Account', 'acc.guest': 'GUEST',
+      'nb.crypto': 'Crypto', 'nb.tv': 'TV', 'nb.learn': 'Learning', 'acc.in': 'Sign in', 'acc.out': 'Account', 'acc.guest': 'GUEST',
       'title.home': 'Main Dashboard', 'btn.room': 'Create Room', 'notif': 'Notifications', 'notif.none': 'No notifications.', 'search': 'Search games & tools…',
       'rw.a': 'OmniHub Portal: Active', 'rw.b': 'Saved on this device · no account needed',
       'h.pill': 'Next-Gen Interface', 'h.h1': 'Welcome to the <span class="grad">OmniHub Metaverse</span>',
@@ -20,7 +20,7 @@
     },
     vi: {
       'nav.home': 'Trang chủ', 'nav.game': 'Game', 'nav.online': 'Bạn bè', 'nav.crypto': 'Crypto AI', 'nav.tv': 'TV Online', 'nav.learn': 'Học tập', 'nav.tool': 'Tiện ích', 'nav.cms': 'Quản trị CMS', 'title.cms': 'Bảng quản trị CMS',
-      'nb.crypto': 'Crypto AI', 'nb.learn': 'Học tập', 'acc.in': 'Đăng nhập', 'acc.out': 'Tài khoản', 'acc.guest': 'KHÁCH',
+      'nb.crypto': 'Crypto AI', 'nb.tv': 'TV', 'nb.learn': 'Học tập', 'acc.in': 'Đăng nhập', 'acc.out': 'Tài khoản', 'acc.guest': 'KHÁCH',
       'title.home': 'Bảng điều khiển', 'btn.room': 'Tạo phòng', 'notif': 'Thông báo', 'notif.none': 'Chưa có thông báo.', 'search': 'Tìm game, tiện ích…',
       'rw.a': 'Cổng OmniHub: Hoạt động', 'rw.b': 'Tự lưu trên máy bạn · không cần tài khoản',
       'h.pill': 'Giao diện thế hệ mới', 'h.h1': 'Chào mừng đến <span class="grad">Vũ trụ OmniHub</span>',
