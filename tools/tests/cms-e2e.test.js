@@ -4,7 +4,7 @@ const { chromium } = require('playwright'); const { makeHub } = require('./hub')
   const b = await chromium.launch(); const hub = makeHub(), errs = []; const URL = 'file://' + ROOT + '/';
   const mk = async name => { const ctx = await b.newContext({ viewport: { width: 1200, height: 900 } }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(name + ': ' + e.message)); p.on('console', m => m.type() === 'error' && !/ERR_|Failed to load/.test(m.text()) && errs.push(name + ': ' + m.text())); p.on('dialog', d => d.accept()); await hub.attach(p, 'anon-' + name); await p.addInitScript({ path: require('path').join(__dirname, 'mock_shared.js') }); return p; };
   const A = await mk('admin'), T = await mk('teacher'), S = await mk('student'), G = await mk('guest');
-  const signup = async (p, name, email, role, secret) => { await p.goto(URL + 'cms.html'); await p.waitForSelector('[data-m=up]'); await p.click('[data-m=up]'); await p.fill('.nm', name); await p.fill('.em', email); await p.fill('.pw', '123456'); if (role) await p.selectOption('.rq', role); if (secret) await p.fill('.sc', secret); await p.click('.go'); await p.waitForSelector('.tabsx', { timeout: 8000 }); };
+  const signup = async (p, name, email, role, secret) => { await p.goto(URL + 'index.html#/cms'); await p.waitForSelector('[data-m=up]'); await p.click('[data-m=up]'); await p.fill('.nm', name); await p.fill('.em', email); await p.fill('.pw', '123456'); if (role) await p.selectOption('.rq', role); if (secret) await p.fill('.sc', secret); await p.click('.go'); await p.waitForSelector('.tabsx', { timeout: 8000 }); };
   // 1. admin signup + claim
   await signup(A, 'Admin Huyền', 'a@x.com', 'student', 'S3cretPhrase');
   await A.waitForTimeout(400); console.log('1) admin tabs:', await A.locator('.tabsx button').allInnerTexts().then(a => a.map(x => x.replace(/\s+/g, ' ')).join(' | ')));
@@ -46,7 +46,7 @@ const { chromium } = require('playwright'); const { makeHub } = require('./hub')
   await T.click('[data-t=class]'); await T.waitForTimeout(600); await T.click('[data-r]'); await T.waitForTimeout(800); console.log('   teacher sees results:', (await T.locator('.rs').innerText()).replace(/\s+/g, ' ').slice(0, 100));
   // 8. admin config + announcement → guest sees
   await A.click('[data-t=config]'); await A.waitForTimeout(1000);
-  await A.fill('.foot', 'Câu chân trang TEST từ CMS'); await A.fill('.pill', 'PILL TEST'); await A.fill('.lead', 'Lead TEST,'); await A.fill('.grad', 'Grad TEST'); await A.fill('.hot', 'tetris, snake'); await A.fill('.off', 'sudoku'); await A.click('.sv'); await A.waitForTimeout(500);
+  await A.fill('#cms .foot', 'Câu chân trang TEST từ CMS'); await A.fill('#cms .pill', 'PILL TEST'); await A.fill('#cms .lead', 'Lead TEST,'); await A.fill('#cms .grad', 'Grad TEST'); await A.fill('#cms .hot', 'tetris, snake'); await A.fill('.off', 'sudoku'); await A.click('.sv'); await A.waitForTimeout(500);
   await A.click('[data-t=announce]'); await A.waitForTimeout(400); await A.fill('.tx', 'Bảo trì lúc 23:00 tối nay!'); await A.selectOption('.ty', 'warn'); await A.click('.sv'); await A.waitForTimeout(500);
   await G.goto(URL + 'index.html'); await G.waitForTimeout(2800);
   console.log('8) guest sees -> footer:', (await G.locator('#foot').innerText()).trim(), '| pill:', (await G.locator('#pill').innerText()).trim(), '| h1:', (await G.locator('#htitle').innerText()).trim());
@@ -54,5 +54,11 @@ const { chromium } = require('playwright'); const { makeHub } = require('./hub')
   console.log('   guest header button:', (await G.locator('#acct').innerText()).trim());
   await G.evaluate(() => { location.hash = '#/game/sudoku'; }); await G.waitForTimeout(300); console.log('   guest opens disabled game:', (await G.locator('#stage').innerText()).trim().slice(0, 50));
   await A.goto(URL + 'index.html#/game/sudoku'); await A.waitForTimeout(2500); console.log('   admin can still open it:', (await A.locator('#stage .bd').count()) > 0);
+  // CMS gộp vào web: mục "CMS Admin" chỉ hiện với admin; link cũ cms.html chuyển hướng
+  await A.goto(URL + 'index.html'); await A.waitForTimeout(2500); await S.goto(URL + 'index.html'); await S.waitForTimeout(2500);
+  const nv = async P => P.evaluate(() => { const e = document.getElementById('navcms'); return e ? !e.hidden && getComputedStyle(e).display !== 'none' : null; });
+  console.log('   CMS menu: admin sees =', await nv(A), '| student sees =', await nv(S), '| guest sees =', await nv(G));
+  await A.click('#navcms'); await A.waitForSelector('.tabsx'); console.log('   admin opens #/cms:', A.url().split('#')[1], '| tabs:', await A.locator('.sb .tabsx button').count(), '| title:', (await A.locator('#ptitle').innerText()).trim());
+  await A.goto(URL + 'cms.html#users'); await A.waitForTimeout(1500); console.log('   old link cms.html#users ->', A.url().split('#')[1]);
   console.log(errs); await b.close();
 })();

@@ -163,7 +163,32 @@
     store.set('favs', f);
   }
 
+  /* CMS gộp vào web: #/cms[/<tab>] – nạp lười css/cms.css + registry/story-render/cms-story/cms.js lần đầu mở */
+  let cmsP = null;
+  function loadCMS() {
+    if (cmsP) return cmsP;
+    const root = $('#cmsroot'); root.innerHTML = '<div id="cms" data-embedded="1"><p class="hint" style="text-align:center;margin-top:40px">…</p></div>';
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'css/cms.css'; document.head.appendChild(css);
+    const load = src => new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = () => no(new Error(src)); document.head.appendChild(sc); });
+    cmsP = ['js/registry.js', 'js/story-render.js', 'js/cms-story.js', 'js/cms.js'].reduce((p, f) => p.then(() => load(f)), Promise.resolve()).catch(e => { cmsP = null; root.innerHTML = '<p class="msg">Không tải được CMS: ' + GV.esc(e.message) + '</p>'; });
+    return cmsP;
+  }
   function route() {
+    const isCms = /^#\/cms(\/|$)/.test(location.hash);
+    $('#cmsview').hidden = !isCms;
+    document.body.classList.toggle('cmsv', isCms);
+    if (isCms) {
+      unmountWS(); const stage0 = $('#stage'); stage0.innerHTML = ''; stage0.onclick = null; if (cleanup) { try { cleanup(); } catch (e) {} cleanup = null; }
+      document.body.classList.remove('ingame', 'tv'); document.body.classList.add('omni');
+      $('#home').hidden = true; $('#view').hidden = true; document.title = 'CMS – OmniHub';
+      const pt = $('#ptitle span'); if (pt) { pt.setAttribute('data-i18n', 'title.cms'); pt.textContent = GV.t('title.cms'); }
+      document.querySelectorAll('.rail button,.bnav button').forEach(b => b.classList.remove('on')); const nc = $('#navcms'); if (nc) nc.classList.add('on');
+      window.scrollTo(0, 0); loadCMS(); return;
+    }
+    document.body.classList.remove('cms-app'); const nc0 = $('#navcms'); if (nc0) nc0.classList.remove('on');
+    routeMain();
+  }
+  function routeMain() {
     if (cleanup) { try { cleanup(); } catch (e) { console.error(e); } cleanup = null; }
     const m = location.hash.match(/^#\/(game|tool)\/([\w-]+)/);
     const item = m && GV.items.find(i => i.id === m[2] && i.type === m[1]);

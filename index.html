@@ -27,7 +27,7 @@
       <div id="notifbox" class="nbox" hidden><h4 data-i18n="notif">Notifications</h4><div id="nlist"></div></div></div>
     <button id="lang" class="icon-btn lgb" type="button" data-i18n-al="lang.al" aria-label="Language">EN</button>
     <button id="theme" class="icon-btn" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối"><span class="sun"><i data-i="sun" data-s="18"></i></span><span class="moon"><i data-i="moon" data-s="18"></i></span></button>
-    <a id="acct" class="acct" href="cms.html" aria-label="Tài khoản"><span class="av"><i data-i="user" data-s="16"></i></span><span class="an"><b data-i18n="acc.in">Sign in</b><small data-i18n="acc.guest">GUEST</small></span></a>
+    <a id="acct" class="acct" href="#/cms" aria-label="Tài khoản"><span class="av"><i data-i="user" data-s="16"></i></span><span class="an"><b data-i18n="acc.in">Sign in</b><small data-i18n="acc.guest">GUEST</small></span></a>
   </div>
 </header>
 
@@ -40,6 +40,7 @@
   <a class="rl" href="#/tool/accumulating-merit"><span class="ind"><i data-i="lotus" data-s="24"></i></span><span class="lb" data-i18n="nav.merit">Mindful Merit</span></a>
   <button data-go="learn"><span class="ind"><i data-i="cap" data-s="24"></i></span><span class="lb" data-i18n="nav.learn">Learning Platform</span></button>
   <button data-go="tool"><span class="ind"><i data-i="wrench" data-s="24"></i></span><span class="lb" data-i18n="nav.tool">Utilities &amp; Tools</span></button>
+  <a class="rl" id="navcms" href="#/cms" hidden><span class="ind"><i data-i="sliders" data-s="24"></i></span><span class="lb" data-i18n="nav.cms">CMS Admin</span></a>
   <div class="railw" aria-hidden="true"><div class="rw1"><span data-i18n="rw.a">OmniHub Portal: Active</span><i class="pulse"></i></div><p data-i18n="rw.b">Saved on this device · no account needed</p></div>
 </nav>
 
@@ -90,6 +91,8 @@
     <div id="stage" class="stage"></div>
     <div class="ad" data-slot="game"></div>
   </section>
+
+  <section id="cmsview" hidden><div id="cmsroot"></div></section>
 </main>
 
 <nav class="bnav" id="bnav" aria-label="Điều hướng nhanh">
@@ -97,10 +100,10 @@
   <button data-go="game"><span class="ind"><i data-i="gamepad" data-s="24"></i></span><span class="lb" data-i18n="nav.game">Game Hub</span></button>
   <a class="rl" href="#/tool/crypto-agent"><span class="ind"><i data-i="trend" data-s="24"></i></span><span class="lb" data-i18n="nb.crypto">Crypto</span></a>
   <button data-go="learn"><span class="ind"><i data-i="cap" data-s="24"></i></span><span class="lb" data-i18n="nb.learn">Learning</span></button>
-  <a id="acct2" href="cms.html"><span class="ind"><i data-i="user" data-s="24"></i></span><span class="lb" data-i18n="acc.out">Account</span></a>
+  <a id="acct2" href="#/cms"><span class="ind"><i data-i="user" data-s="24"></i></span><span class="lb" data-i18n="acc.out">Account</span></a>
 </nav>
 <button class="fab" id="fab" aria-label="Play a random game" data-i18n-al="fab.al"><i data-i="shuffle" data-s="22"></i><span data-i18n="fab">Play Random</span></button>
-<footer><div class="ad" data-slot="footer"></div><div id="visits" title="IP được băm, không lưu IP gốc"></div><span id="foot">OmniHub – nơi bạn bè gặp nhau để chơi, học và cười thật nhiều 💛</span><div style="margin-top:6px"><a href="privacy.html">Chính sách quyền riêng tư</a> · <a href="cms.html">Quản trị / Đăng nhập</a></div></footer>
+<footer><div class="ad" data-slot="footer"></div><div id="visits" title="IP được băm, không lưu IP gốc"></div><span id="foot">OmniHub – nơi bạn bè gặp nhau để chơi, học và cười thật nhiều 💛</span><div style="margin-top:6px"><a href="privacy.html">Chính sách quyền riêng tư</a> · <a href="#/cms">Quản trị / Đăng nhập</a></div></footer>
 
 <script src="js/ads-config.js"></script>
 <script src="js/i18n.js"></script>

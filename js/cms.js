@@ -6,7 +6,9 @@
   const fdate = t => t ? new Date(t).toLocaleString('vi-VN') : '—';
   const ago = ms => { const m = Math.floor(ms / 60000); return m < 1 ? 'vừa xong' : m < 60 ? m + ' phút' : m < 1440 ? Math.floor(m / 60) + ' giờ' : Math.floor(m / 1440) + ' ngày'; };
   const GAME = { uno: '🃏 Uno', tienlen: '♠️ Tiến lên', masoi: '🐺 Ma sói', cotuong: '♟️ Cờ tướng', chess: '♞ Cờ vua', lotoonline: '🌐 Lô tô' };
-  let timers = [], tab = (location.hash || '').slice(1) || 'home';
+  const EMB = !!root.dataset.embedded; // nhúng trong trang chính (#/cms/<tab>)
+  const tabFromHash = () => { const h = location.hash || ''; const m = h.match(/^#\/cms\/(\w+)/); return m ? m[1] : (EMB ? 'home' : h.slice(1) || 'home'); };
+  let timers = [], tab = tabFromHash();
   const clearTimers = () => { timers.forEach(clearInterval); timers = []; };
   GV.cmsOff = [];
 
@@ -73,7 +75,7 @@
     const app = $('.app'); $('.mbtn').onclick = () => app.classList.toggle('open'); $('.scrim').onclick = () => app.classList.remove('open');
     $('.lo').onclick = () => A.signOut();
     $('.rr').onclick = () => recheck(true);
-    $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', '#' + tab); panelView(); });
+    $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', EMB ? '#/cms/' + tab : '#' + tab); panelView(); });
     const fn = { home, rooms, users, config, announce, library, story: c => GV.cmsStory(c, $, $$, fdate), class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
     if (A.isAdmin) watchJunk();
   }
@@ -303,7 +305,7 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) recheck(false).catch(() => {}); });
 
   /* =============== KHỞI ĐỘNG =============== */
-  document.getElementById('theme').onclick = () => { const d = document.documentElement, dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; d.dataset.theme = dark ? 'light' : 'dark'; try { localStorage.setItem('gv_theme', d.dataset.theme); } catch (e) {} };
+  const thBtn = document.getElementById('theme'); if (thBtn && !EMB) thBtn.onclick = () => { const d = document.documentElement, dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; d.dataset.theme = dark ? 'light' : 'dark'; try { localStorage.setItem('gv_theme', d.dataset.theme); } catch (e) {} };
   (async () => {
     if (!GV.fbInfo().cfg()) { root.innerHTML = '<div class="cx"><div class="card2"><b>Chưa cấu hình Firebase</b> – xem FIREBASE.md.</div></div>'; return; }
     await A.init();

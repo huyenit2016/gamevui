@@ -359,7 +359,7 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
 window.GV_TURN = [{ urls: 'turn:ten-may-chu:443?transport=tcp', username: '...', credential: '...' }];
 ```
 
-## CMS, đăng nhập & phân quyền (`/cms.html`)
+## CMS, đăng nhập & phân quyền (`/#/cms` (cms.html chỉ còn chuyển hướng))
 **Khách không cần đăng nhập** – chơi game, dùng tiện ích, học, dịch… như bình thường. Đăng nhập chỉ để giao/nhận bài, đăng khoá học, quản trị.
 
 | Vai trò | Quyền chính |
@@ -373,7 +373,7 @@ window.GV_TURN = [{ urls: 'turn:ten-may-chu:443?transport=tcp', username: '...',
 1. Firebase Console → **Authentication → Sign-in method → Email/Password → Enable**.
 2. Dán Rules mới (mục 3) → **Publish**.
 3. Realtime Database → tab **Data** → bấm dấu **+** ở gốc, tạo khoá `setup`, bên trong thêm `secret` = *một chuỗi bí mật do bạn tự đặt* (≥ 8 ký tự). Nhánh này web **không đọc được**, chỉ dùng để Rules kiểm tra.
-4. Mở `https://<user>.github.io/gamevui/cms.html` → **Đăng ký** → điền thông tin và **Mã thiết lập quản trị** = chuỗi bí mật ở bước 3 → bạn thành Quản trị viên. (Sau đó nên xoá `setup/secret`.) Không có mã đúng thì không ai tự lên admin được.
+4. Mở `https://<user>.github.io/gamevui/#/cms` (cms.html chỉ còn chuyển hướng) → **Đăng ký** → điền thông tin và **Mã thiết lập quản trị** = chuỗi bí mật ở bước 3 → bạn thành Quản trị viên. (Sau đó nên xoá `setup/secret`.) Không có mã đúng thì không ai tự lên admin được.
 5. Giáo viên / cộng tác viên đăng ký với lựa chọn tương ứng, admin vào tab **Người dùng → Duyệt**. Người được duyệt bấm **🔄 Cập nhật quyền** (hoặc quay lại tab trình duyệt).
 
 **Dọn phòng rác:** tab **Phòng & dọn rác** liệt kê mọi phòng (game nhiều người, lớp 1-1, dữ liệu cũ). Phòng không còn ai / bỏ hoang > 2 giờ / mồ côi / dữ liệu cũ bị đánh dấu rác; admin nhận thông báo (toast) và dọn bằng một nút, hoặc bật **tự động dọn** khi đang mở CMS. Khi admin vào trang chủ cũng được nhắc nếu có phòng bỏ hoang.

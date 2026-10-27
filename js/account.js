@@ -92,6 +92,7 @@
       const nm = (A.profile && A.profile.name) || A.user.email, ini = esc(String(nm).trim().charAt(0).toUpperCase());
       a.innerHTML = `<span class="av on">${ini}</span><span class="an"><b>${esc(String(nm).split(' ').pop())}</b><small>${({ admin: 'ADMIN', collab: 'EDITOR', teacher: 'TEACHER', student: 'MEMBER' })[A.role] || 'MEMBER'}</small></span>`; a.title = ROLES[A.role] + ' – ' + A.user.email; a.setAttribute('aria-label', 'Tài khoản: ' + nm);
     } else { a.innerHTML = `<span class="av">${ico}</span><span class="an"><b>${GV.t('acc.in')}</b><small>${GV.t('acc.guest')}</small></span>`; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; a.setAttribute('aria-label', 'Đăng nhập'); }
+    const nc = document.getElementById('navcms'); if (nc) nc.hidden = !A.isAdmin; // mục CMS Admin chỉ hiện với tài khoản quản trị
     const b = $('#acct2'); if (b) { const lb = b.querySelector('.lb'); if (lb) lb.textContent = GV.t(A.user ? 'acc.out' : 'acc.in'); b.classList.toggle('authed', !!A.user); }
   }
   A.onChange(paintHeader); document.addEventListener('gv:lang', paintHeader);
@@ -100,7 +101,7 @@
     if (!A.isAdmin || !$('#acct') || !GV.toast) return;
     try {
       const snap = await A.db.ref('mplobby').orderByChild('at').endAt(Date.now() - 2 * 3600e3).limitToFirst(20).once('value'); const n = Object.keys(snap.val() || {}).length;
-      if (n) GV.toast(`Có ${n} phòng bỏ hoang cần dọn.`, { type: 'warn', action: { label: 'Mở CMS để dọn', fn: () => { location.href = 'cms.html#rooms'; } } });
+      if (n) GV.toast(`Có ${n} phòng bỏ hoang cần dọn.`, { type: 'warn', action: { label: 'Mở CMS để dọn', fn: () => { location.hash = '#/cms/rooms'; } } });
     } catch (e) {}
   });
   document.addEventListener('DOMContentLoaded', () => { paintHeader(); });

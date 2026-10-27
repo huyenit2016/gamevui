@@ -28,7 +28,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   ok('không có <script> chèn vào, khối lạ bị bỏ, màu xấu về mặc định', r.scripts === 0 && r.theme === '#ff6a00', JSON.stringify([r.scripts, r.theme]));
 
   // ---- 2. CMS: tạo story mẫu, đặt tên, xuất bản ----
-  await A.goto(URL + 'cms.html'); await A.waitForSelector('[data-m=up]'); await A.click('[data-m=up]'); await A.fill('.nm', 'Admin'); await A.fill('.em', 'a@x.com'); await A.fill('.pw', '123456'); await A.fill('.sc', 'S3cretPhrase'); await A.click('.go'); await A.waitForSelector('.tabsx');
+  await A.goto(URL + 'index.html#/cms'); await A.waitForSelector('[data-m=up]'); await A.click('[data-m=up]'); await A.fill('.nm', 'Admin'); await A.fill('.em', 'a@x.com'); await A.fill('.pw', '123456'); await A.fill('.sc', 'S3cretPhrase'); await A.click('.go'); await A.waitForSelector('.tabsx');
   hub.tree.setup = { secret: 'S3cretPhrase' };
   await A.waitForTimeout(400);
   if (!(await A.locator('[data-t=story]').count())) { await A.click('.rr'); await A.waitForTimeout(1500); }
@@ -92,7 +92,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   ok('xoá story: meta + data + slug biến mất', !hub.tree.stories.meta[sid] && !hub.tree.stories.data[sid] && !hub.tree.stories.slugs['ten-moi']);
 
   // ---- 5. Học sinh không thấy tab ----
-  await W.goto(URL + 'cms.html'); await W.waitForSelector('[data-m=up]'); await W.click('[data-m=up]'); await W.fill('.nm', 'HS'); await W.fill('.em', 's@x.com'); await W.fill('.pw', '123456'); await W.click('.go'); await W.waitForSelector('.tabsx');
+  await W.goto(URL + 'index.html#/cms'); await W.waitForSelector('[data-m=up]'); await W.click('[data-m=up]'); await W.fill('.nm', 'HS'); await W.fill('.em', 's@x.com'); await W.fill('.pw', '123456'); await W.click('.go'); await W.waitForSelector('.tabsx');
   ok('học sinh không thấy tab Câu chuyện', await W.locator('[data-t=story]').count() === 0);
 
   console.log(errs.join('\n') || 'không có lỗi JS'); console.log(`\n${pass} đạt, ${fail} lỗi`); await b.close(); srv.close(); process.exit(fail || errs.length ? 1 : 0);
