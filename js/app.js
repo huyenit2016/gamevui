@@ -89,6 +89,13 @@
 
   function renderHome() {
     const ng = GV.items.filter(i => i.type === 'game').length, online = GV.items.filter(i => i.cat === 'Nhiều người').length;
+    // thẻ số liệu kiểu dashboard (dữ liệu thật của người chơi, lưu trên máy)
+    const mxEl = $('#metrics');
+    if (mxEl) {
+      const fv = favs().length, rc = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean), learnN = GV.items.filter(i => i.cat === 'Học tập').length;
+      const M = [['gamepad', 'Kho game', ng, `${online} game chơi cùng bạn bè`, 'c'], ['wrench', 'Tiện ích', GV.items.length - ng, `${learnN} mục học tập`, 'p'], ['star', 'Yêu thích', fv, fv ? 'Đã lưu trên máy bạn' : 'Chạm ⭐ để lưu game', 'g'], ['clock', 'Vừa chơi', rc.length, rc[0] ? GV.esc(rc[0].name) : 'Chưa chơi game nào', 'a']];
+      mxEl.innerHTML = M.map(([ic, l, v, sub, c]) => `<div class="tilt mxc ${c}"><div><small>${l}</small><b>${v}</b><span>${sub}</span></div><i class="mxi">${GV.ic(ic, 26)}</i></div>`).join('');
+    }
     $('#stats').innerHTML = `<b>${ng}</b> game · <b>${GV.items.length - ng}</b> tiện ích · <b>${online}</b> game chơi cùng bạn bè · miễn phí, không cần cài đặt`;
     const chips = $('#chips');
     const list = cats();
@@ -142,6 +149,7 @@
     const stage = $('#stage');
     stage.innerHTML = ''; stage.onclick = null;
     document.body.classList.toggle('ingame', !!item);
+    document.body.classList.toggle('omni', !item);
     if (!item) {
       document.title = 'GameVui – Game & Tiện ích online';
       $('#view').hidden = true; $('#home').hidden = false;
@@ -196,4 +204,15 @@
   if (window.visualViewport) { let h = visualViewport.height; visualViewport.addEventListener('resize', () => { if (visualViewport.height > h) back(); h = visualViewport.height; }); }
   // không để document tự cuộn quá 1px khi đang chơi (trừ lúc bàn phím mở: có ô nhập đang focus)
   window.addEventListener('scroll', () => { const a = document.activeElement; if (document.body.classList.contains('ingame') && innerWidth < 600 && window.scrollY > 1 && !(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) window.scrollTo(0, 0); }, { passive: true });
+})();
+
+/* Hiệu ứng nghiêng 3D theo con trỏ cho các thẻ .tilt (chỉ chuột, tắt khi người dùng chọn giảm chuyển động) */
+(function () {
+  if (matchMedia('(hover:none)').matches || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  document.addEventListener('mousemove', e => {
+    const c = e.target.closest && e.target.closest('.tilt'); if (!c) return;
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    c.style.transform = `perspective(900px) rotateX(${(-y * 9).toFixed(2)}deg) rotateY(${(x * 11).toFixed(2)}deg) translateZ(0)`;
+  }, { passive: true });
+  document.addEventListener('mouseout', e => { const c = e.target.closest && e.target.closest('.tilt'); if (c && !c.contains(e.relatedTarget)) c.style.transform = ''; });
 })();

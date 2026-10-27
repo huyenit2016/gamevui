@@ -348,3 +348,68 @@ h2.sec,.sech h2{font-family:Georgia,'Times New Roman',serif}
   body.ingame .top{position:relative;flex:none}
   body.ingame main{flex:1 1 0;height:auto;min-height:0;padding-bottom:calc(var(--bn) + 6px)}
 }
+
+/* =====================================================================
+   Trang chủ kiểu "OmniHub 3D" (theo file giao diện đính kèm): kính mờ, viền neon cyan/tím, lưới cyber, thẻ nghiêng 3D.
+   Chỉ áp dụng khi không đang chơi (body.omni); dùng CSS thuần, không Tailwind/CDN.
+   ===================================================================== */
+body.omni{--cy:#00f2fe;--pu:#7928ca;--em:#10b981;--am:#f59e0b;--gl:rgba(15,23,42,.65);
+  background:radial-gradient(520px 520px at -4% 28%,#7928ca33,transparent 70%),radial-gradient(560px 560px at 104% 78%,#00f2fe26,transparent 70%),
+    linear-gradient(to right,#ffffff08 1px,transparent 1px) 0 0/40px 40px,linear-gradient(to bottom,#ffffff08 1px,transparent 1px) 0 0/40px 40px,#07090e;background-attachment:fixed}
+body.omni:before{display:none}
+body.omni .top,body.omni .rail,body.omni .bnav{background:var(--gl);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:#ffffff14}
+body.omni .rail .on,body.omni .bnav .on{color:var(--cy)}
+body.omni .rail .on .ind,body.omni .bnav .on .ind{background:#0f172a99;box-shadow:0 0 18px #00f2fe40,inset 0 0 0 1px #00f2fe4d;color:var(--cy)}
+body.omni .logo b{color:var(--cy)}body.omni .logo .lg{background:linear-gradient(135deg,#00f2fe,#6366f1 55%,#7928ca);color:#fff;box-shadow:0 6px 18px #00f2fe40}
+body.omni #q{background:#0f172acc;box-shadow:inset 0 0 0 1px #ffffff14}body.omni #q:focus{box-shadow:inset 0 0 0 2px var(--cy),0 0 18px #00f2fe33}
+body.omni .btn:not(.ghost){background:linear-gradient(135deg,#06b6d4,#00f2fe);color:#04141a;box-shadow:0 0 20px #00f2fe59;border:0}
+body.omni .btn.ghost{background:var(--gl);border:1px solid #475569;color:#e2e8f0;backdrop-filter:blur(10px)}
+body.omni .fab{background:linear-gradient(135deg,#06b6d4,#00f2fe);color:#04141a;box-shadow:0 0 22px #00f2fe66}
+
+body.omni .hero{background:var(--gl);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid #00f2fe33;border-radius:28px;min-height:250px;padding:38px 44px;box-shadow:0 20px 50px #0008,inset 0 1px 1px #ffffff26;gap:20px}
+body.omni .hero:before{display:block;content:"";position:absolute;inset:-1px;height:auto;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#00f2fe,transparent 45%,#7928ca);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:1}
+body.omni .hero:after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:#7928ca33;filter:blur(60px);left:auto;bottom:auto;animation:none;pointer-events:none}
+body.omni .hero .pill{display:inline-flex;height:auto;padding:5px 14px;border:1px solid #00f2fe4d;border-radius:99px;background:#083344a0;color:var(--cy);font:700 .7rem system-ui;letter-spacing:.14em;text-transform:uppercase}
+body.omni .hero h1{font:800 clamp(2rem,4.4vw,3.1rem)/1.12 var(--font);letter-spacing:-.01em;color:#fff;max-width:14em;margin:.45em 0 .3em}
+body.omni .hero h1 .grad,body.omni .hero h1 span{display:inline;font-style:normal;font-size:1em;margin:0;background:linear-gradient(90deg,#22d3ee,#818cf8,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.omni .hero .hsub{color:#94a3b8;font-size:.95rem;max-width:36em}body.omni .hero p#stats{color:#64748b}body.omni .hero p#stats b{color:var(--cy)}
+body.omni .hero .btn.big{border-radius:12px;height:44px;padding:0 22px;font-weight:700}
+body.omni .hero .btn.big:not(.ghost){background:linear-gradient(135deg,#06b6d4,#00f2fe);color:#04141a;box-shadow:0 0 20px #00f2fe59}
+body.omni .hero .btn.ghost.big{background:var(--gl);border:1px solid #475569;color:#e2e8f0}
+body.omni .hero .ht{background:linear-gradient(135deg,#00f2fe26,#7928ca26),#0f172ab3;border:1px solid #00f2fe55;box-shadow:0 14px 34px #0008,0 0 24px #00f2fe26;color:#e2e8f0;border-radius:22px;animation:omfl 4.5s ease-in-out infinite}
+body.omni .hero .ht.t1{animation-delay:-1s}body.omni .hero .ht.t2{animation-delay:-2s}body.omni .hero .ht.t3{animation-delay:-3s}
+@keyframes omfl{0%,100%{translate:0 0}50%{translate:0 -10px}}
+body.omni .hero .ht b{font:600 .8rem var(--font)}
+
+.mx{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:20px 0}
+.mx .mxc{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px;border-radius:20px;background:var(--gl,rgba(15,23,42,.65));border:1px solid #1e293b;backdrop-filter:blur(14px);transition:transform .15s ease-out,border-color .3s,box-shadow .3s;will-change:transform}
+.mx .mxc small{display:block;font-size:.74rem;color:#94a3b8;font-weight:500}.mx .mxc b{display:block;font:800 1.7rem/1.2 var(--font);color:#fff;margin-top:2px}.mx .mxc span{font-size:.74rem;font-weight:600}
+.mx .mxi{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:16px;border:1px solid}
+.mx .c span{color:#22d3ee}.mx .c .mxi{background:#00f2fe1a;border-color:#00f2fe4d;color:#00f2fe}.mx .c:hover{border-color:#00f2fe66;box-shadow:0 0 22px #00f2fe33}
+.mx .p span{color:#c084fc}.mx .p .mxi{background:#7928ca26;border-color:#a855f74d;color:#c084fc}.mx .p:hover{border-color:#a855f766;box-shadow:0 0 22px #7928ca4d}
+.mx .g span{color:#34d399}.mx .g .mxi{background:#10b9811a;border-color:#10b9814d;color:#34d399}.mx .g:hover{border-color:#10b98166;box-shadow:0 0 22px #10b98133}
+.mx .a span{color:#fbbf24;display:block;max-width:12em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mx .a .mxi{background:#f59e0b1a;border-color:#f59e0b4d;color:#fbbf24}.mx .a:hover{border-color:#f59e0b66;box-shadow:0 0 22px #f59e0b33}
+.mods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:0 0 30px}
+.mods .mod{position:relative;overflow:hidden;display:block;text-align:left;font:inherit;color:inherit;padding:24px;border-radius:20px;background:var(--gl,rgba(15,23,42,.65));border:1px solid #ffffff14;backdrop-filter:blur(14px);cursor:pointer;transition:transform .15s ease-out,border-color .3s;will-change:transform}
+.mods .mod:before{content:"";position:absolute;right:-40px;bottom:-40px;width:130px;height:130px;border-radius:50%;filter:blur(36px);opacity:.6;transition:opacity .3s}
+.mods .mod .mic{display:block;margin-bottom:14px;transition:transform .3s}.mods .mod:hover .mi{transform:scale(1.12)}
+.mods .mod h3{margin:0 0 8px;font:700 1.1rem var(--font);color:#fff}.mods .mod p{margin:0 0 16px;font-size:.8rem;line-height:1.55;color:#94a3b8}
+.mods .mod .go{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;transition:transform .25s}.mods .mod:hover .go{transform:translateX(4px)}
+.mods .m1 .mic,.mods .m1 .go{color:#22d3ee}.mods .m1:before{background:#00f2fe}.mods .m1:hover{border-color:#00f2fe80}
+.mods .m2 .mic,.mods .m2 .go{color:#c084fc}.mods .m2:before{background:#7928ca}.mods .m2:hover{border-color:#a855f780}
+.mods .m3 .mic,.mods .m3 .go{color:#34d399}.mods .m3:before{background:#10b981}.mods .m3:hover{border-color:#10b98180}
+body.omni .sech .sec{font:800 1.3rem var(--font);letter-spacing:0;color:#fff}body.omni .sech .sec svg{color:var(--cy)}body.omni .sech .secsub{color:#64748b}
+body.omni .card,body.omni .rc{background:var(--gl);backdrop-filter:blur(12px);border:1px solid #1e293b}
+body.omni .card:hover{border-color:#00f2fe66;box-shadow:0 14px 40px #0009,0 0 26px #00f2fe26}
+body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:var(--cy);box-shadow:inset 0 0 0 1px #00f2fe55}
+@media(max-width:1000px){.mx{grid-template-columns:repeat(2,minmax(0,1fr))}.mods{grid-template-columns:1fr}}
+@media(max-width:600px){body.omni .hero{padding:24px 18px;border-radius:22px;min-height:0}.mx{gap:10px}.mx .mxc{padding:12px;border-radius:16px}.mx .mxc b{font-size:1.3rem}.mx .mxi{width:38px;height:38px;border-radius:12px}.mx .mxi svg{width:20px;height:20px}.mx .mxc span{font-size:.68rem}.mods{gap:12px}.mods .mod{padding:18px}}
+:root:not([data-theme=light]) body.omni .rail .on,:root:not([data-theme=light]) body.omni .bnav .on{color:#00f2fe}
+:root:not([data-theme=light]) body.omni .rail .on .ind,:root:not([data-theme=light]) body.omni .bnav .on .ind{background:#0f172a99;box-shadow:0 0 18px #00f2fe40,inset 0 0 0 1px #00f2fe4d;color:#00f2fe}
+:root:not([data-theme=light]) body.omni .fab{background:linear-gradient(135deg,#06b6d4,#00f2fe);color:#04141a;box-shadow:0 0 22px #00f2fe66}
+:root:not([data-theme=light]) body.omni .top{border-bottom:1px solid #00f2fe1f;background:var(--gl)}:root:not([data-theme=light]) body.omni .bnav{border-top:1px solid #00f2fe24;background:var(--gl)}:root:not([data-theme=light]) body.omni .rail{background:var(--gl)}
+:root:not([data-theme=light]) body.omni .btn:not(.ghost){background:linear-gradient(135deg,#06b6d4,#00f2fe);color:#04141a;box-shadow:0 0 20px #00f2fe59;border:0}
+:root:not([data-theme=light]) body.omni .btn.ghost{background:var(--gl);border:1px solid #475569}
+:root:not([data-theme=light]) body.omni .card,:root:not([data-theme=light]) body.omni .rc{border:1px solid #1e293b}
+.mods .m1 svg{color:#22d3ee}.mods .m2 svg{color:#c084fc}.mods .m3 svg{color:#34d399}.mods .mod>svg{display:block;margin-bottom:14px;transition:transform .3s}.mods .mod:hover>svg{transform:scale(1.12)}
+:root:not([data-theme=light]) body.omni .logo b,:root:not([data-theme=light]) body.omni .brand b{color:#00f2fe}
