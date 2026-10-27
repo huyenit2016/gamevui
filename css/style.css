@@ -588,3 +588,15 @@ body.novbar .vbar{display:none}
 /* thanh dưới mobile: nền đặc để nội dung cuộn phía sau không xuyên qua (iOS Safari) */
 @media(max-width:599px){body.m3 .bnav{background:#0b141b!important;backdrop-filter:none!important}:root[data-theme=light] body.m3 .bnav{background:#fff!important}}
 :root[data-theme=light] body.m3 .bnav .on{background:transparent!important;border-color:transparent!important}:root[data-theme=light] body.m3 .bnav .on .ind{background:#0891b21f}
+
+/* ---------- Thanh cuộn mảnh, bo tròn, đổi màu theo giao diện ---------- */
+*{scrollbar-width:thin;scrollbar-color:#475569 transparent}
+:root[data-theme=light] *{scrollbar-color:#b6c0d0 transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:#475569;border-radius:99px;border:3px solid transparent;background-clip:content-box;transition:background .2s}
+*::-webkit-scrollbar-thumb:hover{background:#22d3ee;background-clip:content-box}
+*::-webkit-scrollbar-corner{background:transparent}
+:root[data-theme=light] *::-webkit-scrollbar-thumb{background:#b6c0d0;background-clip:content-box}
+:root[data-theme=light] *::-webkit-scrollbar-thumb:hover{background:#0891b2;background-clip:content-box}
+@media(max-width:599px){*::-webkit-scrollbar{width:6px;height:6px}}
