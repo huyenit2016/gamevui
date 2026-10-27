@@ -3,7 +3,7 @@
 (function () {
   const D = {
     en: {
-      'nav.home': 'Dashboard', 'nav.game': 'Game Hub', 'nav.online': 'Multiplayer', 'nav.crypto': 'Crypto Trading', 'nav.merit': 'Mindful Merit', 'nav.learn': 'Learning Platform', 'nav.tool': 'Utilities & Tools', 'nav.cms': 'CMS Admin', 'title.cms': 'CMS Admin Panel',
+      'nav.home': 'Dashboard', 'nav.game': 'Game Hub', 'nav.online': 'Multiplayer', 'nav.crypto': 'Crypto Trading', 'nav.tv': 'Online TV', 'nav.learn': 'Learning Platform', 'nav.tool': 'Utilities & Tools', 'nav.cms': 'CMS Admin', 'title.cms': 'CMS Admin Panel',
       'nb.crypto': 'Crypto', 'nb.learn': 'Learning', 'acc.in': 'Sign in', 'acc.out': 'Account', 'acc.guest': 'GUEST',
       'title.home': 'Main Dashboard', 'btn.room': 'Create Room', 'notif': 'Notifications', 'notif.none': 'No notifications.', 'search': 'Search games & tools…',
       'rw.a': 'OmniHub Portal: Active', 'rw.b': 'Saved on this device · no account needed',
@@ -19,7 +19,7 @@
       'tw.t': 'Interactive Utility Workstation', 'tw.s': 'Live functional productivity and developer tools', 'sec.hot': 'Trending Now', 'sec.hot.s': 'Featured picks – open and play instantly', 'sec.rec': 'Recently Played', 'sec.rec.s': 'Pick up where you left off', 'fab': 'Play Random', 'fab.al': 'Play a random game', 'lang.al': 'Language'
     },
     vi: {
-      'nav.home': 'Trang chủ', 'nav.game': 'Game', 'nav.online': 'Bạn bè', 'nav.crypto': 'Crypto AI', 'nav.merit': 'Tích đức', 'nav.learn': 'Học tập', 'nav.tool': 'Tiện ích', 'nav.cms': 'Quản trị CMS', 'title.cms': 'Bảng quản trị CMS',
+      'nav.home': 'Trang chủ', 'nav.game': 'Game', 'nav.online': 'Bạn bè', 'nav.crypto': 'Crypto AI', 'nav.tv': 'TV Online', 'nav.learn': 'Học tập', 'nav.tool': 'Tiện ích', 'nav.cms': 'Quản trị CMS', 'title.cms': 'Bảng quản trị CMS',
       'nb.crypto': 'Crypto AI', 'nb.learn': 'Học tập', 'acc.in': 'Đăng nhập', 'acc.out': 'Tài khoản', 'acc.guest': 'KHÁCH',
       'title.home': 'Bảng điều khiển', 'btn.room': 'Tạo phòng', 'notif': 'Thông báo', 'notif.none': 'Chưa có thông báo.', 'search': 'Tìm game, tiện ích…',
       'rw.a': 'Cổng OmniHub: Hoạt động', 'rw.b': 'Tự lưu trên máy bạn · không cần tài khoản',

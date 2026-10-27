@@ -6,8 +6,8 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   const b = await chromium.launch(), errs = [], ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true }), p = await ctx.newPage();
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/ERR_|Failed to load/.test(m.text()) && errs.push(m.text())); p.on('dialog', d => d.accept());
   await p.goto('file://' + ROOT + '/index.html'); await p.waitForTimeout(500);
-  ok('menu riêng "Tích đức" ở thanh bên', await p.locator('#rail a[href="#/tool/accumulating-merit"]').count() === 1);
-  await p.click('#rail a[href="#/tool/accumulating-merit"]'); await p.waitForSelector('.mr .main'); await p.waitForTimeout(300);
+  ok('menu thanh bên là TV Online (Tích đức đã bỏ khỏi menu)', await p.locator('#rail a[href="#/tool/tv"]').count() === 1 && await p.locator('#rail a[href="#/tool/accumulating-merit"]').count() === 0);
+  await p.goto('file://' + ROOT + '/index.html#/tool/accumulating-merit'); await p.waitForSelector('.mr .main'); await p.waitForTimeout(300);
   ok('mở đúng trang #/tool/accumulating-merit', /accumulating-merit/.test(p.url()) && await p.locator('.mr h1').innerText() === 'Mỗi nhịp gõ, một niềm an.');
   ok('có lịch âm hôm nay + giờ hoàng đạo', /Âm lịch: \d+ tháng \d+ năm/.test(await p.locator('.mr .cal').innerText()) && /Giờ hoàng đạo: .*\(\d+h/.test(await p.locator('.mr .hr').innerText()));
   ok('9 mốc hành trình, mốc 1 là hiện tại', await p.locator('.mr .ms').count() === 9 && await p.locator('.mr .ms.cur').count() === 1);
