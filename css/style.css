@@ -269,7 +269,7 @@ footer a{color:var(--md-on-surface-var);text-decoration:underline}footer a:hover
   body.ingame #announce,body.ingame footer,body.ingame .ad,body.ingame .aurora{display:none!important}
   body.ingame #view{flex:1;min-height:0;display:flex;flex-direction:column}
   body.ingame .vbar{margin-bottom:6px;flex:none}body.ingame .vbar h2{font-size:1.15rem}body.ingame .vbar .btn{height:36px}
-  body.ingame .stage{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 6px;gap:8px;justify-content:flex-start;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  body.ingame .stage{flex:1;min-height:0;overflow-y:hidden;overflow-x:hidden;padding:8px 6px;gap:8px;justify-content:flex-start;overscroll-behavior:contain}
   body.ingame .stage canvas{width:auto!important;height:auto!important;max-width:100%;max-height:min(58dvh,100%);flex:0 1 auto}
   body.ingame .stage .hint{font-size:12px;margin:2px 0}
   body.ingame .af .pane>.hint{display:none}body.ingame .af canvas.cv{max-height:40dvh}body.ingame .af,body.ingame .af .pane{min-width:0;width:100%;max-width:100%}body.ingame .af .pane{display:flex;flex-direction:column;align-items:center}body.ingame .af .hud{gap:6px}body.ingame .af .cp{flex-wrap:nowrap;overflow-x:auto;width:100%;justify-content:flex-start;scrollbar-width:none}body.ingame .af .cp .crop{flex:0 0 auto}body.ingame .af .hud .xt{display:none}body.ingame .af .crop{min-height:54px;min-width:70px;padding:4px 6px}
