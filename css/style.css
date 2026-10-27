@@ -222,9 +222,6 @@ th{font-size:12px;color:var(--md-on-surface-var);text-transform:uppercase;letter
 .ad{position:relative;margin:24px auto;max-width:980px;text-align:center;min-height:0}
 .ad.span{grid-column:1/-1;margin:10px 0}
 .ad .adl{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--md-outline);margin-bottom:4px;text-align:left}
-.ad .house{display:flex;flex-direction:column;align-items:center;gap:2px;padding:16px;border-radius:16px;background:var(--md-sc);color:var(--md-on-surface);transition:box-shadow .2s}
-.ad .house:hover{box-shadow:var(--e2)}
-.ad .house .adl{align-self:flex-start}.ad .house b{font-size:1.05rem;font-weight:500}.ad .house span:not(.adl){font-size:14px;color:var(--md-on-surface-var)}.ad .house em{font-style:normal;margin-top:8px;background:var(--t-p);border:1px solid var(--t-pb);color:var(--t-pt);border-radius:16px;padding:6px 18px;font-weight:500;font-size:13px}
 footer .ad{margin-bottom:10px}
 
 /* ---------- Banner thông báo ---------- */
