@@ -71,23 +71,47 @@
   GV.register({
     id: 'password', type: 'tool', cat: 'Lập trình', name: 'Tạo mật khẩu', icon: '🔑', desc: 'Sinh mật khẩu ngẫu nhiên an toàn.',
     mount(el) {
-      el.innerHTML = `<div class="tool"><div class="res out big" style="font-size:1.4rem;font-family:monospace"></div>
-      <label>Độ dài: <b class="ln">16</b></label><input type="range" class="len" min="6" max="64" value="16">
-      <div class="row">${[['u', 'A-Z', 1], ['l', 'a-z', 1], ['n', '0-9', 1], ['s', '!@#$', 1]].map(([k, n, c]) => `<label><input type="checkbox" data-c="${k}" ${c ? 'checked' : ''}> ${n}</label>`).join('')}</div>
-      <p class="msg"></p><div class="row"><button class="btn gen">Tạo mới</button><button class="btn ghost cp">Sao chép</button></div></div>`;
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = q => el.querySelector(q);
       const S = { u: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', l: 'abcdefghijklmnopqrstuvwxyz', n: '0123456789', s: '!@#$%^&*()-_=+[]{};:,.?' };
+      const WORDS = [...new Set("an ban bay biet bong buom ca cam can cau cay chim chua cua cuoi dam dao den dep dinh doi dong dua gac gai gio gom hoa hop khe kem khoi lang len lieu lua mai may mua nam nen nui oc pho quat rang rong sao song suoi tao thu tre trua tuyet van vang vui xanh xe yen ao bep bien cho cot cuu da dau de duong em gan ghe ha hat hien hoc huong kho la lanh lon mat mau muoi nang nhan nha nuoc ong phao quan ruong sach sen tam tay tim tinh troi tuoi uom vuon xuan banh bun canh che chao com keo me nem sua trai".split(' '))]; // ~116 từ không dấu, dễ gõ
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om g"><div class="omc"><div class="omh"><i>🔑</i><div><h3>${L('Password Generator', 'Tạo mật khẩu')}</h3><p class="oms">${L('Secure random · nothing leaves your device', 'Ngẫu nhiên an toàn · không rời khỏi máy bạn')}</p></div></div>
+<div class="pwm"><button data-md="pw" class="on">${L('Password', 'Mật khẩu')}</button><button data-md="pp">${L('Passphrase', 'Cụm từ')}</button><button data-md="pin">PIN</button></div>
+<div class="ko"><input type="text" class="out" readonly aria-label="Generated" style="font-size:1.05rem"><button class="cp">${L('Copy', 'Chép')}</button></div>
+<div class="ks"><i class="kb"></i></div><p class="hint msg" style="margin:6px 0 0"></p>
+<div class="row" style="margin-top:14px;justify-content:space-between"><span class="hint ll">${L('Length', 'Độ dài')}: <b class="ln" style="color:#fff">16</b></span><input type="range" class="len" min="6" max="64" value="16" style="flex:1;max-width:260px;accent-color:#34d399"></div>
+<div class="kopt opts"><label><input type="checkbox" data-c="u" checked>A–Z</label><label><input type="checkbox" data-c="l" checked>a–z</label><label><input type="checkbox" data-c="n" checked>0–9</label><label><input type="checkbox" data-c="s" checked>!@#$</label><label><input type="checkbox" class="nl">${L('No look-alikes (0 O l 1 I)', 'Bỏ ký tự dễ nhầm (0 O l 1 I)')}</label></div>
+<div class="kopt ppo" hidden><label>${L('Separator', 'Ký tự nối')} <select class="sep" style="width:auto"><option value="-">-</option><option value=".">.</option><option value="_">_</option><option value=" ">${L('space', 'dấu cách')}</option></select></label><label><input type="checkbox" class="cap" checked>${L('Capitalize', 'Viết hoa chữ đầu')}</label><label><input type="checkbox" class="num" checked>${L('Add number', 'Thêm số')}</label></div>
+<button class="omb em gen" style="width:100%">${L('Generate', 'Tạo mới')}</button>
+<div class="hw" hidden><div class="row" style="justify-content:space-between;margin:16px 0 6px"><span class="hint">${L('Recent (this session only)', 'Gần đây (chỉ trong phiên này)')}</span></div><div class="hl"></div></div></div></div>
+<style>.om .pwm{display:flex;gap:6px;margin-bottom:12px}.om .pwm button{flex:1;padding:8px;border-radius:12px;border:1px solid #334155;background:#0b1220;color:#cbd5e1;font-size:12px;font-weight:700}.om .pwm button.on{background:#10b9811f;border-color:#10b981;color:#34d399;box-shadow:0 0 14px #10b98133}
+.om .hl{display:flex;flex-direction:column;gap:6px}.om .hl button{padding:8px 12px;border-radius:10px;border:1px solid #1e293b;background:#0b1220b3;color:#34d399;font:500 .8rem ui-monospace,Menlo,monospace;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.om .hl button:hover{border-color:#10b98166}</style>`;
+      let md = 'pw', hist = [];
+      const rnd = n => { const a = new Uint32Array(1), lim = Math.floor(4294967296 / n) * n; let v; do { crypto.getRandomValues(a); v = a[0]; } while (v >= lim); return v % n; };
+      const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1);[a[i], a[j]] = [a[j], a[i]]; } return a; };
       function gen() {
-        const sets = [...el.querySelectorAll('[data-c]')].filter(c => c.checked).map(c => S[c.dataset.c]);
-        if (!sets.length) { $(el, '.out').textContent = '—'; return; }
-        const pool = sets.join(''), n = +$(el, '.len').value, r = new Uint32Array(n * 2); crypto.getRandomValues(r);
-        const p = [...Array(n)].map((_, i) => i < sets.length ? sets[i][r[i] % sets[i].length] : pool[r[i] % pool.length]);
-        for (let i = n - 1; i > 0; i--) { const j = r[n + i] % (i + 1);[p[i], p[j]] = [p[j], p[i]]; }
-        $(el, '.out').textContent = p.join('');
-        const bits = Math.log2(pool.length) * n; $(el, '.msg').textContent = 'Độ mạnh: ' + (bits < 40 ? '🔴 Yếu' : bits < 70 ? '🟡 Trung bình' : '🟢 Mạnh');
+        const len = +$('.len').value; let out = '', bits = 0;
+        if (md === 'pw') {
+          const nl = $('.nl').checked, sets = [...el.querySelectorAll('[data-c]')].filter(c => c.checked).map(c => S[c.dataset.c]).map(x => nl ? x.replace(/[0OIl1]/g, '') : x);
+          if (!sets.length) { $('.out').value = ''; $('.msg').textContent = L('Pick at least one character type.', 'Hãy chọn ít nhất một loại ký tự.'); return; }
+          const pool = sets.join(''), p = sets.map(x => x[rnd(x.length)]); while (p.length < len) p.push(pool[rnd(pool.length)]);
+          out = shuffle(p).slice(0, len).join(''); bits = len * Math.log2(pool.length);
+        } else if (md === 'pp') {
+          const w = []; for (let i = 0; i < len; i++) { let x = WORDS[rnd(WORDS.length)]; if ($('.cap').checked) x = x[0].toUpperCase() + x.slice(1); w.push(x); }
+          out = w.join($('.sep').value); bits = len * Math.log2(WORDS.length); if ($('.num').checked) { out += $('.sep').value + String(rnd(100)).padStart(2, '0'); bits += Math.log2(100); }
+        } else { out = Array.from({ length: len }, () => rnd(10)).join(''); bits = len * Math.log2(10); }
+        $('.out').value = out; hist.unshift(out); hist = hist.slice(0, 5); $('.hw').hidden = false; $('.hl').innerHTML = hist.map((h, i) => `<button data-hi="${i}" title="${L('Click to copy', 'Bấm để chép')}">${h.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</button>`).join('');
+        bits = Math.round(bits); const lv = bits < 40 ? [L('Weak', 'Yếu'), '#f43f5e'] : bits < 70 ? [L('Fair', 'Trung bình'), '#f59e0b'] : bits < 100 ? [L('Strong', 'Mạnh'), '#34d399'] : [L('Excellent', 'Rất mạnh'), '#22d3ee'];
+        $('.kb').style.width = Math.min(100, bits / 1.4) + '%'; $('.kb').style.background = lv[1]; $('.msg').textContent = `${lv[0]} · ~${bits} bits`;
       }
-      $(el, '.len').oninput = e => { $(el, '.ln').textContent = e.target.value; gen(); };
-      el.querySelectorAll('[data-c]').forEach(c => c.onchange = gen);
-      $(el, '.gen').onclick = gen; $(el, '.cp').onclick = e => copy($(el, '.out').textContent, e.target); gen();
+      function setMode(m) {
+        md = m; el.querySelectorAll('.pwm button').forEach(b => b.classList.toggle('on', b.dataset.md === m)); $('.opts').hidden = m !== 'pw'; $('.ppo').hidden = m !== 'pp';
+        const r = $('.len'); r.min = m === 'pw' ? 6 : m === 'pp' ? 3 : 4; r.max = m === 'pw' ? 64 : m === 'pp' ? 10 : 12; r.value = m === 'pw' ? 16 : m === 'pp' ? 5 : 6; $('.ln').textContent = r.value;
+        $('.ll').firstChild.textContent = (m === 'pp' ? L('Words', 'Số từ') : L('Length', 'Độ dài')) + ': '; gen();
+      }
+      el.addEventListener('click', e => { const b = e.target.closest('[data-md]'); if (b) return setMode(b.dataset.md); const h = e.target.closest('[data-hi]'); if (h) { copy(hist[+h.dataset.hi], null); return; } });
+      $('.len').oninput = e => { $('.ln').textContent = e.target.value; gen(); }; el.querySelectorAll('.kopt input,.kopt select').forEach(c => { c.onchange = gen; });
+      $('.gen').onclick = gen; $('.cp').onclick = e => { if ($('.out').value) copy($('.out').value, e.target); }; gen();
+      return GV.omniTilt ? GV.omniTilt(el) : undefined;
     }
   });
 

@@ -15,6 +15,7 @@
       'm1.t': 'Cyber Game Hub', 'm1.p': 'Play multiplayer mini-games with friends, with room chat and voice chat built in.', 'm1.go': 'Launch Arcade',
       'm2.t': '3D Crypto Terminal', 'm2.p': 'Scan coins, read technical indicators, and plan entries, take-profit, stop-loss and leverage.', 'm2.go': 'Analyze Now',
       'm3.t': 'Utility Power Tools', 'm3.p': 'Language lessons, Rubik solver, block coding, audiobooks and everyday tools in one place.', 'm3.go': 'Open Utilities',
+      'tw.all': 'All Utilities', 'ws.insp': 'System Inspector', 'ws.eng': 'Engine', 'ws.gfx': 'Graphics rendering', 'ws.net': 'Connection', 'ws.on': 'Online', 'ws.off': 'Offline', 'ws.lang': 'Interface language', 'ws.vp': 'Viewport', 'ws.dpr': 'Pixel ratio', 'ws.store': 'Saved data', 'ws.items': 'Library',
       'tw.t': 'Interactive Utility Workstation', 'tw.s': 'Live functional productivity and developer tools', 'sec.hot': 'Trending Now', 'sec.hot.s': 'Featured picks – open and play instantly', 'sec.rec': 'Recently Played', 'sec.rec.s': 'Pick up where you left off', 'fab': 'Play Random', 'fab.al': 'Play a random game', 'lang.al': 'Language'
     },
     vi: {
@@ -30,6 +31,7 @@
       'm1.t': 'Trung tâm game', 'm1.p': 'Chơi game mini cùng bạn bè, có chat và voice chat ngay trong phòng.', 'm1.go': 'Vào phòng',
       'm2.t': 'Trạm phân tích Crypto', 'm2.p': 'Quét coin, xem chỉ báo kỹ thuật, lên kế hoạch điểm vào – chốt lời – cắt lỗ và đòn bẫy.', 'm2.go': 'Phân tích ngay',
       'm3.t': 'Bộ công cụ tiện ích', 'm3.p': 'Bài học ngoại ngữ, giải Rubik, lập trình khối lệnh, sách nói và công cụ hằng ngày trong một chỗ.', 'm3.go': 'Mở tiện ích',
+      'tw.all': 'Tất cả tiện ích', 'ws.insp': 'Kiểm tra hệ thống', 'ws.eng': 'Nền tảng', 'ws.gfx': 'Đồ hoạ', 'ws.net': 'Kết nối', 'ws.on': 'Đang trực tuyến', 'ws.off': 'Ngoại tuyến', 'ws.lang': 'Ngôn ngữ giao diện', 'ws.vp': 'Kích thước khung', 'ws.dpr': 'Mật độ điểm ảnh', 'ws.store': 'Dữ liệu đã lưu', 'ws.items': 'Thư viện',
       'tw.t': 'Bàn làm việc tiện ích tương tác', 'tw.s': 'Công cụ năng suất và lập trình dùng được ngay', 'sec.hot': 'Đang hot', 'sec.hot.s': 'Những lựa chọn nổi bật – mở lên là chơi ngay', 'sec.rec': 'Chơi gần đây', 'sec.rec.s': 'Tiếp tục từ chỗ bạn đã dừng', 'fab': 'Chơi ngẫu nhiên', 'fab.al': 'Chơi ngẫu nhiên một game', 'lang.al': 'Ngôn ngữ'
     }
   };

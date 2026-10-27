@@ -4,30 +4,36 @@
   GV.register({
     id: 'calc', type: 'tool', cat: 'Tính toán', name: 'Máy tính', icon: '🧮', desc: 'Máy tính cơ bản, hỗ trợ bàn phím.',
     mount(el) {
-      const keys = ['C', '⌫', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '±', '0', '.', '='];
-      el.innerHTML = `<div class="tool" style="max-width:320px"><div class="res" style="text-align:right;min-height:80px"><div class="hint ex" style="min-height:1.4em"></div><div class="big out" style="text-align:right;font-size:2rem;overflow:hidden">0</div></div>
-      <div class="bd" style="grid-template-columns:repeat(4,1fr)">${keys.map(k => `<button class="btn ${/[÷×−+=]/.test(k) ? '' : 'ghost'}" data-k="${k}" style="padding:14px 0;font-size:18px">${k}</button>`).join('')}</div></div>`;
-      const out = el.querySelector('.out'), ex = el.querySelector('.ex');
-      let a = null, op = null, cur = '0', fresh = false;
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = s => el.querySelector(s);
+      const keys = [['C', 'cl'], ['⌫', 'op'], ['%', 'op'], ['÷', 'op'], ['7'], ['8'], ['9'], ['×', 'op'], ['4'], ['5'], ['6'], ['−', 'op'], ['1'], ['2'], ['3'], ['+', 'op'], ['±', 'op'], ['0'], ['.'], ['=', 'eq']];
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om c"><div class="omc"><div class="omh"><i>🧮</i><div><h3>${L('Calculator', 'Máy tính')}</h3><p class="oms">${L('Chain operations · keyboard supported · history', 'Tính nối tiếp · hỗ trợ bàn phím · lịch sử')}</p></div></div>
+<div class="cd" aria-live="polite"><small class="ex"></small><b class="out">0</b></div>
+<div class="ck" style="grid-template-columns:repeat(4,1fr)">${keys.map(([k, c]) => `<button data-k="${k}" class="${c || ''}">${k}</button>`).join('')}</div>
+<div class="hw" hidden><div class="row" style="justify-content:space-between;margin:16px 0 6px"><span class="hint">${L('History', 'Lịch sử')}</span><button class="omb gh hc" style="padding:4px 10px;font-size:11px">${L('Clear', 'Xoá')}</button></div><div class="hl"></div></div></div></div>
+<style>.om .ck .eq{grid-row:auto}.om .hl{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow:auto}.om .hl button{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid #1e293b;background:#0b1220b3;color:#cbd5e1;font:500 .8rem ui-monospace,Menlo,monospace;text-align:left}.om .hl button b{color:#22d3ee}.om .hl button:hover{border-color:#00f2fe55}</style>`;
+      let a = null, op = null, cur = '0', fresh = false, hist = [];
       const calc = (x, o, y) => o === '+' ? x + y : o === '−' ? x - y : o === '×' ? x * y : o === '÷' ? (y === 0 ? NaN : x / y) : y;
       const fmt = n => isNaN(n) ? 'Lỗi' : String(+n.toPrecision(12));
+      function drawHist() { $('.hw').hidden = !hist.length; $('.hl').innerHTML = hist.map((h, i) => `<button data-h="${i}"><span>${h.e}</span><b>${h.r}</b></button>`).join(''); }
       function key(k) {
+        if (cur === 'Lỗi' && k !== 'C') { cur = '0'; a = op = null; fresh = false; }
         if (/\d/.test(k)) { cur = (fresh || cur === '0') ? k : cur + k; fresh = false; }
         else if (k === '.') { if (fresh) { cur = '0.'; fresh = false; } else if (!cur.includes('.')) cur += '.'; }
-        else if (k === 'C') { a = op = null; cur = '0'; ex.textContent = ''; }
-        else if (k === '⌫') cur = cur.length > 1 ? cur.slice(0, -1) : '0';
+        else if (k === 'C') { a = op = null; cur = '0'; $('.ex').textContent = ''; fresh = false; }
+        else if (k === '⌫') cur = fresh ? cur : cur.length > 1 ? cur.slice(0, -1) : '0';
         else if (k === '±') cur = cur.startsWith('-') ? cur.slice(1) : cur === '0' ? cur : '-' + cur;
         else if (k === '%') cur = fmt(parseFloat(cur) / 100);
-        else if (k === '=') { if (op) { const r = calc(a, op, parseFloat(cur)); ex.textContent = `${fmt(a)} ${op} ${cur} =`; cur = fmt(r); a = op = null; fresh = true; } }
-        else { if (op && !fresh) { a = calc(a, op, parseFloat(cur)); cur = fmt(a); } else a = parseFloat(cur); op = k; ex.textContent = `${fmt(a)} ${k}`; fresh = true; }
-        out.textContent = cur;
+        else if (k === '=') { if (op) { const r = calc(a, op, parseFloat(cur)), e = `${fmt(a)} ${op} ${cur}`; $('.ex').textContent = e + ' ='; cur = fmt(r); hist.unshift({ e, r: cur }); hist = hist.slice(0, 8); drawHist(); a = op = null; fresh = true; } }
+        else { if (op && !fresh) { a = calc(a, op, parseFloat(cur)); cur = fmt(a); } else a = parseFloat(cur); op = k; $('.ex').textContent = `${fmt(a)} ${k}`; fresh = true; }
+        $('.out').textContent = cur;
       }
-      el.onclick = e => { const k = e.target.dataset.k; if (k) key(k); };
+      el.onclick = e => { const k = e.target.dataset.k; if (k) key(k); const h = e.target.closest('[data-h]'); if (h) { cur = hist[+h.dataset.h].r; fresh = true; $('.out').textContent = cur; } if (e.target.closest('.hc')) { hist = []; drawHist(); } };
       const off = GV.keys(e => {
         const m = { '*': '×', '/': '÷', '-': '−', Enter: '=', Backspace: '⌫', Escape: 'C' }[e.key] || e.key;
-        if (keys.includes(m)) key(m);
+        if (keys.some(x => x[0] === m)) key(m);
       }, false);
-      return off;
+      const t = GV.omniTilt ? GV.omniTilt(el) : null;
+      return () => { off(); if (t) t(); };
     }
   });
 

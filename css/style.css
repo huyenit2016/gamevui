@@ -497,3 +497,9 @@ body.tv .stage table{border-color:#1e293b}body.tv .stage th{color:#94a3b8;font-s
 body.tv .stage .hud>span{background:#1e293b99;border:1px solid #334155;border-radius:12px}
 /* thẻ tiện ích ở danh sách: viền cyan nhẹ khi di chuột (đã có), đầu thẻ kính */
 .omni-note{display:none}
+/* khu "Utility Workstation" ngay trong tab Tiện ích */
+.ws{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:22px;align-items:start;margin:4px 0 26px}.ws[hidden]{display:none}
+.ws .wsc{min-width:0}.ws .om{max-width:none;margin:0}.ws .omc{padding:20px}.ws .om .qbox{min-height:200px}.ws .om .tr{width:min(210px,62vw)}.ws .om .pt{font-size:2.3rem}
+.allh{margin:8px 0 12px;font:800 1.2rem var(--font);color:#fff}.allh[hidden]{display:none}
+.insp{display:flex;flex-direction:column}.insp div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #1e293b;font-size:.85rem}.insp div:last-child{border:0}.insp span{color:#94a3b8}.insp b{font:600 .8rem ui-monospace,Menlo,monospace;color:#e2e8f0;text-align:right}.insp b.c{color:#22d3ee}.insp b.g{color:#34d399}.insp b.r{color:#fb7185}.insp b.a{color:#fbbf24}
+.ws .om .qbox canvas{width:190px!important;height:auto}.ws .om .qbox{min-height:0;padding:12px}

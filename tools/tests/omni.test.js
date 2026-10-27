@@ -68,6 +68,30 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   await p.click('.rs'); await p.fill('.s', '1'); await p.dispatchEvent('.s', 'input'); await p.click('.om .go'); await p.waitForTimeout(1900);
   ok('hết giờ: báo "Hết giờ", vòng đổi trạng thái done', /Time is up|Hết giờ/.test(await p.locator('.tm').innerText()) && (await p.getAttribute('.tr', 'class')).includes('done'));
   await p.click('.rs'); ok('đặt lại xoá báo', (await p.locator('.tm').innerText()) === '' && !(await p.getAttribute('.tr', 'class')).includes('done'));
+  // Máy tính (viết lại)
+  await p.goto(U + '#/tool/calc'); await p.waitForSelector('.om .ck');
+  for (const k of ['1', '2', '+', '8', '×', '2', '=']) await p.click(`.ck [data-k="${k}"]`);
+  ok('máy tính nối tiếp: 12+8×2 = 40 (tính tuần tự như máy tính bỏ túi)', (await p.locator('.out').innerText()) === '40', await p.locator('.out').innerText());
+  ok('lịch sử ghi phép tính', await p.locator('.hl button').count() === 1 && /40/.test(await p.locator('.hl button').first().innerText()));
+  await p.click('.ck [data-k="C"]'); for (const k of ['5', '÷', '0', '=']) await p.click(`.ck [data-k="${k}"]`); ok('chia cho 0 → Lỗi', (await p.locator('.out').innerText()) === 'Lỗi');
+  await p.click('.ck [data-k="C"]'); await p.keyboard.type('9'); await p.keyboard.press('Backspace'); ok('bàn phím + ⌫', (await p.locator('.out').innerText()) === '0');
+  await p.locator('.hl button').nth(1).click(); ok('bấm lịch sử → dùng lại kết quả', (await p.locator('.out').innerText()) === '40');
+  // Mật khẩu (viết lại)
+  await p.goto(U + '#/tool/password'); await p.waitForSelector('.pwm'); const pw1 = await p.inputValue('.out');
+  ok('mật khẩu mặc định 16 ký tự đủ 4 loại', pw1.length === 16 && /[A-Z]/.test(pw1) && /[a-z]/.test(pw1) && /\d/.test(pw1) && /[^A-Za-z0-9]/.test(pw1), pw1);
+  await p.uncheck('[data-c="u"]'); await p.uncheck('[data-c="l"]'); await p.uncheck('[data-c="s"]'); ok('chỉ chọn số → toàn chữ số', /^\d{16}$/.test(await p.inputValue('.out')), await p.inputValue('.out'));
+  await p.click('.pwm [data-md="pp"]'); const pp = await p.inputValue('.out'); ok('cụm từ: 5 từ viết hoa chữ đầu + số', /^([A-Z][a-z]+-){5}\d\d$/.test(pp), pp);
+  await p.click('.pwm [data-md="pin"]'); ok('PIN 6 chữ số', /^\d{6}$/.test(await p.inputValue('.out')), await p.inputValue('.out'));
+  await p.click('.gen'); ok('lưu tối đa 5 mục gần đây', await p.locator('.hl button').count() >= 2 && await p.locator('.hl button').count() <= 5);
+  const hs = await p.evaluate(() => { const s = new Set(); for (let i = 0; i < 100; i++) { document.querySelector('.gen').click(); s.add(document.querySelector('.out').value); } return s.size; }); ok('100 PIN sinh ra không trùng hàng loạt', hs > 60, hs);
+  // Workstation: widget chạy ngay trong tab Tiện ích
+  await p.goto(U); await p.waitForTimeout(400); await p.click('.rail [data-go="tool"]'); await p.waitForTimeout(900);
+  ok('tab Tiện ích có 5 khối: QR, Pomodoro, Key, Đổi đơn vị, System Inspector', await p.locator('#ws .wsc').count() === 5 && /System Inspector/.test(await p.locator('#ws').innerText()) && /QR Generator/.test(await p.locator('#ws').innerText()));
+  await p.locator('#ws .wsc').nth(2).locator('.kg').click(); const wk = await p.locator('#ws .wsc').nth(2).locator('.ky').inputValue(); ok('Key Generator ngay trong tab sinh khoá', wk.length >= 8, wk);
+  await p.locator('#ws .wsc').nth(1).locator('.go').click(); await p.waitForTimeout(1300); ok('Pomodoro trong tab đang đếm', !/^25:00$/.test(await p.locator('#ws .wsc').nth(1).locator('.pt').innerText()));
+  ok('System Inspector có kích thước khung', /\d+x\d+/.test(await p.locator('#ws .insp').innerText()));
+  await p.goto(U + '#/game/chess'); await p.waitForTimeout(600); ok('vào game thì widget được gỡ (không còn timer/selector thừa)', await p.locator('#ws .wsc').count() === 0 && !/\d\d:\d\d ·/.test(await p.title()));
+  await p.goto(U); await p.waitForTimeout(300); await p.click('.rail [data-go="game"]'); await p.waitForTimeout(500); ok('đổi sang tab Game thì ẩn khu widget', await p.locator('#ws').isHidden());
   // EN/VI
   await p.goto(U); await p.waitForTimeout(400); const en = await p.locator('.rail .lb').first().innerText(); await p.click('#lang'); await p.waitForTimeout(300);
   ok('chuyển EN → VI đổi chữ thanh trái', en === 'Dashboard' && (await p.locator('.rail .lb').first().innerText()) === 'Trang chủ');

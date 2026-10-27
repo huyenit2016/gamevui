@@ -88,6 +88,21 @@
   // "Chơi gần đây": thẻ ngang gọn để khác hẳn "Đang hot"
   const recentHTML = i => `<a class="rc" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${verbOf(i)[0]}: ${GV.esc(i.name)}"><span class="rt" aria-hidden="true">${i.icon}</span><span class="rx"><b>${GV.esc(i.name)}</b><small>${tagOf(i)}</small></span><span class="rp">${GV.ic('play', 14, true)}</span></a>`;
 
+  /* "Utility Workstation": các tiện ích nhỏ chạy ngay trong tab Tiện ích (QR, Pomodoro, Key, Đổi đơn vị) + khối System Inspector */
+  let wsOff = [];
+  const WS = ['omni-qr', 'pomodoro', 'omni-keygen', 'unit'];
+  function unmountWS() { const w = $('#ws'); wsOff.forEach(f => { try { f && f(); } catch (e) {} }); wsOff = []; if (w) { w.innerHTML = ''; delete w.dataset.m; } }
+  GV.unmountWS = unmountWS;
+  function mountWS(w) {
+    if (w.dataset.m) return; w.dataset.m = '1'; w.innerHTML = '';
+    WS.forEach(id => { const it = GV.items.find(i => i.id === id); if (!it) return; const c = document.createElement('div'); c.className = 'wsc'; w.appendChild(c); try { wsOff.push(it.mount(c)); } catch (e) { console.warn(e); } });
+    const c = document.createElement('div'); c.className = 'wsc'; w.appendChild(c);
+    const rows = () => { let kb = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf('gv_') === 0) kb += (k.length + (localStorage.getItem(k) || '').length) * 2; } } catch (e) {}
+      return [[GV.t('ws.eng'), 'Vanilla JS + HTML5', ''], [GV.t('ws.gfx'), 'Canvas 2D · SVG', 'c'], [GV.t('ws.net'), GV.t(navigator.onLine ? 'ws.on' : 'ws.off'), navigator.onLine ? 'g' : 'r'], [GV.t('ws.lang'), GV.lang().toUpperCase(), ''], [GV.t('ws.vp'), innerWidth + 'x' + innerHeight, ''], [GV.t('ws.dpr'), String(+(devicePixelRatio || 1).toFixed(2)) + '×', ''], [GV.t('ws.store'), (kb / 1024).toFixed(1) + ' KB', 'a'], [GV.t('ws.items'), GV.items.length + ' items', 'c']]; };
+    const paint = () => { c.innerHTML = '<div class="om s"><div class="omc"><div class="omh"><i>&lt;/&gt;</i><div><h3>' + GV.t('ws.insp') + '</h3></div></div><div class="insp">' + rows().map(r => '<div><span>' + GV.esc(r[0]) + '</span><b class="' + r[2] + '">' + GV.esc(r[1]) + '</b></div>').join('') + '</div></div></div>'; };
+    paint(); const rs = () => paint(); addEventListener('resize', rs); addEventListener('online', rs); addEventListener('offline', rs);
+    wsOff.push(() => { removeEventListener('resize', rs); removeEventListener('online', rs); removeEventListener('offline', rs); });
+  }
   function renderHome() {
     const ng = GV.items.filter(i => i.type === 'game').length, online = GV.items.filter(i => i.cat === 'Nhiều người').length;
     // thẻ số liệu kiểu dashboard (dữ liệu thật của người chơi, lưu trên máy)
@@ -109,6 +124,8 @@
       (!q || (i.name + ' ' + i.desc + ' ' + i.cat).toLowerCase().includes(q)));
     const showcase = tab === 'all' && !cat && !q;
     const th = $('#thead'); if (th) th.hidden = !(tab === 'tool' && !q);
+    const wsEl = $('#ws'), want = tab === 'tool' && !cat && !q;
+    if (wsEl) { wsEl.hidden = !want; $('#allh').hidden = !want; if (want) mountWS(wsEl); else unmountWS(); }
     // khu nổi bật (chỉ hiện ở màn hình chính, chưa lọc)
     const hot = HOT().map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i));
     $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.slice(0, 9).map((i, k) => cardHTML(i, f, k === 0 ? 'feat' : '')).join('');
@@ -153,6 +170,7 @@
     const stage = $('#stage');
     stage.innerHTML = ''; stage.onclick = null;
     document.body.classList.toggle('ingame', !!item);
+    if (item) unmountWS(); // rời trang chủ: gỡ widget (tránh trùng selector/timer ngầm)
     document.body.classList.toggle('omni', !item);
     document.body.classList.toggle('tv', !!item && item.type === 'tool'); // trang tiện ích: áp giao diện "Utility Workstation" kính mờ + neon
     const pt = $('#ptitle span'); if (pt) { pt.textContent = item ? item.name : GV.t('title.home'); if (item) pt.removeAttribute('data-i18n'); else pt.setAttribute('data-i18n', 'title.home'); }
@@ -241,4 +259,4 @@
 })();
 
 // đổi ngôn ngữ: vẽ lại phần có chữ sinh bằng JS (thẻ số liệu, dòng thống kê, tiêu đề)
-document.addEventListener('gv:lang', () => { if (GV.rerenderHome) GV.rerenderHome(); const pt = document.querySelector('#ptitle span'); if (pt && pt.dataset.i18n) pt.textContent = GV.t(pt.dataset.i18n); });
+document.addEventListener('gv:lang', () => { if (GV.unmountWS) GV.unmountWS(); if (GV.rerenderHome) GV.rerenderHome(); const pt = document.querySelector('#ptitle span'); if (pt && pt.dataset.i18n) pt.textContent = GV.t(pt.dataset.i18n); });
