@@ -144,5 +144,6 @@
       run(); return () => clearTimeout(tm);
     }
   });
+  GV.omniCSS = CSS; GV.omniTilt = tilt; // dùng chung cho tiện ích cũ viết lại (Pomodoro, Đổi đơn vị)
   GV.omniT = { calc };
 })();

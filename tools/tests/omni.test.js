@@ -37,6 +37,20 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   ok('iframe cách ly (không allow-same-origin)', !/allow-same-origin/.test(await p.getAttribute('.sf', 'sandbox')));
   await p.fill('.sc', '<script>try{document.title="x";parent.document.body.setAttribute("data-hack","1")}catch(e){}</script>'); await p.click('.sr'); await p.waitForTimeout(400);
   ok('mã trong khung không chạm được trang chủ', !(await p.evaluate(() => document.body.hasAttribute('data-hack'))));
+  // Đổi đơn vị (viết lại)
+  await p.goto(U + '#/tool/unit'); await p.waitForSelector('.uty'); await p.fill('.v', '2'); await p.selectOption('.f', 'km'); await p.selectOption('.t', 'm'); await p.waitForTimeout(100);
+  ok('2 km = 2,000 m', (await p.inputValue('.r')).replace(/,/g, '') === '2000', await p.inputValue('.r'));
+  await p.click('.sw'); await p.waitForTimeout(100); ok('đảo chiều: 2 km thành m → "km" ở ô kết quả', (await p.inputValue('.r')) === '0.002', await p.inputValue('.r'));
+  await p.click('.uty [data-ty="Nhiệt độ"]'); await p.fill('.v', '100'); await p.selectOption('.f', '°C'); await p.selectOption('.t', '°F'); await p.waitForTimeout(100); ok('100°C = 212°F', (await p.inputValue('.r')) === '212', await p.inputValue('.r'));
+  await p.fill('.v', '1,5'); await p.click('.uty [data-ty="Độ dài"]'); await p.selectOption('.f', 'm'); await p.selectOption('.t', 'cm'); await p.waitForTimeout(100); ok('chấp nhận dấu phẩy: 1,5 m = 150 cm', (await p.inputValue('.r')) === '150', await p.inputValue('.r'));
+  // Pomodoro (viết lại)
+  await p.goto(U + '#/tool/pomodoro'); await p.waitForSelector('.pr'); const t0 = await p.title();
+  ok('Pomodoro mặc định 25:00', (await p.locator('.pt').innerText()) === '25:00');
+  await p.click('.om .go'); await p.waitForTimeout(2300); const mm = await p.locator('.pt').innerText(); ok('chạy đếm ngược & tiêu đề tab hiện thời gian', mm !== '25:00' && /^24:5\d$/.test(mm) && /^24:5\d ·/.test(await p.title()), mm + ' | ' + await p.title());
+  await p.click('.om .go'); const frozen = await p.locator('.pt').innerText(); await p.waitForTimeout(1300); ok('tạm dừng thì đứng yên', frozen === await p.locator('.pt').innerText());
+  await p.click('.sk'); ok('bỏ qua → nghỉ ngắn 05:00, đếm 1 phiên', (await p.locator('.pt').innerText()) === '05:00' && /1/.test(await p.locator('.pc').innerText()));
+  await p.click('.pm [data-m="long"]'); ok('chọn nghỉ dài → 15:00', (await p.locator('.pt').innerText()) === '15:00');
+  await p.click('.rs'); await p.goto(U); await p.waitForTimeout(300); ok('rời trang trả tiêu đề tab', !/\d\d:\d\d ·/.test(await p.title()));
   // EN/VI
   await p.goto(U); await p.waitForTimeout(400); const en = await p.locator('.rail .lb').first().innerText(); await p.click('#lang'); await p.waitForTimeout(300);
   ok('chuyển EN → VI đổi chữ thanh trái', en === 'Dashboard' && (await p.locator('.rail .lb').first().innerText()) === 'Trang chủ');

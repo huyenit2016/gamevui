@@ -45,23 +45,37 @@
   GV.register({
     id: 'unit', type: 'tool', cat: 'Tính toán', name: 'Đổi đơn vị', icon: '📏', desc: 'Độ dài, khối lượng, nhiệt độ, dữ liệu…',
     mount(el) {
-      el.innerHTML = `<div class="tool"><select class="ty">${Object.keys(U).map(k => `<option>${k}</option>`).join('')}</select>
-      <div class="row"><input type="number" class="v" value="1" style="flex:1"><select class="f"></select></div><div class="row">⇅</div>
-      <div class="row"><input class="r" readonly style="flex:1"><select class="t"></select></div></div>`;
-      const $ = s => el.querySelector(s);
-      const T = ['°C', '°F', 'K'];
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = s => el.querySelector(s), T = ['°C', '°F', 'K'], ICON = { 'Độ dài': '📏', 'Khối lượng': '⚖️', 'Diện tích': '🗺️', 'Thể tích': '🧪', 'Tốc độ': '🚀', 'Dữ liệu': '💾', 'Thời gian': '⏱️', 'Nhiệt độ': '🌡️' };
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om g"><div class="omc"><div class="omh"><i>⇄</i><div><h3>${L('Unit Converter', 'Đổi đơn vị')}</h3><p class="oms">${L('Length, weight, temperature, data…', 'Độ dài, khối lượng, nhiệt độ, dữ liệu…')}</p></div></div>
+<div class="uty">${Object.keys(U).map((k, i) => `<button type="button" data-ty="${k}" class="${i ? '' : 'on'}"><span>${ICON[k] || '•'}</span>${k}</button>`).join('')}</div>
+<label class="ul">${L('Amount', 'Số lượng')}</label><div class="row"><input type="text" inputmode="decimal" class="v" value="1" style="flex:1" aria-label="Amount"><select class="f" style="width:44%"></select></div>
+<div class="usw"><button type="button" class="sw" title="${L('Swap', 'Đảo chiều')}" aria-label="Swap">⇅</button></div>
+<label class="ul">${L('Result', 'Kết quả')}</label><div class="row"><div class="ko" style="flex:1"><input type="text" class="r" readonly aria-label="Result"><button type="button" class="cp">${L('Copy', 'Chép')}</button></div><select class="t" style="width:44%"></select></div>
+<p class="hint ux" style="margin:12px 0 0"></p></div></div>
+<style>.om .uty{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.om .uty button{display:flex;gap:6px;align-items:center;padding:7px 12px;border-radius:99px;border:1px solid #334155;background:#0b1220;color:#cbd5e1;font-size:12px;font-weight:600}.om .uty button.on{background:#10b9811f;border-color:#10b981;color:#34d399;box-shadow:0 0 14px #10b98133}
+.om .ul{display:block;font-size:.72rem;color:#94a3b8;margin:10px 0 5px}.om .usw{text-align:center;margin:6px 0 0}.om .usw button{width:38px;height:38px;border-radius:50%;border:1px solid #334155;background:#1e293b;color:#34d399;font-size:1.1rem;transition:transform .3s}.om .usw button:active{transform:rotate(180deg)}
+.om .r{color:#fbbf24!important}</style>`;
+      let ty = Object.keys(U)[0];
+      const num = x => parseFloat(String(x).replace(',', '.'));
       function fill() {
-        const names = U[$('.ty').value] ? Object.keys(U[$('.ty').value]) : T;
+        const names = U[ty] ? Object.keys(U[ty]) : T;
         $('.f').innerHTML = $('.t').innerHTML = names.map(n => `<option>${n}</option>`).join(''); $('.t').selectedIndex = Math.min(1, names.length - 1); calc();
       }
       function calc() {
-        const v = parseFloat($('.v').value), ty = $('.ty').value, f = $('.f').value, t = $('.t').value; let r;
-        if (isNaN(v)) return $('.r').value = '';
+        const v = num($('.v').value), f = $('.f').value, t = $('.t').value; let r;
+        if (isNaN(v)) { $('.r').value = ''; $('.ux').textContent = ''; return; }
         if (U[ty]) r = v * U[ty][f] / U[ty][t];
         else { const c = f === '°C' ? v : f === '°F' ? (v - 32) * 5 / 9 : v - 273.15; r = t === '°C' ? c : t === '°F' ? c * 9 / 5 + 32 : c + 273.15; }
-        $('.r').value = +r.toPrecision(10);
+        const out = +r.toPrecision(10); $('.r').value = out.toLocaleString('en-US', { maximumFractionDigits: 10 });
+        $('.ux').textContent = `${v} ${f} = ${out.toLocaleString('en-US', { maximumFractionDigits: 10 })} ${t}`;
       }
-      $('.ty').onchange = fill; ['.v', '.f', '.t'].forEach(s => $(s).oninput = calc); fill();
+      el.addEventListener('click', e => {
+        const b = e.target.closest('[data-ty]'); if (b) { ty = b.dataset.ty; el.querySelectorAll('.uty button').forEach(x => x.classList.toggle('on', x === b)); fill(); return; }
+        if (e.target.closest('.sw')) { const f = $('.f').selectedIndex; $('.f').selectedIndex = $('.t').selectedIndex; $('.t').selectedIndex = f; calc(); return; }
+        const cp = e.target.closest('.cp'); if (cp && $('.r').value) { (navigator.clipboard ? navigator.clipboard.writeText($('.r').value) : Promise.reject()).catch(() => {}); const o = cp.textContent; cp.textContent = L('Copied ✓', 'Đã chép ✓'); setTimeout(() => { cp.textContent = o; }, 1200); }
+      });
+      ['.v', '.f', '.t'].forEach(s => { $(s).oninput = calc; $(s).onchange = calc; }); fill();
+      return GV.omniTilt ? GV.omniTilt(el) : undefined;
     }
   });
 
@@ -116,17 +130,34 @@
   GV.register({
     id: 'pomodoro', type: 'tool', cat: 'Thời gian', name: 'Pomodoro', icon: '🍅', desc: 'Tập trung 25 phút, nghỉ 5 phút.',
     mount(el) {
-      el.innerHTML = `<div class="tool"><div class="hud" style="justify-content:center"><span class="mode">Tập trung</span><span>Hoàn thành: <b class="n">0</b></span></div><div class="big out" style="font-size:4rem">25:00</div>
-      <div class="row"><button class="btn go">Bắt đầu</button><button class="btn ghost sk">Bỏ qua</button></div></div>`;
-      const $ = s => el.querySelector(s); let focus = true, left = 1500, tm, n = 0;
-      const show = () => $('.out').textContent = `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`;
-      function sw() { if (focus) { n++; $('.n').textContent = n; } focus = !focus; left = focus ? 1500 : (n % 4 ? 300 : 900); $('.mode').textContent = focus ? 'Tập trung' : 'Nghỉ ngơi'; show(); GV.beep(880, 300); }
-      $('.go').onclick = e => {
-        if (tm) { clearInterval(tm); tm = null; e.target.textContent = 'Tiếp tục'; return; }
-        e.target.textContent = 'Tạm dừng'; tm = setInterval(() => { if (--left <= 0) sw(); else show(); }, 1000);
-      };
-      $('.sk').onclick = sw;
-      return () => clearInterval(tm);
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = s => el.querySelector(s);
+      const M = { focus: [1500, L('Focus', 'Tập trung')], short: [300, L('Short break', 'Nghỉ ngắn')], long: [900, L('Long break', 'Nghỉ dài')] }, R = 2 * Math.PI * 92;
+      const today = new Date().toISOString().slice(0, 10), sv = GV.store.get('pomo', {}); let done = sv.d === today ? sv.n || 0 : 0;
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om p"><div class="omc"><div class="omh"><i>⏱️</i><div><h3>Pomodoro Focus Timer</h3><p class="oms">${L('25 min focus · 5 min break · long break every 4th', '25 phút tập trung · nghỉ 5 phút · nghỉ dài mỗi lần thứ 4')}</p></div></div>
+<div class="pm">${Object.keys(M).map((k, i) => `<button type="button" data-m="${k}" class="${i ? '' : 'on'}">${M[k][1]}</button>`).join('')}</div>
+<div class="pr"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="92" fill="none" stroke="#1e293b" stroke-width="8"/><circle class="pa" cx="100" cy="100" r="92" fill="none" stroke="url(#pg)" stroke-width="8" stroke-linecap="round" transform="rotate(-90 100 100)" stroke-dasharray="${R}" stroke-dashoffset="0"/><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#00f2fe"/></linearGradient></defs></svg><div class="pt" aria-live="off">25:00</div></div>
+<div class="pd" aria-label="Sessions"></div><p class="hint pc" style="text-align:center;margin:6px 0 14px"></p>
+<div class="row" style="justify-content:center"><button class="omb pu go" style="min-width:110px">${L('Start', 'Bắt đầu')}</button><button class="omb gh rs">${L('Reset', 'Đặt lại')}</button><button class="omb gh sk">${L('Skip', 'Bỏ qua')}</button></div></div></div>
+<style>.om .pm{display:flex;gap:6px;justify-content:center;margin-bottom:10px}.om .pm button{padding:7px 14px;border-radius:99px;border:1px solid #334155;background:#0b1220;color:#cbd5e1;font-size:12px;font-weight:600}.om .pm button.on{background:#7928ca2e;border-color:#a855f7;color:#d8b4fe;box-shadow:0 0 14px #7928ca55}
+.om .pr{position:relative;width:min(240px,70vw);aspect-ratio:1;margin:8px auto}.om .pr svg{width:100%;height:100%;filter:drop-shadow(0 0 14px #7928ca66)}.om .pa{transition:stroke-dashoffset 1s linear}
+.om .pt{position:absolute;inset:0;display:grid;place-items:center;font:800 2.8rem ui-monospace,Menlo,monospace;color:#c084fc;letter-spacing:.06em;text-shadow:0 0 22px #a855f799}
+.om .pd{display:flex;justify-content:center;gap:8px;margin-top:6px}.om .pd i{width:12px;height:12px;border-radius:50%;background:#1e293b;border:1px solid #334155}.om .pd i.on{background:#a855f7;border-color:#a855f7;box-shadow:0 0 10px #a855f7aa}</style>`;
+      let mode = 'focus', total = M.focus[0], left = total, tm = null, endAt = 0; const title0 = document.title;
+      const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+      function show() {
+        $('.pt').textContent = fmt(left); $('.pa').style.strokeDashoffset = R * (1 - left / total);
+        $('.pd').innerHTML = [0, 1, 2, 3].map(i => `<i class="${i < done % 4 || (done && done % 4 === 0 && mode !== 'focus') ? 'on' : ''}"></i>`).join(''); $('.pc').textContent = L(`Completed today: ${done}`, `Hôm nay đã hoàn thành: ${done}`);
+        document.title = tm ? `${fmt(left)} · ${M[mode][1]}` : title0;
+      }
+      function setMode(m) { stop(); mode = m; total = left = M[m][0]; el.querySelectorAll('.pm button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); $('.go').textContent = L('Start', 'Bắt đầu'); show(); }
+      function stop() { if (tm) { clearInterval(tm); tm = null; } }
+      function next(auto) { if (mode === 'focus') { done++; GV.store.set('pomo', { d: today, n: done }); } setMode(mode === 'focus' ? (done % 4 === 0 ? 'long' : 'short') : 'focus'); if (auto) { GV.beep(880, 300); start(); } }
+      function start() { stop(); endAt = Date.now() + left * 1000; $('.go').textContent = L('Pause', 'Tạm dừng'); tm = setInterval(() => { left = Math.max(0, Math.round((endAt - Date.now()) / 1000)); if (left <= 0) { stop(); GV.beep(880, 300); next(false); } else show(); }, 250); show(); }
+      $('.go').onclick = () => { if (tm) { stop(); $('.go').textContent = L('Resume', 'Tiếp tục'); show(); } else start(); };
+      $('.rs').onclick = () => setMode(mode); $('.sk').onclick = () => next(false);
+      el.querySelectorAll('.pm button').forEach(b => { b.onclick = () => setMode(b.dataset.m); }); show();
+      const t = GV.omniTilt ? GV.omniTilt(el) : null;
+      return () => { stop(); document.title = title0; if (t) t(); };
     }
   });
 
