@@ -466,7 +466,7 @@ body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:
   .top .bar{height:64px;padding:0 28px;gap:14px}
   .top .bar>.logo{display:none}
   .ptitle{display:flex;margin:0;font-size:1.3rem;max-width:30vw}
-  .top .bar .search{max-width:360px;flex:0 1 360px;margin-left:auto}
+  .top .bar .search{margin-left:auto}
   .top .bar .search+.wbtn{margin-left:0}
   .acct{margin-left:4px}
   html body.omni .top,html body .top{border-bottom:1px solid #1e293b}
