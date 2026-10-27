@@ -108,6 +108,7 @@
       (!cat || i.cat === cat) &&
       (!q || (i.name + ' ' + i.desc + ' ' + i.cat).toLowerCase().includes(q)));
     const showcase = tab === 'all' && !cat && !q;
+    const th = $('#thead'); if (th) th.hidden = !(tab === 'tool' && !q);
     // khu nổi bật (chỉ hiện ở màn hình chính, chưa lọc)
     const hot = HOT().map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i));
     $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.slice(0, 9).map((i, k) => cardHTML(i, f, k === 0 ? 'feat' : '')).join('');
@@ -135,7 +136,8 @@
     const m = { all: ['all', ''], game: ['game', ''], online: ['game', 'Nhiều người'], learn: ['all', 'Học tập'], tool: ['tool', ''] }[k]; if (!m) return;
     tab = m[0]; cat = m[1]; query = ''; const q = $('#q'); if (q) q.value = '';
     if (location.hash.length > 2) location.hash = '#/'; else renderHome();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // chọn mục lọc (không phải "Trang chủ") → cuộn tới danh sách để thấy ngay kết quả; Trang chủ → lên đầu
+    setTimeout(() => { const t = k === 'all' ? null : $('#tabs'); window.scrollTo({ top: t ? Math.max(0, t.getBoundingClientRect().top + scrollY - 100) : 0, behavior: 'smooth' }); }, 60);
   };
 
   function toggleFav(id) {
@@ -152,17 +154,18 @@
     stage.innerHTML = ''; stage.onclick = null;
     document.body.classList.toggle('ingame', !!item);
     document.body.classList.toggle('omni', !item);
+    document.body.classList.toggle('tv', !!item && item.type === 'tool'); // trang tiện ích: áp giao diện "Utility Workstation" kính mờ + neon
     const pt = $('#ptitle span'); if (pt) { pt.textContent = item ? item.name : GV.t('title.home'); if (item) pt.removeAttribute('data-i18n'); else pt.setAttribute('data-i18n', 'title.home'); }
     document.querySelectorAll('.rail a.rl,.bnav a.rl').forEach(x => x.classList.toggle('on', !!item && x.getAttribute('href') === '#/' + item.type + '/' + item.id));
     if (!item) {
-      document.title = 'GameVui – Game & Tiện ích online';
+      document.title = 'OmniHub – Game & Tiện ích online';
       $('#view').hidden = true; $('#home').hidden = false;
       renderHome();
       if (GV.ads) GV.ads.hydrate(document.querySelector('footer'));
       return;
     }
     $('#home').hidden = true; $('#view').hidden = false; $('#view').style.setProperty('--h', hue(item.cat)); markNav('');
-    document.title = item.name + ' – GameVui';
+    document.title = item.name + ' – OmniHub';
     if (!visible(item)) { $('#vtitle').textContent = item.icon + ' ' + item.name; stage.innerHTML = '<p class="msg">🔧 Chức năng này đang tạm đóng để bảo trì. Bạn quay lại sau nhé!</p>'; return; }
     $('#vtitle').textContent = item.icon + ' ' + item.name;
     const vf = $('#vfav');

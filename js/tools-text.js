@@ -41,7 +41,7 @@
   GV.register({
     id: 'json', type: 'tool', cat: 'Lập trình', name: 'JSON Formatter', icon: '{ }', desc: 'Định dạng, nén và kiểm tra JSON.',
     mount(el) {
-      el.innerHTML = `<div class="tool" style="max-width:800px"><textarea class="t" placeholder='{"ten":"GameVui"}' style="min-height:240px"></textarea><div class="row"><button class="btn" data-a="pretty">Làm đẹp</button><button class="btn ghost" data-a="min">Nén</button><button class="btn ghost" data-a="sort">Sắp xếp khóa</button><button class="btn ghost cp">Sao chép</button></div><p class="msg"></p></div>`;
+      el.innerHTML = `<div class="tool" style="max-width:800px"><textarea class="t" placeholder='{"ten":"OmniHub"}' style="min-height:240px"></textarea><div class="row"><button class="btn" data-a="pretty">Làm đẹp</button><button class="btn ghost" data-a="min">Nén</button><button class="btn ghost" data-a="sort">Sắp xếp khóa</button><button class="btn ghost cp">Sao chép</button></div><p class="msg"></p></div>`;
       const t = $(el, '.t'), m = $(el, '.msg');
       const sortKeys = o => Array.isArray(o) ? o.map(sortKeys) : o && typeof o === 'object' ? Object.fromEntries(Object.keys(o).sort().map(k => [k, sortKeys(o[k])])) : o;
       el.onclick = e => {

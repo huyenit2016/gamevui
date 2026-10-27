@@ -1,4 +1,4 @@
-// Hiển thị banner quảng cáo: AdSense (nếu cấu hình) → banner tự chèn → banner giới thiệu game của GameVui.
+// Hiển thị banner quảng cáo: AdSense (nếu cấu hình) → banner tự chèn → banner giới thiệu game của OmniHub.
 (function () {
   const C = () => window.GV_ADS || { enabled: false };
   const HOUSE = [
@@ -33,7 +33,7 @@
       el.innerHTML = `<span class="adl">Quảng cáo</span><a href="${GV.esc(GV.safeUrl(b.url))}" target="_blank" rel="sponsored noopener"><img src="${GV.esc(GV.safeUrl(b.img))}" alt="${GV.esc(b.alt || 'Quảng cáo')}" loading="lazy" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto"></a>`;
       return;
     }
-    const h = HOUSE[GV.rnd(HOUSE.length)]; // banner giới thiệu game của GameVui
+    const h = HOUSE[GV.rnd(HOUSE.length)]; // banner giới thiệu game của OmniHub
     el.innerHTML = `<a class="house" href="${h.h}" style="--h:${h.c}"><span class="adl">Gợi ý cho bạn</span><b>${h.t}</b><span>${h.d}</span><em>${h.h.includes("/tool/") ? "Dùng thử" : "Chơi ngay"}</em></a>`;
   }
   GV.ads = { hydrate(root) { if (!C().enabled) { (root || document).querySelectorAll('.ad').forEach(e => e.remove()); return; } (root || document).querySelectorAll('.ad:not([data-done])').forEach(fill); } };

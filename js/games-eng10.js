@@ -125,7 +125,7 @@
       function home() {
         clearInterval(timer); G = null; const cats = ['Tất cả', ...new Set(SETS().map(s => s.cat))]; if (ST.my.length) cats.push('Đề của tôi');
         const list = filter === 'Đề của tôi' ? ST.my : SETS().filter(s => filter === 'Tất cả' || s.cat === filter);
-        V.innerHTML = `<div class="etop"><button class="ex" data-x title="Thoát về GameVui">✕</button><h1>🦖 Phiêu lưu Tiếng Anh 10</h1><button class="btn w" data-t>👩‍🏫 Dành cho thầy cô</button></div>
+        V.innerHTML = `<div class="etop"><button class="ex" data-x title="Thoát về OmniHub">✕</button><h1>🦖 Phiêu lưu Tiếng Anh 10</h1><button class="btn w" data-t>👩‍🏫 Dành cho thầy cô</button></div>
           <div class="hero"><svg viewBox="0 0 100 124"><use href="#e10hero"/></svg><div><h2>Học tiếng Anh như đi phiêu lưu!</h2><p>Trả lời câu hỏi để vượt qua các chặng đường, đánh bại quái vật và nhận chứng chỉ hoàn thành. ${SETS().length} bộ đề (${SETS().reduce((a, s) => a + s.q.length, 0)} câu) bám chương trình Tiếng Anh 10.</p>
           <label style="margin:0 0 4px">Tên của con</label><div style="display:flex;gap:8px;flex-wrap:wrap;max-width:420px"><input id="nm" maxlength="24" placeholder="Ví dụ: An" value="${esc(ST.name)}" style="flex:1;min-width:150px"><button class="btn g" data-rand>🎲 Chơi ngẫu nhiên</button></div></div></div>
           <div class="chips">${cats.map(c => `<button class="${c === filter ? 'on' : ''}" data-f="${esc(c)}">${esc(c)}</button>`).join('')}</div>
@@ -282,7 +282,7 @@
         g.textAlign = 'center'; g.fillStyle = '#2a2140'; g.font = '800 62px "Baloo 2",Georgia,serif'; g.fillText('CHỨNG CHỈ HOÀN THÀNH', 600, 150); g.font = '30px "Baloo 2",Georgia,serif'; g.fillStyle = '#6a5f84'; g.fillText('Phiêu lưu Tiếng Anh 10 · trao cho', 600, 215);
         g.fillStyle = '#7c4dff'; g.font = '800 88px "Baloo 2",Georgia,serif'; g.fillText(i.name, 600, 320); g.fillStyle = '#2a2140'; g.font = '34px "Baloo 2",Georgia,serif'; g.fillText('đã hoàn thành bộ đề', 600, 385); g.font = '800 42px "Baloo 2",Georgia,serif'; g.fillText(i.title.length > 46 ? i.title.slice(0, 45) + '…' : i.title, 600, 445);
         g.font = '800 70px "Baloo 2",Georgia,serif'; g.fillStyle = '#1f8a50'; g.fillText(`${i.score}/${i.n} điểm`, 600, 545); g.font = '32px "Baloo 2",Georgia,serif'; g.fillStyle = '#6a5f84'; g.fillText(`${i.emoji} ${i.badge} · thời gian ${fmtT(i.secs)} · ${i.stars} sao`, 600, 600);
-        g.font = '28px ui-monospace,Menlo,monospace'; g.fillStyle = '#2a2140'; g.fillText(`Mã bài ${i.aid}   ·   Mã hoàn thành ${i.code}`, 600, 700); g.font = '24px "Baloo 2",Georgia,serif'; g.fillStyle = '#7d7391'; g.fillText(`Ngày ${i.date} · GameVui`, 600, 755);
+        g.font = '28px ui-monospace,Menlo,monospace'; g.fillStyle = '#2a2140'; g.fillText(`Mã bài ${i.aid}   ·   Mã hoàn thành ${i.code}`, 600, 700); g.font = '24px "Baloo 2",Georgia,serif'; g.fillStyle = '#7d7391'; g.fillText(`Ngày ${i.date} · OmniHub`, 600, 755);
       }
 
       /* ================= KHỞI ĐỘNG (link giao bài) ================= */

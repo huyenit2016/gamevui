@@ -1,4 +1,4 @@
-// Lô tô Việt Nam – bộ 16 vé (chuyển từ bản HTML độc lập sang khung GameVui)
+// Lô tô Việt Nam – bộ 16 vé (chuyển từ bản HTML độc lập sang khung OmniHub)
 (function () {
   const pad = n => String(n).padStart(2, '0');
   // Vé 9x9: mỗi hàng 5 số + 4 ô trống, cột 1 = 1-9, cột 2 = 10-19 ... cột 9 = 80-90 (0 = ô trống).

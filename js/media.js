@@ -61,7 +61,7 @@
             <div class="seg" style="margin-top:8px">${CHIPS.map(c => `<button class="chip" data-c="${c}">${c}</button>`).join('')}</div></div>
           <div id="pm" hidden><p class="note" style="margin:10px 0 6px">Chọn file nhạc trong máy (mp3, m4a, wav, ogg…). File chỉ phát ngay trên trình duyệt, không tải lên đâu cả.</p><input id="fi" type="file" accept="audio/*" multiple></div>
           <div class="lst" id="ls" role="list"></div><p class="note" id="st" style="margin-top:8px"></p></div>
-        <p class="note">Nguồn nhạc: <a href="https://openverse.org" target="_blank" rel="noopener" style="text-decoration:underline">Openverse</a> (tổng hợp nhạc Creative Commons, CC0 và phạm vi công cộng). Bài CC-BY cần ghi công tác giả — GameVui hiển thị sẵn dưới mỗi bài. GameVui không lưu hay phát lại nhạc có bản quyền, và không chèn quảng cáo vào trình phát.</p></div>`;
+        <p class="note">Nguồn nhạc: <a href="https://openverse.org" target="_blank" rel="noopener" style="text-decoration:underline">Openverse</a> (tổng hợp nhạc Creative Commons, CC0 và phạm vi công cộng). Bài CC-BY cần ghi công tác giả — OmniHub hiển thị sẵn dưới mỗi bài. OmniHub không lưu hay phát lại nhạc có bản quyền, và không chèn quảng cáo vào trình phát.</p></div>`;
       ready(el);
       const au = $(el, '#au'), ls = $(el, '#ls'), st = $(el, '#st'); let list = [], cur = -1, shuf = false, rep = 0, mode = 'free', urls = [], dead = false, mine = [];
       const show = () => { ls.innerHTML = list.map((t, i) => row(t, i, i === cur)).join('') || ''; };
@@ -125,7 +125,7 @@
       el.innerHTML = `<div class="md">
         <div class="box"><h3>1. Lời bài hát</h3><div class="sr"><select id="sg" style="flex:1"><option value="">— Dán lời của bạn —</option>${Object.entries(SONGS).map(([k, v]) => `<option value="${k}">${esc(v.n)}</option>`).join('')}</select><label class="btn ghost" style="cursor:pointer;margin:0">Mở file .lrc/.txt<input id="lf" type="file" accept=".lrc,.txt,text/plain" hidden></label></div>
           <textarea id="tx" style="min-height:110px;margin-top:8px" placeholder="Dán lời bài hát ở đây (mỗi dòng một câu). Nếu có dấu thời gian dạng [01:23.45] lời sẽ chạy đúng nhịp theo nhạc."></textarea>
-          <p class="note">GameVui không cung cấp lời/nhạc có bản quyền. Hãy dùng lời và nhạc bạn có quyền sử dụng (tự sáng tác, phạm vi công cộng, hoặc bạn sở hữu).</p></div>
+          <p class="note">OmniHub không cung cấp lời/nhạc có bản quyền. Hãy dùng lời và nhạc bạn có quyền sử dụng (tự sáng tác, phạm vi công cộng, hoặc bạn sở hữu).</p></div>
         <div class="box"><h3>2. Nhạc nền (tuỳ chọn)</h3><div class="seg" id="bk"><button class="on" data-b="none">Không có nhạc</button><button data-b="file">File của tôi</button><button data-b="free">Kho nhạc miễn phí</button></div>
           <div id="bf" hidden style="margin-top:8px"><input id="af" type="file" accept="audio/*,video/*"><p class="note">File beat/karaoke của bạn chạy ngay trên máy, có thể thu âm lẫn giọng.</p></div>
           <div id="bs" hidden style="margin-top:8px"><div class="sr"><input id="mq" placeholder="Tìm nhạc nền (vd: instrumental)" value="instrumental"><button class="btn" id="go">Tìm</button></div><div class="lst" id="ls"></div><p class="note" id="sm"></p></div>
@@ -228,7 +228,7 @@
   });
 
   /* =============== XEM TV =============== */
-  // Danh sách kênh: iptv-org (luồng công khai do chính đài/nhà phát hành cung cấp). GameVui không lưu trữ hay phát lại nội dung.
+  // Danh sách kênh: iptv-org (luồng công khai do chính đài/nhà phát hành cung cấp). OmniHub không lưu trữ hay phát lại nội dung.
   const TV_COUNTRIES = [['vn', 'Việt Nam'], ['us', 'Hoa Kỳ'], ['gb', 'Anh'], ['jp', 'Nhật Bản'], ['kr', 'Hàn Quốc'], ['sg', 'Singapore'], ['au', 'Úc'], ['fr', 'Pháp'], ['de', 'Đức'], ['th', 'Thái Lan']];
   function parseM3U(txt) {
     const out = []; let cur = null;
@@ -248,7 +248,7 @@
       el.innerHTML = `<div class="md"><div class="tvg"><div><div class="tvw"><video id="v" controls playsinline></video><div class="tvs" id="vs"></div></div><div class="np" style="margin-top:10px"><div class="inf"><b id="cn">Chọn một kênh</b><span class="lic" id="ci"></span></div><button class="btn ghost" id="fv" aria-label="Yêu thích">☆</button></div></div>
         <div class="box"><div class="sr"><select id="co" style="flex:1">${TV_COUNTRIES.map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}<option value="news">Tin tức quốc tế</option><option value="fav">★ Kênh yêu thích / của tôi</option></select></div><input id="mq" type="search" placeholder="Tìm kênh…" style="width:100%;margin-top:8px"><div class="lst tvl" id="ls"></div><p class="note" id="st" style="margin-top:6px"></p></div></div>
         <details class="box"><summary style="cursor:pointer;font-weight:700">Thêm kênh của tôi (link .m3u8 / .mp4)</summary><div class="sr" style="margin-top:8px"><input id="nn" placeholder="Tên kênh"><input id="nu" placeholder="https://…/playlist.m3u8"></div><div class="ctl"><button class="btn" id="na">Thêm</button></div></details>
-        <p class="note">Danh sách lấy từ <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener" style="text-decoration:underline">iptv-org</a> – chỉ các luồng công khai do chính đài/nhà phát hành cung cấp. GameVui không lưu trữ hay phát lại nội dung và không chèn quảng cáo; kênh có thể tạm ngưng, bị chặn theo khu vực hoặc không cho phát trên trình duyệt. Tôn trọng bản quyền của các đài.</p></div>`;
+        <p class="note">Danh sách lấy từ <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener" style="text-decoration:underline">iptv-org</a> – chỉ các luồng công khai do chính đài/nhà phát hành cung cấp. OmniHub không lưu trữ hay phát lại nội dung và không chèn quảng cáo; kênh có thể tạm ngưng, bị chặn theo khu vực hoặc không cho phát trên trình duyệt. Tôn trọng bản quyền của các đài.</p></div>`;
       ready(el);
       const v = $(el, '#v'), vs = $(el, '#vs'), ls = $(el, '#ls'), st = $(el, '#st'); let list = [], hls = null, curCh = null, dead = false, cache = {};
       const favs = () => GV.store.get('tv_fav', []), mineCh = () => GV.store.get('tv_mine', []);

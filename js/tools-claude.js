@@ -1,4 +1,4 @@
-// Mục "Claude How To" trên GameVui: giới thiệu và dẫn sang trang học riêng /claude-learning/ (tiến độ đọc từ gv_claude_learning).
+// Mục "Claude How To" trên OmniHub: giới thiệu và dẫn sang trang học riêng /claude-learning/ (tiến độ đọc từ gv_claude_learning).
 (function () {
   GV.register({
     id: 'claude-learning', type: 'tool', cat: 'Học tập', name: 'Claude How To – Học Claude Code', icon: '🎓', desc: 'Học Claude Code bằng tiếng Việt từ cơ bản đến nâng cao: 10 bài, sơ đồ, mẫu copy-paste, lộ trình cho AI, mobile, web, SA. Đọc offline được.',

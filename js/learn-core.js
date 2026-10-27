@@ -120,7 +120,7 @@
         <div class="col" style="max-width:none;margin-top:8px"><label>Nhà cung cấp <select class="ai-p">${Object.keys(P).map(k => `<option value="${k}" ${k === c.provider ? 'selected' : ''}>${P[k]}</option>`).join('')}</select></label>
         <label>Khóa API <input class="ai-k" type="password" placeholder="Dán khóa API của bạn" value="${esc(c.key)}" style="width:100%" autocomplete="off"></label>
         <label>Model <input class="ai-m" value="${esc(this.model(c))}" style="width:100%"></label>
-        <div class="hint">Khóa chỉ lưu trong trình duyệt của bạn (không gửi lên máy chủ của GameVui) và chỉ dùng để gọi thẳng tới nhà cung cấp AI. Nên dùng khóa có giới hạn chi phí. Chi phí do tài khoản của bạn chi trả.</div>
+        <div class="hint">Khóa chỉ lưu trong trình duyệt của bạn (không gửi lên máy chủ của OmniHub) và chỉ dùng để gọi thẳng tới nhà cung cấp AI. Nên dùng khóa có giới hạn chi phí. Chi phí do tài khoản của bạn chi trả.</div>
         <div class="row" style="justify-content:flex-start"><button class="btn ai-s" style="padding:6px 14px">Lưu</button><button class="btn ghost ai-x" style="padding:6px 14px">Xoá khóa</button></div></div></details>`;
     },
     bindPanel(root, onSave) {

@@ -168,7 +168,7 @@
         const src = (n, i) => { const w = wireIn(n, i); return w ? (w.ao === 1 ? '~' : '') + nm.get(w.a + ':0') : "1'b0"; };
         const ins = C.nodes.filter(n => n.t === 'IN').map(n => nm.get(n.id + ':0')), os = C.nodes.filter(n => n.t === 'OUT').map(n => nm.get('o' + n.id));
         const ports = (hasClk ? ['input clk'] : []).concat(ins.map(x => 'input ' + x), os.map(x => 'output ' + x));
-        let v = `// Tạo bởi GameVui – Thiết kế mạch số\nmodule chip(${ports.join(', ')});\n`;
+        let v = `// Tạo bởi OmniHub – Thiết kế mạch số\nmodule chip(${ports.join(', ')});\n`;
         C.nodes.filter(n => n.t === 'DFF').forEach(n => { v += `  reg ${nm.get(n.id + ':0')} = 1'b0;\n`; });
         C.nodes.filter(n => GATES[n.t] || n.t === 'NOT').forEach(n => { v += `  wire ${nm.get(n.id + ':0')};\n`; });
         C.nodes.forEach(n => { const o = nm.get(n.id + ':0'); if (n.t === 'NOT') v += `  assign ${o} = ~${src(n, 0)};\n`; else if (GATES[n.t]) { const a = src(n, 0), b = src(n, 1), op = { AND: `${a} & ${b}`, OR: `${a} | ${b}`, NAND: `~(${a} & ${b})`, NOR: `~(${a} | ${b})`, XOR: `${a} ^ ${b}`, XNOR: `~(${a} ^ ${b})` }[n.t]; v += `  assign ${o} = ${op};\n`; } });

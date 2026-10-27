@@ -1,4 +1,4 @@
-// CMS GameVui: đăng nhập, phân quyền (admin · CTV · giáo viên · học sinh), quản lý phòng & dọn rác, người dùng, cấu hình web, thông báo, thư viện khoá học, giao bài.
+// CMS OmniHub: đăng nhập, phân quyền (admin · CTV · giáo viên · học sinh), quản lý phòng & dọn rác, người dùng, cấu hình web, thông báo, thư viện khoá học, giao bài.
 (function () {
   const A = GV.account, L = GV.learn, esc = GV.esc, T = (m, o) => GV.toast(m, o);
   const root = document.getElementById('cms');
@@ -13,7 +13,7 @@
   /* =============== ĐĂNG NHẬP / ĐĂNG KÝ =============== */
   function authView(msg) {
     document.body.classList.remove('cms-app');
-    root.innerHTML = `<div class="cx"><div class="card2 authbox"><h2 style="text-align:center">🔐 Đăng nhập GameVui</h2>
+    root.innerHTML = `<div class="cx"><div class="card2 authbox"><h2 style="text-align:center">🔐 Đăng nhập OmniHub</h2>
       <p class="hint" style="text-align:center">Khách vẫn chơi bình thường <b>không cần đăng nhập</b>. Đăng nhập để giao bài / nhận bài, đăng khoá học hoặc quản trị.</p>
       <div class="row"><button class="pbtn sel" data-m="in">Đăng nhập</button><button class="pbtn" data-m="up">Đăng ký</button><button class="pbtn" data-m="rs">Quên mật khẩu</button></div>
       <form class="col" style="max-width:none;margin-top:10px" autocomplete="on">
@@ -65,10 +65,10 @@
     const nm = (A.profile && A.profile.name) || A.user.email, cur = tabs.find(t => t[0] === tab);
     document.body.classList.add('cms-app');
     root.innerHTML = `<div class="cx app"><div class="scrim"></div>
-      <aside class="sb"><div class="brand"><span class="lg">🎮</span><b>GameVui</b><small>CMS</small></div>
+      <aside class="sb"><div class="brand"><span class="lg">🎮</span><b>OmniHub</b><small>CMS</small></div>
         <nav class="tabsx">${tabs.map(t => `<button data-t="${t[0]}" class="${t[0] === tab ? 'on' : ''}">${t[1]}<span class="badge" id="bd-${t[0]}" hidden></span></button>`).join('')}</nav>
         <div class="sbf"><div class="me"><span class="av">${esc(String(nm).trim().charAt(0).toUpperCase())}</span><span class="mi"><b>${esc(nm)}</b><em>${A.ICON[A.role]} ${A.ROLES[A.role]}${A.profile && A.profile.requested ? ` · chờ duyệt: ${A.ROLES[A.profile.requested]}` : ''}</em></span></div>
-          <div class="sba"><button class="rr" title="Tải lại vai trò nếu admin vừa duyệt cho bạn">🔄 Cập nhật quyền</button><a href="./">🎮 Về GameVui</a><button class="lo">↪ Đăng xuất</button></div></div></aside>
+          <div class="sba"><button class="rr" title="Tải lại vai trò nếu admin vừa duyệt cho bạn">🔄 Cập nhật quyền</button><a href="./">🎮 Về OmniHub</a><button class="lo">↪ Đăng xuất</button></div></div></aside>
       <section class="main"><div class="topbar"><button class="mbtn" aria-label="Mở menu">☰</button><h1>${cur ? cur[1] : ''}</h1><span class="tag ${A.isAdmin ? 'ok' : ''}">${A.ROLES[A.role]}</span></div><div id="tabc"></div></section></div>`;
     const app = $('.app'); $('.mbtn').onclick = () => app.classList.toggle('open'); $('.scrim').onclick = () => app.classList.remove('open');
     $('.lo').onclick = () => A.signOut();
@@ -199,7 +199,7 @@
     c.innerHTML = `<div class="card2"><h2>⚙️ Cấu hình web (tự động áp dụng cho mọi khách)</h2>
       <div class="grid2"><div><h3>Trang chủ</h3><label class="f">Nhãn nhỏ phía trên tiêu đề</label><input class="w pill" value="${esc(cur.pill ?? 'Game mới • Chơi ngay')}">
         <label class="f">Khẩu hiệu – phần đầu</label><input class="w lead" value="${esc(cur.heroLead ?? 'Chơi vui mỗi ngày.')}"><label class="f">Khẩu hiệu – phần nhấn màu</label><input class="w grad" value="${esc(cur.heroGrad ?? 'Không cần cài đặt.')}"><label class="f">Emoji cuối</label><input class="w emo" value="${esc(cur.heroEmoji ?? '')}">
-        <label class="f">Câu ở chân trang</label><input class="w foot" value="${esc(cur.footer ?? 'GameVui – nơi bạn bè gặp nhau để chơi, học và cười thật nhiều 💛')}"></div>
+        <label class="f">Câu ở chân trang</label><input class="w foot" value="${esc(cur.footer ?? 'OmniHub – nơi bạn bè gặp nhau để chơi, học và cười thật nhiều 💛')}"></div>
         <div><h3>Bật / tắt & nổi bật</h3><label class="f">Mục "🔥 Đang hot" (id, cách nhau dấu phẩy; để trống = mặc định)</label><textarea class="w hot" style="min-height:60px">${esc(csv(cur.hot))}</textarea>
         <label class="f">Mục gắn nhãn NEW</label><textarea class="w nw" style="min-height:60px">${esc(csv(cur.nw))}</textarea>
         <label class="f">Tạm đóng (ẩn với khách, admin vẫn thấy)</label><textarea class="w off" style="min-height:60px">${esc(csv(cur.off))}</textarea>

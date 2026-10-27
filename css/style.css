@@ -474,3 +474,26 @@ body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:
   .acct{margin-left:4px}
   html body.omni .top,html body .top{border-bottom:1px solid #1e293b}
 }
+.logo .lg{font:800 1.25rem/1 var(--font);color:#fff}.logo .lt{letter-spacing:.06em;font-weight:800}
+
+/* =====================================================================
+   Trang tiện ích kiểu "Interactive Utility Workstation" của OmniHub (body.tv = đang mở 1 tiện ích; .thead = tiêu đề danh sách tiện ích)
+   ===================================================================== */
+.thead{margin:6px 0 16px}.thead h2{margin:0;font:800 1.6rem var(--font);color:#fff;letter-spacing:-.01em}.thead p{margin:2px 0 0;font-size:.82rem;color:#94a3b8}
+body.tv .vbar h2{font:800 1.25rem var(--font);color:#fff}
+body.tv .vbar .btn.ghost{background:var(--gl,rgba(15,23,42,.65));border:1px solid #ffffff14;color:#e2e8f0;border-radius:12px}
+body.tv .stage{background:radial-gradient(520px 260px at 90% 0,#7928ca1f,transparent 70%),radial-gradient(520px 260px at 0 100%,#00f2fe14,transparent 70%),rgba(15,23,42,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid #ffffff14;border-radius:24px;box-shadow:0 20px 50px #0007,inset 0 1px 1px #ffffff1f}
+body.tv .stage h1,body.tv .stage h2,body.tv .stage h3{color:#fff}
+body.tv .stage .tool>.big,body.tv .stage .big{color:#fff}
+body.tv .stage input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),body.tv .stage select,body.tv .stage textarea{background:#0b1220;color:#e2e8f0;border:1px solid #334155;border-radius:12px}
+body.tv .stage input:focus,body.tv .stage select:focus,body.tv .stage textarea:focus{border-color:#00f2fe;box-shadow:0 0 0 3px #00f2fe26}
+body.tv .stage input[type=range]{accent-color:#00f2fe}
+body.tv .stage .btn:not(.ghost):not(.bad):not(.ok){background:linear-gradient(135deg,#06b6d4,#00f2fe);color:#04141a;border:0;box-shadow:0 0 18px #00f2fe4d;font-weight:700;border-radius:12px}
+body.tv .stage .btn.ghost{background:#1e293b99;border:1px solid #334155;color:#e2e8f0;border-radius:12px}
+body.tv .stage .btn.ok{background:linear-gradient(135deg,#10b981,#34d399);color:#04141a;border:0;box-shadow:0 0 18px #10b98166}
+body.tv .stage .res,body.tv .stage .box,body.tv .stage .card2,body.tv .stage details{background:#0b1220b3;border:1px solid #1e293b;border-radius:16px}
+body.tv .stage .hint{color:#94a3b8}
+body.tv .stage table{border-color:#1e293b}body.tv .stage th{color:#94a3b8;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+body.tv .stage .hud>span{background:#1e293b99;border:1px solid #334155;border-radius:12px}
+/* thẻ tiện ích ở danh sách: viền cyan nhẹ khi di chuột (đã có), đầu thẻ kính */
+.omni-note{display:none}

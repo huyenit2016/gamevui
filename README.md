@@ -1,4 +1,4 @@
-# 🎮 GameVui
+# 🎮 OmniHub
 
 Web tĩnh 100% (HTML + CSS + JS thuần) gồm **28 game** và **23 tiện ích**. Không cần build, không cần npm – chạy thẳng từ GitHub Pages.
 
