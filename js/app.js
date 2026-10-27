@@ -90,7 +90,7 @@
 
   /* "Utility Workstation": các tiện ích nhỏ chạy ngay trong tab Tiện ích (QR, Pomodoro, Key, Đổi đơn vị) + khối System Inspector */
   let wsOff = [];
-  const WS = ['omni-qr', 'pomodoro', 'omni-keygen', 'unit'];
+  const WS = ['omni-qr', 'pomodoro', 'omni-keygen', 'unit', 'stopwatch', 'timer'];
   function unmountWS() { const w = $('#ws'); wsOff.forEach(f => { try { f && f(); } catch (e) {} }); wsOff = []; if (w) { w.innerHTML = ''; delete w.dataset.m; } }
   GV.unmountWS = unmountWS;
   function mountWS(w) {

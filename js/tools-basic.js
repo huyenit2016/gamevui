@@ -115,7 +115,8 @@
       function reset() { cancelAnimationFrame(raf); run = false; acc = 0; laps = []; lastLap = 0; $('.out').textContent = F(0); $('.go').textContent = L('Start', 'Bắt đầu'); $('.lap').disabled = true; draw(); }
       $('.go').onclick = toggle; $('.lap').onclick = lap; $('.rs').onclick = reset;
       $('.cpy').onclick = e => { const tx = laps.map(l => `${l.n}\t${F(l.d)}\t${F(l.t)}`).join('\n'); (navigator.clipboard ? navigator.clipboard.writeText(tx) : Promise.reject()).catch(() => {}); const o = e.target.textContent; e.target.textContent = L('Copied ✓', 'Đã chép ✓'); setTimeout(() => { e.target.textContent = o; }, 1200); };
-      const kd = e => { const t = e.target; if (e.ctrlKey || e.metaKey || e.altKey || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return; if (e.key === ' ') { e.preventDefault(); if (t && t.tagName === 'BUTTON') t.blur(); toggle(); } else if (e.key === 'l' || e.key === 'L') lap(); else if (e.key === 'r' || e.key === 'R') reset(); };
+      const emb = el.classList.contains('wsc'); // nhúng trong khu widget: phím tắt chỉ hoạt động khi con trỏ/tiêu điểm nằm trong khối, để Space vẫn cuộn trang
+      const kd = e => { const t = e.target; if (e.ctrlKey || e.metaKey || e.altKey || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return; if (emb && !(el.matches(':hover') || el.contains(document.activeElement))) return; if (e.key === ' ') { e.preventDefault(); if (t && t.tagName === 'BUTTON') t.blur(); toggle(); } else if (e.key === 'l' || e.key === 'L') lap(); else if (e.key === 'r' || e.key === 'R') reset(); };
       document.addEventListener('keydown', kd); const tl = GV.omniTilt ? GV.omniTilt(el) : null;
       return () => { cancelAnimationFrame(raf); document.removeEventListener('keydown', kd); if (tl) tl(); };
     }

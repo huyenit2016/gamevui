@@ -86,9 +86,13 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   const hs = await p.evaluate(() => { const s = new Set(); for (let i = 0; i < 100; i++) { document.querySelector('.gen').click(); s.add(document.querySelector('.out').value); } return s.size; }); ok('100 PIN sinh ra không trùng hàng loạt', hs > 60, hs);
   // Workstation: widget chạy ngay trong tab Tiện ích
   await p.goto(U); await p.waitForTimeout(400); await p.click('.rail [data-go="tool"]'); await p.waitForTimeout(900);
-  ok('tab Tiện ích có 5 khối: QR, Pomodoro, Key, Đổi đơn vị, System Inspector', await p.locator('#ws .wsc').count() === 5 && /System Inspector/.test(await p.locator('#ws').innerText()) && /QR Generator/.test(await p.locator('#ws').innerText()));
+  ok('tab Tiện ích có 7 khối: QR, Pomodoro, Key, Đổi đơn vị, Bấm giờ, Hẹn giờ, System Inspector', await p.locator('#ws .wsc').count() === 7 && /System Inspector/.test(await p.locator('#ws').innerText()) && /QR Generator/.test(await p.locator('#ws').innerText()));
   await p.locator('#ws .wsc').nth(2).locator('.kg').click(); const wk = await p.locator('#ws .wsc').nth(2).locator('.ky').inputValue(); ok('Key Generator ngay trong tab sinh khoá', wk.length >= 8, wk);
   await p.locator('#ws .wsc').nth(1).locator('.go').click(); await p.waitForTimeout(1300); ok('Pomodoro trong tab đang đếm', !/^25:00$/.test(await p.locator('#ws .wsc').nth(1).locator('.pt').innerText()));
+  await p.locator('#ws .wsc').nth(4).locator('.go').click(); await p.waitForTimeout(600); await p.locator('#ws .wsc').nth(4).locator('.lap').click(); ok('Bấm giờ trong tab chạy + ghi vòng', await p.locator('#ws .wsc').nth(4).locator('.laps tr').count() === 1 && !/^00:00\.00$/.test(await p.locator('#ws .wsc').nth(4).locator('.out').innerText()));
+  await p.locator('#ws .wsc').nth(4).locator('.go').click();
+  await p.locator('#ws .wsc').nth(5).locator('.om [data-m="10"]').click(); ok('Hẹn giờ trong tab: chip 10′ → 10:00', (await p.locator('#ws .wsc').nth(5).locator('.tt').innerText()) === '10:00');
+  await p.mouse.move(5, 5); const y0 = await p.evaluate(() => scrollY); await p.keyboard.press('Space'); ok('Space ngoài khối bấm giờ không kích hoạt nó', (await p.locator('#ws .wsc').nth(4).locator('.go').innerText()) !== 'Stop');
   ok('System Inspector có kích thước khung', /\d+x\d+/.test(await p.locator('#ws .insp').innerText()));
   await p.goto(U + '#/game/chess'); await p.waitForTimeout(600); ok('vào game thì widget được gỡ (không còn timer/selector thừa)', await p.locator('#ws .wsc').count() === 0 && !/\d\d:\d\d ·/.test(await p.title()));
   await p.goto(U); await p.waitForTimeout(300); await p.click('.rail [data-go="game"]'); await p.waitForTimeout(500); ok('đổi sang tab Game thì ẩn khu widget', await p.locator('#ws').isHidden());
