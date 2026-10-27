@@ -51,6 +51,23 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   await p.click('.sk'); ok('bỏ qua → nghỉ ngắn 05:00, đếm 1 phiên', (await p.locator('.pt').innerText()) === '05:00' && /1/.test(await p.locator('.pc').innerText()));
   await p.click('.pm [data-m="long"]'); ok('chọn nghỉ dài → 15:00', (await p.locator('.pt').innerText()) === '15:00');
   await p.click('.rs'); await p.goto(U); await p.waitForTimeout(300); ok('rời trang trả tiêu đề tab', !/\d\d:\d\d ·/.test(await p.title()));
+  // Đồng hồ bấm giờ (viết lại)
+  await p.goto(U + '#/tool/stopwatch'); await p.waitForSelector('.swd'); ok('bấm giờ ban đầu 00:00.00, nút Vòng bị khoá', (await p.locator('.out').innerText()) === '00:00.00' && await p.locator('.lap').isDisabled());
+  await p.click('.om .go'); await p.waitForTimeout(700); await p.click('.lap'); await p.waitForTimeout(500); await p.keyboard.press('l'); await p.waitForTimeout(300);
+  ok('chạy + ghi 2 vòng (nút và phím L)', await p.locator('.laps tr').count() === 2 && !/^00:00\.00$/.test(await p.locator('.out').innerText()));
+  const lp = await p.locator('.laps tr td:nth-child(2)').allInnerTexts(); ok('vòng 2 nhỏ hơn vòng 1 (đã trừ mốc trước)', lp.length === 2 && lp[0] < lp[1] + 'z' && parseFloat(lp[0].split(':')[1]) < parseFloat(lp[1].split(':')[1]), lp.join());
+  await p.keyboard.press(' '); const f1 = await p.locator('.out').innerText(); await p.waitForTimeout(500); ok('Space dừng đồng hồ', f1 === await p.locator('.out').innerText());
+  await p.keyboard.press('r'); ok('phím R đặt lại', (await p.locator('.out').innerText()) === '00:00.00' && await p.locator('.laps tr').count() === 0);
+  // Hẹn giờ (viết lại)
+  await p.goto(U + '#/tool/timer'); await p.waitForSelector('.tr'); ok('hẹn giờ mặc định 05:00', (await p.locator('.tt').innerText()) === '05:00');
+  await p.click('.om [data-m="25"]'); ok('chip 25′ → 25:00', (await p.locator('.tt').innerText()) === '25:00');
+  await p.fill('.h', '1'); await p.fill('.m', '0'); await p.fill('.s', '5'); await p.dispatchEvent('.s', 'input'); ok('nhập 1 giờ 5 giây → 01:00:05', (await p.locator('.tt').innerText()) === '01:00:05', await p.locator('.tt').innerText());
+  await p.fill('.h', '0'); await p.fill('.m', '0'); await p.fill('.s', '2'); await p.dispatchEvent('.s', 'input'); await p.click('.om .go'); await p.waitForTimeout(800);
+  ok('đang đếm ngược, tiêu đề tab đổi', /^00:0[12]$/.test(await p.locator('.tt').innerText()) && /Timer|Hẹn giờ/.test(await p.title()), await p.locator('.tt').innerText() + await p.title());
+  await p.click('.add'); await p.waitForTimeout(300); ok('+1′ khi đang chạy', /^01:0\d$/.test(await p.locator('.tt').innerText()), await p.locator('.tt').innerText());
+  await p.click('.rs'); await p.fill('.s', '1'); await p.dispatchEvent('.s', 'input'); await p.click('.om .go'); await p.waitForTimeout(1900);
+  ok('hết giờ: báo "Hết giờ", vòng đổi trạng thái done', /Time is up|Hết giờ/.test(await p.locator('.tm').innerText()) && (await p.getAttribute('.tr', 'class')).includes('done'));
+  await p.click('.rs'); ok('đặt lại xoá báo', (await p.locator('.tm').innerText()) === '' && !(await p.getAttribute('.tr', 'class')).includes('done'));
   // EN/VI
   await p.goto(U); await p.waitForTimeout(400); const en = await p.locator('.rail .lb').first().innerText(); await p.click('#lang'); await p.waitForTimeout(300);
   ok('chuyển EN → VI đổi chữ thanh trái', en === 'Dashboard' && (await p.locator('.rail .lb').first().innerText()) === 'Trang chủ');

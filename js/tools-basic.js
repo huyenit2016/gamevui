@@ -84,46 +84,64 @@
   GV.register({
     id: 'stopwatch', type: 'tool', cat: 'Thời gian', name: 'Bấm giờ', icon: '⏱', desc: 'Bấm giờ có ghi vòng (lap).',
     mount(el) {
-      el.innerHTML = `<div class="tool"><div class="big out" style="font-size:3.4rem">00:00.00</div><div class="row"><button class="btn go">Bắt đầu</button><button class="btn ghost lap">Vòng</button><button class="btn ghost rs">Đặt lại</button></div><table class="list laps"></table></div>`;
-      let t0 = 0, acc = 0, run = false, raf, laps = [];
-      const out = el.querySelector('.out');
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = s => el.querySelector(s), p2 = n => String(n).padStart(2, '0');
+      const F = ms => { const t = Math.floor(ms / 10), cs = t % 100, s = Math.floor(t / 100) % 60, m = Math.floor(t / 6000) % 60, h = Math.floor(t / 360000); return (h ? p2(h) + ':' : '') + `${p2(m)}:${p2(s)}.${p2(cs)}`; };
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om c"><div class="omc"><div class="omh"><i>⏱️</i><div><h3>${L('Stopwatch', 'Đồng hồ bấm giờ')}</h3><p class="oms">${L('Space = start/stop · L = lap · R = reset', 'Space = chạy/dừng · L = ghi vòng · R = đặt lại')}</p></div></div>
+<div class="swd"><b class="out" aria-live="off">00:00.00</b></div>
+<div class="row" style="justify-content:center;margin:16px 0"><button class="omb go" style="min-width:120px">${L('Start', 'Bắt đầu')}</button><button class="omb gh lap" disabled>${L('Lap', 'Vòng')}</button><button class="omb gh rs">${L('Reset', 'Đặt lại')}</button></div>
+<div class="lw" hidden><div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="hint">${L('Laps', 'Các vòng')}</span><button class="omb gh cpy" style="padding:5px 12px;font-size:12px">${L('Copy', 'Chép')}</button></div><div class="lt"><table><thead><tr><th>#</th><th>${L('Lap time', 'Thời gian vòng')}</th><th>${L('Total', 'Tổng')}</th></tr></thead><tbody class="laps"></tbody></table></div></div></div></div>
+<style>.om .swd{padding:26px 10px;border-radius:20px;background:#020617;border:1px solid #1e293b;text-align:center;box-shadow:inset 0 0 40px #00f2fe14}.om .swd b{font:800 clamp(2.2rem,9vw,3.6rem) ui-monospace,Menlo,monospace;color:#22d3ee;letter-spacing:.04em;text-shadow:0 0 24px #00f2fe88;font-variant-numeric:tabular-nums}
+.om .lt{max-height:260px;overflow:auto;border-radius:14px;border:1px solid #1e293b;background:#0b1220b3}.om .lt table{width:100%;border-collapse:collapse;font:500 .85rem ui-monospace,Menlo,monospace}.om .lt th{position:sticky;top:0;background:#0f172a;text-align:left;padding:8px 12px;font:600 .68rem var(--font);color:#94a3b8;letter-spacing:.06em;text-transform:uppercase}.om .lt td{padding:8px 12px;border-top:1px solid #1e293b}
+.om .lt tr.best td:nth-child(2){color:#34d399}.om .lt tr.worst td:nth-child(2){color:#fb7185}.om .lt td:nth-child(3){color:#94a3b8}</style>`;
+      let t0 = 0, acc = 0, run = false, raf = 0, laps = [], lastLap = 0;
       const cur = () => acc + (run ? performance.now() - t0 : 0);
-      function loop() { out.textContent = fmt(cur()); raf = requestAnimationFrame(loop); }
-      el.querySelector('.go').onclick = e => {
-        if (run) { acc = cur(); run = false; cancelAnimationFrame(raf); out.textContent = fmt(acc); e.target.textContent = 'Tiếp tục'; }
-        else { t0 = performance.now(); run = true; loop(); e.target.textContent = 'Dừng'; }
-      };
-      el.querySelector('.lap').onclick = () => { if (!run) return; laps.unshift(cur()); el.querySelector('.laps').innerHTML = laps.map((l, i) => `<tr><td>Vòng ${laps.length - i}</td><td>${fmt(l)}</td></tr>`).join(''); };
-      el.querySelector('.rs').onclick = () => { cancelAnimationFrame(raf); run = false; acc = 0; laps = []; out.textContent = '00:00.00'; el.querySelector('.laps').innerHTML = ''; el.querySelector('.go').textContent = 'Bắt đầu'; };
-      return () => cancelAnimationFrame(raf);
+      const loop = () => { $('.out').textContent = F(cur()); raf = requestAnimationFrame(loop); };
+      function draw() {
+        $('.lw').hidden = !laps.length; if (!laps.length) { $('.laps').innerHTML = ''; return; }
+        const d = laps.map(l => l.d), mn = Math.min(...d), mx = Math.max(...d);
+        $('.laps').innerHTML = laps.slice().reverse().map(l => `<tr class="${laps.length > 2 && l.d === mn ? 'best' : laps.length > 2 && l.d === mx ? 'worst' : ''}"><td>${l.n}</td><td>${F(l.d)}</td><td>${F(l.t)}</td></tr>`).join('');
+      }
+      function toggle() {
+        if (run) { acc = cur(); run = false; cancelAnimationFrame(raf); $('.out').textContent = F(acc); $('.go').textContent = L('Resume', 'Tiếp tục'); $('.lap').disabled = true; }
+        else { t0 = performance.now(); run = true; loop(); $('.go').textContent = L('Stop', 'Dừng'); $('.lap').disabled = false; }
+      }
+      function lap() { if (!run) return; const t = cur(); laps.push({ n: laps.length + 1, d: t - lastLap, t }); lastLap = t; draw(); }
+      function reset() { cancelAnimationFrame(raf); run = false; acc = 0; laps = []; lastLap = 0; $('.out').textContent = F(0); $('.go').textContent = L('Start', 'Bắt đầu'); $('.lap').disabled = true; draw(); }
+      $('.go').onclick = toggle; $('.lap').onclick = lap; $('.rs').onclick = reset;
+      $('.cpy').onclick = e => { const tx = laps.map(l => `${l.n}\t${F(l.d)}\t${F(l.t)}`).join('\n'); (navigator.clipboard ? navigator.clipboard.writeText(tx) : Promise.reject()).catch(() => {}); const o = e.target.textContent; e.target.textContent = L('Copied ✓', 'Đã chép ✓'); setTimeout(() => { e.target.textContent = o; }, 1200); };
+      const kd = e => { const t = e.target; if (e.ctrlKey || e.metaKey || e.altKey || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return; if (e.key === ' ') { e.preventDefault(); if (t && t.tagName === 'BUTTON') t.blur(); toggle(); } else if (e.key === 'l' || e.key === 'L') lap(); else if (e.key === 'r' || e.key === 'R') reset(); };
+      document.addEventListener('keydown', kd); const tl = GV.omniTilt ? GV.omniTilt(el) : null;
+      return () => { cancelAnimationFrame(raf); document.removeEventListener('keydown', kd); if (tl) tl(); };
     }
   });
 
   GV.register({
     id: 'timer', type: 'tool', cat: 'Thời gian', name: 'Hẹn giờ', icon: '⏳', desc: 'Đếm ngược và báo chuông.',
     mount(el) {
-      el.innerHTML = `<div class="tool"><div class="big out" style="font-size:3.4rem">05:00</div>
-      <div class="row"><input type="number" class="m" value="5" min="0" style="width:80px"> phút <input type="number" class="s" value="0" min="0" max="59" style="width:80px"> giây</div>
-      <div class="row">${[1, 5, 10, 25].map(m => `<button class="btn ghost" data-m="${m}">${m}′</button>`).join('')}</div>
-      <div class="row"><button class="btn go">Bắt đầu</button><button class="btn ghost rs">Đặt lại</button></div><p class="msg"></p></div>`;
-      const $ = s => el.querySelector(s); let end, tm, left;
-      const show = s => $('.out').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-      const total = () => Math.max(0, (+$('.m').value || 0) * 60 + (+$('.s').value || 0));
-      function stop() { clearInterval(tm); tm = null; $('.go').textContent = 'Bắt đầu'; }
-      function tick() {
-        left = Math.max(0, Math.round((end - Date.now()) / 1000)); show(left);
-        if (!left) { stop(); $('.msg').textContent = '⏰ Hết giờ!'; [0, 300, 600].forEach(d => setTimeout(() => GV.beep(880, 200), d)); document.title = '⏰ Hết giờ!'; }
-      }
-      $('.go').onclick = () => {
-        if (tm) { stop(); return; }
-        $('.msg').textContent = ''; if (!left) left = total(); if (!left) return;
-        end = Date.now() + left * 1000; tm = setInterval(tick, 250); tick(); $('.go').textContent = 'Tạm dừng';
-      };
-      $('.rs').onclick = () => { stop(); left = 0; show(total()); $('.msg').textContent = ''; };
-      el.onclick = e => { const m = e.target.dataset.m; if (m) { $('.m').value = m; $('.s').value = 0; stop(); left = 0; show(total()); } };
-      ['.m', '.s'].forEach(s => $(s).oninput = () => { stop(); left = 0; show(total()); });
-      show(total());
-      return () => clearInterval(tm);
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = s => el.querySelector(s), p2 = n => String(n).padStart(2, '0'), R = 2 * Math.PI * 92;
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om g"><div class="omc"><div class="omh"><i>⏳</i><div><h3>${L('Countdown Timer', 'Hẹn giờ')}</h3><p class="oms">${L('Count down and ring when time is up', 'Đếm ngược và báo chuông khi hết giờ')}</p></div></div>
+<div class="tr"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="92" fill="none" stroke="#1e293b" stroke-width="8"/><circle class="ta" cx="100" cy="100" r="92" fill="none" stroke="url(#tg)" stroke-width="8" stroke-linecap="round" transform="rotate(-90 100 100)" stroke-dasharray="${R}" stroke-dashoffset="0"/><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#00f2fe"/></linearGradient></defs></svg><div class="tt">05:00</div></div>
+<div class="row tin" style="justify-content:center"><label><input type="number" class="h" value="0" min="0" max="99" inputmode="numeric"><small>${L('hours', 'giờ')}</small></label><b>:</b><label><input type="number" class="m" value="5" min="0" max="999" inputmode="numeric"><small>${L('min', 'phút')}</small></label><b>:</b><label><input type="number" class="s" value="0" min="0" max="59" inputmode="numeric"><small>${L('sec', 'giây')}</small></label></div>
+<div class="row" style="justify-content:center;margin:12px 0">${[1, 5, 10, 15, 25, 45].map(m => `<button class="omb gh" data-m="${m}" style="padding:6px 12px;font-size:12px">${m}′</button>`).join('')}</div>
+<div class="row" style="justify-content:center"><button class="omb em go" style="min-width:120px">${L('Start', 'Bắt đầu')}</button><button class="omb gh add">+1′</button><button class="omb gh rs">${L('Reset', 'Đặt lại')}</button></div><p class="msg tm" style="text-align:center;font-weight:700;color:#34d399;min-height:1.4em;margin:12px 0 0"></p></div></div>
+<style>.om .tr{position:relative;width:min(240px,70vw);aspect-ratio:1;margin:4px auto 10px}.om .tr svg{width:100%;height:100%;filter:drop-shadow(0 0 14px #10b98166)}.om .ta{transition:stroke-dashoffset .25s linear}.om .tt{position:absolute;inset:0;display:grid;place-items:center;font:800 2.6rem ui-monospace,Menlo,monospace;color:#34d399;text-shadow:0 0 22px #10b98199;letter-spacing:.04em}
+.om .tin label{display:flex;flex-direction:column;align-items:center;gap:3px}.om .tin input{width:76px;text-align:center;font:700 1.3rem ui-monospace,Menlo,monospace;padding:8px 4px}.om .tin small{font-size:.68rem;color:#94a3b8}.om .tin b{font-size:1.4rem;color:#475569;margin-bottom:16px}
+.om .tr.done .tt{color:#fbbf24;text-shadow:0 0 22px #f59e0bbb;animation:tdn .6s ease-in-out infinite alternate}@keyframes tdn{to{transform:scale(1.08)}}</style>`;
+      let end = 0, tmr = null, left = 0, total = 0, ring = null; const title0 = document.title;
+      const fmt = s => (s >= 3600 ? p2(Math.floor(s / 3600)) + ':' : '') + `${p2(Math.floor(s / 60) % 60)}:${p2(s % 60)}`;
+      const input = () => Math.max(0, Math.floor((+$('.h').value || 0) * 3600 + (+$('.m').value || 0) * 60 + (+$('.s').value || 0)));
+      const show = () => { $('.tt').textContent = fmt(left); $('.ta').style.strokeDashoffset = total ? R * (1 - left / total) : 0; document.title = tmr ? `${fmt(left)} · ${L('Timer', 'Hẹn giờ')}` : title0; };
+      function stop() { clearInterval(tmr); tmr = null; $('.go').textContent = left && left < total ? L('Resume', 'Tiếp tục') : L('Start', 'Bắt đầu'); }
+      function silence() { clearInterval(ring); ring = null; $('.tr').classList.remove('done'); }
+      function sync() { stop(); silence(); left = total = input(); $('.msg').textContent = ''; $('.go').textContent = L('Start', 'Bắt đầu'); show(); }
+      function tick() { left = Math.max(0, Math.round((end - Date.now()) / 1000)); show(); if (!left) { stop(); $('.go').textContent = L('Start', 'Bắt đầu'); $('.msg').textContent = L('⏰ Time is up!', '⏰ Hết giờ!'); $('.tr').classList.add('done'); document.title = '⏰ ' + L('Time is up!', 'Hết giờ!'); const ringIt = () => [0, 250, 500].forEach(d => setTimeout(() => GV.beep(880, 180), d)); ringIt(); let n = 0; ring = setInterval(() => { if (++n > 6) silence(); else ringIt(); }, 1500); } }
+      function start() { silence(); if (!left) left = total = input(); if (!left) return; $('.msg').textContent = ''; end = Date.now() + left * 1000; tmr = setInterval(tick, 250); $('.go').textContent = L('Pause', 'Tạm dừng'); tick(); }
+      $('.go').onclick = () => { if (tmr) { stop(); show(); } else { if (!left) sync(); start(); } };
+      $('.rs').onclick = sync;
+      $('.add').onclick = () => { silence(); if (tmr) { end += 60000; total += 60; tick(); } else { left += 60; total = Math.max(total, left); $('.msg').textContent = ''; show(); } };
+      el.addEventListener('click', e => { const m = e.target.closest('[data-m]'); if (m) { $('.h').value = 0; $('.m').value = m.dataset.m; $('.s').value = 0; sync(); } });
+      ['.h', '.m', '.s'].forEach(q => { $(q).oninput = sync; }); sync(); const t = GV.omniTilt ? GV.omniTilt(el) : null;
+      return () => { clearInterval(tmr); silence(); document.title = title0; if (t) t(); };
     }
   });
 
