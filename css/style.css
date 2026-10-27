@@ -457,3 +457,20 @@ body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:
 .bellb .dot{top:6px;right:7px}
 @media(max-width:599px){.top .bar{gap:6px}.top .bar .icon-btn{width:38px;height:38px;min-width:38px}.top .bar .lgb{min-width:40px;padding:0 6px;font-size:11px}.search{min-width:0;flex:1 1 0}.acct{min-width:0;flex:none}}
 @media(max-width:440px){.acct .an{display:none}.acct{padding:0 4px;border-left:0;background:transparent;height:44px}.top .bar .search{flex:1 1 auto}}
+
+/* ---------- Bố cục máy tính giống file thiết kế OmniHub (≥1100px): logo nằm ở đầu thanh trái, thanh tiêu đề cao 80px bên phải ---------- */
+.rbrand{display:none}
+@media(min-width:1100px){
+  .rail{top:0;padding-top:0;z-index:60}
+  .rail .rbrand{display:flex;flex:none;width:auto;height:80px;margin:0 -14px 12px;padding:0 20px;gap:12px;align-items:center;justify-content:flex-start;border-bottom:1px solid #1e293b;border-radius:0;border-left:0;border-right:0;border-top:0;background:transparent}
+  .rail .rbrand .lg{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#6366f1 55%,#7928ca);color:#fff;box-shadow:0 6px 18px #00f2fe40}
+  .rail .rbrand .lt{font:800 1.12rem var(--font);letter-spacing:.08em;color:#fff}.rail .rbrand .lt b{color:#22d3ee;font-weight:800}
+  .top{margin-left:256px;width:calc(100% - 256px)}
+  .top .bar{height:80px;padding:0 28px;gap:14px}
+  .top .bar>.logo{display:none}
+  .ptitle{display:flex;margin:0;font-size:1.3rem;max-width:30vw}
+  .top .bar .search{max-width:360px;flex:0 1 360px;margin-left:auto}
+  .top .bar .search+.wbtn{margin-left:0}
+  .acct{margin-left:4px}
+  html body.omni .top,html body .top{border-bottom:1px solid #1e293b}
+}
