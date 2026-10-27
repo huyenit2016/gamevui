@@ -26,9 +26,17 @@
   :root[data-theme=light] .md .lyr p.on{color:#4c1d95;text-shadow:none}
   .md .sl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.md .sl label{display:flex;flex-direction:column;gap:2px;font-size:12.5px}
   .md .meter{height:8px;border-radius:9px;background:var(--inp);overflow:hidden;border:1px solid var(--line)}.md .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22C55E,#F59E0B,#EF4444);transition:width .06s}
-  .md .tvg{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px}.md .tvl{max-height:430px}
+  .md .tvg{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:18px;align-items:start}.md .tvl{max-height:calc(100vh - 330px);min-height:360px;gap:2px}
+  .md.tvm{max-width:1400px;margin:0 auto}.md .tvlist{padding:12px;border-radius:18px}.md .tvlist select,.md .tvlist input{height:46px;font-size:15px}
+  .md .tvt{display:flex;gap:6px;overflow:auto;margin-top:10px;padding-bottom:2px}.md .tvt button{flex:none;border:0;border-radius:99px;padding:9px 16px;font:600 14px var(--font);background:transparent;color:var(--mut);cursor:pointer}.md .tvt button.on{background:#2563eb;color:#fff}
+  .md .tvl .it{padding:10px 12px;gap:14px;border:0;border-bottom:1px solid var(--line);border-radius:12px;min-height:64px}.md .tvl .it.on{background:#1d4ed8;color:#fff}.md .tvl .it.on small{color:#dbeafe}
+  .md .tvl .it .no{width:26px;text-align:center;font-size:16px;color:var(--mut);flex:none}.md .tvl .it.on .no{color:#fff}
+  .md .tvl .it img,.md .tvl .it .th{width:64px;height:44px;border-radius:8px;object-fit:contain;background:transparent;font-size:26px}
+  .md .tvl .it b{font-size:16px}.md .tvl .it small{font-size:14px}
+  .md .tvr{position:sticky;top:8px}.md .tvw video{width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;display:block}.md .tvw .tvs{border-radius:16px;font-size:16px}
+  .md .tvi{margin-top:12px;padding:16px 18px;border-radius:16px;background:var(--card);border:1px solid var(--line)}.md .tvi .inf b{font-size:1.4rem}.md .tvi .lic{font-size:14px;color:var(--mut)}
   .md .tvw{position:relative}.md .tvs{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:20px;background:rgba(0,0,0,.72);color:#fff;border-radius:12px;font-size:14px}.md .tvs.show{display:grid}
-  @media(max-width:760px){.md .tvg{grid-template-columns:1fr}.md .tvl{max-height:300px}.md .np .art{width:64px;height:64px;font-size:1.8rem}.md .lyr{height:260px}}`;
+  @media(max-width:760px){.md .tvg{grid-template-columns:1fr}.md .tvr{position:static;order:-1}.md .tvl{max-height:360px;min-height:0}.md .np .art{width:64px;height:64px;font-size:1.8rem}.md .lyr{height:260px}}`;
   const ready = el => { if (!el.querySelector('style.mdcss')) { const s = document.createElement('style'); s.className = 'mdcss'; s.textContent = CSS; el.prepend(s); } };
   const jfetch = async (url, ms = 12000) => {
     const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
@@ -245,22 +253,25 @@
   GV.register({
     id: 'tv', type: 'tool', cat: 'Giải trí', name: 'Xem TV', icon: '📺', desc: 'Xem kênh truyền hình trực tuyến công khai (Việt Nam & quốc tế). Không chèn quảng cáo.',
     mount(el) {
-      el.innerHTML = `<div class="md"><div class="tvg"><div><div class="tvw"><video id="v" controls playsinline></video><div class="tvs" id="vs"></div></div><div class="np" style="margin-top:10px"><div class="inf"><b id="cn">Chọn một kênh</b><span class="lic" id="ci"></span></div><button class="btn ghost" id="fv" aria-label="Yêu thích">☆</button></div></div>
-        <div class="box"><div class="sr"><select id="co" style="flex:1">${TV_COUNTRIES.map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}<option value="news">Tin tức quốc tế</option><option value="fav">★ Kênh yêu thích / của tôi</option></select></div><input id="mq" type="search" placeholder="Tìm kênh…" style="width:100%;margin-top:8px"><div class="lst tvl" id="ls"></div><p class="note" id="st" style="margin-top:6px"></p></div></div>
+      el.innerHTML = `<div class="md tvm"><div class="tvg">
+        <div class="box tvlist"><div class="sr"><select id="co" style="flex:1">${TV_COUNTRIES.map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}<option value="news">Tin tức quốc tế</option><option value="fav">★ Kênh yêu thích / của tôi</option></select></div><input id="mq" type="search" placeholder="Tìm kênh…" style="width:100%;margin-top:8px"><div class="tvt" id="gt"></div><div class="lst tvl" id="ls"></div><p class="note" id="st" style="margin-top:6px"></p></div>
+        <div class="tvr"><div class="tvw"><video id="v" controls playsinline></video><div class="tvs" id="vs"></div></div><div class="np tvi"><div class="inf"><b id="cn">Chọn một kênh</b><span class="lic" id="ci"></span></div><button class="btn ghost" id="fv" aria-label="Yêu thích">☆</button></div></div></div>
         <details class="box"><summary style="cursor:pointer;font-weight:700">Thêm kênh của tôi (link .m3u8 / .mp4)</summary><div class="sr" style="margin-top:8px"><input id="nn" placeholder="Tên kênh"><input id="nu" placeholder="https://…/playlist.m3u8"></div><div class="ctl"><button class="btn" id="na">Thêm</button></div></details>
         <p class="note">Danh sách lấy từ <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener" style="text-decoration:underline">iptv-org</a> – chỉ các luồng công khai do chính đài/nhà phát hành cung cấp. OmniHub không lưu trữ hay phát lại nội dung và không chèn quảng cáo; kênh có thể tạm ngưng, bị chặn theo khu vực hoặc không cho phát trên trình duyệt. Tôn trọng bản quyền của các đài.</p></div>`;
       ready(el);
-      const v = $(el, '#v'), vs = $(el, '#vs'), ls = $(el, '#ls'), st = $(el, '#st'); let list = [], hls = null, curCh = null, dead = false, cache = {};
+      const v = $(el, '#v'), vs = $(el, '#vs'), ls = $(el, '#ls'), st = $(el, '#st'); let list = [], grp = '', hls = null, curCh = null, dead = false, cache = {};
       const favs = () => GV.store.get('tv_fav', []), mineCh = () => GV.store.get('tv_mine', []);
       const msg = t => { vs.textContent = t; vs.classList.toggle('show', !!t); };
       function paintList() {
         const q = $(el, '#mq').value.trim().toLowerCase(), f = favs().map(x => x.url);
-        const arr = list.filter(c => !q || c.name.toLowerCase().includes(q)).slice(0, 300);
-        ls.innerHTML = arr.map((c, i) => `<button class="it${curCh && curCh.url === c.url ? ' on' : ''}" data-u="${esc(c.url)}"><span class="th">${c.logo ? `<img src="${esc(GV.safeUrl(c.logo))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : '📺'}</span><span class="tx"><b>${esc(c.name)}</b><small>${esc(c.group || '')}${f.includes(c.url) ? ' · ★' : ''}</small></span></button>`).join('');
+        const gs = [...new Set(list.map(c => c.group).filter(Boolean))].slice(0, 6); if (grp && !gs.includes(grp)) grp = '';
+        $(el, '#gt').innerHTML = gs.length > 1 ? [''].concat(gs).map(g => `<button class="${g === grp ? 'on' : ''}" data-g="${esc(g)}">${g ? esc(g) : 'Tất cả'}</button>`).join('') : '';
+        const arr = list.filter(c => (!q || c.name.toLowerCase().includes(q)) && (!grp || c.group === grp)).slice(0, 300);
+        ls.innerHTML = arr.map((c, i) => `<button class="it${curCh && curCh.url === c.url ? ' on' : ''}" data-u="${esc(c.url)}"><span class="no">${i + 1}</span><span class="th">${c.logo ? `<img src="${esc(GV.safeUrl(c.logo))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : '📺'}</span><span class="tx"><b>${esc(c.name)}</b><small>${esc(c.group || '')}${f.includes(c.url) ? ' · ★' : ''}</small></span></button>`).join('');
         st.textContent = arr.length ? `${arr.length}${list.length > arr.length ? '+' : ''} kênh` : 'Không có kênh phù hợp.';
       }
       async function load(k) {
-        ls.innerHTML = ''; if (k === 'fav') { list = [...mineCh(), ...favs().filter(f => !mineCh().some(m => m.url === f.url))]; paintList(); if (!list.length) st.textContent = 'Chưa có kênh yêu thích. Bấm ☆ khi đang xem, hoặc thêm kênh của bạn bên dưới.'; return; }
+        grp = ''; ls.innerHTML = ''; if (k === 'fav') { list = [...mineCh(), ...favs().filter(f => !mineCh().some(m => m.url === f.url))]; paintList(); if (!list.length) st.textContent = 'Chưa có kênh yêu thích. Bấm ☆ khi đang xem, hoặc thêm kênh của bạn bên dưới.'; return; }
         if (cache[k]) { list = cache[k]; return paintList(); }
         st.textContent = 'Đang tải danh sách kênh…';
         try { const url = k === 'news' ? 'https://iptv-org.github.io/iptv/categories/news.m3u' : `https://iptv-org.github.io/iptv/countries/${k}.m3u`; const r = await jfetch(url, 20000); list = cache[k] = parseM3U(await r.text()); if (k === 'news') list = cache[k] = list.slice(0, 600); paintList(); }
@@ -278,6 +289,7 @@
           v.onplaying = () => msg(''); v.onerror = fail; await v.play().catch(() => {});
         } catch (e) { fail(); }
       }
+      $(el, '#gt').onclick = e => { const b = e.target.closest('[data-g]'); if (b) { grp = b.dataset.g; paintList(); } };
       ls.onclick = e => { const b = e.target.closest('[data-u]'); if (!b) return; const c = list.find(x => x.url === b.dataset.u); if (c) play(c); };
       $(el, '#co').onchange = e => load(e.target.value); $(el, '#mq').oninput = paintList;
       $(el, '#fv').onclick = () => { if (!curCh) return; let f = favs(); const i = f.findIndex(x => x.url === curCh.url); i >= 0 ? f.splice(i, 1) : f.push({ name: curCh.name, url: curCh.url, logo: curCh.logo, group: curCh.group }); GV.store.set('tv_fav', f); $(el, '#fv').textContent = i >= 0 ? '☆' : '★'; if ($(el, '#co').value === 'fav') load('fav'); };
