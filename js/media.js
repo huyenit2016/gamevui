@@ -259,13 +259,17 @@
     const seen = new Set(); return out.filter(c => { const k = c.url; if (seen.has(k)) return false; seen.add(k); return true; });
   }
   const ini = n => String(n).replace(/\(.*?\)|\[.*?\]/g, '').trim().split(/\s+/).slice(0, 2).join(' ').slice(0, 5).toUpperCase();
+  const TL = () => window.GV_TVLISTS || { cat: [], lang: [], country: [] };
+  const tvOpts = () => { const L = TL(), o = ([k, n, x], p, f) => `<option value="${p}:${k}">${f ? esc(x) + ' ' : ''}${esc(n)}${!f && x ? ' (' + x + ')' : ''}</option>`, vn = L.country.find(c => c[0] === 'vn');
+    return `${vn ? o(vn, 'c', 1) : '<option value="c:vn">Việt Nam</option>'}<option value="fav">★ Yêu thích / kênh của tôi</option><optgroup label="Thể loại">${L.cat.map(c => o(c, 'g')).join('')}</optgroup><optgroup label="Quốc gia">${L.country.map(c => o(c, 'c', 1)).join('')}</optgroup><optgroup label="Ngôn ngữ">${L.lang.map(c => o(c, 'l')).join('')}</optgroup>`; };
+  const tvUrl = k => { const m = /^([cgl]):(\w+)$/.exec(k) || ['', 'c', k === 'news' ? 'news' : k]; const d = { c: 'countries', g: 'categories', l: 'languages' }[m[1]]; return `https://iptv-org.github.io/iptv/${d}/${m[2]}.m3u`; };
   let hlsLoad = null;
   const loadHls = () => hlsLoad || (hlsLoad = new Promise((res, rej) => { if (window.Hls) return res(window.Hls); const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js'; s.onload = () => res(window.Hls); s.onerror = () => { hlsLoad = null; rej(new Error('hls')); }; document.head.appendChild(s); }));
   GV.register({
     id: 'tv', type: 'tool', cat: 'Giải trí', name: 'Xem TV', icon: '📺', desc: 'Xem kênh truyền hình trực tuyến công khai (Việt Nam & quốc tế). Không chèn quảng cáo.',
     mount(el) {
       el.innerHTML = `<div class="md tvm"><div class="tvg">
-        <div class="box tvlist"><div class="sr"><select id="co" style="flex:1">${TV_COUNTRIES.map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}<option value="news">Tin tức quốc tế</option><option value="fav">★ Kênh yêu thích / của tôi</option></select></div><input id="mq" type="search" placeholder="Tìm kênh…" style="width:100%;margin-top:8px"><div class="tvt" id="gt"></div><div class="lst tvl" id="ls"></div><p class="note" id="st" style="margin-top:6px"></p></div>
+        <div class="box tvlist"><div class="sr"><select id="co" style="flex:1">${tvOpts()}</select></div><input id="mq" type="search" placeholder="Tìm kênh…" style="width:100%;margin-top:8px"><div class="tvt" id="gt"></div><div class="lst tvl" id="ls"></div><p class="note" id="st" style="margin-top:6px"></p></div>
         <div class="tvr"><div class="tvw"><video id="v" controls playsinline></video><div class="tvs" id="vs"></div></div><div class="np tvi"><span class="dlg" id="dl">TV</span><div class="inf"><b id="cn">Chọn một kênh</b><span class="lic" id="ci"></span></div><button class="btn ghost" id="fs" aria-label="Toàn màn hình" title="Toàn màn hình">⛶</button><button class="btn ghost" id="fv" aria-label="Yêu thích">♡ Yêu thích</button></div><div class="tvp"><div class="tvpt"><button class="on" data-p="sch">▦ Lịch phát sóng</button><button data-p="inf">ⓘ Thông tin kênh</button></div><div id="cs" class="tvpx tvsch">Chưa có dữ liệu lịch phát sóng cho kênh này (danh sách iptv-org không kèm lịch).</div><div id="cx" class="tvpx" hidden>Chọn một kênh trong danh sách để xem.</div></div></div></div>
         <details class="box"><summary style="cursor:pointer;font-weight:700">Thêm kênh của tôi (link .m3u8 / .mp4)</summary><div class="sr" style="margin-top:8px"><input id="nn" placeholder="Tên kênh"><input id="nu" placeholder="https://…/playlist.m3u8"></div><div class="ctl"><button class="btn" id="na">Thêm</button></div></details>
         <p class="note">Danh sách lấy từ <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener" style="text-decoration:underline">iptv-org</a> – chỉ các luồng công khai do chính đài/nhà phát hành cung cấp. OmniHub không lưu trữ hay phát lại nội dung và không chèn quảng cáo; kênh có thể tạm ngưng, bị chặn theo khu vực hoặc không cho phát trên trình duyệt. Tôn trọng bản quyền của các đài.</p></div>`;
@@ -277,7 +281,7 @@
         const q = $(el, '#mq').value.trim().toLowerCase(), f = favs().map(x => x.url);
         const gs = [...new Set(list.map(c => c.group).filter(Boolean))].slice(0, 6); if (grp && !gs.includes(grp)) grp = '';
         $(el, '#gt').innerHTML = gs.length > 1 ? [''].concat(gs).map(g => `<button class="${g === grp ? 'on' : ''}" data-g="${esc(g)}">${g ? esc(g) : 'Tất cả'}</button>`).join('') : '';
-        const arr = list.filter(c => (!q || c.name.toLowerCase().includes(q)) && (!grp || c.group === grp)).slice(0, 300);
+        const arr = list.filter(c => (!q || c.name.toLowerCase().includes(q)) && (!grp || c.group === grp)).slice(0, 500);
         ls.innerHTML = arr.map((c, i) => `<button class="it${curCh && curCh.url === c.url ? ' on' : ''}" data-u="${esc(c.url)}"><span class="th lg">${c.logo ? `<img src="${esc(GV.safeUrl(c.logo))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('i'),{textContent:this.alt}))" alt="${esc(ini(c.name))}">` : `<i>${esc(ini(c.name))}</i>`}</span><span class="tx"><b>${esc(c.name)}</b><small>${esc(c.group || '')}${f.includes(c.url) ? ' · ★' : ''}</small></span>${/\bHD\b|1080|720/i.test(c.name) ? '<em class="hd">HD</em>' : ''}</button>`).join('');
         st.textContent = arr.length ? `${arr.length}${list.length > arr.length ? '+' : ''} kênh` : 'Không có kênh phù hợp.';
       }
@@ -285,7 +289,7 @@
         grp = ''; ls.innerHTML = ''; if (k === 'fav') { list = [...mineCh(), ...favs().filter(f => !mineCh().some(m => m.url === f.url))]; paintList(); if (!list.length) st.textContent = 'Chưa có kênh yêu thích. Bấm ☆ khi đang xem, hoặc thêm kênh của bạn bên dưới.'; return; }
         if (cache[k]) { list = cache[k]; return paintList(); }
         st.textContent = 'Đang tải danh sách kênh…';
-        try { const url = k === 'news' ? 'https://iptv-org.github.io/iptv/categories/news.m3u' : `https://iptv-org.github.io/iptv/countries/${k}.m3u`; const r = await jfetch(url, 20000); list = cache[k] = parseM3U(await r.text()); if (k === 'news') list = cache[k] = list.slice(0, 600); paintList(); }
+        try { const r = await jfetch(tvUrl(k), 30000); list = cache[k] = parseM3U(await r.text()); paintList(); }
         catch (e) { st.textContent = 'Không tải được danh sách kênh (' + (e.message || 'lỗi mạng') + '). Thử lại sau hoặc thêm link kênh của bạn.'; }
       }
       async function play(c) {
@@ -311,7 +315,7 @@
         if (!n || !/^https:\/\/.+/i.test(u)) { st.textContent = 'Nhập tên kênh và link bắt đầu bằng https://'; return; }
         const m = mineCh(); m.push({ name: n, url: u, logo: '', group: 'Kênh của tôi' }); GV.store.set('tv_mine', m); $(el, '#nn').value = $(el, '#nu').value = ''; $(el, '#co').value = 'fav'; load('fav');
       };
-      load('vn');
+      load('c:vn');
       return () => { dead = true; if (hls) try { hls.destroy(); } catch (e) {} v.pause(); v.removeAttribute('src'); };
     }
   });
