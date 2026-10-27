@@ -197,7 +197,7 @@
     document.body.classList.toggle('ingame', !!item);
     if (item) unmountWS(); // rời trang chủ: gỡ widget (tránh trùng selector/timer ngầm)
     document.body.classList.toggle('omni', !item);
-    document.body.classList.toggle('novbar', !!item && item.id === 'tv');
+    document.body.classList.toggle('novbar', !!item);
     document.body.classList.toggle('tv', !!item && item.type === 'tool'); // trang tiện ích: áp giao diện "Utility Workstation" kính mờ + neon
     const pt = $('#ptitle span'); if (pt) { pt.textContent = item ? item.name : GV.t('title.home'); if (item) pt.removeAttribute('data-i18n'); else pt.setAttribute('data-i18n', 'title.home'); }
     document.querySelectorAll('.rail a.rl,.bnav a.rl').forEach(x => x.classList.toggle('on', !!item && x.getAttribute('href') === '#/' + item.type + '/' + item.id));
