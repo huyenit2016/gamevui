@@ -585,3 +585,6 @@ body.tv .stage .hud>span{background:#1e293b99;border:1px solid #334155;border-ra
 :root[data-theme=light] .top .bar .ptitle{color:#0f172a}
 body.novbar .vbar{display:none}
 @media(max-width:599px){.bnav .ind{width:48px}.bnav .lb{font-size:10.5px}}
+/* thanh dưới mobile: nền đặc để nội dung cuộn phía sau không xuyên qua (iOS Safari) */
+@media(max-width:599px){body.m3 .bnav{background:#0b141b!important;backdrop-filter:none!important}:root[data-theme=light] body.m3 .bnav{background:#fff!important}}
+:root[data-theme=light] body.m3 .bnav .on{background:transparent!important;border-color:transparent!important}:root[data-theme=light] body.m3 .bnav .on .ind{background:#0891b21f}
