@@ -150,6 +150,7 @@
     stage.innerHTML = ''; stage.onclick = null;
     document.body.classList.toggle('ingame', !!item);
     document.body.classList.toggle('omni', !item);
+    document.querySelectorAll('.rail a.rl,.bnav a.rl').forEach(x => x.classList.toggle('on', !!item && x.getAttribute('href') === '#/' + item.type + '/' + item.id));
     if (!item) {
       document.title = 'GameVui – Game & Tiện ích online';
       $('#view').hidden = true; $('#home').hidden = false;

@@ -413,3 +413,21 @@ body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:
 :root:not([data-theme=light]) body.omni .card,:root:not([data-theme=light]) body.omni .rc{border:1px solid #1e293b}
 .mods .m1 svg{color:#22d3ee}.mods .m2 svg{color:#c084fc}.mods .m3 svg{color:#34d399}.mods .mod>svg{display:block;margin-bottom:14px;transition:transform .3s}.mods .mod:hover>svg{transform:scale(1.12)}
 :root:not([data-theme=light]) body.omni .logo b,:root:not([data-theme=light]) body.omni .brand b{color:#00f2fe}
+
+/* ---------- Thanh menu trái kiểu OmniHub (≥1100px: rộng 256px, mục nằm ngang; 600–1099px: chỉ biểu tượng như mẫu "w-20 md:w-64") ---------- */
+.railw{display:none}
+@media(min-width:1100px){
+  .rail{width:256px;align-items:stretch;gap:6px;padding:16px 14px;justify-content:flex-start}
+  body.m3 main,body.m3 footer{margin-left:256px;width:calc(100% - 256px)}
+  .rail button,.rail a{flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1px solid transparent;text-align:left;width:100%;color:#94a3b8;transition:background .2s,color .2s,box-shadow .2s,border-color .2s}
+  .rail .ind{width:auto!important;height:auto!important;background:none!important;box-shadow:none!important;border-radius:0!important;color:inherit!important;overflow:visible}
+  .rail .lb{font-size:14px;font-weight:600;letter-spacing:.2px;line-height:20px;color:inherit}
+  .rail button:hover,.rail a:hover{background:#1e293b66;color:#fff}
+  :root:not([data-theme=light]) .rail .on,.rail button.on{background:#1e293b99!important;border-color:#00f2fe4d!important;color:#00f2fe!important;box-shadow:0 0 20px #00f2fe33}
+  :root:not([data-theme=light]) .rail .on .lb{font-weight:700}
+  .railw{display:block;margin-top:auto;padding:12px;border-radius:12px;background:var(--gl,rgba(15,23,42,.65));border:1px solid #ffffff14;font-size:11px;color:#94a3b8}
+  .railw .rw1{display:flex;justify-content:space-between;align-items:center;color:#e2e8f0;font-weight:600;font-size:12px}
+  .railw .pulse{width:8px;height:8px;border-radius:50%;background:#34d399;animation:rwp 1.6s ease-in-out infinite}.railw p{margin:6px 0 0;line-height:1.35}
+}
+@keyframes rwp{50%{opacity:.35;transform:scale(.8)}}
+@media(min-width:600px) and (max-width:1099px){.rail .ind{overflow:visible}:root:not([data-theme=light]) .rail .on{color:#00f2fe}}
