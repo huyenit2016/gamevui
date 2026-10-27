@@ -90,9 +90,9 @@
     const ico = GV.ic ? GV.ic('user', 16) : '';
     if (A.user) {
       const nm = (A.profile && A.profile.name) || A.user.email, ini = esc(String(nm).trim().charAt(0).toUpperCase());
-      a.innerHTML = `<span class="av on">${ini}</span><span class="an">${esc(String(nm).split(' ').pop())}</span>`; a.title = ROLES[A.role] + ' – ' + A.user.email; a.setAttribute('aria-label', 'Tài khoản: ' + nm);
-    } else { a.innerHTML = `<span class="av">${ico}</span><span class="an">Đăng nhập</span>`; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; a.setAttribute('aria-label', 'Đăng nhập'); }
-    const b = $('#acct2'); if (b) { const lb = b.querySelector('.lb'); if (lb) lb.textContent = A.user ? 'Tài khoản' : 'Đăng nhập'; b.classList.toggle('authed', !!A.user); }
+      a.innerHTML = `<span class="av on">${ini}</span><span class="an"><b>${esc(String(nm).split(' ').pop())}</b><small>${({ admin: 'ADMIN', collab: 'EDITOR', teacher: 'TEACHER', student: 'MEMBER' })[A.role] || 'MEMBER'}</small></span>`; a.title = ROLES[A.role] + ' – ' + A.user.email; a.setAttribute('aria-label', 'Tài khoản: ' + nm);
+    } else { a.innerHTML = `<span class="av">${ico}</span><span class="an"><b>Sign in</b><small>GUEST</small></span>`; a.title = 'Đăng nhập để giao bài, nhận bài, quản trị…'; a.setAttribute('aria-label', 'Đăng nhập'); }
+    const b = $('#acct2'); if (b) { const lb = b.querySelector('.lb'); if (lb) lb.textContent = A.user ? 'Account' : 'Sign in'; b.classList.toggle('authed', !!A.user); }
   }
   A.onChange(paintHeader);
   // Quản trị viên: nhắc phòng rác ngay khi vào web

@@ -431,3 +431,21 @@ body.omni .tabs button.on,body.omni .chips button.on{background:#00f2fe1f;color:
 }
 @keyframes rwp{50%{opacity:.35;transform:scale(.8)}}
 @media(min-width:600px) and (max-width:1099px){.rail .ind{overflow:visible}:root:not([data-theme=light]) .rail .on{color:#00f2fe}}
+
+/* ---------- Thanh tiêu đề trên kiểu OmniHub: tiêu đề trang + nút phòng + chuông thông báo + khối tài khoản ---------- */
+.ptitle{display:none;align-items:center;gap:8px;margin:0 0 0 8px;font:700 1.1rem var(--font);letter-spacing:.2px;color:#fff;white-space:nowrap;max-width:22vw;overflow:hidden}
+.ptitle span{overflow:hidden;text-overflow:ellipsis}.ptitle svg{color:#00f2fe;flex:none}
+.wbtn{display:none;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:12px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:#fff;font-size:13px;font-weight:600;box-shadow:0 6px 20px #7c3aed4d;transition:filter .2s,transform .2s;white-space:nowrap}
+.wbtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.notif{position:relative}.bellb{position:relative;border:1px solid #ffffff14;background:var(--gl,rgba(15,23,42,.65));border-radius:12px;color:#cbd5e1}
+.bellb .dot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:#00f2fe;box-shadow:0 0 0 0 #00f2fe99;animation:bping 1.8s infinite}.bellb .dot[hidden]{display:none}
+@keyframes bping{70%{box-shadow:0 0 0 8px #00f2fe00}}
+.nbox{position:absolute;right:0;top:calc(100% + 12px);width:min(330px,88vw);padding:16px;border-radius:16px;background:rgba(15,23,42,.92);backdrop-filter:blur(16px);border:1px solid #334155aa;box-shadow:0 24px 60px #000a;z-index:80}
+.nbox h4{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid #1e293b;font-size:.9rem;color:#fff}.nbox[hidden]{display:none}
+.nbox a{display:flex;gap:10px;padding:8px;border-radius:10px;background:#1e293b80;margin-bottom:8px;font-size:.78rem;color:#cbd5e1}.nbox a:hover{background:#1e293bcc}
+.nbox .ni{font-size:1.3rem;flex:none}.nbox b{display:block;color:#e2e8f0;font-weight:600}.nbox small{display:block;color:#94a3b8;margin-top:2px;line-height:1.35}
+.acct .an{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}.acct .an b{font-size:12px;font-weight:700;color:#f1f5f9}.acct .an small{font-size:10px;font-weight:600;color:#00f2fe;font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
+.acct .av{border-radius:12px!important;background:linear-gradient(135deg,#22d3ee,#4f46e5)!important;color:#fff!important;width:36px;height:36px}
+.acct{padding:0 14px 0 4px;height:46px;border-left:1px solid #1e293b;border-radius:14px;background:transparent}
+@media(min-width:900px){.ptitle{display:flex}.wbtn{display:inline-flex}}
+@media(max-width:599px){.acct .an small{display:none}.acct{padding:0 6px 0 4px}.acct .an b{max-width:5.5em;overflow:hidden;text-overflow:ellipsis}}

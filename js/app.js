@@ -93,10 +93,10 @@
     const mxEl = $('#metrics');
     if (mxEl) {
       const fv = favs().length, rc = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean), learnN = GV.items.filter(i => i.cat === 'Học tập').length;
-      const M = [['gamepad', 'Kho game', ng, `${online} game chơi cùng bạn bè`, 'c'], ['wrench', 'Tiện ích', GV.items.length - ng, `${learnN} mục học tập`, 'p'], ['star', 'Yêu thích', fv, fv ? 'Đã lưu trên máy bạn' : 'Chạm ⭐ để lưu game', 'g'], ['clock', 'Vừa chơi', rc.length, rc[0] ? GV.esc(rc[0].name) : 'Chưa chơi game nào', 'a']];
+      const M = [['gamepad', 'Game Library', ng, `${online} multiplayer games`, 'c'], ['wrench', 'Utility Tools', GV.items.length - ng, `${learnN} learning modules`, 'p'], ['star', 'Favorites', fv, fv ? 'Saved on this device' : 'Tap ⭐ to save a game', 'g'], ['clock', 'Recently Played', rc.length, rc[0] ? GV.esc(rc[0].name) : 'No games played yet', 'a']];
       mxEl.innerHTML = M.map(([ic, l, v, sub, c]) => `<div class="tilt mxc ${c}"><div><small>${l}</small><b>${v}</b><span>${sub}</span></div><i class="mxi">${GV.ic(ic, 26)}</i></div>`).join('');
     }
-    $('#stats').innerHTML = `<b>${ng}</b> game · <b>${GV.items.length - ng}</b> tiện ích · <b>${online}</b> game chơi cùng bạn bè · miễn phí, không cần cài đặt`;
+    $('#stats').innerHTML = `<b>${ng}</b> games · <b>${GV.items.length - ng}</b> tools · <b>${online}</b> multiplayer games · free, no install needed`;
     const chips = $('#chips');
     const list = cats();
     if (cat && !list.includes(cat)) cat = '';
@@ -150,6 +150,7 @@
     stage.innerHTML = ''; stage.onclick = null;
     document.body.classList.toggle('ingame', !!item);
     document.body.classList.toggle('omni', !item);
+    const pt = $('#ptitle span'); if (pt) pt.textContent = item ? item.name : 'Main Dashboard';
     document.querySelectorAll('.rail a.rl,.bnav a.rl').forEach(x => x.classList.toggle('on', !!item && x.getAttribute('href') === '#/' + item.type + '/' + item.id));
     if (!item) {
       document.title = 'GameVui – Game & Tiện ích online';
@@ -216,4 +217,20 @@
     c.style.transform = `perspective(900px) rotateX(${(-y * 9).toFixed(2)}deg) rotateY(${(x * 11).toFixed(2)}deg) translateZ(0)`;
   }, { passive: true });
   document.addEventListener('mouseout', e => { const c = e.target.closest && e.target.closest('.tilt'); if (c && !c.contains(e.relatedTarget)) c.style.transform = ''; });
+})();
+
+/* Chuông thông báo (kiểu OmniHub): gợi ý mục mới + lối tắt; chấm báo chỉ hiện khi danh sách đổi so với lần bạn xem trước */
+(function () {
+  const $ = s => document.querySelector(s); let b = $('#bell'), box = $('#notifbox'); if (!b || !box) return;
+  const build = () => {
+    const nw = (GV.cfg && GV.cfg.nw) || ['langsuong', 'crypto-agent', 'english10', 'accumulating-merit'];
+    const L = ['langsuong', 'crypto-agent', 'english10'].concat(nw).filter((id, i, a) => a.indexOf(id) === i).map(id => GV.items.find(x => x.id === id)).filter(Boolean).slice(0, 4);
+    return L.map(i => `<a href="#/${i.type}/${i.id}"><span class="ni">${i.icon}</span><span><b>${GV.esc(i.name)}</b><small>${GV.esc((i.desc || '').slice(0, 70))}</small></span></a>`).join('') || '<p class="hint">No notifications.</p>';
+  };
+  const sig = () => { try { return localStorage.getItem('gv_notif_seen') || ''; } catch (e) { return ''; } };
+  const open = v => { box.hidden = !v; b.setAttribute('aria-expanded', v); if (v) { $('#nlist').innerHTML = build(); const k = $('#nlist').textContent.length + ':' + $('#nlist').querySelectorAll('a').length; try { localStorage.setItem('gv_notif_seen', k); } catch (e) {} $('#belldot').hidden = true; } };
+  b.addEventListener('click', e => { e.stopPropagation(); open(box.hidden); });
+  document.addEventListener('click', e => { if (!box.hidden && !e.target.closest('.notif')) open(false); });
+  window.addEventListener('hashchange', () => open(false));
+  setTimeout(() => { const tmp = document.createElement('div'); tmp.innerHTML = build(); const k = tmp.textContent.length + ':' + tmp.querySelectorAll('a').length; $('#belldot').hidden = sig() === k; }, 800);
 })();
