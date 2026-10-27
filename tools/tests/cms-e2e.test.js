@@ -27,7 +27,7 @@ const { chromium } = require('playwright'); const { makeHub } = require('./hub')
   await A.locator('button[data-a]').first().click(); await A.waitForTimeout(800);
   const uT = Object.entries(hub.tree.users).find(([, u]) => u.email === 't@x.com')[1]; console.log('   teacher role now:', uT.role, '| requested:', uT.requested);
   // 5. teacher publishes + assigns
-  await T.click('.rr'); await T.waitForTimeout(1200); await T.click('[data-t=library]'); await T.waitForSelector('.ta'); console.log('   teacher tabs:', (await T.locator('.tabsx button').allInnerTexts()).map(x => x.replace(/\s+/g, ' ')).join(' | '));
+  await T.click('.sb .me'); await T.click('.rr'); await T.waitForTimeout(1200); await T.click('[data-t=library]'); await T.waitForSelector('.ta'); console.log('   teacher tabs:', (await T.locator('.tabsx button').allInnerTexts()).map(x => x.replace(/\s+/g, ' ')).join(' | '));
   await T.fill('.ta', 'unit,term,reading,meaning\nBài 1,apple,,quả táo\nBài 1,banana,,quả chuối\nBài 1,cat,,con mèo\nBài 1,dog,,con chó'); await T.fill('.nm', 'Từ vựng động vật'); await T.click('.pb'); await T.waitForTimeout(1200);
   console.log('5) library meta:', JSON.stringify(Object.values(hub.tree.library.meta).map(m => [m.name, m.n, m.byName])), '| data stored:', Object.keys(hub.tree.library.data).length);
   await T.click('[data-t=class]'); await T.waitForTimeout(800); await T.fill('.em', 's@x.com'); await T.click('.add'); await T.waitForTimeout(800); await T.click('.as'); await T.waitForTimeout(800);

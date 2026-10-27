@@ -69,10 +69,12 @@
     root.innerHTML = `<div class="cx app"><div class="scrim"></div>
       <aside class="sb"><div class="brand"><span class="lg">🎮</span><b>OmniHub</b><small>CMS</small></div>
         <nav class="tabsx">${tabs.map(t => `<button data-t="${t[0]}" class="${t[0] === tab ? 'on' : ''}">${t[1]}<span class="badge" id="bd-${t[0]}" hidden></span></button>`).join('')}</nav>
-        <div class="sbf"><div class="me"><span class="av">${esc(String(nm).trim().charAt(0).toUpperCase())}</span><span class="mi"><b>${esc(nm)}</b><em>${A.ICON[A.role]} ${A.ROLES[A.role]}${A.profile && A.profile.requested ? ` · chờ duyệt: ${A.ROLES[A.profile.requested]}` : ''}</em></span></div>
-          <div class="sba"><button class="rr" title="Tải lại vai trò nếu admin vừa duyệt cho bạn">🔄 Cập nhật quyền</button><a href="./">🎮 Về OmniHub</a><button class="lo">↪ Đăng xuất</button></div></div></aside>
+        <div class="sbf"><button class="me" aria-haspopup="true" title="Tài khoản"><span class="av">${esc(String(nm).trim().charAt(0).toUpperCase())}</span><span class="mi"><b>${esc(nm)}</b><em>${A.ICON[A.role]} ${A.ROLES[A.role]}${A.profile && A.profile.requested ? ` · chờ duyệt: ${A.ROLES[A.profile.requested]}` : ''}</em></span></button>
+          <div class="sba"><button class="rr" title="Tải lại vai trò nếu admin vừa duyệt cho bạn">🔄 Cập nhật quyền</button><button class="lo">↪ Đăng xuất</button></div></div></aside>
       <section class="main"><div class="topbar"><button class="mbtn" aria-label="Mở menu">☰</button><h1>${cur ? cur[1] : ''}</h1><span class="tag ${A.isAdmin ? 'ok' : ''}">${A.ROLES[A.role]}</span></div><div id="tabc"></div></section></div>`;
     const app = $('.app'); $('.mbtn').onclick = () => app.classList.toggle('open'); $('.scrim').onclick = () => app.classList.remove('open');
+    const sbf = $('.sbf'); $('.me').onclick = e => { e.stopPropagation(); sbf.classList.toggle('open'); };
+    if (!window._cmsMenuBound) { window._cmsMenuBound = 1; document.addEventListener('click', () => { const f = document.querySelector('.sbf.open'); if (f) f.classList.remove('open'); }); }
     $('.lo').onclick = () => A.signOut();
     $('.rr').onclick = () => recheck(true);
     $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', EMB ? '#/cms/' + tab : '#' + tab); panelView(); });

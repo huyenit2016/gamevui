@@ -500,3 +500,86 @@ body.tv .stage .hud>span{background:#1e293b99;border:1px solid #334155;border-ra
 .allh{margin:8px 0 12px;font:800 1.2rem var(--font);color:#fff}.allh[hidden]{display:none}
 .insp{display:flex;flex-direction:column}.insp div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #1e293b;font-size:.85rem}.insp div:last-child{border:0}.insp span{color:#94a3b8}.insp b{font:600 .8rem ui-monospace,Menlo,monospace;color:#e2e8f0;text-align:right}.insp b.c{color:#22d3ee}.insp b.g{color:#34d399}.insp b.r{color:#fb7185}.insp b.a{color:#fbbf24}
 .ws .om .qbox canvas{width:190px!important;height:auto}.ws .om .qbox{min-height:0;padding:12px}
+
+/* =====================================================================
+   OmniHub – chế độ ban ngày (data-theme=light): kính trắng, nền sáng, chữ đậm
+   ===================================================================== */
+:root[data-theme=light] body.m3{--gl:rgba(255,255,255,.78);--cy:#0891b2;color:#0f172a;
+  background:radial-gradient(520px 520px at -4% 28%,#a78bfa33,transparent 70%),radial-gradient(560px 560px at 104% 78%,#22d3ee33,transparent 70%),
+    linear-gradient(to right,#0f172a0a 1px,transparent 1px) 0 0/40px 40px,linear-gradient(to bottom,#0f172a0a 1px,transparent 1px) 0 0/40px 40px,#eef2f9;background-attachment:fixed}
+:root[data-theme=light] body.m3 .top,:root[data-theme=light] body.m3 .rail,:root[data-theme=light] body.m3 .bnav{background:var(--gl);border-color:#0f172a1a;box-shadow:0 1px 0 #0f172a0f}
+:root[data-theme=light] body.m3 .top{border-bottom:1px solid #0f172a1a}
+:root[data-theme=light] body.m3 .bnav{border-top:1px solid #0f172a1a}
+:root[data-theme=light] body.m3 .rail{border-right:1px solid #0f172a1a}
+:root[data-theme=light] body.m3 .rail button,:root[data-theme=light] body.m3 .rail a,:root[data-theme=light] body.m3 .bnav button{color:#475569}
+:root[data-theme=light] body.m3 .rail button:hover,:root[data-theme=light] body.m3 .rail a:hover{background:#0f172a0d;color:#0f172a}
+:root[data-theme=light] body.m3 .rail .on,:root[data-theme=light] body.m3 .rail button.on,:root[data-theme=light] body.m3 .bnav .on{color:#0e7490!important;background:#0891b21a!important;border-color:#0891b255!important;box-shadow:none}
+:root[data-theme=light] body.m3 .rail .on .ind,:root[data-theme=light] body.m3 .bnav .on .ind{background:transparent;box-shadow:none;color:#0e7490}
+:root[data-theme=light] body.m3 .logo b,:root[data-theme=light] body.m3 .brand b{color:#0e7490}
+:root[data-theme=light] body.m3 .ptitle,:root[data-theme=light] body.m3 .acct .an b{color:#0f172a}
+:root[data-theme=light] body.m3 .ptitle svg,:root[data-theme=light] body.m3 .acct .an small{color:#0e7490}
+:root[data-theme=light] body.m3 #q{background:#fff;color:#0f172a;box-shadow:inset 0 0 0 1px #0f172a24}
+:root[data-theme=light] body.m3 #q:focus{box-shadow:inset 0 0 0 2px #0891b2,0 0 14px #0891b233}
+:root[data-theme=light] body.m3 .bellb,:root[data-theme=light] body.m3 .lgb,:root[data-theme=light] body.m3 .top .ib{background:#fff;border:1px solid #0f172a1f;color:#334155}
+:root[data-theme=light] body.m3 .acct{border-left-color:#0f172a1f}
+:root[data-theme=light] body.m3 .nbox{background:rgba(255,255,255,.96);border-color:#0f172a24;box-shadow:0 20px 50px #0f172a33}
+:root[data-theme=light] body.m3 .nbox h4{color:#0f172a;border-color:#0f172a14}
+:root[data-theme=light] body.m3 .nbox a{background:#0f172a0a;color:#334155}:root[data-theme=light] body.m3 .nbox a:hover{background:#0f172a14}
+:root[data-theme=light] body.m3 .nbox b{color:#0f172a}:root[data-theme=light] body.m3 .nbox small{color:#64748b}
+:root[data-theme=light] body.m3 .railw{background:#fff;border-color:#0f172a1a;color:#64748b}:root[data-theme=light] body.m3 .railw .rw1{color:#0f172a}
+:root[data-theme=light] body.m3 .btn:not(.ghost){background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 6px 16px #0891b24d}
+:root[data-theme=light] body.m3 .btn.ghost{background:#fff;border:1px solid #0f172a2e;color:#0f172a;backdrop-filter:none}
+:root[data-theme=light] body.m3 .fab{background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 8px 22px #0891b266}
+/* trang chủ */
+:root[data-theme=light] body.m3 .hero{background:var(--gl);border-color:#0891b240;box-shadow:0 18px 44px #0f172a1f,inset 0 1px 1px #fff}
+:root[data-theme=light] body.m3 .hero h1{color:#0f172a}
+:root[data-theme=light] body.m3 .hero h1 .grad,:root[data-theme=light] body.m3 .hero h1 span{background:linear-gradient(90deg,#0891b2,#4f46e5,#9333ea);-webkit-background-clip:text;background-clip:text}
+:root[data-theme=light] body.m3 .hero .pill{background:#0891b21a;border-color:#0891b255;color:#0e7490}
+:root[data-theme=light] body.m3 .hero .hsub{color:#475569}:root[data-theme=light] body.m3 .hero p#stats{color:#64748b}:root[data-theme=light] body.m3 .hero p#stats b{color:#0e7490}
+:root[data-theme=light] body.m3 .hero .btn.ghost.big{background:#fff;border-color:#0f172a2e;color:#0f172a}
+:root[data-theme=light] body.m3 .hero .ht{background:linear-gradient(135deg,#22d3ee22,#a78bfa22),#fffffff0;border-color:#0891b24d;box-shadow:0 12px 28px #0f172a26;color:#0f172a}
+:root[data-theme=light] .mx .mxc,:root[data-theme=light] .mods .mod{background:var(--gl);border-color:#0f172a1a;box-shadow:0 6px 18px #0f172a12}
+:root[data-theme=light] .mx .mxc small,:root[data-theme=light] .mods .mod p{color:#64748b}
+:root[data-theme=light] .mx .mxc b,:root[data-theme=light] .mods .mod h3{color:#0f172a}
+:root[data-theme=light] .mx .c span,:root[data-theme=light] .mods .m1 .mic,:root[data-theme=light] .mods .m1 .mgo,:root[data-theme=light] .mods .m1 svg{color:#0e7490}
+:root[data-theme=light] .mx .p span,:root[data-theme=light] .mods .m2 .mgo,:root[data-theme=light] .mods .m2 svg{color:#7e22ce}
+:root[data-theme=light] .mx .g span,:root[data-theme=light] .mods .m3 .mgo,:root[data-theme=light] .mods .m3 svg{color:#047857}
+:root[data-theme=light] .mx .a span{color:#b45309}
+:root[data-theme=light] body.m3 .sech .sec{color:#0f172a}:root[data-theme=light] body.m3 .sech .secsub{color:#64748b}:root[data-theme=light] body.m3 .sech .sec svg{color:#0e7490}
+:root[data-theme=light] body.m3 .card,:root[data-theme=light] body.m3 .rc{background:var(--gl);border:1px solid #0f172a1a;box-shadow:0 4px 14px #0f172a12}
+:root[data-theme=light] body.m3 .card:hover{border-color:#0891b277;box-shadow:0 12px 30px #0f172a26}
+:root[data-theme=light] body.m3 .tabs button.on,:root[data-theme=light] body.m3 .chips button.on{background:#0891b21f;color:#0e7490;box-shadow:inset 0 0 0 1px #0891b255}
+/* trang tiện ích / widget */
+:root[data-theme=light] .thead h2,:root[data-theme=light] .allh,:root[data-theme=light] body.tv .vbar h2,:root[data-theme=light] body.tv .stage h1,:root[data-theme=light] body.tv .stage h2,:root[data-theme=light] body.tv .stage h3,:root[data-theme=light] body.tv .stage .big,:root[data-theme=light] body.tv .stage .tool>.big{color:#0f172a}
+:root[data-theme=light] .thead p,:root[data-theme=light] body.tv .stage .hint,:root[data-theme=light] .insp span{color:#64748b}
+:root[data-theme=light] body.tv .vbar .btn.ghost{background:#fff;border-color:#0f172a24;color:#0f172a}
+:root[data-theme=light] body.tv .stage{background:rgba(255,255,255,.72);border-color:#0f172a1a;box-shadow:0 10px 30px #0f172a1a}
+:root[data-theme=light] body.tv .stage input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),:root[data-theme=light] body.tv .stage select,:root[data-theme=light] body.tv .stage textarea{background:#fff;color:#0f172a;border-color:#0f172a33}
+:root[data-theme=light] body.tv .stage .btn:not(.ghost):not(.bad):not(.ok){background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 5px 14px #0891b24d}
+:root[data-theme=light] body.tv .stage .btn.ghost{background:#fff;border-color:#0f172a2e;color:#0f172a}
+:root[data-theme=light] body.tv .stage .res,:root[data-theme=light] body.tv .stage .box,:root[data-theme=light] body.tv .stage .card2,:root[data-theme=light] body.tv .stage details{background:#ffffffcc;border-color:#0f172a1a;color:#0f172a}
+:root[data-theme=light] body.tv .stage .hud>span{background:#fff;border-color:#0f172a24;color:#0f172a}
+:root[data-theme=light] body.tv .stage table{border-color:#0f172a1a}:root[data-theme=light] body.tv .stage th{color:#64748b}
+:root[data-theme=light] .insp div{border-color:#0f172a14}:root[data-theme=light] .insp b{color:#0f172a}
+:root[data-theme=light] .om{color:#0f172a}
+:root[data-theme=light] .om .omc{background:rgba(255,255,255,.82);border-color:#0f172a1a;box-shadow:0 14px 34px #0f172a1f,inset 0 1px 1px #fff}
+:root[data-theme=light] .om h3{color:#0f172a}:root[data-theme=light] .om .oms,:root[data-theme=light] .om .hint{color:#64748b}
+:root[data-theme=light] .om input[type=text],:root[data-theme=light] .om textarea,:root[data-theme=light] .om select{background:#fff;color:#0f172a;border-color:#0f172a33}
+:root[data-theme=light] .om .omb{color:#fff;background:linear-gradient(135deg,#0891b2,#06b6d4);box-shadow:0 5px 14px #0891b24d}
+:root[data-theme=light] .om .omb.pu{background:linear-gradient(135deg,#7c3aed,#a855f7)}:root[data-theme=light] .om .omb.em{background:linear-gradient(135deg,#059669,#10b981)}
+:root[data-theme=light] .om .omb.gh{background:#fff;color:#334155;border-color:#0f172a2e;box-shadow:none}
+:root[data-theme=light] .om .cd{background:#0f172a;border-color:#0f172a}
+:root[data-theme=light] .om .ck button{background:#fff;color:#0f172a;border-color:#0f172a1a;box-shadow:0 4px 0 #cbd5e1,0 6px 10px #0f172a1a}
+:root[data-theme=light] .om .ck button:hover{background:#f1f5f9}:root[data-theme=light] .om .ck button:active{box-shadow:0 1px 0 #cbd5e1}
+:root[data-theme=light] .om .ck .op{background:#ecfeff;color:#0e7490}:root[data-theme=light] .om .ck .cl{background:#ffe4e6;color:#be123c}
+:root[data-theme=light] .om .ck .eq{background:linear-gradient(180deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 4px 0 #0e7490}
+:root[data-theme=light] .om .qbox{background:#ffffffcc;border-color:#0f172a1a}
+:root[data-theme=light] .om .ko input{color:#047857}:root[data-theme=light] .om .ko button{background:#f1f5f9;border-color:#0f172a2e;color:#334155}
+:root[data-theme=light] .om .ks{background:#e2e8f0}:root[data-theme=light] .om .kopt{color:#334155}
+:root[data-theme=light] .om .sg textarea{background:#f8fafc;color:#0e7490}:root[data-theme=light] .om .sp{border-color:#0f172a2e}
+
+:root[data-theme=light] .rail .rbrand{border-color:#0f172a1a;color:#0f172a}:root[data-theme=light] .rail .rbrand b,:root[data-theme=light] .rail .rbrand span{color:#0f172a}:root[data-theme=light] .rail .rbrand b i,:root[data-theme=light] .rail .rbrand em{color:#0e7490}
+:root[data-theme=light] .top .icon-btn,:root[data-theme=light] .top .lgb{background:#fff;border:1px solid #0f172a1f;color:#334155}
+:root[data-theme=light] .top .acct .an small{color:#0e7490}
+:root[data-theme=light] .rail .rbrand{border-bottom-color:#0f172a1a;background:transparent!important}:root[data-theme=light] .rail .rbrand .lt{color:#0f172a}:root[data-theme=light] .rail .rbrand .lt b{color:#0e7490}
+:root[data-theme=light] .top .bar .ptitle{color:#0f172a}

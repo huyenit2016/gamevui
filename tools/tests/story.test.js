@@ -31,7 +31,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   await A.goto(URL + 'index.html#/cms'); await A.waitForSelector('[data-m=up]'); await A.click('[data-m=up]'); await A.fill('.nm', 'Admin'); await A.fill('.em', 'a@x.com'); await A.fill('.pw', '123456'); await A.fill('.sc', 'S3cretPhrase'); await A.click('.go'); await A.waitForSelector('.tabsx');
   hub.tree.setup = { secret: 'S3cretPhrase' };
   await A.waitForTimeout(400);
-  if (!(await A.locator('[data-t=story]').count())) { await A.click('.rr'); await A.waitForTimeout(1500); }
+  if (!(await A.locator('[data-t=story]').count())) { await A.click('.sb .me'); await A.click('.rr'); await A.waitForTimeout(1500); }
   ok('admin thấy tab Câu chuyện', await A.locator('[data-t=story]').count() === 1);
   await A.click('[data-t=story]'); await A.waitForSelector('.nw'); await A.click('.nw'); await A.waitForSelector('.sty-top');
   ok('story mẫu có 7 khối', await A.locator('.sty-b').count() === 7, await A.locator('.sty-b').count());

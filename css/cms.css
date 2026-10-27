@@ -228,3 +228,90 @@ footer{color:#64748b}footer a{color:#4f46e5}
 #cmsview .cx .sty-b,#cmsview .cx .sty button[data-a]{background:#0b1220;color:#e2e8f0}#cmsview .cx .sty-b.on{background:#00f2fe14;border-color:#00f2fe}#cmsview .cx .sty-it{background:#0b1220b3}
 #cmsview .cx .sty-dv .pbtn.on{background:#00f2fe1f;border-color:#00f2fe66;color:#00f2fe}#cmsview .cx .sty-fr{background:#0b1220}
 @media(max-width:900px){#cmsview .sb{position:fixed;min-height:0;height:100%}#cmsview .cx.app{border-radius:16px}#cmsview .cx table:not(.perm) tr{background:#0b1220;border-color:#1e293b}}
+
+/* =====================================================================
+   CMS nhúng – bố cục v4: bỏ sidebar thứ hai (web đã có thanh trái), dùng thanh tab ngang + nội dung rộng, form gọn, số liệu 4 cột
+   ===================================================================== */
+#cmsview .cx.app{display:flex;flex-direction:column;min-height:calc(100vh - 140px);gap:0}
+#cmsview .scrim,#cmsview .mbtn{display:none!important}
+#cmsview .sb,#cmsview .app.open .sb{position:static;transform:none;width:auto;height:auto;min-height:0;flex-direction:row;align-items:center;gap:14px;padding:10px 16px;border-right:0;border-bottom:1px solid #1e293b;box-shadow:none;overflow:visible;z-index:6;background:rgba(8,13,22,.72);backdrop-filter:blur(12px)}
+#cmsview .sb .brand{display:none}
+#cmsview .cx .sb .tabsx{flex:1;min-width:0;flex-direction:row;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
+#cmsview .cx .sb .tabsx::-webkit-scrollbar{display:none}
+#cmsview .cx .sb .tabsx button{width:auto;flex:none;white-space:nowrap;padding:8px 14px;border-radius:99px;border:1px solid #1e293b;background:#0b1220b3;font-size:13px}
+#cmsview .cx .sb .tabsx button:hover{border-color:#00f2fe55;color:#fff;background:#0f172a}
+#cmsview .cx .sb .tabsx button.on{border-color:#00f2fe66}
+#cmsview .sbf{flex:none;display:flex;align-items:center;gap:10px;border:0;margin:0;padding:0}
+#cmsview .sb .me{padding:0}#cmsview .sb .mi{display:none}
+#cmsview .sb .sba{flex-direction:row;gap:6px}
+#cmsview .sb .sba a,#cmsview .sb .sba button{padding:7px 12px;border:1px solid #1e293b;background:#0b1220b3;border-radius:99px;font-size:12.5px;white-space:nowrap}
+#cmsview .sb .sba a:hover,#cmsview .sb .sba button:hover{border-color:#00f2fe55}
+#cmsview .main{flex:1}
+#cmsview .topbar{padding:14px 24px;background:transparent;border-bottom:0}
+#cmsview .topbar h1{font-size:1.35rem;font-weight:800;color:#fff}
+#cmsview #tabc{padding:4px 24px 40px;max-width:none}
+/* thẻ số liệu: 4 cột gọn */
+#cmsview #stats.grid2{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+#cmsview .cx .stat{padding:14px 16px}
+#cmsview .cx .stat b{font-size:1.55rem}
+/* form: chiều cao ô nhập đồng đều, nhãn rõ ràng */
+#cmsview #cms input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),#cmsview #cms select{height:42px;padding:0 14px;font-size:14px;border-radius:12px}
+#cmsview #cms textarea{padding:10px 14px;font-size:14px;line-height:1.5;border-radius:12px;min-height:84px}
+#cmsview .cx label.f{margin:14px 0 6px;font-size:12.5px;color:#94a3b8;font-weight:600;letter-spacing:.01em}
+#cmsview .cx .card2{text-align:left}
+#cmsview .cx .card2 .hint{text-align:left;font-size:12.5px;line-height:1.55}
+#cmsview .cx .card2>h2:first-child{font-size:1.1rem;border-bottom:1px solid #1e293b;padding-bottom:12px}
+#cmsview .cx h3{font-size:1rem;color:#fff;margin:6px 0 4px}
+#cmsview .cx .card2 .grid2{gap:20px}
+/* hàng nút / bảng */
+#cmsview .cx .row{justify-content:flex-start}
+#cmsview .cx table{font-size:13.5px}#cmsview .cx td{vertical-align:middle}
+#cmsview .cx td .btn,#cmsview .cx td .pbtn{white-space:nowrap}
+#cmsview .cx .btn.sm{min-height:34px;padding:0 14px;font-size:13px}
+#cmsview .cx details>summary{padding:4px 0}
+#cmsview .cx .tw{border-radius:14px}
+/* hộp đăng nhập */
+#cmsview .cx .authbox{margin:28px auto}
+#cmsview .cx .authbox .row{justify-content:center}
+#cmsview .cx .authbox h2{font-size:1.25rem;border:0;padding:0}
+#cmsview .cx .authbox .col{gap:12px}
+/* thông báo (toast) tông tối đồng bộ */
+.toast{background:rgba(15,23,42,.94)!important;color:#e2e8f0!important;border:1px solid #334155!important;backdrop-filter:blur(12px)}
+.toast .ta{color:#00f2fe!important}
+@media(max-width:900px){#cmsview .sb,#cmsview .app.open .sb{flex-wrap:wrap;gap:8px;padding:8px 10px}#cmsview .cx .sb .tabsx{flex:1 1 100%;order:2}#cmsview .sbf{order:1;margin-left:auto}#cmsview .topbar{padding:10px 14px}#cmsview #tabc{padding:2px 12px 32px}}
+
+/* CMS nhúng – menu avatar */
+#cmsview .sbf{position:relative}
+#cmsview .sb .me{background:transparent;border:0;cursor:pointer;border-radius:50%}
+#cmsview .sb .sba{display:none;position:absolute;right:0;top:calc(100% + 8px);z-index:30;min-width:190px;flex-direction:column;gap:2px;padding:6px;border-radius:14px;background:#0f172af2;border:1px solid #334155;box-shadow:0 12px 32px #0008;backdrop-filter:blur(14px)}
+#cmsview .sbf.open .sba{display:flex}
+#cmsview .sb .sba a,#cmsview .sb .sba button{border:0;background:transparent;border-radius:9px;padding:9px 12px;font-size:13.5px;text-align:left;width:100%}
+#cmsview .sb .sba a:hover,#cmsview .sb .sba button:hover{background:#1e293b;color:#fff}
+
+/* CMS nhúng – chế độ ban ngày */
+:root[data-theme=light] #cmsview #cms{--bg:#eef2f9;--card:#fff;--card2:#f8fafc;--fg:#0f172a;--mut:#64748b;--line:#0f172a1f;--inp:#fff;--acc:#0891b2;--acc2:#0e7490;--ok:#059669;--bad:#e11d48;--grad:linear-gradient(135deg,#0891b2,#06b6d4);--shadow:0 8px 24px #0f172a1a}
+:root[data-theme=light] #cmsview #cms input,:root[data-theme=light] #cmsview #cms select,:root[data-theme=light] #cmsview #cms textarea{background:#fff;color:#0f172a;border:1px solid #0f172a33}
+:root[data-theme=light] #cmsview #cms input:focus,:root[data-theme=light] #cmsview #cms select:focus,:root[data-theme=light] #cmsview #cms textarea:focus{border-color:#0891b2;box-shadow:0 0 0 3px #0891b22e}
+:root[data-theme=light] #cmsview #cms .btn{background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 5px 14px #0891b24d}
+:root[data-theme=light] #cmsview #cms .btn.ghost,:root[data-theme=light] #cmsview #cms .pbtn{background:#fff;color:#0f172a;border:1px solid #0f172a2e}
+:root[data-theme=light] #cmsview #cms .btn.ghost:hover,:root[data-theme=light] #cmsview #cms .pbtn:hover{background:#f1f5f9}
+:root[data-theme=light] #cmsview #cms .pbtn.sel{background:#0891b21a;border-color:#0891b277;color:#0e7490}
+:root[data-theme=light] #cmsview #cms .btn.bad{background:#e11d48;color:#fff}:root[data-theme=light] #cmsview #cms .btn.ok{background:#059669;color:#fff}
+:root[data-theme=light] #cmsview #cms .card2,:root[data-theme=light] #cmsview .cx .card2{background:rgba(255,255,255,.9);border:1px solid #0f172a1a;color:#0f172a;box-shadow:0 6px 20px #0f172a14}
+:root[data-theme=light] #cmsview .cx th{background:#f1f5f9;color:#64748b}:root[data-theme=light] #cmsview .cx table{border-color:#0f172a1a}
+:root[data-theme=light] #cmsview .cx td,:root[data-theme=light] #cmsview .cx th{border-bottom-color:#0f172a14}:root[data-theme=light] #cmsview .cx tr:hover td{background:#f8fafc}
+:root[data-theme=light] #cmsview .cx .stat{background:#fff;border-color:#0f172a1a;box-shadow:0 4px 12px #0f172a10}:root[data-theme=light] #cmsview .cx .stat b{color:#0f172a}:root[data-theme=light] #cmsview .cx .stat .si{background:#0891b21a}
+:root[data-theme=light] #cmsview .cx .tag{background:#f1f5f9;border-color:#0f172a24;color:#334155}
+:root[data-theme=light] #cmsview .cx .tag.ok{background:#05966918;border-color:#05966966;color:#047857}:root[data-theme=light] #cmsview .cx .tag.warn{background:#f59e0b1f;border-color:#f59e0b88;color:#b45309}:root[data-theme=light] #cmsview .cx .tag.bad{background:#e11d4814;border-color:#e11d4866;color:#be123c}
+:root[data-theme=light] #cmsview .cx details{background:#fff}:root[data-theme=light] #cmsview .cx .idchips span{background:#f1f5f9;border-color:#0f172a24;color:#334155}:root[data-theme=light] #cmsview .cx .perm th.me,:root[data-theme=light] #cmsview .cx .perm td.me{background:#0891b21a}
+:root[data-theme=light] #cmsview .cx.app{background:rgba(255,255,255,.55);border-color:#0f172a1a;box-shadow:0 14px 40px #0f172a14}
+:root[data-theme=light] #cmsview .sb{background:rgba(255,255,255,.85);border-color:#0f172a1a}
+:root[data-theme=light] #cmsview .sb .tabsx button{background:#fff;border:1px solid #0f172a24;color:#475569}
+:root[data-theme=light] #cmsview .sb .tabsx button:hover{background:#f1f5f9;color:#0f172a}
+:root[data-theme=light] #cmsview .sb .tabsx button.on{background:#0891b21f;border-color:#0891b288;color:#0e7490}
+:root[data-theme=light] #cmsview .sb .sba{background:rgba(255,255,255,.98);border-color:#0f172a24;box-shadow:0 12px 32px #0f172a2e}
+:root[data-theme=light] #cmsview .sb .sba a,:root[data-theme=light] #cmsview .sb .sba button{color:#334155}
+:root[data-theme=light] #cmsview .sb .sba a:hover,:root[data-theme=light] #cmsview .sb .sba button:hover{background:#f1f5f9;color:#0f172a}
+:root[data-theme=light] #cmsview .topbar h1,:root[data-theme=light] #cmsview .cx h2,:root[data-theme=light] #cmsview .cx h3{color:#0f172a}
+:root[data-theme=light] #cmsview .toast{background:rgba(255,255,255,.97)!important;color:#0f172a!important;border:1px solid #0f172a24!important}
+:root[data-theme=light] #cmsview .cx .card2>h3,:root[data-theme=light] #cmsview .cx .card2>h2{border-bottom-color:#0f172a1a}
