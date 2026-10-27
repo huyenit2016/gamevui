@@ -134,6 +134,30 @@ const klines = async (sym, tf, lim = 250) => (await jget(`/api/v3/klines?symbol=
 .cxk{grid-template-columns:repeat(3,1fr);gap:6px}.cxk div{padding:6px}.cxk b{font-size:.92rem}.cxk small{font-size:.66rem}
 .cxdet h3{font-size:1rem}.cx canvas{height:230px}}
 
+/* giao diện hiện đại: thẻ kính, số tabular, nhãn LONG/SHORT phát sáng */
+.cx{max-width:1280px;font-variant-numeric:tabular-nums}
+.cxtop{padding:4px 2px 10px}.cxtop h2{font:800 1.5rem var(--font);letter-spacing:-.01em;background:linear-gradient(90deg,#22d3ee,#818cf8,#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cxtop .btn,.cxpick .btn{border-radius:12px;height:44px;padding:0 20px;font-weight:700}
+.cxpick{gap:10px;margin:4px 0 10px}.cxpick input{height:44px;border-radius:12px;padding:0 14px}
+.cxset{border:1px solid var(--line);border-radius:14px;padding:4px 14px;background:rgba(128,128,160,.07)}
+.cxbar input,.cxbar select{border-radius:10px;height:40px;padding:0 10px}
+.cxg{gap:18px;align-items:start}
+.cxbox{border-radius:20px;padding:16px;background:rgba(15,23,42,.55);backdrop-filter:blur(14px);box-shadow:0 14px 34px rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08)}
+.cxlisth{padding:2px 4px 10px}.cxlisth b{font:700 1rem var(--font)}
+.cxr{border:0;border-radius:14px;padding:11px 12px;margin-bottom:6px;background:rgba(128,128,160,.07);transition:background .15s,transform .15s,box-shadow .15s}
+.cxr:hover{background:rgba(34,211,238,.1);transform:translateX(2px)}.cxr.on{background:linear-gradient(90deg,rgba(34,211,238,.18),rgba(129,140,248,.14));box-shadow:inset 0 0 0 1px rgba(34,211,238,.5)}
+.cxr b{font-size:1.02rem}
+.cxs{padding:3px 11px;letter-spacing:.04em;font-size:.72rem}.cxs.L{background:rgba(16,185,129,.18);color:#34d399;box-shadow:0 0 14px rgba(16,185,129,.35)}.cxs.S{background:rgba(244,63,94,.18);color:#fb7185;box-shadow:0 0 14px rgba(244,63,94,.35)}
+.cxdet h3{font:800 1.25rem var(--font)}
+.cxtb{gap:6px;border:0;background:rgba(128,128,160,.1);padding:4px;border-radius:14px}.cxtb button{border:0;border-radius:11px;padding:9px 4px;opacity:.75}.cxtb button.on{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff;opacity:1;font-weight:700;box-shadow:0 6px 16px rgba(6,182,212,.35)}
+.cxk{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.cxk div{border-radius:14px;padding:12px 14px;background:rgba(128,128,160,.09);border:1px solid rgba(255,255,255,.06)}.cxk small{font-size:.74rem;letter-spacing:.03em}.cxk b{font:800 1.12rem var(--font)}
+.cxk select{border-radius:8px}
+.cx canvas{border-radius:14px;height:340px;background:rgba(2,6,23,.4)}
+.cxlog,.cxai{border-radius:14px}
+:root[data-theme=light] .cxbox{background:rgba(255,255,255,.8);border-color:rgba(15,23,42,.1);box-shadow:0 10px 26px rgba(15,23,42,.1)}
+:root[data-theme=light] .cxs.L{color:#047857}:root[data-theme=light] .cxs.S{color:#be123c}
+@media(max-width:760px){.cxtop h2{font-size:1.25rem}.cxbox{padding:10px;border-radius:16px}.cxr{margin-bottom:0}.cxk{grid-template-columns:repeat(3,1fr)}.cxk div{padding:8px;border-radius:12px}.cxk b{font-size:.95rem}.cxtb{padding:3px}.cx canvas{height:240px}}
+
 </style><div class="cx"><div class="cxtop"><h2>📈 AI-Agent crypto</h2><button class="btn scan">🔍 Quét</button></div>
 <div class="cxpick"><input class="cs" list="cxdl" placeholder="Nhập coin: BTC, PEPE, SOL…" autocapitalize="characters" autocomplete="off" spellcheck="false"><datalist id="cxdl"></datalist><button class="btn cgo">Phân tích</button></div>
 <details class="cxset" ${innerWidth > 760 ? 'open' : ''}><summary class="cxsum"></summary><div class="cxbar"><label>Khung nến<select class="tf">${Object.keys(TFS).map(t => `<option value="${t}" ${t === S.tf ? 'selected' : ''}>${TFS[t]}</option>`).join('')}</select></label>
