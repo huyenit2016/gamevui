@@ -190,16 +190,44 @@
   GV.register({
     id: 'clock', type: 'tool', cat: 'Thời gian', name: 'Đồng hồ thế giới', icon: '🌍', desc: 'Giờ hiện tại ở nhiều thành phố.',
     mount(el) {
-      const Z = [['Hà Nội / TP.HCM', 'Asia/Ho_Chi_Minh'], ['Tokyo', 'Asia/Tokyo'], ['Seoul', 'Asia/Seoul'], ['Bắc Kinh', 'Asia/Shanghai'], ['Singapore', 'Asia/Singapore'], ['Dubai', 'Asia/Dubai'], ['London', 'Europe/London'], ['Paris', 'Europe/Paris'], ['New York', 'America/New_York'], ['Los Angeles', 'America/Los_Angeles'], ['Sydney', 'Australia/Sydney']];
-      el.innerHTML = `<div class="tool"><div class="big out" style="font-size:3rem"></div><div class="hint dt" style="font-size:16px"></div><table class="list"></table></div>`;
-      const tb = el.querySelector('table');
-      function tick() {
-        const d = new Date();
-        el.querySelector('.out').textContent = d.toLocaleTimeString('vi-VN');
-        el.querySelector('.dt').textContent = d.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        tb.innerHTML = Z.map(([n, z]) => `<tr><td>${n}</td><td>${d.toLocaleDateString('vi-VN', { timeZone: z, day: '2-digit', month: '2-digit' })}</td><td><b>${d.toLocaleTimeString('vi-VN', { timeZone: z, hour: '2-digit', minute: '2-digit' })}</b></td></tr>`).join('');
+      const L = (en, vi) => (GV.lang && GV.lang() === 'vi') ? vi : en, $ = q => el.querySelector(q), esc = GV.esc;
+      const ALL = [['Hà Nội / TP.HCM', 'Asia/Ho_Chi_Minh'], ['Tokyo', 'Asia/Tokyo'], ['Seoul', 'Asia/Seoul'], ['Bắc Kinh', 'Asia/Shanghai'], ['Hồng Kông', 'Asia/Hong_Kong'], ['Singapore', 'Asia/Singapore'], ['Bangkok', 'Asia/Bangkok'], ['Mumbai', 'Asia/Kolkata'], ['Dubai', 'Asia/Dubai'], ['Moscow', 'Europe/Moscow'], ['Istanbul', 'Europe/Istanbul'], ['Cairo', 'Africa/Cairo'], ['London', 'Europe/London'], ['Paris', 'Europe/Paris'], ['Berlin', 'Europe/Berlin'], ['São Paulo', 'America/Sao_Paulo'], ['New York', 'America/New_York'], ['Chicago', 'America/Chicago'], ['Denver', 'America/Denver'], ['Los Angeles', 'America/Los_Angeles'], ['Honolulu', 'Pacific/Honolulu'], ['Sydney', 'Australia/Sydney'], ['Auckland', 'Pacific/Auckland']];
+      const DEF = ['Asia/Ho_Chi_Minh', 'Asia/Tokyo', 'Europe/London', 'America/New_York', 'America/Los_Angeles', 'Australia/Sydney'];
+      const sv = GV.store.get('wclock', {}); let zs = (sv.z || DEF).filter(z => ALL.some(a => a[1] === z)), h12 = !!sv.h12; if (!zs.length) zs = DEF.slice();
+      const save = () => GV.store.set('wclock', { z: zs, h12 });
+      const myTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
+      el.innerHTML = (GV.omniCSS || '') + `<div class="om c"><div class="omc"><div class="omh"><i>🌍</i><div style="flex:1"><h3>${L('World Clock', 'Đồng hồ thế giới')}</h3><p class="oms wz"></p></div><button class="omb gh tg" style="padding:6px 12px;font-size:12px" title="12h/24h">24h</button></div>
+<div class="wl"><svg class="an" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#020617" stroke="#1e293b" stroke-width="3"/>${Array.from({ length: 12 }, (_, i) => `<line x1="60" y1="${i % 3 ? 10 : 8}" x2="60" y2="${i % 3 ? 14 : 18}" stroke="${i % 3 ? '#334155' : '#22d3ee'}" stroke-width="${i % 3 ? 1.5 : 2.5}" transform="rotate(${i * 30} 60 60)"/>`).join('')}<line class="hh" x1="60" y1="60" x2="60" y2="34" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/><line class="mh" x1="60" y1="60" x2="60" y2="22" stroke="#22d3ee" stroke-width="3" stroke-linecap="round"/><line class="sh" x1="60" y1="66" x2="60" y2="16" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round"/><circle cx="60" cy="60" r="4" fill="#22d3ee"/></svg>
+<div class="wt"><b class="out"></b><span class="dt"></span></div></div>
+<div class="wr"></div>
+<div class="row" style="margin-top:12px"><select class="adc" style="flex:1" aria-label="Add city"><option value="">＋ ${L('Add a city…', 'Thêm thành phố…')}</option>${ALL.map(([n, z]) => `<option value="${z}">${esc(n)}</option>`).join('')}</select></div></div></div>
+<style>.om .wl{display:flex;align-items:center;gap:18px;padding:14px 16px;border-radius:18px;background:#020617;border:1px solid #1e293b;margin-bottom:12px}.om .wl .an{width:96px;height:96px;flex:none;filter:drop-shadow(0 0 12px #00f2fe44)}.om .wl .an line{transform-origin:60px 60px}
+.om .wt{display:flex;flex-direction:column;min-width:0}.om .wt b{font:800 clamp(1.7rem,6vw,2.5rem) ui-monospace,Menlo,monospace;color:#22d3ee;text-shadow:0 0 20px #00f2fe77;font-variant-numeric:tabular-nums;white-space:nowrap}.om .wt span{font-size:.78rem;color:#94a3b8;margin-top:2px}
+.om .wr{display:flex;flex-direction:column;gap:6px}.om .wc{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;background:#0b1220b3;border:1px solid #1e293b;transition:border-color .2s}.om .wc:hover{border-color:#00f2fe44}.om .wc .ic{font-size:1.2rem}
+.om .wc .nm{min-width:0}.om .wc .nm b{display:block;font-size:.88rem;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.om .wc .nm small{font-size:.68rem;color:#94a3b8}.om .wc .tm{font:700 1.05rem ui-monospace,Menlo,monospace;color:#fff;font-variant-numeric:tabular-nums;text-align:right}.om .wc .tm small{display:block;font:500 .66rem var(--font);color:#34d399}
+.om .wc .x{border:0;background:none;color:#64748b;font-size:1rem;padding:2px 6px;border-radius:8px}.om .wc .x:hover{color:#fb7185;background:#f43f5e1a}.om .wc.me{border-color:#00f2fe55;background:#00f2fe0f}</style>`;
+      const P = (d, tz, o) => new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: tz, hourCycle: 'h23' }, o)).formatToParts(d).reduce((m, x) => (m[x.type] = x.value, m), {});
+      const offMin = (d, tz) => { const q = P(d, tz, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }); return Math.round((Date.UTC(+q.year, +q.month - 1, +q.day, +q.hour % 24, +q.minute, +q.second) - Math.floor(d.getTime() / 1000) * 1000) / 60000); };
+      const ymd = (d, tz) => { const q = P(d, tz, { year: 'numeric', month: 'numeric', day: 'numeric' }); return Date.UTC(+q.year, +q.month - 1, +q.day) / 864e5; };
+      const fmtT = (d, tz, sec) => { const q = P(d, tz, { hour: 'numeric', minute: '2-digit', second: '2-digit' }), h = +q.hour % 24; return h12 ? `${h % 12 || 12}:${q.minute}${sec ? ':' + q.second : ''} ${h < 12 ? 'AM' : 'PM'}` : `${String(h).padStart(2, '0')}:${q.minute}${sec ? ':' + q.second : ''}`; };
+      const gmt = m => { const a = Math.abs(m); return 'UTC' + (m < 0 ? '−' : '+') + Math.floor(a / 60) + (a % 60 ? ':' + String(a % 60).padStart(2, '0') : ''); };
+      function row(n, z, d, me) {
+        const q = P(d, z, { hour: 'numeric' }), h = +q.hour % 24, day = h >= 6 && h < 18, dd = ymd(d, z) - ymd(d, myTz), diff = (offMin(d, z) - offMin(d, myTz)) / 60;
+        const rel = z === myTz ? L('your time zone', 'múi giờ của bạn') : (diff >= 0 ? '+' : '−') + Math.abs(diff) + 'h ' + L('vs you', 'so với bạn');
+        const dl = dd === 0 ? L('Today', 'Hôm nay') : dd > 0 ? L('Tomorrow', 'Ngày mai') : L('Yesterday', 'Hôm qua');
+        return `<div class="wc ${z === myTz ? 'me' : ''}"><span class="ic">${day ? '🌞' : '🌙'}</span><div class="nm"><b>${esc(n)}</b><small>${gmt(offMin(d, z))} · ${rel}</small></div><div class="tm">${fmtT(d, z, false)}<small>${dl}</small></div><button class="x" data-rm="${z}" title="${L('Remove', 'Xoá')}" aria-label="Remove">✕</button></div>`;
       }
-      tick(); const t = setInterval(tick, 1000); return () => clearInterval(t);
+      let last = '';
+      function tick() {
+        const d = new Date(), q = P(d, myTz, { hour: 'numeric', minute: 'numeric', second: 'numeric' }), s = +q.second, m = +q.minute + s / 60, h = (+q.hour % 12) + m / 60;
+        $('.hh').style.transform = `rotate(${h * 30}deg)`; $('.mh').style.transform = `rotate(${m * 6}deg)`; $('.sh').style.transform = `rotate(${s * 6}deg)`;
+        $('.out').textContent = fmtT(d, myTz, true); $('.dt').textContent = d.toLocaleDateString(L('en-GB', 'vi-VN'), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: myTz }); $('.wz').textContent = myTz.replace(/_/g, ' ') + ' · ' + gmt(offMin(d, myTz));
+        const html = zs.map(z => row(ALL.find(a => a[1] === z)[0], z, d)).join(''); if (html !== last) { last = html; $('.wr').innerHTML = html; }
+      }
+      el.addEventListener('click', e => { const r = e.target.closest('[data-rm]'); if (r) { zs = zs.filter(z => z !== r.dataset.rm); save(); last = ''; tick(); } if (e.target.closest('.tg')) { h12 = !h12; $('.tg').textContent = h12 ? '12h' : '24h'; save(); last = ''; tick(); } });
+      $('.adc').onchange = e => { const z = e.target.value; if (z && !zs.includes(z)) { zs.push(z); save(); last = ''; tick(); } e.target.value = ''; };
+      $('.tg').textContent = h12 ? '12h' : '24h'; tick(); const t = setInterval(tick, 1000); const tl = GV.omniTilt ? GV.omniTilt(el) : null;
+      return () => { clearInterval(t); if (tl) tl(); };
     }
   });
 })();
