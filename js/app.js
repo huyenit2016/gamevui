@@ -174,6 +174,7 @@
     return cmsP;
   }
   function route() {
+    if (/^#\/game\/langsuong(\/|$)/.test(location.hash)) { location.replace(location.hash.replace('/game/langsuong', '/game/masoi')); return; } // URL cũ → mới
     const isCms = /^#\/cms(\/|$)/.test(location.hash);
     $('#cmsview').hidden = !isCms;
     document.body.classList.toggle('cmsv', isCms);
@@ -272,8 +273,8 @@
 (function () {
   const $ = s => document.querySelector(s); let b = $('#bell'), box = $('#notifbox'); if (!b || !box) return;
   const build = () => {
-    const nw = (GV.cfg && GV.cfg.nw) || ['langsuong', 'crypto-agent', 'english10', 'accumulating-merit'];
-    const L = ['langsuong', 'crypto-agent', 'english10'].concat(nw).filter((id, i, a) => a.indexOf(id) === i).map(id => GV.items.find(x => x.id === id)).filter(Boolean).slice(0, 4);
+    const nw = (GV.cfg && GV.cfg.nw) || ['masoi', 'crypto-agent', 'english10', 'accumulating-merit'];
+    const L = ['masoi', 'crypto-agent', 'english10'].concat(nw).filter((id, i, a) => a.indexOf(id) === i).map(id => GV.items.find(x => x.id === id)).filter(Boolean).slice(0, 4);
     return L.map(i => `<a href="#/${i.type}/${i.id}"><span class="ni">${i.icon}</span><span><b>${GV.esc(i.name)}</b><small>${GV.esc((i.desc || '').slice(0, 70))}</small></span></a>`).join('') || '<p class="hint">' + GV.t('notif.none') + '</p>';
   };
   const sig = () => { try { return localStorage.getItem('gv_notif_seen') || ''; } catch (e) { return ''; } };

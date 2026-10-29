@@ -228,7 +228,7 @@
   const NOTE = ['', '🐺', '✅', '❓']; // ghi chú cá nhân trên thẻ (lưu trên máy)
 
   GV.mp.define({
-    id: 'langsuong', name: 'Ma Sói · Lời Nguyền Làng Sương', icon: '🌫️', min: 5, max: 16, css: CSS + SH.css, entryTpl: SH.entryTpl, lobbyItem: SH.lobbyItem, roomTpl: SH.roomTpl, roomRender: SH.roomRender, roomCleanup: SH.roomCleanup, chatItem: SH.chatItem,
+    id: 'masoi', name: 'Ma Sói · Lời Nguyền Làng Sương', icon: '🌫️', min: 5, max: 16, css: CSS + SH.css, entryTpl: SH.entryTpl, lobbyItem: SH.lobbyItem, roomTpl: SH.roomTpl, roomRender: SH.roomRender, roomCleanup: SH.roomCleanup, chatItem: SH.chatItem,
     desc: 'Ma Sói online nhiều người theo phong cách truyện: nhận vai, đêm sương, bình minh, hội đồng làng, bỏ phiếu. 6 vai, 5–16 người, thiếu người có bot.',
     init(seats, api) {
       const hs = seats.find(x => x.id === api.host) || {}, now = Date.now(), roles = rolesFor(seats.length, api, (hs.opts || {}).cfg), v = api.rnd(VILLAGES.length), jobs = api.shuffle(JOBS.slice());
