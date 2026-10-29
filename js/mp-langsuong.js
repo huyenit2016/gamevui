@@ -158,7 +158,23 @@
 .ls .lswc{margin-top:8px;text-align:left}.ls .lswc .cl{max-height:110px;overflow:auto;font-size:.82rem;background:#0d1820;border-radius:10px;padding:6px}.ls .lswc input{width:100%;margin-top:4px;font-size:16px}
 .ls .lsrl div{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln)}.ls .lsrl span{font-size:1.5rem}.ls .lsrl p{margin:2px 0 0;font-size:.82rem;color:#cfd6d4}
 .ls .lsend{text-align:center;padding:12px;border-radius:14px;margin:8px 0;font:400 1.3rem var(--sf)}.ls .lsend.v{background:#88c8b722;color:var(--te)}.ls .lsend.w{background:#ec929022;color:var(--rd)}
-@media(max-width:600px){.ls{padding:10px;border-radius:14px}.ls h3{font-size:1.25rem}.ls .lsst span{font-size:.62rem;padding:6px 2px}.ls .lsgr{grid-template-columns:repeat(4,1fr);gap:6px}.ls .lsp svg{width:48px;height:48px}.ls .lsp b{font-size:.76rem}.ls .lsscene .lsn{font-size:.98rem}}
+/* ---- giao diện theo bản VIP: thanh tên + thanh biểu tượng bên trái + cảnh trăng/làng ---- */
+.ls{padding:0;overflow:hidden;background:radial-gradient(120% 70% at 70% 0,#16303a,var(--bg) 70%)}
+.ls .lstop{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--ln);background:#0a1319cc}
+.ls .lsbrand{display:flex;gap:10px;align-items:center}.ls .lsbrand b{display:block;font:400 1.15rem var(--sf);letter-spacing:.14em;color:#f1ece2}.ls .lsbrand small{display:block;font:600 .6rem system-ui;letter-spacing:.2em;color:var(--mu)}
+.ls .lssync{font:.74rem system-ui;color:var(--mu)}.ls .lssync .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--te);margin-right:5px}
+.ls .lsapp{display:grid;grid-template-columns:84px minmax(0,1fr)}.ls .lsmain{padding:14px 16px;min-width:0}
+.ls .lstb{flex-direction:column;gap:6px;border:0;border-right:1px solid var(--ln);margin:0;padding:12px 8px;background:#0a1319aa;overflow:visible}
+.ls .lstb button{display:flex;flex-direction:column;align-items:center;gap:4px;border:0;border-radius:12px;padding:10px 2px;font:500 .68rem system-ui;color:var(--mu);border-bottom:0}
+.ls .lstb button i{display:grid;place-items:center;font-style:normal}.ls .lstb button.on{background:#dfbc7a1a;color:var(--gd)}.ls .lstb button:hover{color:var(--gd)}
+.ls .lsk{letter-spacing:.2em}.ls h3{font-size:2rem}
+.ls .lsscene{min-height:210px;background:radial-gradient(circle at 82% 26%,#e8e4bf 0 26px,#cfcaa0 27px 28px,transparent 29px),linear-gradient(#18323d,#0e1c24 70%);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;padding:22px 24px;border-radius:18px}
+.ls .lsscene:after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(#0b141b00,#0b141b),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 70' preserveAspectRatio='none'%3E%3Cpath fill='%23101c24' d='M0 70V48l30-14 30 14v-8l25-16 25 16v10l30-20 30 20v8l25-12 25 12v12l30-22 30 22v-6l30-14 30 14v28z'/%3E%3C/svg%3E") center bottom/100% 100% no-repeat;pointer-events:none}
+.ls .lsscene.night{background:radial-gradient(circle at 82% 26%,#d9dcc8 0 24px,#aeb3a6 25px 26px,transparent 27px),linear-gradient(#0a1424,#070d14)}
+.ls .lsscene .em{font-size:2.2rem}.ls .lsscene .lsn{font:italic 1.35rem/1.4 var(--sf);max-width:30em}.ls .lsscene>*{position:relative;z-index:1}
+.ls .lsbtn{border-radius:8px;padding:11px 20px;font-size:.95rem}
+@media(max-width:700px){.ls .lsapp{grid-template-columns:1fr}.ls .lstb{flex-direction:row;border:0;border-bottom:1px solid var(--ln);padding:6px;overflow-x:auto;gap:2px}.ls .lstb button{flex:1 0 auto;flex-direction:row;gap:6px;padding:8px 10px;font-size:.76rem}.ls .lstb button i svg{width:18px;height:18px}.ls .lsmain{padding:10px}.ls h3{font-size:1.4rem}.ls .lsscene{min-height:170px;padding:16px}.ls .lsscene .lsn{font-size:1.1rem}.ls .lstop{padding:10px 12px}.ls .lssync{display:none}}
+@media(max-width:600px){.ls{border-radius:14px}.ls h3{font-size:1.25rem}.ls .lsst span{font-size:.62rem;padding:6px 2px}.ls .lsgr{grid-template-columns:repeat(4,1fr);gap:6px}.ls .lsp svg{width:48px;height:48px}.ls .lsp b{font-size:.76rem}.ls .lsscene .lsn{font-size:.98rem}}
 @media(max-width:380px){.ls .lsgr{grid-template-columns:repeat(3,1fr)}}`;
 
 
@@ -350,7 +366,7 @@
         const roleTxt = dd ? `<span class="lsdie">${ROLES[dd.role].i} ${ROLES[dd.role].n} · ${deadHow[dd.how] || ''}</span>` : p.over ? `${ROLES[p.over.roles[i]].i} ${ROLES[p.over.roles[i]].n}` : c.esc((p.jobs || {})[i] || '');
         return `<div class="lsp${dd ? ' isdead' : ''}${ck ? ' can' : ''}${isAlly ? ' ally' : ''} ${sel(i)}" data-pid="${i}">${vc[i] ? `<span class="lsvc">${vc[i]}</span>` : ''}${tag ? `<span class="lstag">${tag}</span>` : ''}${face(i, dd ? 'dead' : '')}${notes[i] ? `<span class="lsnote">${NOTE[notes[i]]}</span>` : ''}<b>${nm(i)}</b><small>${roleTxt}</small></div>`;
       }).join('');
-      const tabs = [['board', 'Bàn chơi'], ['me', 'Vai của tôi'], ['book', 'Sổ tay'], ['stats', 'Thành tích'], ['rules', 'Luật']].map(([k, t]) => `<button data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('');
+      const TI = { board: 'moon', me: 'user', book: 'layout', stats: 'trend', rules: 'info' }, tabs = [['board', 'Bàn chơi'], ['me', 'Vai của tôi'], ['book', 'Sổ tay'], ['stats', 'Thành tích'], ['rules', 'Luật']].map(([k, t]) => `<button data-tab="${k}" class="${ui.tab === k ? 'on' : ''}"><i>${GV.ic ? GV.ic(TI[k], 22) : ''}</i><span>${t}</span></button>`).join('');
       let body = '';
       if (ui.tab === 'board') {
         body = `<div class="lsscene${night ? ' night' : ''}"><div class="em">${em}</div><div class="lsn">“${c.esc(nar)}”</div><div class="lsm">${meta}</div></div>
@@ -375,9 +391,10 @@ ${me.potions ? `<p>🧪 Thuốc còn lại: cứu ${me.potions.heal ? '✔' : '�
         body = `<div class="lsrl">${Object.values(ROLES).map(r => `<div><span>${r.i}</span><div><b>${r.n}</b> <span class="lsm">(${r.team === 'wolf' ? 'phe Sói' : 'phe Dân'})</span><p>${r.d}</p></div></div>`).join('')}</div>
 <p class="lsm">Dân làng thắng khi loại hết Sói. Sói thắng khi số Sói còn sống bằng hoặc nhiều hơn số người còn lại. Người chết lộ vai. Phiếu hoà thì không ai bị treo.</p>`;
       }
-      box.innerHTML = `<div class="ls"><div class="lsh"><div><div class="lsk">Lời nguyền · ván ${c.round}</div><h3>${c.esc(V[0])}</h3><p class="lsq">${c.esc(V[1])}</p></div>
+      box.innerHTML = `<div class="ls"><div class="lstop"><div class="lsbrand"><svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="#dfbc7a" stroke-width="1.5" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M9 12l3 3M23 12l-3 3M11 21c3 2 7 2 10 0M12 8l-2-4M20 8l2-4"/></svg><div><b>MA SÓI</b><small>LỜI NGUYỀN LÀNG SƯƠNG</small></div></div><div class="lssync"><span class="dot"></span> Đồng bộ phòng · ván ${c.round}</div></div>
+<div class="lsapp"><div class="lstb">${tabs}</div><div class="lsmain"><div class="lsh"><div><div class="lsk">Một ngôi làng. Hai phe. Vô vàn bí mật.</div><h3>${c.esc(V[0])}</h3><p class="lsq">${c.esc(V[1])}</p></div>
 <div class="lsc"><div><b>${al.length}</b><small>Còn sống</small></div><div class="d"><b>${String(dead.length).padStart(2, '0')}</b><small>Đã chết</small></div></div></div>
-<div class="lsst">${stepper}</div><div class="lstb">${tabs}</div>${body}</div>`;
+<div class="lsst">${stepper}</div>${body}</div></div></div>`;
       const wi = box.querySelector('.lswi');
       if (wi) { if (ui.wtext) wi.value = ui.wtext; wi.oninput = () => { ui.wtext = wi.value; }; wi.onkeydown = e => { if (e.key === 'Enter' && wi.value.trim()) { c.send({ t: 'wchat', text: wi.value.trim() }); ui.wtext = ''; wi.value = ''; } }; if (ui.wfocus) { wi.focus(); } wi.onfocus = () => { ui.wfocus = 1; }; wi.onblur = () => { ui.wfocus = 0; }; }
       const setNote = id => { const n = GV.store.get('ls_notes_' + c.code + '_' + c.round, {}); n[id] = ((n[id] || 0) + 1) % NOTE.length; GV.store.set('ls_notes_' + c.code + '_' + c.round, n); this_render(); };
