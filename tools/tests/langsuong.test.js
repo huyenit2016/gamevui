@@ -71,6 +71,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   await G.click('.lstb [data-tab=book]'); const lg = await G.locator('.lslog').innerText();
   ok('sổ tay ghi lại diễn biến (bình minh, phiếu)', /Bình minh/.test(lg) && /⚖️|treo/.test(lg), lg.slice(0, 200));
   await G.click('.lstb [data-tab=me]'); ok('tab Vai của tôi hiển thị vai', await G.locator('.lsrole h4').count() === 1);
+  await G.click('.lstb [data-tab=stats]'); const stx = await G.locator('.ls').innerText(); ok('tab Thành tích: ván vừa xong được tính (1 ván)', /Đã chơi\s*1\s*ván/.test(stx) && /Người qua sương/.test(stx), stx.slice(0, 300));
   await G.click('.lstb [data-tab=rules]'); ok('tab Luật có 6 vai', await G.locator('.lsrl > div').count() === 6);
   await G.click('.lstb [data-tab=board]'); ok('hết ván lộ vai mọi người trên thẻ', /(Ma Sói|Dân làng|Tiên tri)/.test(await G.locator('.lsgr').innerText()));
   ok('sự kiện ván chơi được đăng vào chat', /Bình minh|treo|chiến thắng/.test(await H.locator('.lsr-side .cl').innerText()));

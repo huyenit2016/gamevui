@@ -194,6 +194,21 @@
     }
   });
 
+  // ---- thống kê & thành tích (lưu trên máy, theo bản VIP): ghi 1 lần/ván khi ván kết thúc ----
+  const ACH = [['first', '🌙', 'Người qua sương', 'Hoàn thành ván đầu tiên.'], ['victory', '🔥', 'Ánh lửa đầu tiên', 'Thắng một ván bất kỳ.'], ['both', '🐺', 'Hai mặt trăng', 'Thắng với cả phe Dân và phe Sói.'],
+    ['survivor', '🕯️', 'Ngọn nến cuối', 'Thắng và còn sống trong 3 ván.'], ['streak', '⭐', 'Lời nguyền tan vỡ', 'Thắng 3 ván liên tiếp.'], ['roles', '🃏', 'Sáu số phận', 'Hoàn thành ván với đủ 6 vai.'], ['crowd', '👥', 'Làng đông vui', 'Chơi một ván có từ 8 người trở lên.']];
+  const freshSt = () => ({ played: 0, won: 0, wolfWins: 0, villageWins: 0, survivedWins: 0, streak: 0, bestStreak: 0, roleGames: {}, roleWins: {}, unlocked: [], big: 0, hist: [] });
+  function recordGame(c, p, me) {
+    if (!p.over || !me.role) return; const key = 'ls_rec_' + c.code + '_' + c.round; if (GV.store.get(key, 0)) return; GV.store.set(key, 1);
+    const st = Object.assign(freshSt(), GV.store.get('ls_stats', {})), wolf = ROLES[me.role].team === 'wolf', won = (p.over.winner === 'wolf') === wolf;
+    st.played++; st.roleGames[me.role] = (st.roleGames[me.role] || 0) + 1;
+    if (won) { st.won++; st.roleWins[me.role] = (st.roleWins[me.role] || 0) + 1; wolf ? st.wolfWins++ : st.villageWins++; if (me.alive) st.survivedWins++; st.streak++; } else st.streak = 0;
+    st.bestStreak = Math.max(st.bestStreak, st.streak); if (p.order.length >= 8) st.big++;
+    const cond = { first: st.played >= 1, victory: st.won >= 1, both: st.wolfWins > 0 && st.villageWins > 0, survivor: st.survivedWins >= 3, streak: st.bestStreak >= 3, roles: Object.keys(st.roleGames).length >= 6, crowd: st.big >= 1 };
+    ACH.forEach(a => { if (cond[a[0]] && !st.unlocked.includes(a[0])) { st.unlocked.push(a[0]); if (GV.toast) GV.toast('Mở thành tích: ' + a[2]); } });
+    st.hist = [{ at: Date.now(), role: me.role, won, n: p.order.length, day: p.day, village: p.village }].concat(st.hist || []).slice(0, 8);
+    GV.store.set('ls_stats', st);
+  }
   const NOTE = ['', '🐺', '✅', '❓']; // ghi chú cá nhân trên thẻ (lưu trên máy)
 
   GV.mp.define({
@@ -295,6 +310,7 @@
       const p = c.pub, me = c.priv || {}, ui = c.ui, al = p.order.filter(i => (p.alive || {})[i]), dead = p.dead || [], V = VILLAGES[p.village || 0];
       const nm = i => c.esc((p.names || {})[i] || c.names[i] || '?'), R = me.role ? ROLES[me.role] : null;
       ui.tab = ui.tab || 'board'; if (ui.lastAct !== me.act) { ui.sel = null; ui.lastAct = me.act; }
+      recordGame(c, p, me);
       const notes = GV.store.get('ls_notes_' + c.code + '_' + c.round, {});
       const dl = p.deadline ? ` · <span class="lstime" data-dl="${p.deadline}"></span>` : '';
       const stepIdx = { role: 0, night: 1, dawn: 2, hunter: 2, day: 3, vote: 4, verdict: 4, end: 4 }[p.phase];
@@ -334,7 +350,7 @@
         const roleTxt = dd ? `<span class="lsdie">${ROLES[dd.role].i} ${ROLES[dd.role].n} · ${deadHow[dd.how] || ''}</span>` : p.over ? `${ROLES[p.over.roles[i]].i} ${ROLES[p.over.roles[i]].n}` : c.esc((p.jobs || {})[i] || '');
         return `<div class="lsp${dd ? ' isdead' : ''}${ck ? ' can' : ''}${isAlly ? ' ally' : ''} ${sel(i)}" data-pid="${i}">${vc[i] ? `<span class="lsvc">${vc[i]}</span>` : ''}${tag ? `<span class="lstag">${tag}</span>` : ''}${face(i, dd ? 'dead' : '')}${notes[i] ? `<span class="lsnote">${NOTE[notes[i]]}</span>` : ''}<b>${nm(i)}</b><small>${roleTxt}</small></div>`;
       }).join('');
-      const tabs = [['board', 'Bàn chơi'], ['me', 'Vai của tôi'], ['book', 'Sổ tay'], ['rules', 'Luật']].map(([k, t]) => `<button data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('');
+      const tabs = [['board', 'Bàn chơi'], ['me', 'Vai của tôi'], ['book', 'Sổ tay'], ['stats', 'Thành tích'], ['rules', 'Luật']].map(([k, t]) => `<button data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('');
       let body = '';
       if (ui.tab === 'board') {
         body = `<div class="lsscene${night ? ' night' : ''}"><div class="em">${em}</div><div class="lsn">“${c.esc(nar)}”</div><div class="lsm">${meta}</div></div>
@@ -347,6 +363,12 @@ ${me.role === 'wolf' && p.phase === 'night' && me.alive ? `<div class="lswc"><di
 ${me.allies && me.allies.length ? `<p>🐺 Đồng bọn: <b>${me.allies.map(nm).join(', ')}</b></p>` : ''}
 ${me.seer ? `<p>🔮 Kết quả soi: ${me.seer.length ? me.seer.map(x => `${nm(x.target)} (đêm ${x.day}) = ${x.wolf ? '<b style="color:var(--rd)">SÓI</b>' : '<b style="color:var(--te)">không phải Sói</b>'}`).join(' · ') : 'chưa soi ai.'}</p>` : ''}
 ${me.potions ? `<p>🧪 Thuốc còn lại: cứu ${me.potions.heal ? '✔' : '✘'} · độc ${me.potions.poison ? '✔' : '✘'}</p>` : ''}` : '<p class="lsm">Chưa có vai.</p>';
+      } else if (ui.tab === 'stats') {
+        const st = Object.assign(freshSt(), GV.store.get('ls_stats', {})), pc = st.played ? Math.round(st.won / st.played * 100) : 0;
+        body = `<div class="lsrole"><div class="ri">📊</div><div><h4>Thống kê của bạn</h4><p>Đã chơi <b>${st.played}</b> ván · thắng <b>${st.won}</b> (${pc}%) · chuỗi thắng tốt nhất <b>${st.bestStreak}</b></p><p class="lsm">Phe Dân thắng ${st.villageWins} · phe Sói thắng ${st.wolfWins} · còn sống khi thắng ${st.survivedWins}. Dữ liệu chỉ lưu trên máy này.</p></div></div>
+<div class="lsm" style="margin:8px 0 4px">Theo vai</div><div>${Object.keys(ROLES).map(r => `<span class="lsm" style="display:inline-block;margin:2px 10px 2px 0">${ROLES[r].i} ${ROLES[r].n}: ${st.roleWins[r] || 0}/${st.roleGames[r] || 0}</span>`).join('')}</div>
+<div class="lsm" style="margin:10px 0 4px">Thành tích (${st.unlocked.length}/${ACH.length})</div><div>${ACH.map(a => `<div class="lsm" style="padding:6px 0;opacity:${st.unlocked.includes(a[0]) ? 1 : .45}">${a[1]} <b>${c.esc(a[2])}</b> – ${c.esc(a[3])}</div>`).join('')}</div>
+<div class="lsm" style="margin:10px 0 4px">Ván gần đây</div><div>${(st.hist || []).map(h => `<div class="lsm" style="padding:3px 0">${h.won ? '🏆' : '💀'} ${ROLES[h.role] ? ROLES[h.role].i + ' ' + ROLES[h.role].n : h.role} · ${h.n} người · ${h.day} ngày · ${new Date(h.at).toLocaleDateString('vi-VN')}</div>`).join('') || '<span class="lsm">Chưa có ván nào.</span>'}</div>`;
       } else if (ui.tab === 'book') {
         body = `<div class="lslog">${(p.log || []).slice().reverse().map(l => `<div>${c.esc(l)}</div>`).join('')}</div>`;
       } else {
