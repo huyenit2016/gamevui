@@ -420,5 +420,46 @@ ${me.potions ? `<p>🧪 Thuốc còn lại: cứu ${me.potions.heal ? '✔' : '�
       };
     }
   });
+  // ---- Khung toàn trang theo bản VIP: ẩn khung OmniHub, thanh biểu tượng bên trái + thanh tên phía trên ----
+  (function vipShell() {
+    const it = GV.items.find(x => x.id === 'masoi'); if (!it) return; const orig = it.mount, esc = GV.esc;
+    const css = `<style>
+body.mpvip .top,body.mpvip .rail,body.mpvip .bnav,body.mpvip .fab,body.mpvip footer,body.mpvip .vbar,body.mpvip .ad,body.mpvip #thead{display:none!important}
+body.mpvip main,body.mpvip footer{margin:0!important;width:100%!important;padding:0!important}
+body.mpvip{background:#0b141b!important}body.mpvip .stage{padding:0!important;border:0!important;background:none!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:0!important}
+.vpa{position:fixed;inset:0;z-index:50;display:grid;grid-template-columns:76px minmax(0,1fr);background:#0b141b;color:#e6e8e4}
+.vpa .vr{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-right:1px solid #ffffff12;background:#0a1319}
+.vpa .vr .lg{margin-bottom:10px}.vpa .vr button{width:64px;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;border-radius:12px;padding:9px 2px;background:none;color:#98a8ae;font:500 .68rem system-ui;cursor:pointer}
+.vpa .vr button.on,.vpa .vr button:hover{background:#dfbc7a1a;color:#dfbc7a}.vpa .vr .sp{flex:1}
+.vpa .vm{display:flex;flex-direction:column;min-width:0;height:100%}.vpa .vt{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #ffffff12;background:#0a1319cc}
+.vpa .vt b{display:block;font:400 1.35rem Georgia,serif;letter-spacing:.14em;color:#f1ece2}.vpa .vt small{display:block;font:500 .72rem system-ui;letter-spacing:.2em;color:#98a8ae;margin-top:4px}.vpa .vt .sy{font:.8rem system-ui;color:#88c8b7}
+.vpa .vc{flex:1;overflow:auto;padding:18px 24px 40px}.vpa .vc .lse{min-height:calc(100dvh - 130px)}
+.vpa .vp{position:absolute;inset:0;background:#0b141bf2;z-index:5;overflow:auto;padding:26px 28px;display:none}.vpa .vp.on{display:block}.vpa .vp h2{font:400 2rem Georgia,serif;margin:0 0 12px;color:#f1ece2}
+.vpa .vp .x{position:absolute;top:14px;right:18px;border:1px solid #ffffff22;background:none;color:#e6e8e4;border-radius:10px;padding:6px 12px;cursor:pointer}
+.vpa .vp .rr{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #ffffff12}.vpa .vp .rr i{font-size:1.7rem;font-style:normal}.vpa .vp .rr p{margin:2px 0 0;color:#cfd6d4;font-size:.88rem}
+.vpa .ls .lstop{display:none}.vpa .lse h1{font-size:clamp(2.6rem,6vw,5rem)}.vpa .lse .k{letter-spacing:.24em}
+@media(max-width:700px){.vpa{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.vpa .vr{flex-direction:row;overflow-x:auto;border:0;border-bottom:1px solid #ffffff12;padding:6px;gap:2px;order:-1}.vpa .vr .lg,.vpa .vr .sp{display:none}.vpa .vr button{flex:1 0 auto;width:auto;flex-direction:row;gap:6px;padding:8px 12px}.vpa .vt{padding:10px 14px}.vpa .vt b{font-size:1.05rem}.vpa .vc{padding:10px 10px 30px}.vpa .vp{padding:18px 14px}}
+</style>`;
+    const ic = n => GV.ic ? GV.ic(n, 22) : '';
+    it.mount = function (el) {
+      document.body.classList.add('mpvip'); el.innerHTML = '';
+      const root = document.createElement('div'); root.className = 'vpa';
+      root.innerHTML = css + `<div class="vr"><div class="lg"><svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="#dfbc7a" stroke-width="1.5" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M9 12l3 3M23 12l-3 3M11 21c3 2 7 2 10 0M12 8l-2-4M20 8l2-4"/></svg></div>
+<button data-p="" class="on">${ic('home')}<span>Phòng</span></button><button data-p="stats">${ic('trend')}<span>Thống kê</span></button><button data-p="rules">${ic('info')}<span>Luật chơi</span></button><div class="sp"></div><button data-p="exit">${ic('back')}<span>OmniHub</span></button></div>
+<div class="vm"><div class="vt"><div><b>MA SÓI</b><small>LỜI NGUYỀN LÀNG SƯƠNG</small></div><div class="sy">● Đồng bộ phòng</div></div><div class="vc"></div></div><div class="vp"><button class="x">Đóng ✕</button><div class="vb"></div></div>`;
+      el.appendChild(root);
+      const host = root.querySelector('.vc'), panel = root.querySelector('.vp'), pb = root.querySelector('.vb');
+      const rulesH = () => '<h2>Luật chơi</h2>' + Object.values(ROLES).map(r => `<div class="rr"><i>${r.i}</i><div><b>${r.n}</b> <span style="color:#98a8ae;font-size:.8rem">(${r.team === 'wolf' ? 'phe Sói' : 'phe Dân'})</span><p>${esc(r.d)}</p></div></div>`).join('');
+      const statsH = () => { const st = Object.assign(freshSt(), GV.store.get('ls_stats', {})), pc = st.played ? Math.round(st.won / st.played * 100) : 0;
+        return `<h2>Thống kê của bạn</h2><p>Đã chơi <b>${st.played}</b> ván · thắng <b>${st.won}</b> (${pc}%) · chuỗi thắng tốt nhất <b>${st.bestStreak}</b></p><p style="color:#98a8ae">Phe Dân thắng ${st.villageWins} · phe Sói thắng ${st.wolfWins}. Dữ liệu chỉ lưu trên máy này.</p><h3 style="font:400 1.2rem Georgia,serif;margin-top:14px">Thành tích (${st.unlocked.length}/${ACH.length})</h3>` + ACH.map(a => `<div style="padding:6px 0;opacity:${st.unlocked.includes(a[0]) ? 1 : .45}">${a[1]} <b>${esc(a[2])}</b> – ${esc(a[3])}</div>`).join(''); };
+      root.querySelector('.vr').addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if (!b) return; const k = b.dataset.p;
+        if (k === 'exit') { location.hash = '#/'; return; }
+        root.querySelectorAll('.vr button').forEach(x => x.classList.toggle('on', x === b));
+        if (!k) { panel.classList.remove('on'); return; } pb.innerHTML = k === 'rules' ? rulesH() : statsH(); panel.classList.add('on'); });
+      root.querySelector('.x').onclick = () => { panel.classList.remove('on'); root.querySelectorAll('.vr button').forEach((x, i) => x.classList.toggle('on', i === 0)); };
+      const off = orig(host);
+      return () => { document.body.classList.remove('mpvip'); if (typeof off === 'function') off(); };
+    };
+  })();
   GV.lsT = { ROLES, rolesFor, VILLAGES, face, parseCfg, autoCfg, cfgError, VC: GV.mpShell.VC };
 })();
