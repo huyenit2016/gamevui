@@ -106,11 +106,11 @@
     const role = S.roles[id], al = alive(S), others = al.filter(i => i !== id);
     if (S.phase === 'night') {
       if (S.acted[id]) return null;
-      if (S.step === 'guard' && role === 'guard') return { t: 'guard', target: pick(al) };
+      if (S.step === 'guard' && role === 'guard') return { t: 'guard', target: pick(S.rules.norep ? al.filter(i => i !== S.lastGuard) : al) };
       if (S.step === 'wolves' && role === 'wolf') return { t: 'bite', target: pick(al.filter(i => S.roles[i] !== 'wolf')) };
       if (S.step === 'seer' && role === 'seer') { const seen = (S.seerLog[id] || []).map(x => x.target); const t = pick(others.filter(i => !seen.includes(i))); return t ? { t: 'peek', target: t } : null; }
       if (S.step === 'witch' && role === 'witch') {
-        if (S.victim && S.witch.heal && Math.random() < .55) return { t: 'witch', heal: true };
+        if (S.victim && S.witch.heal && (S.rules.selfsave || S.victim !== id) && Math.random() < .55) return { t: 'witch', heal: true };
         if (S.witch.poison && Math.random() < .12) return { t: 'witch', poison: pick(others) };
         return { t: 'witch' };
       }
@@ -185,6 +185,7 @@
     const c = auto ? autoCfg(n) : (parseCfg(raw, n) || (() => { try { return JSON.parse(raw); } catch (e) { return autoCfg(n); } })());
     return { n, raw, auto, c, vill: Math.max(0, n - SPECIAL.reduce((t, k) => t + (+c[k] || 0), 0)) }; };
   const SH = GV.mpShell.make({
+    opts: [{ k: 'reveal', label: 'Lộ vai người chết:', values: ['Có', 'Không'], def: 'Có' }, { k: 'norep', label: 'Bảo vệ không chọn 1 người 2 đêm liền:', values: ['Có', 'Không'], def: 'Có' }, { k: 'selfsave', label: 'Phù thủy được tự cứu mình:', values: ['Có', 'Không'], def: 'Có' }],
     min: 5, max: 16, fire: true, skip: true, logEvents: true, scene: GV.mpShell.scenes.village, mascot: GV.mpShell.mascots.wolf,
     waitTitle: 'Làng Sương đang chờ…', kicker: 'Một ngôi làng · Hai phe · Vô vàn bí mật', h1: 'Đêm xuống.<br>Ai còn là người?', em: 'Lời Nguyền Làng Sương',
     lead: 'Giữa những gương mặt quen là một lời nói dối. Tụ họp bạn bè, nhận vai bí mật, trò chuyện bằng giọng nói qua từng đêm sương – và tìm ra Ma Sói trước khi quá muộn.',
@@ -234,7 +235,7 @@
       const hs = seats.find(x => x.id === api.host) || {}, now = Date.now(), roles = rolesFor(seats.length, api, (hs.opts || {}).cfg), v = api.rnd(VILLAGES.length), jobs = api.shuffle(JOBS.slice());
       const S = { order: seats.map(s => s.id), names: Object.fromEntries(seats.map(s => [s.id, s.name])), jobs: {}, roles: {}, alive: {}, dead: [], day: 1, log: [], over: null,
         phase: 'role', step: null, deadline: now + T.role, seen: {}, acted: {}, wolfVotes: {}, victim: null, saved: false, poisoned: null, guardPick: null,
-        witch: { heal: 1, poison: 1 }, seerLog: {}, votes: {}, voted: {}, ready: {}, hunter: null, news: [], verdict: null, village: v, wchat: [] };
+        witch: { heal: 1, poison: 1 }, rules: { reveal: (hs.opts || {}).reveal !== 'Không', norep: (hs.opts || {}).norep !== 'Không', selfsave: (hs.opts || {}).selfsave !== 'Không' }, lastGuard: null, seerLog: {}, votes: {}, voted: {}, ready: {}, hunter: null, news: [], verdict: null, village: v, wchat: [] };
       S.order.forEach((id, i) => { S.roles[id] = roles[i]; S.alive[id] = true; S.jobs[id] = jobs[i % jobs.length]; });
       log(S, `📜 ${VILLAGES[v][0]}: ${roles.filter(r => r === 'wolf').length} Ma Sói đang ẩn mình giữa ${seats.length} người.`);
       return S;
@@ -254,7 +255,7 @@
       if (a.t === 'wchat') { if (role !== 'wolf' || S.phase !== 'night') return 'Chỉ Sói nói chuyện được trong đêm.'; const tx = String(a.text || '').trim().slice(0, 120); if (tx) { S.wchat.push({ id, tx }); if (S.wchat.length > 30) S.wchat.shift(); } return; }
       if (S.phase === 'night') {
         if (S.acted[id]) return 'Bạn đã hành động đêm nay.';
-        if (S.step === 'guard' && role === 'guard' && a.t === 'guard') { if (a.target && !ok(a.target)) return 'Mục tiêu không hợp lệ.'; S.guardPick = a.target || null; S.acted[id] = 1; nextStep(S, now); return; }
+        if (S.step === 'guard' && role === 'guard' && a.t === 'guard') { if (a.target && !ok(a.target)) return 'Mục tiêu không hợp lệ.'; if (a.target && S.rules.norep && a.target === S.lastGuard) return 'Không bảo vệ cùng một người hai đêm liên tiếp.'; S.guardPick = a.target || null; S.lastGuard = S.guardPick; S.acted[id] = 1; nextStep(S, now); return; }
         if (S.step === 'wolves' && role === 'wolf' && a.t === 'bite') {
           if (!ok(a.target) || S.roles[a.target] === 'wolf') return 'Hãy chọn một người không phải Sói.';
           S.wolfVotes[id] = a.target; S.acted[id] = 1;
@@ -267,7 +268,7 @@
         }
         if (S.step === 'witch' && role === 'witch' && a.t === 'witch') {
           if (a.heal && a.poison) return 'Mỗi đêm chỉ dùng một thuốc.';
-          if (a.heal) { if (!S.witch.heal || !S.victim) return 'Không thể dùng thuốc cứu.'; S.saved = true; S.witch.heal = 0; }
+          if (a.heal) { if (!S.witch.heal || !S.victim) return 'Không thể dùng thuốc cứu.'; if (S.victim === id && !S.rules.selfsave) return 'Luật phòng: Phù thủy không được tự cứu mình.'; S.saved = true; S.witch.heal = 0; }
           if (a.poison) { if (!S.witch.poison || !ok(a.poison) || a.poison === id) return 'Không thể dùng thuốc độc.'; S.poisoned = a.poison; S.witch.poison = 0; }
           S.acted[id] = 1; nextStep(S, now); return;
         }
@@ -297,14 +298,15 @@
     },
     bot,
     pub(S) {
-      return { phase: S.phase, step: S.phase === 'night' ? S.step : null, day: S.day, deadline: S.deadline, order: S.order, names: S.names, jobs: S.jobs, alive: S.alive, dead: S.dead,
-        log: S.log.slice(-30), village: S.village, news: S.phase === 'dawn' || S.phase === 'hunter' ? S.news : null, verdict: S.phase === 'verdict' ? S.verdict : null,
+      return { phase: S.phase, step: S.phase === 'night' ? S.step : null, day: S.day, deadline: S.deadline, order: S.order, names: S.names, jobs: S.jobs, alive: S.alive, dead: S.rules.reveal || S.over ? S.dead : S.dead.map(d => ({ id: d.id, role: null, how: d.how, day: d.day })), rules: S.rules,
+        log: S.log.slice(-30), village: S.village, news: S.phase === 'dawn' || S.phase === 'hunter' ? (S.rules.reveal ? S.news : S.news.map(d => Object.assign({}, d, { role: null }))) : null, verdict: S.phase === 'verdict' ? S.verdict : null,
         votes: S.phase === 'vote' || S.phase === 'verdict' ? S.votes : null, voted: S.phase === 'vote' ? Object.keys(S.voted).length : 0, ready: S.phase === 'day' ? Object.keys(S.ready).length : 0,
         seen: S.phase === 'role' ? Object.keys(S.seen).length : 0, hunter: S.hunter ? S.hunter.id : null, over: S.over, turn: null };
     },
     priv(S, id) {
       const role = S.roles[id], p = { role, alive: !!S.alive[id], act: null };
       if (role === 'wolf') { p.allies = S.order.filter(i => S.roles[i] === 'wolf' && i !== id); p.wchat = S.wchat.slice(-20); if (S.phase === 'night' && S.step === 'wolves') p.picks = S.wolfVotes; }
+      if (role === 'guard') p.lastGuard = S.rules.norep ? S.lastGuard : null;
       if (role === 'seer') p.seer = S.seerLog[id] || [];
       if (role === 'witch') p.potions = S.witch;
       if (S.over) return p;
@@ -338,7 +340,7 @@
       if (p.over) { em = p.over.winner === 'village' ? '🔥' : '🌑'; nar = p.over.winner === 'village' ? 'Bình minh trở lại. Lời nguyền đã tan.' : 'Sương đặc quánh. Không còn ai thắp đèn nữa.'; }
       else if (p.phase === 'role') { em = '📜'; nar = V[2]; meta = `Đã xem vai: ${p.seen}/${p.order.length}${dl}`; }
       else if (p.phase === 'night') { em = '🌙'; night = true; nar = STEP_TXT[p.step] || 'Cả làng chìm trong giấc ngủ…'; meta = `Đêm ${p.day}${dl}`; }
-      else if (p.phase === 'dawn' || p.phase === 'hunter') { em = '🌅'; const nw = p.news || []; nar = nw.length ? nw.map(d => `${nm(d.id)} đã ${deadHow[d.how] || 'chết'}. Họ là ${ROLES[d.role].n}.`).join(' ') : 'Sương tan. Đêm qua không ai mất mạng.'; meta = p.phase === 'hunter' ? `🏹 ${nm(p.hunter)} là Thợ săn – đang giương cung…${dl}` : `Ngày ${p.day}${dl}`; }
+      else if (p.phase === 'dawn' || p.phase === 'hunter') { em = '🌅'; const nw = p.news || []; nar = nw.length ? nw.map(d => `${nm(d.id)} đã ${deadHow[d.how] || 'chết'}. ${d.role ? 'Họ là ' + ROLES[d.role].n + '.' : 'Vai của họ được giữ kín.'}`).join(' ') : 'Sương tan. Đêm qua không ai mất mạng.'; meta = p.phase === 'hunter' ? `🏹 ${nm(p.hunter)} là Thợ săn – đang giương cung…${dl}` : `Ngày ${p.day}${dl}`; }
       else if (p.phase === 'day') { em = '🏛️'; nar = 'Dân làng tụ về quảng trường. Ai đang nói dối?'; meta = `Thảo luận ở Chat · sẵn sàng ${p.ready}/${al.length}${dl}`; }
       else if (p.phase === 'vote') { em = '🗳️'; nar = 'Mỗi người một lá phiếu. Chọn người đáng nghi nhất.'; meta = `Đã bỏ phiếu ${p.voted}/${al.length}${dl}`; }
       else if (p.phase === 'verdict') { em = '⚖️'; const v = p.verdict || {}; nar = v.id ? `Với ${v.n} phiếu, ${nm(v.id)} bị đưa lên giàn treo. Họ là ${ROLES[v.role].n}.` : v.tie ? 'Phiếu chia đôi. Làng chưa thể quyết định.' : 'Không ai bị buộc tội hôm nay.'; meta = dl.replace(' · ', ''); }
@@ -347,7 +349,7 @@
       const sel = id => `${ui.sel === id ? 'sel' : ''}`;
       switch (me.act) {
         case 'seen': act = `<b>Bạn là ${R.i} ${R.n}</b><p style="margin:6px 0;font-size:.86rem">${R.d}</p>${me.allies && me.allies.length ? `<p class="lsdie">Đồng bọn: ${me.allies.map(nm).join(', ')}</p>` : ''}<button class="lsbtn" data-a="seen">Tôi đã nhớ vai</button>`; break;
-        case 'guard': act = '<b>Che chở ai đêm nay?</b><div class="lsm">Chạm vào một thẻ (có thể chọn bản thân)</div><button class="lsbtn alt" data-a="guard-none">Không bảo vệ ai</button>'; can = i => true; break;
+        case 'guard': act = `<b>Che chở ai đêm nay?</b><div class="lsm">Chạm vào một thẻ (có thể chọn bản thân)${me.lastGuard ? ' · không chọn <b>' + nm(me.lastGuard) + '</b> hai đêm liền' : ''}</div><button class="lsbtn alt" data-a="guard-none">Không bảo vệ ai</button>`; can = i => i !== me.lastGuard; break;
         case 'bite': act = `<b>Cắn ai đêm nay?</b>${Object.keys(me.picks || {}).length ? `<div class="lsm">Bầy đã chọn: ${Object.entries(me.picks).map(([k, v]) => nm(k) + ' → ' + nm(v)).join(', ')}</div>` : '<div class="lsm">Chạm vào thẻ con mồi</div>'}`; can = i => i !== c.me && !(me.allies || []).includes(i); break;
         case 'peek': act = '<b>Soi ai đêm nay?</b><div class="lsm">Chạm vào một thẻ</div>'; can = i => i !== c.me; break;
         case 'witch': act = `<b>Hòm thuốc của Phù thủy</b><div style="margin:4px 0">${me.victim ? `Đêm nay <b>${nm(me.victim)}</b> bị Sói cắn.` : 'Bạn không thấy nạn nhân nào (hoặc đã hết thuốc cứu).'}</div>${me.victim ? '<button class="lsbtn" data-a="heal">💧 Dùng thuốc cứu</button>' : ''}<button class="lsbtn alt" data-a="witch-skip">Không dùng thuốc</button>${me.potions && me.potions.poison ? '<div class="lsm">…hoặc chạm vào một thẻ để dùng ☠️ thuốc độc</div>' : ''}`; can = i => me.potions && me.potions.poison && i !== c.me; break;
@@ -363,7 +365,7 @@
       const cards = p.order.map(i => {
         const dd = dead.find(d => d.id === i), isMe = i === c.me, isAlly = (me.allies || []).includes(i), ck = !dd && can(i);
         const tag = isMe ? 'BẠN' : isAlly ? 'SÓI' : seerMap[i] === true ? '🐺 SÓI' : seerMap[i] === false ? '✓ NGƯỜI' : '';
-        const roleTxt = dd ? `<span class="lsdie">${ROLES[dd.role].i} ${ROLES[dd.role].n} · ${deadHow[dd.how] || ''}</span>` : p.over ? `${ROLES[p.over.roles[i]].i} ${ROLES[p.over.roles[i]].n}` : c.esc((p.jobs || {})[i] || '');
+        const roleTxt = dd ? `<span class="lsdie">${dd.role ? ROLES[dd.role].i + ' ' + ROLES[dd.role].n : '❔ Giấu vai'} · ${deadHow[dd.how] || ''}</span>` : p.over ? `${ROLES[p.over.roles[i]].i} ${ROLES[p.over.roles[i]].n}` : c.esc((p.jobs || {})[i] || '');
         return `<div class="lsp${dd ? ' isdead' : ''}${ck ? ' can' : ''}${isAlly ? ' ally' : ''} ${sel(i)}" data-pid="${i}">${vc[i] ? `<span class="lsvc">${vc[i]}</span>` : ''}${tag ? `<span class="lstag">${tag}</span>` : ''}${face(i, dd ? 'dead' : '')}${notes[i] ? `<span class="lsnote">${NOTE[notes[i]]}</span>` : ''}<b>${nm(i)}</b><small>${roleTxt}</small></div>`;
       }).join('');
       const TI = { board: 'moon', me: 'user', book: 'layout', stats: 'trend', rules: 'info' }, tabs = [['board', 'Bàn chơi'], ['me', 'Vai của tôi'], ['book', 'Sổ tay'], ['stats', 'Thành tích'], ['rules', 'Luật']].map(([k, t]) => `<button data-tab="${k}" class="${ui.tab === k ? 'on' : ''}"><i>${GV.ic ? GV.ic(TI[k], 22) : ''}</i><span>${t}</span></button>`).join('');
@@ -398,7 +400,7 @@ ${me.potions ? `<p>🧪 Thuốc còn lại: cứu ${me.potions.heal ? '✔' : '�
       const wi = box.querySelector('.lswi');
       if (wi) { if (ui.wtext) wi.value = ui.wtext; wi.oninput = () => { ui.wtext = wi.value; }; wi.onkeydown = e => { if (e.key === 'Enter' && wi.value.trim()) { c.send({ t: 'wchat', text: wi.value.trim() }); ui.wtext = ''; wi.value = ''; } }; if (ui.wfocus) { wi.focus(); } wi.onfocus = () => { ui.wfocus = 1; }; wi.onblur = () => { ui.wfocus = 0; }; }
       const setNote = id => { const n = GV.store.get('ls_notes_' + c.code + '_' + c.round, {}); n[id] = ((n[id] || 0) + 1) % NOTE.length; GV.store.set('ls_notes_' + c.code + '_' + c.round, n); this_render(); };
-      const this_render = () => { const def = GV.mp.defs.langsuong; def.render(box, c); };
+      const this_render = () => { const def = GV.mp.defs.masoi; def.render(box, c); };
       let pressT = null, longFired = false;
       box.onpointerdown = e => { const pc = e.target.closest('.lsp'); if (!pc) return; longFired = false; clearTimeout(pressT); pressT = setTimeout(() => { longFired = true; setNote(pc.dataset.pid); }, 550); };
       box.onpointerup = box.onpointerleave = () => clearTimeout(pressT);

@@ -7,7 +7,7 @@ let pass = 0, fail = 0; const ok = (n, c, x) => { c ? pass++ : fail++; console.l
   const mt = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.woff2': 'font/woff2', '.webp': 'image/webp' };
   const srv = http.createServer((q, r) => { const f = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(f, (e, d) => { if (e) { r.statusCode = 404; return r.end(); } r.setHeader('content-type', mt[path.extname(f)] || 'application/octet-stream'); r.end(d); }); }).listen(8141);
   const URL = 'http://localhost:8141/index.html'; const b = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] }), hub = makeHub(), errs = [];
-  const mk = async (name, w) => { const ctx = await b.newContext({ viewport: { width: w, height: 900 } }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(name + ': ' + e.message)); p.on('dialog', d => d.accept()); await hub.attach(p, 'u-' + name); await p.addInitScript({ path: path.join(__dirname, 'mock_shared.js') }); return p; };
+  const mk = async (name, w) => { const ctx = await b.newContext({ viewport: { width: w, height: 900 } }); const p = await ctx.newPage(); p.on('pageerror', e => { errs.push(name + ': ' + e.message); console.log('PAGEERR', name, e.message); }); p.on('dialog', d => d.accept()); await hub.attach(p, 'u-' + name); await p.addInitScript({ path: path.join(__dirname, 'mock_shared.js') }); return p; };
   const H = await mk('host', 1280), G = await mk('guest', 390);
   // nhận diện vai/tiện ích độc lập
   await H.goto(URL + '#/game/masoi'); await H.waitForSelector('.lse .mk');
