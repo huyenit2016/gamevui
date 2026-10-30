@@ -1,6 +1,6 @@
 (() => {
   const L = []; let seq = 0, uidP = null;
-  const snapOf = (v, key) => ({ val: () => v === undefined ? null : JSON.parse(JSON.stringify(v)), exists: () => v != null, key });
+  const snapOf = (v, key) => ({ val: () => v === undefined ? null : JSON.parse(JSON.stringify(v)), exists: () => v != null, key, numChildren: () => v && typeof v === 'object' ? Object.keys(v).length : 0 });
   const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   window.__fire = async () => {
     for (const l of L.slice()) {
@@ -21,7 +21,8 @@
       onDisconnect: () => ({ set: v => window.__hub('ondisc', p, v === null ? '__remove__' : v), remove: () => window.__hub('ondisc', p, '__remove__') }),
       limitToLast: n => ({ once: async () => { const all = (await window.__hub('get', p)) || {}, o = {}; Object.keys(all).sort().slice(-n).forEach(c => o[c] = all[c]); return snapOf(Object.keys(o).length ? o : null); } }),
       orderByChild: k => ({
-        startAt: v => ({ on: (t, cb) => { const w = snap => { const all = snap.val() || {}, o = {}; for (const c in all) if ((all[c] || {})[k] >= v) o[c] = all[c]; cb(snapOf(Object.keys(o).length ? o : null)); }; cb.__w = w; R.on('value', w); }, off: (t, cb) => R.off('value', cb.__w) }),
+        limitToLast: n => ({ on: (t, cb) => R.on(t, cb) }),
+        startAt: v => ({ limitToLast: n => ({ on: (t, cb) => R.on(t, sn => { if (t !== 'child_added' || ((sn.val() || {})[k] >= v)) cb(sn); }) }), on: (t, cb) => { const w = snap => { const all = snap.val() || {}, o = {}; for (const c in all) if ((all[c] || {})[k] >= v) o[c] = all[c]; cb(snapOf(Object.keys(o).length ? o : null)); }; cb.__w = w; R.on('value', w); }, off: (t, cb) => R.off('value', cb.__w) }),
         endAt: v => ({ limitToFirst: n => ({ once: async () => { const all = (await window.__hub('get', p)) || {}, o = {}; Object.keys(all).filter(c => (all[c] || {})[k] <= v).slice(0, n).forEach(c => o[c] = all[c]); return snapOf(Object.keys(o).length ? o : null); } }) })
       })
     };

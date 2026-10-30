@@ -116,6 +116,16 @@ rules = {"rules": {
       ".write": f"{AUTH} && {MOD} && (!newData.exists() || !data.exists() || data.val() === newData.val())",
       ".validate": "newData.isString() && $slug.matches(/^[a-z0-9]+(-[a-z0-9]+)*$/) && $slug.length <= 60"}}
   },
+  # ---- Chùa Online (app/dichuaonline): cấu hình/lịch do admin+CTV; lời nguyện, bộ đếm, hiện diện do khách ghi; quà TikTok do relay (khoá server) hoặc admin ghi ----
+  "dichua": {
+    "config": {".read": "true", ".write": f"{AUTH} && {MOD}", ".validate": "newData.hasChildren() && newData.val() !== null"},
+    "wishes": {".read": "true", "$id": {
+      ".write": f"{AUTH} && ((!data.exists() && newData.exists()) || {MOD})",
+      ".validate": "newData.hasChildren(['t', 'at']) && newData.child('t').isString() && newData.child('t').val().length > 0 && newData.child('t').val().length <= 500 && (!newData.child('n').exists() || (newData.child('n').isString() && newData.child('n').val().length <= 40))"}},
+    "stats": {".read": "true", "$k": {".write": f"{AUTH} && ((newData.isNumber() && newData.val() === (data.exists() ? data.val() + 1 : 1)) || {MOD})", ".validate": "newData.isNumber() && newData.val() >= 0 && $k.matches(/^(flower|incense|bell|fish)$/)"}},
+    "presence": {".read": "true", "$uid": {".write": f"{AUTH} && $uid === auth.uid", ".validate": "newData.hasChildren(['at'])"}},
+    "gifts": {".read": "true", ".write": f"{AUTH} && {MOD}", "$id": {".validate": "newData.hasChildren(['u', 'g', 'at'])"}}
+  },
   "teacherStudents": {"$t": {".read": f"{AUTH} && ($t === auth.uid || {ADMIN})", ".write": f"{AUTH} && (($t === auth.uid && {TEACHER}) || {ADMIN})"}},
   "assign": {"$s": {".read": f"{AUTH} && ($s === auth.uid || {TEACHER} || {ADMIN})", "$c": {
     ".write": f"{AUTH} && ({ADMIN} || ({TEACHER} && ((newData.exists() && newData.child('by').val() === auth.uid) || (!newData.exists() && data.child('by').val() === auth.uid))))"}}},

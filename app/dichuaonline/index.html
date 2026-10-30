@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#241b18">
+<title>Đi Chùa Online – An yên mỗi ngày</title>
+<meta name="description" content="Đi Chùa Online: bàn thờ Phật ảo, dâng hoa, thắp nhang, chuông mõ, nhạc thiền, lời nguyện lành realtime và kết nối livestream TikTok.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪷%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<header class="wrap top">
+  <a class="brand" href="./"><span class="logo">☸</span><span>ĐI CHÙA ONLINE</span></a>
+  <nav><a href="#chanhdien">Chánh điện</a><a href="#lich">Lịch tụng kinh</a><a href="#nguyen">Lời nguyện</a><a href="../../">OmniHub</a></nav>
+  <div class="hbtns"><button class="btn secondary sm" id="btnSound" type="button" title="Bật/tắt âm thanh">🔇 Âm thanh</button><a class="btn sm" href="?live=1" id="btnLive">📺 Chế độ LIVE</a></div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Một góc bình an giữa cuộc sống</div>
+    <h1>Gieo tâm lành,<br><span>đón bình an</span></h1>
+    <p>Dù ở bất cứ nơi đâu, hãy dành một phút lắng lòng: thắp một nén nhang, dâng một đóa sen, gửi một lời nguyện lành và kết nối với không gian tu tập trực tuyến.</p>
+  </section>
+
+  <section class="main-grid" id="chanhdien">
+    <div class="card scene-card">
+      <div class="live-head"><div class="live-label"><span class="dot"></span> CHÁNH ĐIỆN TRỰC TUYẾN</div><span class="tag" id="onlineTag">0 người đang hiện diện</span></div>
+      <div class="scene" id="scene">
+        <div class="rays" aria-hidden="true"></div>
+        <svg class="buddha" viewBox="0 0 200 240" aria-label="Tượng Phật ngồi thiền">
+          <defs>
+            <radialGradient id="halo" cx="50%" cy="40%" r="55%"><stop offset="0" stop-color="#fff3c9" stop-opacity=".95"/><stop offset=".45" stop-color="#f3c871" stop-opacity=".5"/><stop offset="1" stop-color="#f3c871" stop-opacity="0"/></radialGradient>
+            <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8dc9a"/><stop offset=".55" stop-color="#d6a152"/><stop offset="1" stop-color="#8d5a26"/></linearGradient>
+            <linearGradient id="lotus" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd7e4"/><stop offset="1" stop-color="#e58aa8"/></linearGradient>
+          </defs>
+          <circle cx="100" cy="82" r="78" fill="url(#halo)" class="halo"/>
+          <circle cx="100" cy="76" r="44" fill="none" stroke="#f3c871" stroke-opacity=".55" stroke-width="1.4"/>
+          <path d="M100 54c-9 0-16 7-16 16 0 7 3 12 7 15-3 3-5 6-5 9-14 7-30 22-30 44 0 8 4 14 12 18h64c8-4 12-10 12-18 0-22-16-37-30-44 0-3-2-6-5-9 4-3 7-8 7-15 0-9-7-16-16-16z" fill="url(#gold)"/>
+          <path d="M100 50c-4 0-6 3-6 5s2 4 6 4 6-2 6-4-2-5-6-5z" fill="#f8dc9a"/>
+          <path d="M80 158c10 8 30 8 40 0" fill="none" stroke="#8d5a26" stroke-opacity=".7" stroke-width="2"/>
+          <ellipse cx="100" cy="148" rx="20" ry="9" fill="#e7bd74" opacity=".8"/>
+          <g class="lotusbase" fill="url(#lotus)" stroke="#b5557a" stroke-opacity=".5" stroke-width="1">
+            <path d="M100 188c-9 0-16 10-16 24 12-3 20-12 16-24z"/><path d="M100 188c9 0 16 10 16 24-12-3-20-12-16-24z"/>
+            <path d="M72 198c-8 4-12 14-9 26 12-2 19-12 9-26z"/><path d="M128 198c8 4 12 14 9 26-12-2-19-12-9-26z"/>
+            <path d="M52 212c-6 6-6 16 0 24 12-4 14-14 0-24z"/><path d="M148 212c6 6 6 16 0 24-12-4-14-14 0-24z"/>
+          </g>
+        </svg>
+        <div class="altar">
+          <div class="vase" id="vase" aria-label="Bình hoa sen"></div>
+          <div class="censer"><div class="sticks" id="sticks"></div><div class="bowl">🏺</div></div>
+          <div class="fruit" aria-hidden="true">🍊 🍎 🍌</div>
+        </div>
+        <div class="bless-pop" id="giftPop" hidden>
+          <img id="gpAv" alt="" referrerpolicy="no-referrer"><div class="gpb"><b id="gpName"></b><small id="gpGift"></small><p id="gpText"></p></div>
+        </div>
+        <div class="ticker" id="ticker"></div>
+      </div>
+      <div class="controls" id="controls">
+        <button class="btn" data-a="flower" type="button">🪷 Dâng hoa sen</button>
+        <button class="btn" data-a="incense" type="button">🕯️ Thắp nhang</button>
+        <button class="btn secondary" data-a="bell" type="button">🔔 Thỉnh chuông</button>
+        <button class="btn secondary" data-a="fish" type="button">🪘 Gõ mõ</button>
+        <button class="btn secondary" data-a="music" type="button" id="btnMusic">🎵 Nhạc thiền</button>
+      </div>
+      <div class="live-foot"><span id="statLine">🪷 0 đóa sen · 🕯️ 0 nén nhang · 🔔 0 hồi chuông</span><span id="liveStatus">Chưa cấu hình kênh LIVE</span></div>
+    </div>
+
+    <aside class="side">
+      <div class="card tiktok" id="tiktokCard">
+        <h2 class="card-title">Livestream TikTok</h2>
+        <p class="note2" id="tkText">Chùa phát trực tiếp trên TikTok. Mở phòng LIVE để cùng tụng kinh; tặng quà trong LIVE, tên và lời nguyện lành của bạn sẽ hiện ngay trên chánh điện.</p>
+        <a class="btn" id="openLive" href="https://www.tiktok.com/live" target="_blank" rel="noopener">▶ Xem trực tiếp trên TikTok</a>
+      </div>
+      <div class="card" id="lich">
+        <h2 class="card-title">Lịch sinh hoạt</h2>
+        <div id="schedule"></div>
+        <p class="note">* Lịch do ban quản trị cập nhật.</p>
+      </div>
+      <div class="card"><div class="quote" id="quote">“Bình an không đến từ việc cuộc sống không có sóng gió, mà từ cách ta giữ tâm mình giữa sóng gió.”<small>Góc suy ngẫm</small></div></div>
+    </aside>
+  </section>
+
+  <section class="features">
+    <article class="feature"><div class="ico">🙏</div><h3>Tham dự thời khóa</h3><p>Kết nối livestream, cùng tụng kinh và lắng nghe pháp thoại tại nhà.</p></article>
+    <article class="feature"><div class="ico">🪷</div><h3>Bàn thờ Phật ảo</h3><p>Dâng hoa, thắp nhang, thỉnh chuông, gõ mõ – mọi người cùng thấy trên chánh điện.</p></article>
+    <article class="feature"><div class="ico">🎁</div><h3>Quà tặng thành lời nguyện</h3><p>Khi bạn tặng quà trên TikTok LIVE, tên và ảnh đại diện hiện lên cùng một lời nguyện lành riêng.</p></article>
+  </section>
+
+  <section class="prayer" id="nguyen">
+    <div class="card">
+      <h2 class="card-title">Gửi lời nguyện lành</h2>
+      <p>Viết điều bạn muốn gửi gắm. Lời nguyện được chia sẻ công khai cho mọi người cùng hồi hướng (tối đa 500 ký tự).</p>
+      <form id="prayerForm">
+        <label for="person" class="note">Tên hiển thị (không bắt buộc)</label>
+        <input class="field" id="person" maxlength="40" placeholder="Pháp danh hoặc tên của bạn">
+        <label for="wish" class="note">Lời nguyện</label>
+        <textarea class="field" id="wish" required maxlength="500" placeholder="Con xin gửi lời cầu an..."></textarea>
+        <button class="btn" type="submit">Gửi lời nguyện 🙏</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2 class="card-title">Lời nguyện mới nhất</h2>
+      <div class="wishes" id="wishes"><p class="note">Đang tải…</p></div>
+    </div>
+  </section>
+
+  <section class="prayer">
+    <div class="card">
+      <h2 class="card-title">Một phút chánh niệm</h2>
+      <p>Ngồi thoải mái, thả lỏng vai. Hít vào nhẹ nhàng, biết mình đang hít vào. Thở ra chậm rãi, biết mình đang thở ra.</p>
+      <div style="text-align:center;padding:20px 0">
+        <div id="breathCircle">An trú</div>
+        <p id="breathText">Dành một phút cho chính mình</p>
+        <button class="btn secondary" id="breathBtn" type="button">Bắt đầu 1 phút</button>
+      </div>
+    </div>
+    <div class="card" id="donors">
+      <h2 class="card-title">Công đức hôm nay</h2>
+      <div id="donorList"><p class="note">Chưa có quà tặng nào trong phiên này. Khi có người tặng quà trên TikTok LIVE, tên sẽ hiện ở đây.</p></div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">ĐI CHÙA ONLINE · Không gian kết nối tu tập và lan tỏa điều thiện lành<br><br>Trang cộng đồng – không đại diện cho một ngôi chùa cụ thể. Điểm công đức và hoa nhang chỉ mang tính biểu trưng.</div></footer>
+<div class="toast" id="toast"></div>
+
+<script>window.GV={store:{get:function(k,d){try{var v=localStorage.getItem("gv_"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem("gv_"+k,JSON.stringify(v))}catch(e){}}}}</script>
+<script src="../../js/firebase-config.js"></script>
+<script src="../../js/fb.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

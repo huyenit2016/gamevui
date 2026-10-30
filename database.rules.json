@@ -278,6 +278,41 @@
         }
       }
     },
+    "dichua": {
+      "config": {
+        ".read": "true",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab')",
+        ".validate": "newData.hasChildren() && newData.val() !== null"
+      },
+      "wishes": {
+        ".read": "true",
+        "$id": {
+          ".write": "auth != null && ((!data.exists() && newData.exists()) || (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab'))",
+          ".validate": "newData.hasChildren(['t', 'at']) && newData.child('t').isString() && newData.child('t').val().length > 0 && newData.child('t').val().length <= 500 && (!newData.child('n').exists() || (newData.child('n').isString() && newData.child('n').val().length <= 40))"
+        }
+      },
+      "stats": {
+        ".read": "true",
+        "$k": {
+          ".write": "auth != null && ((newData.isNumber() && newData.val() === (data.exists() ? data.val() + 1 : 1)) || (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab'))",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && $k.matches(/^(flower|incense|bell|fish)$/)"
+        }
+      },
+      "presence": {
+        ".read": "true",
+        "$uid": {
+          ".write": "auth != null && $uid === auth.uid",
+          ".validate": "newData.hasChildren(['at'])"
+        }
+      },
+      "gifts": {
+        ".read": "true",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab')",
+        "$id": {
+          ".validate": "newData.hasChildren(['u', 'g', 'at'])"
+        }
+      }
+    },
     "teacherStudents": {
       "$t": {
         ".read": "auth != null && ($t === auth.uid || root.child('admins').child(auth.uid).exists())",

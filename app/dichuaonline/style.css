@@ -1,0 +1,58 @@
+:root{--bg:#171311;--panel:#241d19;--gold:#e8bd72;--gold2:#f5d99d;--cream:#f7eddb;--muted:#c2b4a2;--line:#554336;--red:#b74c36}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 50% -20%,#59402c 0,#211915 42%,#120f0d 100%) fixed;color:var(--cream);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+a{color:inherit;text-decoration:none}button,input,textarea{font:inherit}.wrap{max-width:1180px;margin:auto;padding:0 22px;position:relative;z-index:1}
+header.top{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff18;gap:14px}
+.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.4px}.logo{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f2d59b,#a96b34);color:#2a1b10;font-size:23px;box-shadow:0 0 28px #e8bd7233}
+nav{display:flex;gap:26px;color:#d6c5ae;font-size:14px}nav a:hover{color:var(--gold2)}.hbtns{display:flex;gap:8px}
+.btn{border:1px solid #c99c5c;background:linear-gradient(135deg,#e9c27e,#c58b4b);color:#28190f;border-radius:999px;padding:11px 18px;font-weight:750;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,filter .2s}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(.97)}.btn.sm{padding:8px 14px;font-size:13px}.btn.secondary{background:#ffffff12;color:var(--cream);border-color:#ffffff35}.btn:disabled{opacity:.55;cursor:wait}
+main{position:relative;z-index:1}main.wrap{padding-bottom:10px}
+.hero{text-align:center;padding:48px 0 30px}.eyebrow{color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-size:11px;font-weight:800}.hero h1{font-family:Georgia,serif;font-size:clamp(36px,6vw,62px);line-height:1.08;margin:15px 0 12px;font-weight:500}.hero h1 span{color:var(--gold2)}.hero p{color:var(--muted);max-width:640px;margin:0 auto;line-height:1.7}
+.main-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,.8fr);gap:22px;align-items:start}
+.card{background:linear-gradient(145deg,#2a211cdd,#201916dd);border:1px solid #80634455;border-radius:20px;overflow:hidden;box-shadow:0 18px 50px #0005;backdrop-filter:blur(4px)}
+.live-head{display:flex;align-items:center;justify-content:space-between;padding:15px 19px;border-bottom:1px solid #ffffff12;gap:10px;flex-wrap:wrap}.live-label{display:flex;gap:9px;align-items:center;font-weight:750;font-size:14px}
+.dot{width:9px;height:9px;border-radius:50%;background:#e65d4e;box-shadow:0 0 12px #e65d4e;animation:pulse 1.8s infinite}@keyframes pulse{50%{opacity:.35}}
+.tag{font-size:11px;color:#f0c77f;border:1px solid #a77c45;border-radius:99px;padding:5px 9px}
+/* ---- chánh điện ---- */
+.scene{position:relative;aspect-ratio:16/10;min-height:340px;overflow:hidden;background:radial-gradient(ellipse at 50% 34%,#8a6240,#3a2a20 52%,#140f0c);perspective:900px}
+.scene .rays{position:absolute;left:50%;top:6%;width:140%;aspect-ratio:1;transform:translateX(-50%);background:repeating-conic-gradient(from 0deg,#f6d58a22 0 4deg,transparent 4deg 12deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 62%);mask:radial-gradient(circle,#000 0,transparent 62%);animation:spin 90s linear infinite}
+@keyframes spin{to{transform:translateX(-50%) rotate(360deg)}}
+.buddha{position:absolute;left:50%;top:3%;height:74%;transform:translateX(-50%) rotateX(var(--rx,0)) rotateY(var(--ry,0));transition:transform .15s;filter:drop-shadow(0 14px 22px #000a);z-index:1}
+.buddha .halo{animation:glow 5s ease-in-out infinite}@keyframes glow{50%{opacity:.7}}
+.altar{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(#4a2f20,#2a1a12);border-top:3px solid #c99c5c88;box-shadow:0 -14px 30px #0008;display:flex;align-items:flex-end;justify-content:space-around;padding:0 6%;z-index:2}
+.vase{display:flex;flex-wrap:wrap;gap:0 2px;justify-content:center;align-items:flex-end;width:34%;min-height:80%;padding-bottom:6px;font-size:clamp(20px,3.4vw,34px);line-height:1}
+.vase i{font-style:normal;animation:bloom .7s ease-out both;filter:drop-shadow(0 4px 6px #0007)}@keyframes bloom{from{transform:scale(.2) translateY(20px);opacity:0}}
+.censer{position:relative;width:26%;text-align:center}.bowl{font-size:clamp(30px,5vw,54px);filter:drop-shadow(0 6px 8px #0008)}
+.sticks{position:absolute;left:50%;bottom:62%;transform:translateX(-50%);display:flex;gap:7px;align-items:flex-end;height:90%}
+.stick{width:4px;border-radius:2px;background:linear-gradient(#a0522d,#c9884f);position:relative;transition:height 1s linear}
+.stick:after{content:"";position:absolute;top:-3px;left:-1px;width:6px;height:6px;border-radius:50%;background:#ff7a2f;box-shadow:0 0 10px 3px #ff7a2fcc}.stick.out:after{display:none}
+.fruit{font-size:clamp(18px,3vw,30px);width:30%;text-align:center;padding-bottom:8px;filter:drop-shadow(0 4px 6px #0007)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px;border-top:1px solid #ffffff12;justify-content:center}.controls .btn{padding:9px 14px;font-size:13px}.controls .btn.on{outline:2px solid var(--gold2)}
+.live-foot{padding:12px 18px;display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap;border-top:1px solid #ffffff10}
+/* ---- quà TikTok → lời nguyện ---- */
+.bless-pop{position:absolute;left:50%;top:7%;transform:translateX(-50%);z-index:6;display:flex;gap:14px;align-items:center;max-width:min(92%,560px);background:linear-gradient(135deg,#2c1d12ee,#1b120cee);border:1px solid #e8bd72;border-radius:18px;padding:12px 16px;box-shadow:0 0 40px #e8bd7255,0 14px 34px #000a;animation:popin .6s cubic-bezier(.2,1.3,.4,1) both}
+.bless-pop[hidden]{display:none}@keyframes popin{from{opacity:0;transform:translate(-50%,-26px) scale(.85)}}
+.bless-pop img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);background:#3a2a20;flex:none}.gpb b{display:block;font:600 1.1rem Georgia,serif;color:var(--gold2)}.gpb small{display:block;color:#f0c77f;font-size:.74rem;letter-spacing:.04em;margin:2px 0 6px}.gpb p{margin:0;font:italic .95rem/1.5 Georgia,serif;color:#f1e4cd}
+.ticker{position:absolute;left:0;right:0;top:0;z-index:5;padding:8px 14px;font:italic .85rem Georgia,serif;color:#f3e1bd;background:linear-gradient(#000b,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:34px}
+/* ---- bên phải ---- */
+.side{display:grid;gap:18px}.side .card{padding:19px}.card-title{font-family:Georgia,serif;font-size:21px;margin:0 0 14px;font-weight:500}.note2{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 14px}
+.schedule-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff12}.schedule-item:last-child{border:0;padding-bottom:0}.schedule-item.now{background:linear-gradient(90deg,#e8bd7222,transparent);border-radius:10px;padding-left:8px}.time{min-width:58px;color:var(--gold);font-weight:800;font-size:13px}.schedule-item strong{font-size:13px}.schedule-item small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}
+.quote{color:#e8d6bc;font-family:Georgia,serif;font-style:italic;line-height:1.7;font-size:16px}.quote small{display:block;color:var(--gold);font:11px system-ui;margin-top:10px;letter-spacing:1px;text-transform:uppercase}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:22px 0}.feature{padding:20px;border:1px solid #80634455;border-radius:17px;background:#241c18cc}.feature .ico{font-size:25px}.feature h3{font-size:15px;margin:11px 0 6px}.feature p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+.prayer{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:30px 0}.prayer .card{padding:23px}.prayer p{color:var(--muted);font-size:13px;line-height:1.6}
+.field{width:100%;background:#17120f;border:1px solid #70563e;border-radius:10px;padding:12px;color:var(--cream);outline:none;margin:7px 0 12px;font-size:16px}.field:focus{border-color:var(--gold)}textarea.field{min-height:92px;resize:vertical}.note{font-size:11px!important;color:#a99a88!important}
+.wishes{max-height:340px;overflow:auto;display:grid;gap:10px}.wish{padding:10px 12px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff12;font:italic .9rem/1.5 Georgia,serif;color:#f1e4cd;word-break:break-word}.wish b{display:block;font:700 .74rem system-ui;font-style:normal;color:var(--gold);letter-spacing:.04em;margin-bottom:3px}
+.donor{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff12}.donor img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#3a2a20}.donor b{font-size:13px}.donor small{display:block;color:var(--muted);font-size:11px}
+#breathCircle{width:112px;height:112px;border:1px solid #d8ad6d;border-radius:50%;margin:auto;display:grid;place-items:center;color:#f0ce91;font-family:Georgia,serif;font-size:16px;transition:transform 4s ease,background 4s}
+footer{border-top:1px solid #ffffff18;padding:22px 0 32px;color:#a99a88;font-size:12px;text-align:center;position:relative;z-index:1;margin-top:30px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;background:#f1d39b;color:#25170e;padding:12px 18px;border-radius:12px;font-weight:700;font-size:13px;transition:.25s;pointer-events:none;box-shadow:0 10px 30px #0007;z-index:99;max-width:90vw}.toast.show{opacity:1;transform:translate(-50%,0)}
+/* ---- chế độ LIVE (?live=1): cảnh 16:9 sạch cho TikTok LIVE Studio quay cửa sổ ---- */
+body.live{overflow:hidden}body.live header.top,body.live .hero,body.live .features,body.live .prayer,body.live footer,body.live .side .card:not(#lich),body.live .live-head,body.live .controls,body.live .tiktok{display:none!important}
+body.live .wrap{max-width:none;padding:0}body.live .card,body.live .scene-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;overflow:visible}body.live .main-grid{display:block}body.live .card{border:0;border-radius:0;background:none;box-shadow:none}
+body.live .scene{position:fixed;inset:0;aspect-ratio:auto;min-height:0;z-index:1}body.live .side{position:fixed;right:18px;top:60px;width:min(300px,28vw);z-index:7}body.live .side .card{background:#1b120ccc;padding:14px}body.live .live-foot{position:fixed;left:0;right:0;bottom:0;z-index:8;background:#000a;font-size:15px;padding:10px 24px}
+body.live .bless-pop{top:12%;max-width:min(80%,820px);padding:18px 24px}body.live .bless-pop img{width:96px;height:96px}body.live .gpb b{font-size:1.7rem}body.live .gpb p{font-size:1.25rem}body.live .ticker{font-size:1.2rem;padding:14px 24px}
+@media(max-width:800px){nav{display:none}.main-grid{grid-template-columns:1fr}.features{grid-template-columns:1fr}.prayer{grid-template-columns:1fr}.hero{padding-top:34px}.scene{aspect-ratio:4/5;min-height:360px}.buddha{height:62%}.hbtns .btn{padding:8px 11px;font-size:12px}.bless-pop img{width:48px;height:48px}.gpb p{font-size:.85rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+body.live .altar{bottom:46px;height:30%}body.live .buddha{height:66%;top:4%}body.live .vase{font-size:clamp(28px,4vw,52px)}body.live .bowl{font-size:clamp(46px,7vw,86px)}
