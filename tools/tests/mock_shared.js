@@ -21,7 +21,7 @@
       onDisconnect: () => ({ set: v => window.__hub('ondisc', p, v === null ? '__remove__' : v), remove: () => window.__hub('ondisc', p, '__remove__') }),
       limitToLast: n => ({ once: async () => { const all = (await window.__hub('get', p)) || {}, o = {}; Object.keys(all).sort().slice(-n).forEach(c => o[c] = all[c]); return snapOf(Object.keys(o).length ? o : null); } }),
       orderByChild: k => ({
-        limitToLast: n => ({ on: (t, cb) => R.on(t, cb) }),
+        limitToLast: n => ({ on: (t, cb) => R.on(t, cb), once: async () => { const all = (await window.__hub('get', p)) || {}, o = {}; Object.keys(all).sort((a, b) => ((all[a] || {})[k] || 0) - ((all[b] || {})[k] || 0)).slice(-n).forEach(c => o[c] = all[c]); return snapOf(Object.keys(o).length ? o : null); } }),
         startAt: v => ({ limitToLast: n => ({ on: (t, cb) => R.on(t, sn => { if (t !== 'child_added' || ((sn.val() || {})[k] >= v)) cb(sn); }) }), on: (t, cb) => { const w = snap => { const all = snap.val() || {}, o = {}; for (const c in all) if ((all[c] || {})[k] >= v) o[c] = all[c]; cb(snapOf(Object.keys(o).length ? o : null)); }; cb.__w = w; R.on('value', w); }, off: (t, cb) => R.off('value', cb.__w) }),
         endAt: v => ({ limitToFirst: n => ({ once: async () => { const all = (await window.__hub('get', p)) || {}, o = {}; Object.keys(all).filter(c => (all[c] || {})[k] <= v).slice(0, n).forEach(c => o[c] = all[c]); return snapOf(Object.keys(o).length ? o : null); } }) })
       })

@@ -1,0 +1,10 @@
+{
+  "name": "dichua-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cầu nối quà TikTok LIVE → trang Đi Chùa Online (SSE cục bộ và/hoặc Firebase). Dùng thư viện KHÔNG chính thức tiktok-live-connector.",
+  "main": "relay.js",
+  "scripts": { "start": "node relay.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "tiktok-live-connector": "^1.2.3" }
+}

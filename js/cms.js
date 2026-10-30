@@ -57,6 +57,7 @@
     ['announce', '📢 Thông báo', ['admin', 'collab']],
     ['library', '📚 Thư viện khoá học', ['admin', 'collab', 'teacher']],
     ['story', '📖 Câu chuyện (Story)', ['admin', 'collab']],
+    ['chua', '🪷 Chùa Online', ['admin', 'collab']],
     ['class', '🎓 Lớp & bài giao', ['admin', 'teacher']],
     ['mywork', '🧑‍🎓 Bài của tôi', ['admin', 'collab', 'teacher', 'student']]
   ];
@@ -78,7 +79,7 @@
     $('.lo').onclick = () => A.signOut();
     $('.rr').onclick = () => recheck(true);
     $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', EMB ? '#/cms/' + tab : '#' + tab); panelView(); });
-    const fn = { home, rooms, users, config, announce, library, story: c => GV.cmsStory(c, $, $$, fdate), class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
+    const fn = { home, rooms, users, config, announce, library, story: c => GV.cmsStory(c, $, $$, fdate), chua, class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
     if (A.isAdmin) watchJunk();
   }
   const db = () => A.db;
@@ -232,6 +233,40 @@
       <div class="row"><button class="btn ok sv">📣 Đăng thông báo</button><button class="btn ghost rm">Gỡ thông báo</button></div></div>`;
     $('.sv', c).onclick = async () => { const text = $('.tx', c).value.trim(); if (!text) return T('Nhập nội dung thông báo.', { type: 'warn' }); await db().ref('config/announce').set({ id: Date.now(), text, type: $('.ty', c).value, link: $('.lk', c).value.trim(), active: $('.ac', c).checked, by: A.user.uid }); T('Đã đăng thông báo.', { type: 'success' }); };
     $('.rm', c).onclick = async () => { await db().ref('config/announce').remove(); $('.tx', c).value = ''; T('Đã gỡ thông báo.', { type: 'info' }); };
+  }
+
+  /* =============== CHÙA ONLINE (app/dichuaonline): cấu hình, lịch, livestream TikTok, kiểm duyệt lời nguyện =============== */
+  async function chua(c) {
+    const cfg = (await db().ref('dichua/config').once('value')).val() || {};
+    const base = location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '') + 'app/dichuaonline/';
+    const sched = (Array.isArray(cfg.schedule) ? cfg.schedule : Object.values(cfg.schedule || {})).map(x => `${x.t} | ${x.h}${x.s ? ' | ' + x.s : ''}`).join('\n');
+    c.innerHTML = `<div class="card2"><h2>🪷 Chùa Online – cấu hình &amp; livestream</h2>
+      <p class="hint">Trang công khai: <a href="${esc(base)}" target="_blank" rel="noopener">${esc(base)}</a> · Chế độ LIVE (để TikTok LIVE Studio quay cửa sổ): <a href="${esc(base)}?live=1" target="_blank" rel="noopener">?live=1</a></p>
+      <div class="grid2"><div><label class="f">Tên kênh TikTok (không cần @)</label><input class="w tu" maxlength="40" placeholder="vd: chuaonline" value="${esc((cfg.tiktokUser || '').replace(/^@/, ''))}"></div>
+      <div><label class="f">Link LIVE / trang TikTok (tuỳ chọn, ghi đè)</label><input class="w tl" placeholder="https://www.tiktok.com/@kenh/live" value="${esc(cfg.liveUrl || '')}"></div></div>
+      <label class="f">Địa chỉ relay quà TikTok (tuỳ chọn – xem tools/dichua-relay/README.md)</label><input class="w ru" placeholder="http://localhost:8787 (relay chạy trên máy phát live)" value="${esc(cfg.relayUrl || '')}">
+      <label class="f">Lời giới thiệu ở khung TikTok</label><textarea class="w tt" style="min-height:60px" maxlength="400">${esc(cfg.tkText || '')}</textarea>
+      <label class="f">Lời suy ngẫm (hiện ở thẻ trích dẫn)</label><textarea class="w qt" style="min-height:60px" maxlength="300">${esc(cfg.quote || '')}</textarea>
+      <label class="f">Lịch tụng kinh – mỗi dòng: <code>HH:MM | Tiêu đề | Mô tả</code></label><textarea class="w sc" style="min-height:130px;font-family:monospace">${esc(sched)}</textarea>
+      <div class="row"><button class="btn ok sv">💾 Lưu cấu hình</button><button class="btn ghost ts">🎁 Gửi quà thử (xem lời nguyện lành)</button></div><div class="hint rs"></div></div>
+      <div class="card2"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Lời nguyện gần đây</h3><button class="pbtn sm rf">🔄</button></div><div class="wl tw">Đang tải…</div></div>`;
+    $('.sv', c).onclick = async () => {
+      const lu = $('.tl', c).value.trim(), tu = $('.tu', c).value.trim().replace(/^@/, ''), ru = $('.ru', c).value.trim();
+      if (lu && !/^https:\/\/([\w-]+\.)*tiktok\.com\//i.test(lu)) return T('Link LIVE phải là https://…tiktok.com/…', { type: 'warn' });
+      if (tu && !/^[\w.]{2,40}$/.test(tu)) return T('Tên kênh TikTok chỉ gồm chữ, số, dấu chấm, gạch dưới.', { type: 'warn' });
+      if (ru && !/^https?:\/\/[^\s]+$/i.test(ru)) return T('Địa chỉ relay phải bắt đầu bằng http:// hoặc https://', { type: 'warn' });
+      const schedule = $('.sc', c).value.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const m = /^(\d{1,2}:\d{2})\s*\|\s*([^|]+?)\s*(?:\|\s*(.*))?$/.exec(l); return m ? { t: m[1].padStart(5, '0'), h: m[2].slice(0, 80), s: (m[3] || '').slice(0, 120) } : null; });
+      if (schedule.some(x => !x)) return T('Có dòng lịch sai định dạng (HH:MM | Tiêu đề | Mô tả).', { type: 'warn' });
+      try { await db().ref('dichua/config').set({ tiktokUser: tu || null, liveUrl: lu || null, relayUrl: ru || null, tkText: $('.tt', c).value.trim() || null, quote: $('.qt', c).value.trim() || null, schedule, updated: Date.now() }); T('Đã lưu cấu hình Chùa Online 🪷', { type: 'success' }); }
+      catch (e) { T(GV.fbInfo().explain(e), { type: 'error' }); }
+    };
+    $('.ts', c).onclick = async () => { try { await db().ref('dichua/gifts').push({ u: 'Phật tử thử nghiệm', g: 'Hoa hồng', n: 3, d: 3, at: Date.now(), av: '' }); T('Đã gửi quà thử – mở trang Chùa Online để xem.', { type: 'success' }); } catch (e) { T(GV.fbInfo().explain(e), { type: 'error' }); } };
+    async function drawW() {
+      const s = (await db().ref('dichua/wishes').orderByChild('at').limitToLast(50).once('value')).val() || {}, ks = Object.keys(s).sort((a, b) => (s[b].at || 0) - (s[a].at || 0));
+      $('.wl', c).innerHTML = ks.length ? `<table><tr><th>Người gửi</th><th>Lời nguyện</th><th>Lúc</th><th></th></tr>${ks.map(k => `<tr><td>${esc(s[k].n || '—')}</td><td>${esc(s[k].t)}</td><td class="hint">${esc(fdate(s[k].at))}</td><td><button class="pbtn sm" data-x="${esc(k)}">🗑</button></td></tr>`).join('')}</table>` : '<span class="hint">Chưa có lời nguyện nào.</span>';
+    }
+    $('.wl', c).onclick = async e => { const b = e.target.closest('[data-x]'); if (!b || !confirm('Xoá lời nguyện này?')) return; try { await db().ref('dichua/wishes/' + b.dataset.x).remove(); drawW(); } catch (x) { T(GV.fbInfo().explain(x), { type: 'error' }); } };
+    $('.rf', c).onclick = drawW; drawW();
   }
 
   /* =============== THƯ VIỆN KHOÁ HỌC =============== */
