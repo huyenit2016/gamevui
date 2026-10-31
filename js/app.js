@@ -228,7 +228,15 @@
     GV.items.sort((a, b) => (a.type === b.type ? 0 : a.type === 'game' ? -1 : 1));
     $('#tabs').addEventListener('click', e => { const t = e.target.dataset.t; if (t) { tab = t; cat = ''; renderHome(); } });
     $('#chips').addEventListener('click', e => { if (e.target.dataset.c !== undefined) { cat = e.target.dataset.c; renderHome(); } });
-    $('#q').addEventListener('input', e => { query = e.target.value; if (location.hash.length > 2) location.hash = '#/'; else renderHome(); });
+    // Tìm kiếm: lọc ngay khi gõ, rồi cuộn tới danh sách kết quả (trên điện thoại kết quả nằm dưới phần hero nên trước đây trông như "không tìm được").
+    // Nút Tìm/Enter trên bàn phím ảo (enterkeyhint=search) hoặc thoát ô nhập → ẩn bàn phím và cuộn tới kết quả.
+    const qEl = $('#q'); qEl.setAttribute('enterkeyhint', 'search'); qEl.setAttribute('inputmode', 'search');
+    let qT = 0;
+    const toResults = (n = 0) => { if ($('#home').hidden && n < 8) return setTimeout(() => toResults(n + 1), 150); const t = $('#tabs'); if (t) window.scrollTo({ top: Math.max(0, t.getBoundingClientRect().top + scrollY - 90), behavior: 'smooth' }); };
+    qEl.addEventListener('input', e => { query = e.target.value; const fromPage = location.hash.length > 2; if (fromPage) location.hash = '#/'; else renderHome(); clearTimeout(qT); if (query.trim()) qT = setTimeout(() => toResults(), fromPage ? 1100 : 600); });
+    const submit = () => { clearTimeout(qT); query = qEl.value; renderHome(); qEl.blur(); if (query.trim()) setTimeout(() => toResults(), 80); };
+    qEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    qEl.addEventListener('search', () => { if (!qEl.value) { query = ''; renderHome(); } });
     $('#home').addEventListener('click', e => {
       const f = e.target.closest('[data-f]');
       if (f) { e.preventDefault(); toggleFav(f.dataset.f); renderHome(); }
