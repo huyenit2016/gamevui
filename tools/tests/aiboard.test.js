@@ -17,6 +17,7 @@ const { chromium } = require('playwright');
   // bài mẫu viết dần
   await p.click('.clr'); p.once('dialog', d => d.accept());
   await p.evaluate(() => { document.querySelector('.narr').checked = false; });
+  await p.evaluate(() => { const d = document.querySelector('.ai details'); if (d && !d.open) d.open = true; }); // mobile: khung AI đóng sẵn
   await p.selectOption('.lib', 'parabol'); await p.waitForTimeout(500); const mid = await inkPx(); await p.waitForFunction(() => !document.querySelector('.skipb').offsetParent, null, { timeout: 30000 }); console.log('bài mẫu viết dần: giữa chừng', mid, '→ xong', await inkPx(), '| số trang', await p.evaluate(() => GV.aibT.pages));
   // AI soạn bài (giả lập) và giải bài từ ảnh
   await p.fill('.q', 'Giải phương trình 2x + 3 = 7'); await p.click('.gen'); await p.waitForFunction(() => !document.querySelector('.skipb').offsetParent && document.querySelector('.msg3').textContent === '', null, { timeout: 40000 });
