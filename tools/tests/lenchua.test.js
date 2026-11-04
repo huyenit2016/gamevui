@@ -11,7 +11,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     console.log('— khung', vp.width + 'x' + vp.height);
     const ctx = await b.newContext({ viewport: { width: vp.width, height: vp.height }, hasTouch: !!vp.hasTouch, isMobile: !!vp.isMobile, acceptDownloads: true });
     const p = await ctx.newPage(); const errs = [];
-    p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
+    p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/ERR_FAILED/.test(m.text()) && errs.push(m.text())); p.on('requestfailed', r => !/fonts\.(googleapis|gstatic)/.test(r.url()) && errs.push('tải lỗi ' + r.url()));
     await p.route(/^https?:\/\/(?!localhost)/, r => r.abort());
     await p.route('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js', r => r.fulfill({ path: THREE, contentType: 'text/javascript' }));
     await p.goto('http://localhost:8151/games/lenchua/index.html');
@@ -37,7 +37,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     // 1. thắp hương
     await spot(0, 11, 'incense'); await p.click('#pc [data-n="3"]'); await p.waitForTimeout(2500);
     t(await p.evaluate(() => LCA.player.bow > .05 || LCA.player.pray > .5), 'nhân vật chắp tay / lạy'); await p.waitForTimeout(3600);
-    t(await p.evaluate(() => LCA.bloomS.t >= 0), 'thắp hương xong: sen vàng nở');
+    t(await p.evaluate(() => LCA.bloomS.t >= 0), 'thắp hương xong: sen vàng nở'); await p.waitForTimeout(1200); await shot('lotus');
     t(await p.evaluate(() => LCA.save.incense) >= 1, 'thắp 3 nén hương, đếm lần thắp'); await shot('incense');
     // 2. chuông
     await spot(16, -10.5, 'bell'); for (let i = 0; i < 3; i++) { await p.click('#bg'); await p.waitForTimeout(500); }
@@ -56,7 +56,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     await p.fill('#wt', 'Con xin cầu cho cha mẹ mạnh khoẻ'); await p.click('#wok');
     t(await p.evaluate(() => LCA.save.wishes.length) === 1 && await p.evaluate(() => LCA.rib.some(r => r.mine)), 'treo dải lụa đỏ trên cây bồ đề');
     await p.waitForTimeout(1300); const bl = await p.textContent('#blessT'); t(await p.evaluate(() => document.getElementById('bless').classList.contains('on')) && /khoẻ/.test(bl), 'lời chúc theo chủ đề sức khoẻ: ' + bl); await shot('bless'); await p.click('#bless');
-    t(await p.evaluate(() => /thi/.test(LCA.blessingFor('Con xin cầu thi đỗ đại học')) ), 'lời chúc chủ đề thi cử');
+    t(await p.evaluate(() => /thi|kiến thức/.test(LCA.blessingFor('Con xin cầu thi đỗ đại học')) ), 'lời chúc chủ đề thi cử');
     await spot(9.2, 7, 'wish'); await p.click('#pc [data-p="pond"]'); await p.click('#pc .chip'); await p.click('#wok');
     t(await p.evaluate(() => LCA.hd.some(h => h.mine)), 'thả đèn hoa đăng trên hồ'); await p.waitForTimeout(400); await shot('pond');
     // 5. xin quẻ

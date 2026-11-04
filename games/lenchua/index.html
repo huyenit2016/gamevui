@@ -7,6 +7,8 @@
 <title>Lên Chùa Cầu An</title>
 <meta name="description" content="Game 3D nhẹ nhàng: dạo chùa lúc hoàng hôn, thắp hương, thỉnh chuông, gõ mõ, viết lời cầu an và xin quẻ đầu năm.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪷%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <style>
 /* ===== GIAO DIỆN (lớp phủ DOM trên khung 3D) ===== */
 :root{--gold:#f2c879;--gold2:#ffe2a6;--ink:#2a1a12;--red:#b8392b;--cream:#fff4e0;--glass:rgba(32,20,14,.72)}
@@ -74,6 +76,59 @@ button{font:inherit;cursor:pointer}
 #tut .dots{margin:10px 0;color:#ffffff55;letter-spacing:6px}
 #err{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;z-index:70;background:#1a110c}
 .shake-screen{animation:sscr .5s}@keyframes sscr{20%{transform:translate(3px,-2px)}40%{transform:translate(-3px,2px)}60%{transform:translate(2px,2px)}80%{transform:translate(-2px,-1px)}}
+
+/* ===== GIAO DIỆN "CHÁNH ĐIỆN ĐÊM" (phong cách tham khảo di-chua-online: nền nâu đen, viền vàng kim, thẻ gradient nâu phát sáng, font Lora + Be Vietnam Pro) ===== */
+:root{--gold:#f3d08a;--gold2:#fff3d0;--amber:#fbbf24;--card-a:rgba(90,52,19,.95);--card-b:rgba(42,22,8,.95);--glass:rgba(28,25,23,.9);--glow:0 0 24px rgba(253,224,71,.45);--serif:'Lora',Georgia,serif;--sans:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+html,body{background:#0e0705;color:#f5f0eb;font-family:var(--sans)}
+.btn{border-radius:14px;font-weight:800;letter-spacing:.2px;background:linear-gradient(180deg,#fde68a,#fbbf24 55%,#d97706);color:#1c1007;box-shadow:0 4px 0 #8a4b0a,0 8px 22px rgba(0,0,0,.55),0 0 18px rgba(251,191,36,.35);border:1px solid #fff3c4}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8a4b0a,0 4px 12px rgba(0,0,0,.5)}
+.btn.alt{background:rgba(28,25,23,.85);color:#fde68a;border:1px solid rgba(251,191,36,.5);box-shadow:none}
+/* thanh trên: thương hiệu + nút tròn + dòng lưu ý chạy chữ */
+#topbar{position:absolute;left:0;right:0;top:0;padding:max(6px,env(safe-area-inset-top)) 8px 6px 12px;display:flex;align-items:center;gap:8px;background:linear-gradient(rgba(18,8,6,.96),rgba(18,8,6,.82));border-bottom:1px solid rgba(243,208,138,.35);box-shadow:0 6px 24px rgba(0,0,0,.45);pointer-events:auto}
+#brand{display:flex;align-items:center;gap:7px;min-width:0;flex:1;font-family:var(--serif);font-weight:700;color:#fde68a;font-size:17px;white-space:nowrap;overflow:hidden;text-shadow:0 0 12px rgba(251,191,36,.45)}
+#brand .wh{display:inline-block;animation:spin-slow 28s linear infinite;color:var(--amber);font-size:20px}
+#topbtns{position:static;display:flex;gap:6px;flex:none}
+.ib{width:38px;height:38px;font-size:17px;background:var(--glass);border:1px solid rgba(251,191,36,.5);box-shadow:inset 0 0 10px rgba(251,191,36,.12)}
+#notice{position:absolute;left:0;right:0;top:calc(max(6px,env(safe-area-inset-top)) + 44px);height:24px;overflow:hidden;background:rgba(90,52,19,.55);border-bottom:1px solid rgba(243,208,138,.25);font-size:11.5px;color:#f3d08a;line-height:24px;white-space:nowrap}
+#notice span{display:inline-block;padding-left:100%;animation:notice-scroll 30s linear infinite}
+#count{top:calc(max(6px,env(safe-area-inset-top)) + 76px)!important;left:10px;right:auto;max-width:calc(100% - 20px)!important;font-size:12.5px!important;background:var(--glass);border:1px solid rgba(251,191,36,.5);color:#fde68a;font-weight:600;box-shadow:var(--glow)}
+#hint{top:calc(max(6px,env(safe-area-inset-top)) + 116px)!important;white-space:nowrap;font-family:var(--sans);background:rgba(28,25,23,.8);border:1px solid rgba(243,208,138,.3)}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+@keyframes notice-scroll{to{transform:translateX(-100%)}}
+@keyframes pulse-gold{0%,100%{transform:scale(1);filter:drop-shadow(0 0 22px rgba(255,215,0,.7))}50%{transform:scale(1.05);filter:drop-shadow(0 0 48px rgba(255,223,80,.95))}}
+/* nút hành động: viên vàng có quầng */
+#act{border-radius:18px;min-height:62px;font-size:17px;padding:12px 20px}
+@keyframes pulse{50%{box-shadow:0 4px 0 #8a4b0a,0 0 0 10px rgba(251,191,36,.18),0 0 34px rgba(251,191,36,.55)}}
+#joy{border-color:rgba(243,208,138,.55);background:radial-gradient(circle,rgba(251,191,36,.14),rgba(28,25,23,.35))}
+#joyGhost{border-color:rgba(243,208,138,.35);color:rgba(243,208,138,.7)}
+/* thẻ nổi chung: gradient nâu, viền vàng 2px, phát sáng */
+#panel .card,#tut .box,#bless{background:linear-gradient(180deg,var(--card-a),var(--card-b));border:2px solid var(--gold);box-shadow:0 -10px 40px rgba(0,0,0,.6),var(--glow)}
+#panel h2,#tut h3,#bless b,.judge,.big{font-family:var(--serif);font-weight:700;color:#fde68a;text-shadow:0 0 14px rgba(251,191,36,.35)}
+#panel h2{font-size:23px;text-align:center}#panel h2:before,#panel h2:after{content:"❀";font-size:14px;color:var(--amber);margin:0 8px;vertical-align:3px;opacity:.8}
+#panel p,#tut p{color:#fbe7b8}
+#panel .small{color:#d9a55a}
+#panel textarea{background:rgba(14,7,5,.75);border-color:rgba(243,208,138,.6);font-family:var(--sans)}
+.chip{background:rgba(28,25,23,.7);border-color:rgba(251,191,36,.45);color:#fde68a}
+.seg button{background:rgba(28,25,23,.6);border-color:rgba(243,208,138,.4);color:#fbe7b8}.seg button.on{background:rgba(251,191,36,.22);border-color:var(--amber);color:#fff3d0;box-shadow:0 0 14px rgba(251,191,36,.35)}
+.list div{background:rgba(14,7,5,.45);border:1px solid rgba(243,208,138,.18);color:#fbe7b8}
+.slip{border:2px solid var(--gold);background:linear-gradient(#fff8e6,#f6e2b4);font-family:var(--serif);box-shadow:0 8px 24px rgba(0,0,0,.6),var(--glow)}
+.big{font-size:64px;animation:pulse-gold 3s ease-in-out infinite}
+#bless{border-radius:16px}#bless b{font-size:16px}#bless p{color:#fff3d0;font-family:var(--serif);font-style:italic;font-size:16px}
+/* thông báo nhỏ kiểu banner quà tặng */
+#toast{background:rgba(28,25,23,.94);color:#fde68a;border:1px solid rgba(251,191,36,.55);box-shadow:0 10px 30px rgba(0,0,0,.6),var(--glow);font-weight:600}
+.bub{background:linear-gradient(#fff8e6,#f6e2b4);color:#4a2a12;border:1px solid #e6b85c;font-family:var(--sans)}
+.bub:after{border-top-color:#f6e2b4}
+/* màn chào */
+#splash{background:radial-gradient(ellipse at 50% 28%,rgba(251,191,36,.28) 0,rgba(120,53,15,.35) 30%,#0e0705 70%),#0e0705}
+#splash .pagoda{position:relative;width:150px;height:150px;margin:0 auto 4px;display:grid;place-items:center;font-size:72px;animation:pulse-gold 3s ease-in-out infinite}
+#splash .pagoda:before,#splash .pagoda:after{content:"";position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(243,208,138,.55);animation:spin-slow 28s linear infinite}
+#splash .pagoda:after{inset:16px;border-style:dotted;border-color:rgba(251,191,36,.6);animation-direction:reverse;animation-duration:35s}
+#splash h1{font-family:var(--serif);font-weight:700;color:#fde68a;text-shadow:0 0 28px rgba(251,191,36,.55),0 4px 18px #000}
+#splash p{color:#fbe7b8}
+#splash input{background:rgba(28,25,23,.85);border:1px solid rgba(251,191,36,.6);font-family:var(--sans);box-shadow:var(--glow)}
+#splash small{color:#d9a55a}
+#err{background:#0e0705}
+@media (prefers-reduced-motion:reduce){#brand .wh,#notice span,.big,#splash .pagoda,#splash .pagoda:before,#splash .pagoda:after{animation:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
@@ -82,12 +137,15 @@ button{font:inherit;cursor:pointer}
 
 <div id="hud">
   <div id="count">🙏 Hôm nay có … người lên chùa cầu an</div>
-  <div id="topbtns">
-    <a class="ib" id="bHome" href="../../" title="Về trang chủ" aria-label="Về trang chủ" style="display:grid;place-items:center;text-decoration:none;color:inherit">‹</a>
+  <div id="topbar"><div id="brand"><span class="wh">☸</span><span>Chùa An Lạc</span></div>
+    <div id="topbtns">
+    <a class="ib" id="bHome" href="../../" title="Về trang chủ" aria-label="Về trang chủ" style="display:grid;place-items:center;text-decoration:none;color:#fde68a">‹</a>
     <button class="ib" id="bMute" title="Bật/tắt âm thanh" aria-label="Bật/tắt âm thanh">🔊</button>
     <button class="ib" id="bBook" title="Sổ cầu an của tôi" aria-label="Sổ cầu an của tôi">📖</button>
     <button class="ib" id="bShare" title="Chia sẻ" aria-label="Chia sẻ">📤</button>
   </div>
+  </div>
+  <div id="notice"><span>🪷 Không gian thư giãn mang tính giải trí, không đại diện cho ngôi chùa hay tổ chức tôn giáo nào · Lời cầu là để tâm an, không hứa hẹn điều gì · Hãy đi chậm, thở sâu và mỉm cười 🙏</span></div>
   <div id="hint">Kéo màn hình để xoay góc nhìn</div>
   <div id="joyGhost">Giữ &amp; kéo<br>để đi</div>
   <div id="joy"><i></i></div>
@@ -573,21 +631,24 @@ function updateCamera(dt) {
    (ý tưởng tham khảo dự án mã nguồn mở "di-chua-online" (MIT), viết lại hoàn toàn, không dùng tài nguyên của dự án đó)
    ===================================================================== */
 // --- Sen vàng: 2 tầng cánh mở dần, bay lên, mờ đi; kèm một trận cánh sen hồng rơi quanh đó ---
-const LOTUS_MAT = new THREE.MeshBasicMaterial({ color: 0xffd36b, transparent: true, opacity: 0, side: THREE.DoubleSide });
-const LOTUS_GLOW = new THREE.Mesh(new THREE.CircleGeometry(1.4, 24), new THREE.MeshBasicMaterial({ color: 0xffe9a8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+const LOTUS_MAT = new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0, side: THREE.DoubleSide });
+const LOTUS_GLOW = new THREE.Mesh(new THREE.CircleGeometry(2.2, 32), new THREE.MeshBasicMaterial({ color: 0xffe9a8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
 const lotus = new THREE.Group(), lotusPetals = []; lotus.visible = false; scene.add(lotus); lotus.add(LOTUS_GLOW);
+// quầng sáng ngoài + lõi trắng sáng, cộng màu để thật chói
+const LOTUS_HALO = new THREE.Mesh(new THREE.CircleGeometry(3.2, 40), new THREE.MeshBasicMaterial({ color: 0xffc04d, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); lotus.add(LOTUS_HALO);
+const LOTUS_CORE = new THREE.Mesh(new THREE.SphereGeometry(.28, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); LOTUS_CORE.position.y = .25; lotus.add(LOTUS_CORE);
 { const pg = new THREE.SphereGeometry(.5, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(.42, 1, .22).translate(0, 0, 0); // một cánh: nửa quả cầu dẹt
   for (let ring = 0; ring < 2; ring++) for (let k = 0; k < 8; k++) { const piv = new THREE.Group(), m = new THREE.Mesh(pg, LOTUS_MAT); m.position.y = .02; piv.add(m); piv.rotation.y = k / 8 * Math.PI * 2 + ring * Math.PI / 8; const tilt = new THREE.Group(); tilt.add(piv); lotus.add(tilt); lotusPetals.push({ piv, ring }); } }
 const bloomS = { t: -1, size: 1, x: 0, z: 0 };
 function bloom(x, z, size = 1) {
   Object.assign(bloomS, { t: 0, size, x, z }); lotus.visible = true; Audio.chime();
-  for (let i = 0; i < PET_N; i += 2) { const a = rnd(0, 6.28), r = rnd(0, 2.6 * size); pet.set([x + Math.cos(a) * r, rnd(3, 6), z + Math.sin(a) * r, rnd(.4, .7), rnd(0, 6.28)], i * 5); } // mưa cánh sen
+  for (let i = 0; i < PET_N; i += 2) { const a = rnd(0, 6.28), r = rnd(0, 4 * size); pet.set([x + Math.cos(a) * r, rnd(4, 8), z + Math.sin(a) * r, rnd(.4, .7), rnd(0, 6.28)], i * 5); } // mưa cánh sen
 }
 function updateBloom(dt) {
-  if (bloomS.t < 0) return; const t = (bloomS.t += dt), L = 5, open = clamp(t / 1.6, 0, 1), fade = clamp((L - t) / 1.2, 0, 1), sz = bloomS.size;
-  lotus.position.set(bloomS.x, 1.6 + Math.min(t, 2) * .5, bloomS.z); lotus.scale.setScalar(sz * (.4 + .6 * open)); lotus.rotation.y = t * .3;
+  if (bloomS.t < 0) return; const t = (bloomS.t += dt), L = 6.5, open = clamp(t / 1.6, 0, 1), fade = clamp((L - t) / 1.2, 0, 1), sz = bloomS.size;
+  lotus.position.set(bloomS.x, 2.2 + Math.min(t, 2.5) * .7, bloomS.z); lotus.scale.setScalar(sz * 2.3 * (.35 + .65 * open)); lotus.rotation.y = t * .3;
   for (const p of lotusPetals) p.piv.children[0].rotation.x = -(p.ring ? .25 : .7) * (1 - open) - (p.ring ? .35 : .95) * open; // cánh ngả ra ngoài
-  LOTUS_MAT.opacity = fade * Math.min(1, t * 3); LOTUS_GLOW.material.opacity = fade * .55 * open; LOTUS_GLOW.lookAt(camera.position);
+  LOTUS_MAT.opacity = fade * Math.min(1, t * 3); const pulse = .85 + .15 * Math.sin(t * 5); LOTUS_GLOW.material.opacity = fade * .95 * open * pulse; LOTUS_GLOW.lookAt(camera.position); LOTUS_HALO.material.opacity = fade * .28 * open * pulse; LOTUS_HALO.lookAt(camera.position); LOTUS_CORE.material.opacity = fade * Math.min(1, t * 2);
   if (t > L) { bloomS.t = -1; lotus.visible = false; }
 }
 // --- Hạc bay: 1–3 con lướt ngang trời, cách nhau 35–70 giây ---
