@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#2a1a14">
 <title>Lên Chùa Cầu An</title>
 <meta name="description" content="Game 3D nhẹ nhàng: dạo chùa lúc hoàng hôn, thắp hương, thỉnh chuông, gõ mõ, viết lời cầu an và xin quẻ đầu năm.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏯%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪷%3C/text%3E%3C/svg%3E">
 <style>
 /* ===== GIAO DIỆN (lớp phủ DOM trên khung 3D) ===== */
 :root{--gold:#f2c879;--gold2:#ffe2a6;--ink:#2a1a12;--red:#b8392b;--cream:#fff4e0;--glass:rgba(32,20,14,.72)}
@@ -27,6 +27,7 @@ button{font:inherit;cursor:pointer}
 /* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10}
 #count{position:absolute;top:max(10px,env(safe-area-inset-top));left:10px;right:110px;font-size:13px;background:var(--glass);border:1px solid #f2c87944;padding:7px 12px;border-radius:999px;width:max-content;max-width:calc(100% - 130px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:560px){#count{top:calc(max(8px,env(safe-area-inset-top)) + 50px);max-width:calc(100% - 20px);font-size:12px}#hint{top:calc(max(8px,env(safe-area-inset-top)) + 96px)!important}}
 #topbtns{position:absolute;top:max(8px,env(safe-area-inset-top));right:8px;display:flex;gap:6px;pointer-events:auto}
 .ib{width:42px;height:42px;border-radius:50%;border:1px solid #f2c87955;background:var(--glass);color:#fff;font-size:19px;display:grid;place-items:center}
 #act{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(40px,calc(env(safe-area-inset-bottom) + 30px));pointer-events:auto;min-width:150px;min-height:64px;font-size:18px;display:none;animation:pulse 1.6s infinite}
@@ -64,6 +65,7 @@ button{font:inherit;cursor:pointer}
 .list{max-height:200px;overflow:auto;margin:6px 0 10px}.list div{background:#ffffff0c;border-radius:10px;padding:8px 10px;margin:5px 0;font-size:14px;color:#f3dfc4}
 .list small{display:block;color:#b8987a;font-size:11px}
 /* hướng dẫn */
+#qh,#tube{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 #tut{position:fixed;inset:0;z-index:45;display:none;place-items:center;background:#0008;padding:20px}
 #tut.on{display:grid}#tut .box{max-width:360px;background:#2b1a12;border:1px solid #f2c87966;border-radius:20px;padding:20px;text-align:center}
 #tut .ico{font-size:44px}#tut h3{font-family:Georgia,serif;font-weight:500;color:var(--gold2);margin:6px 0}#tut p{color:#ecd3b6;line-height:1.55}
@@ -79,6 +81,7 @@ button{font:inherit;cursor:pointer}
 <div id="hud">
   <div id="count">🙏 Hôm nay có … người lên chùa cầu an</div>
   <div id="topbtns">
+    <a class="ib" id="bHome" href="../../" title="Về trang chủ" aria-label="Về trang chủ" style="display:grid;place-items:center;text-decoration:none;color:inherit">‹</a>
     <button class="ib" id="bMute" title="Bật/tắt âm thanh" aria-label="Bật/tắt âm thanh">🔊</button>
     <button class="ib" id="bBook" title="Sổ cầu an của tôi" aria-label="Sổ cầu an của tôi">📖</button>
     <button class="ib" id="bShare" title="Chia sẻ" aria-label="Chia sẻ">📤</button>
@@ -91,7 +94,7 @@ button{font:inherit;cursor:pointer}
 
 <div id="splash">
   <div>
-    <div class="pagoda">🏯</div>
+    <div class="pagoda">🪷</div>
     <h1>Lên Chùa Cầu An</h1>
     <p>Hoàng hôn buông trên Chùa An Lạc. Dạo bước qua cổng tam quan, thắp nén hương, thỉnh hồi chuông và gửi một lời cầu an cho người thương.</p>
     <input id="nameIn" maxlength="24" placeholder="Tên của bạn" autocomplete="off">
@@ -587,7 +590,7 @@ function actIncense() {
   panel.open(`<h2>Thắp hương</h2><p>Chọn số nén hương. Lặng lòng một chút, rồi nhẹ nhàng cắm hương vào lư.</p><div class="row"><button class="btn" data-n="1">1 nén</button><button class="btn" data-n="3">3 nén</button></div><p class="small" style="text-align:center">Thắp hương là để tâm mình lắng lại, không cần nhiều.</p>`);
   $('pc').querySelectorAll('[data-n]').forEach(b => b.onclick = () => {
     const n = +b.dataset.n; panel.close(); player.busy = true; const ang = Math.atan2(BURN.x - player.pos.x, BURN.z - player.pos.z); player.yaw = ang;
-    let t = 0; const step = () => { t += 1 / 60; player.pray = clamp(t < 1.6 ? t / .4 : (2.4 - t) / .4, 0, 1); if (t >= 1.2 && !step.done) { step.done = true; plantSticks(n); Audio.chime(); } if (t < 2.4) requestAnimationFrame(step); else { player.pray = 0; player.busy = false; save.incense += 1; persist(); toast(`Bạn đã thắp ${n} nén hương. Mong lòng thanh thản 🙏`); } }; requestAnimationFrame(step);
+    const t0 = performance.now(); let t = 0; const step = () => { t = (performance.now() - t0) / 1000; /* theo thời gian thật, máy chậm vẫn đúng 2,4 giây */ player.pray = clamp(t < 1.6 ? t / .4 : (2.4 - t) / .4, 0, 1); if (t >= 1.2 && !step.done) { step.done = true; plantSticks(n); Audio.chime(); } if (t < 2.4) requestAnimationFrame(step); else { player.pray = 0; player.busy = false; save.incense += 1; persist(); toast(`Bạn đã thắp ${n} nén hương. Mong lòng thanh thản 🙏`); } }; requestAnimationFrame(step);
   });
 }
 
@@ -626,7 +629,7 @@ function actMo() {
     $('mr').onclick = actMo; $('mok').onclick = () => panel.close(); };
   draw();
   c.onpointerdown = () => { const now = Audio.now(); Audio.mo(); flash = 1; moMesh.scale.set(1.08, .74, 1.2); setTimeout(() => moMesh.scale.set(1, .8, 1.15), 90);
-    if (!start) { start = now + 1.2; beats = []; for (let b = 0; b * BEAT < LEN; b++) beats.push(b * BEAT + 1.2 - 1.2 + 1.2); beats = beats.map(x => x - 1.2 + 1.2); start = now; beats = beats.map(x => x); Audio.chantLoud(true); $('mj').textContent = 'Nam mô A Di Đà Phật…'; return; }
+    if (!start) { start = now; beats = []; for (let b = 0; b * BEAT < LEN; b++) beats.push(b * BEAT + 1.2); /* nhịp đầu sau 1,2 giây */ Audio.chantLoud(true); $('mj').textContent = 'Nam mô A Di Đà Phật…'; return; }
     const el = now - start; let bi = -1, bd = 1; for (let i = idx; i < Math.min(beats.length, idx + 3); i++) { const d = Math.abs(beats[i] - el); if (d < bd) { bd = d; bi = i; } }
     if (bi < 0 || bd > .35) { $('mj').textContent = 'Lệch nhịp'; res.l++; return; }
     for (let i = idx; i < bi; i++) res.l++; idx = bi + 1;
@@ -668,9 +671,9 @@ function actQue() {
   const tube = $('tube'), reveal = () => { if (got) return; got = true; clearInterval(iv); tube.classList.remove('shake'); removeEventListener('devicemotion', onMotion); Audio.soft();
     const n = Math.floor(rnd(0, FORTUNES.length)), text = FORTUNES[n]; save.fortunes.unshift({ n: n + 1, text, date: today() }); save.fortunes = save.fortunes.slice(0, 30); persist();
     $('qr').innerHTML = `<div class="slip"><b>Quẻ số ${n + 1}</b><br>${esc(text)}</div><div class="row"><button class="btn alt" id="qa">Xin thêm</button><button class="btn" id="qok">Xong</button></div>`; $('qh').style.display = 'none'; $('qa').onclick = actQue; $('qok').onclick = () => panel.close(); };
-  const startHold = () => { if (got) return; tube.classList.add('shake'); clearInterval(iv); iv = setInterval(() => { held += .1; if (Math.random() < .5) Audio.soft(); if (held >= 1.4) reveal(); }, 100); };
+  const startHold = () => { if (got) return; tube.classList.add('shake'); clearInterval(iv); const h0 = performance.now() - held * 1000; iv = setInterval(() => { held = (performance.now() - h0) / 1000; if (Math.random() < .5) Audio.soft(); if (held >= 1.4) reveal(); }, 100); };
   const stopHold = () => { if (!got) { clearInterval(iv); tube.classList.remove('shake'); } };
-  [$('qh'), tube].forEach(el => { el.onpointerdown = startHold; el.onpointerup = el.onpointerleave = stopHold; });
+  [$('qh'), tube].forEach(el => { el.onpointerdown = startHold; el.onpointerup = el.onpointerleave = el.onpointercancel = stopHold; el.oncontextmenu = e => e.preventDefault(); });
   function onMotion(e) { const a = e.accelerationIncludingGravity || e.acceleration; if (!a) return; const m = Math.hypot(a.x || 0, a.y || 0, a.z || 0); if (m > 22) { shakeAcc++; tube.classList.add('shake'); if (shakeAcc > 6) reveal(); } }
   if (window.DeviceMotionEvent) { if (typeof DeviceMotionEvent.requestPermission === 'function') { $('qh').addEventListener('click', () => DeviceMotionEvent.requestPermission().then(s => { if (s === 'granted') addEventListener('devicemotion', onMotion); }).catch(() => {}), { once: true }); } else addEventListener('devicemotion', onMotion); }
 }
