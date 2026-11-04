@@ -350,18 +350,49 @@ sign('CHÁNH ĐIỆN', 4.6, 1.1, 0, 4.25, -12.1);
 // hàng đèn lồng dưới mái chính điện được thêm ở phần đèn lồng
 
 // --- tượng Phật ngồi cách điệu trên đài sen, trong chính điện ---
-const BUDDHA = new THREE.Group(); BUDDHA.position.set(0, .45, -21); BUDDHA.scale.setScalar(.8); scene.add(BUDDHA); // thu nhỏ để vừa dưới trần gỗ
+add(new THREE.CylinderGeometry(1.8, 1.95, .5, 16), M(0x5a3520), 0, .7, -21, true); // bệ gỗ kê toà sen
+const BUDDHA = new THREE.Group(); BUDDHA.position.set(0, .95, -21); BUDDHA.scale.setScalar(.72); scene.add(BUDDHA); // thu nhỏ để vừa dưới trần gỗ
 const bAdd = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; BUDDHA.add(m); return m; };
-bAdd(new THREE.CylinderGeometry(2.2, 2.4, 1, 12), MAT.red, 0, .5, 0);
-for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, p = bAdd(new THREE.SphereGeometry(.55, 6, 4), MAT.pink, Math.cos(a) * 1.75, 1.15, Math.sin(a) * 1.75); p.scale.set(1, .55, .6); p.rotation.y = -a; }
-bAdd(new THREE.CylinderGeometry(1.6, 1.8, .5, 12), MAT.gold, 0, 1.35, 0);              // lòng đài
-const lap = bAdd(new THREE.SphereGeometry(1.25, 12, 8), MAT.gold, 0, 1.75, .1); lap.scale.set(1.25, .45, .9); // chân xếp bằng
-const torso = bAdd(new THREE.SphereGeometry(.95, 12, 10), MAT.gold, 0, 2.75, 0); torso.scale.set(1, 1.25, .8);
-bAdd(new THREE.SphereGeometry(.62, 14, 12), MAT.gold, 0, 4.05, .05);                   // đầu
-bAdd(new THREE.SphereGeometry(.3, 10, 8), MAT.gold, 0, 4.62, 0);                        // nhục kế
-const hands = bAdd(new THREE.SphereGeometry(.35, 8, 6), MAT.gold, 0, 2.05, .75); hands.scale.set(1.3, .5, .8); // ấn thiền định
-const halo = bAdd(new THREE.TorusGeometry(1.15, .06, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: .75 }), 0, 4.05, -.45);
-const haloDisc = bAdd(new THREE.CircleGeometry(1.1, 32), new THREE.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: .22, depthWrite: false }), 0, 4.05, -.5);
+// Tượng A Di Đà ngồi kiết già trên toà sen (theo ảnh mẫu): vàng bóng, vai tròn, tay kết ấn thiền định ôm bát, tóc xoắn ốc, nhục kế, tai dài
+const GOLD = new THREE.MeshPhongMaterial({ color: 0xd39a3a, specular: 0xffe7a3, shininess: 70, emissive: 0x3a2200 }), GOLD2 = new THREE.MeshPhongMaterial({ color: 0xb37a26, specular: 0xffd98a, shininess: 50, emissive: 0x2a1800 });
+// bệ gỗ đỏ + toà sen 2 tầng cánh vàng
+bAdd(new THREE.CylinderGeometry(2.1, 2.3, .55, 16), MAT.red, 0, .28, 0); bAdd(new THREE.CylinderGeometry(2.25, 2.25, .08, 16), GOLD2, 0, .58, 0);
+{ const pet = new THREE.SphereGeometry(.5, 10, 8).scale(.55, 1, .28);
+  [[16, 1.75, .95, .35], [12, 1.35, 1.2, .2]].forEach(([n, r, y, tilt], ring) => { for (let k = 0; k < n; k++) { const a = (k + ring * .5) / n * Math.PI * 2, p = bAdd(pet, ring ? GOLD : GOLD2, Math.sin(a) * r, y, Math.cos(a) * r); p.rotation.set(tilt, a, 0, 'YXZ'); } }); }
+bAdd(new THREE.CylinderGeometry(1.55, 1.35, .3, 20), GOLD2, 0, 1.25, 0);
+// chân xếp bằng: khối ngang tròn + 2 gối + 2 bàn chân ngửa
+const legs = bAdd(new THREE.CapsuleGeometry(.42, 1.75, 6, 14).rotateZ(Math.PI / 2), GOLD, 0, 1.62, .25); legs.scale.set(1, .95, 1.55);
+[-1, 1].forEach(sd => { bAdd(new THREE.SphereGeometry(.47, 14, 10), GOLD, sd * 1.25, 1.62, .45); const ft = bAdd(new THREE.SphereGeometry(.24, 10, 8), GOLD2, sd * .5, 1.98, .55); ft.scale.set(1.5, .45, .8); });
+// thân (tiện tròn): eo → ngực → vai → cổ
+const bodyG = new THREE.LatheGeometry([[0, 1.62], [.82, 1.7], [.86, 2.1], [.98, 2.65], [1.06, 3.05], [.95, 3.3], [.55, 3.48], [.3, 3.6], [0, 3.62]].map(([x, y]) => new THREE.Vector2(x, y)), 24);
+const body = bAdd(bodyG, GOLD, 0, 0, 0); body.scale.z = .74;
+// nếp áo cà sa: dải chéo vai trái + viền cổ áo
+const sash = bAdd(new THREE.TorusGeometry(1.02, .045, 6, 28, Math.PI * 1.1), GOLD2, -.05, 2.55, 0); sash.rotation.set(0, 0, -.9); sash.scale.z = .78;
+const neckline = bAdd(new THREE.TorusGeometry(.5, .04, 6, 20, Math.PI), GOLD2, 0, 3.32, .12); neckline.rotation.set(-1.25, 0, Math.PI);
+// tay: cánh tay buông dọc thân, cẳng tay đưa vào giữa lòng
+[-1, 1].forEach(sd => { const ua = bAdd(new THREE.CapsuleGeometry(.24, .85, 5, 10), GOLD, sd * 1.1, 2.55, .08); ua.rotation.z = sd * .18;
+  const fa = bAdd(new THREE.CapsuleGeometry(.2, .75, 5, 10), GOLD, sd * .7, 2.02, .48); fa.rotation.set(.35, 0, sd * 1.25); });
+// tay kết ấn thiền định ôm bát
+const hands = bAdd(new THREE.SphereGeometry(.34, 12, 8), GOLD, 0, 1.98, .78); hands.scale.set(1.45, .5, .85);
+bAdd(new THREE.CylinderGeometry(.26, .17, .2, 14), GOLD2, 0, 2.17, .78);
+// cổ + đầu (mặt hơi thuôn), tai dài, mắt khép, mũi, ấn tướng giữa mày
+bAdd(new THREE.CylinderGeometry(.28, .33, .45, 14), GOLD, 0, 3.7, 0);
+const headB = bAdd(new THREE.SphereGeometry(.56, 20, 16), GOLD, 0, 4.12, .02); headB.scale.set(.9, 1.06, .95);
+[-1, 1].forEach(sd => { const ear = bAdd(new THREE.SphereGeometry(.2, 8, 8), GOLD, sd * .52, 3.98, -.02); ear.scale.set(.45, 1.55, .7);
+  const eye = bAdd(new THREE.TorusGeometry(.085, .018, 4, 10, Math.PI), GOLD2, sd * .19, 4.12, .5); eye.rotation.z = Math.PI; });
+bAdd(new THREE.ConeGeometry(.07, .2, 6), GOLD, 0, 4.02, .55).rotation.x = .3;
+bAdd(new THREE.SphereGeometry(.035, 6, 6), GOLD2, 0, 4.26, .52);
+bAdd(new THREE.TorusGeometry(.09, .02, 4, 10, Math.PI), GOLD2, 0, 3.86, .49).rotation.z = Math.PI;
+// tóc xoắn ốc (InstancedMesh, 1 lệnh vẽ) phủ nửa trên đầu và nhục kế
+{ const pts = [];
+  for (let k = 0; k < 170; k++) { const y = 1 - (k + .5) / 170 * 1.05, r = Math.sqrt(Math.max(0, 1 - y * y)), a = k * 2.39996; if (y < .02 && Math.sin(a) > -.2 && Math.cos(a) > -.1) continue; pts.push([Math.cos(a) * r * .5, 4.12 + y * .59, .02 + Math.sin(a) * r * .53]); }
+  for (let k = 0; k < 60; k++) { const y = 1 - (k + .5) / 60 * 1.3, r = Math.sqrt(Math.max(0, 1 - y * y)), a = k * 2.39996; pts.push([Math.cos(a) * r * .3, 4.62 + y * .3, Math.sin(a) * r * .3]); }
+  const curls = new THREE.InstancedMesh(new THREE.SphereGeometry(.07, 6, 5), GOLD2, pts.length), o = new THREE.Object3D();
+  pts.forEach((p, k) => { o.position.set(...p); o.updateMatrix(); curls.setMatrixAt(k, o.matrix); }); BUDDHA.add(curls); }
+bAdd(new THREE.SphereGeometry(.29, 14, 10), GOLD2, 0, 4.62, 0);
+bAdd(new THREE.SphereGeometry(.08, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffe9b0 }), 0, 4.95, 0);
+const halo = bAdd(new THREE.TorusGeometry(1.0, .05, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: .75 }), 0, 4.05, -.45);
+const haloDisc = bAdd(new THREE.CircleGeometry(.95, 32), new THREE.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: .22, depthWrite: false }), 0, 4.05, -.5);
 const bLight = new THREE.PointLight(0xffd28a, 1.2, 10, 2); bLight.position.set(0, 3.5, -18.5); scene.add(bLight);
 solidB(-3.9, 3.9, -23.5, -16.7);
 // bồ đoàn (đệm ngồi) cho khách tụng kinh
