@@ -350,7 +350,7 @@ sign('CHÁNH ĐIỆN', 4.6, 1.1, 0, 4.25, -12.1);
 // hàng đèn lồng dưới mái chính điện được thêm ở phần đèn lồng
 
 // --- tượng Phật ngồi cách điệu trên đài sen, trong chính điện ---
-const BUDDHA = new THREE.Group(); BUDDHA.position.set(0, .45, -21); scene.add(BUDDHA);
+const BUDDHA = new THREE.Group(); BUDDHA.position.set(0, .45, -21); BUDDHA.scale.setScalar(.8); scene.add(BUDDHA); // thu nhỏ để vừa dưới trần gỗ
 const bAdd = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; BUDDHA.add(m); return m; };
 bAdd(new THREE.CylinderGeometry(2.2, 2.4, 1, 12), MAT.red, 0, .5, 0);
 for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, p = bAdd(new THREE.SphereGeometry(.55, 6, 4), MAT.pink, Math.cos(a) * 1.75, 1.15, Math.sin(a) * 1.75); p.scale.set(1, .55, .6); p.rotation.y = -a; }
@@ -363,14 +363,62 @@ const hands = bAdd(new THREE.SphereGeometry(.35, 8, 6), MAT.gold, 0, 2.05, .75);
 const halo = bAdd(new THREE.TorusGeometry(1.15, .06, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: .75 }), 0, 4.05, -.45);
 const haloDisc = bAdd(new THREE.CircleGeometry(1.1, 32), new THREE.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: .22, depthWrite: false }), 0, 4.05, -.5);
 const bLight = new THREE.PointLight(0xffd28a, 1.2, 10, 2); bLight.position.set(0, 3.5, -18.5); scene.add(bLight);
-add(new THREE.BoxGeometry(5, 1, 1.4), MAT.darkwood, 0, .95, -18.4, true); // bàn thờ trước tượng
-[-1.6, 1.6].forEach(x => add(new THREE.CylinderGeometry(.12, .16, .5, 6), MAT.bronze, x, 1.7, -18.4)); // chân nến
-solidB(-3, 3, -23.5, -17.6);
+solidB(-3.9, 3.9, -23.5, -16.7);
 // bồ đoàn (đệm ngồi) cho khách tụng kinh
-const SEATS = []; for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) { const x = -8.2 + c * 1.5 + (c >= 3 ? 7.4 : 0), z = -14.6 - r * 1.4; SEATS.push([x, z]); add(new THREE.CylinderGeometry(.42, .42, .14, 8), M(0xc9862e), x, HALL.h + .07, z); }
+// ===== NỘI THẤT CHÁNH ĐIỆN (theo ảnh mẫu chủ gửi): sàn gỗ sáng, cột gỗ nâu, trần xà, đèn lồng vuông treo, ô kính màu tròn sau tượng, bàn thờ gỗ, phướn đỏ, hàng bồ đoàn trên chiếu vuông =====
+const IN = { wood: M(0x5a3520), wood2: M(0x6e4329), beam: M(0x3f2416), mat: M(0x3a2620), cush: M(0x4b2c22) };
+const texCanvas = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
+// sàn gỗ ván sáng
+const floorTex = texCanvas(256, 256, (g, w, h) => { g.fillStyle = '#e8dcc7'; g.fillRect(0, 0, w, h); for (let i = 0; i < 8; i++) { g.fillStyle = `hsl(36,${28 + (i * 7) % 12}%,${84 - (i * 5) % 8}%)`; g.fillRect(i * 32, 0, 31, h); g.fillStyle = '#c9b59a'; g.fillRect(i * 32 + 31, 0, 1, h); g.fillRect(i * 32, (i * 97) % h, 31, 1); } });
+floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(6, 3);
+add(new THREE.PlaneGeometry(23.4, 11.4).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ map: floorTex }), 0, HALL.h + .005, -18, false, true);
+// ốp gỗ chân tường + trần gỗ + xà ngang
+add(new THREE.BoxGeometry(23.4, .9, .08), IN.wood, 0, HALL.h + .45, -23.5);
+[-1, 1].forEach(sd => add(new THREE.BoxGeometry(.08, .9, 11.4), IN.wood, sd * 11.5, HALL.h + .45, -18));
+add(new THREE.BoxGeometry(23.4, .12, 11.6), IN.beam, 0, 4.6, -18);
+[-13, -15.5, -18, -23].forEach(z => add(new THREE.BoxGeometry(23.4, .32, .32), IN.beam, 0, 4.38, z));
+[-7.2, 7.2].forEach(x => add(new THREE.BoxGeometry(.36, .36, 11.4), IN.wood2, x, 4.2, -18));
+// cột gỗ tròn bên trong, chân đá
+const COLS = [[-7.2, -15], [7.2, -15], [-7.2, -20.5], [7.2, -20.5]];
+COLS.forEach(([x, z]) => { add(new THREE.CylinderGeometry(.34, .38, 4, 12), IN.wood, x, HALL.h + 2, z, true); add(new THREE.CylinderGeometry(.5, .55, .28, 12), IN.beam, x, HALL.h + .14, z); add(new THREE.CylinderGeometry(.46, .38, .3, 12), IN.beam, x, 3.95, z); solidC(x, z, .5); });
+// ô kính màu tròn sau tượng Phật (vẽ bằng canvas, tự phát sáng)
+const roseTex = texCanvas(512, 512, (g, w) => { const c = w / 2; g.fillStyle = '#f7f1dc'; g.fillRect(0, 0, w, w);
+  const pal = ['#2f9e8f', '#9ccf6a', '#f2a3b8', '#f5c94c', '#5bb3c9', '#e8724f'];
+  for (let ring = 0; ring < 4; ring++) { const r0 = 40 + ring * 52, r1 = r0 + 48, n = 8 + ring * 6; for (let k = 0; k < n; k++) { const a0 = k / n * Math.PI * 2, a1 = (k + 1) / n * Math.PI * 2; g.beginPath(); g.arc(c, c, r1, a0, a1); g.arc(c, c, r0, a1, a0, true); g.closePath(); g.fillStyle = pal[(k + ring * 2) % pal.length]; g.globalAlpha = .55 + .3 * ((k + ring) % 2); g.fill(); g.globalAlpha = 1; g.strokeStyle = '#6b4a2a'; g.lineWidth = 3; g.stroke(); } }
+  g.fillStyle = '#fff6d6'; g.beginPath(); g.arc(c, c, 40, 0, 7); g.fill(); g.strokeStyle = '#6b4a2a'; g.lineWidth = 6; g.beginPath(); g.arc(c, c, 250, 0, 7); g.stroke(); });
+add(new THREE.CircleGeometry(2.1, 48), IN.beam, 0, HALL.h + 2.35, -23.49);
+add(new THREE.CircleGeometry(1.7, 48), new THREE.MeshBasicMaterial({ map: roseTex }), 0, HALL.h + 2.35, -23.47);
+add(new THREE.TorusGeometry(1.74, .1, 6, 48), IN.wood2, 0, HALL.h + 2.35, -23.45);
+// đèn lồng vuông treo trần (giấy vàng có song gỗ)
+const lampTex = texCanvas(64, 96, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#ffe6a6'); gr.addColorStop(.5, '#ffd27a'); gr.addColorStop(1, '#f2a94a'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.strokeStyle = '#5a3520'; g.lineWidth = 5; g.strokeRect(2, 2, w - 4, h - 4); g.lineWidth = 2; for (let x = 16; x < w; x += 16) { g.beginPath(); g.moveTo(x, 4); g.lineTo(x, h - 4); g.stroke(); } g.beginPath(); g.moveTo(4, h / 2); g.lineTo(w - 4, h / 2); g.stroke(); });
+const lampG = new THREE.BoxGeometry(.5, .72, .5), lampM = new THREE.MeshBasicMaterial({ map: lampTex }), capG = new THREE.BoxGeometry(.62, .1, .62), cordG = new THREE.CylinderGeometry(.015, .015, 1, 4);
+[[-4.5, -14], [4.5, -14], [-4.5, -17.2], [4.5, -17.2], [-4.5, -20.4], [4.5, -20.4], [-9.4, -15], [9.4, -15], [-9.4, -20.5], [9.4, -20.5], [-2.6, -22], [2.6, -22]].forEach(([x, z], k) => {
+  const y = 3.2 - (k % 3) * .25; add(lampG, lampM, x, y, z); add(capG, IN.beam, x, y + .41, z); add(capG, IN.beam, x, y - .41, z); const c = add(cordG, IN.beam, x, (y + .46 + 4.45) / 2, z); c.scale.y = 4.45 - y - .46; });
+const hallLight = new THREE.PointLight(0xffc77a, 1.4, 16, 1.6); hallLight.position.set(0, 3.6, -15.5); scene.add(hallLight);
+// phướn đỏ viền vàng hai bên tường
+const banTex = texCanvas(64, 256, (g, w, h) => { g.fillStyle = '#a3241c'; g.fillRect(0, 0, w, h); g.strokeStyle = '#e9b44c'; g.lineWidth = 6; g.strokeRect(5, 5, w - 10, h - 10); for (let y = 50; y < h; y += 70) { g.fillStyle = '#e9b44c'; g.beginPath(); g.arc(w / 2, y, 20, 0, 7); g.fill(); g.fillStyle = '#a3241c'; g.beginPath(); g.arc(w / 2, y, 12, 0, 7); g.fill(); g.fillStyle = '#f6d47a'; g.beginPath(); g.arc(w / 2, y, 6, 0, 7); g.fill(); } });
+const banM = new THREE.MeshLambertMaterial({ map: banTex, side: THREE.DoubleSide });
+[-1, 1].forEach(sd => [-14.8, -21.2].forEach(z => { const b = add(new THREE.PlaneGeometry(1.1, 3.1), banM, sd * 11.44, HALL.h + 2.1, z); b.rotation.y = -sd * Math.PI / 2; }));
+[-1, 1].forEach(sd => { const b = add(new THREE.PlaneGeometry(1, 2.8), banM, sd * 4.6, HALL.h + 2.2, -23.48); });
+// bàn thờ gỗ: thân, mặt chạm, 2 đèn đứng, bình hoa vàng, mâm quả, nến
+add(new THREE.BoxGeometry(6.4, 1.15, 1.4), IN.wood, 0, HALL.h + .575, -18.4, true);
+add(new THREE.BoxGeometry(5.2, .7, .05), IN.wood2, 0, HALL.h + .6, -17.68);
+add(new THREE.BoxGeometry(6.7, .1, 1.6), IN.beam, 0, HALL.h + 1.2, -18.4);
+add(new THREE.BoxGeometry(.9, 1.3, .7), IN.wood2, 0, HALL.h + .65, -17.1, true); // án thư nhỏ phía trước
+const glowM = new THREE.MeshBasicMaterial({ color: 0xfff0c4 });
+[-1, 1].forEach(sd => { add(new THREE.BoxGeometry(.4, 1.1, .4), glowM, sd * 3.7, HALL.h + .55, -17.5); add(new THREE.BoxGeometry(.5, .08, .5), IN.beam, sd * 3.7, HALL.h + 1.14, -17.5);
+  add(new THREE.CylinderGeometry(.16, .22, .5, 8), M(0x2c3a4a), sd * 2.4, HALL.h + 1.5, -18.5);
+  for (let k = 0; k < 7; k++) { const fl = add(new THREE.SphereGeometry(.17, 6, 5), M(k % 2 ? 0xf2b33d : 0xf6d36a), sd * 2.4 + rnd(-.35, .35), HALL.h + 1.95 + rnd(0, .45), -18.5 + rnd(-.2, .2)); }
+  add(new THREE.CylinderGeometry(.32, .2, .08, 10), M(0xb08a3e), sd * 1.1, HALL.h + 1.3, -18.1); [0, 1, 2, 3].forEach(k => add(new THREE.SphereGeometry(.11, 6, 5), M([0xf08a24, 0xe94b3c, 0xf2c13d, 0xf08a24][k]), sd * 1.1 + (k - 1.5) * .12, HALL.h + 1.42 + (k % 2) * .08, -18.1)); });
+[-1.6, 1.6].forEach(x => add(new THREE.CylinderGeometry(.08, .1, .45, 6), MAT.bronze, x, HALL.h + 1.47, -18.2));
+// hàng bồ đoàn tròn trên chiếu vuông, hai khối hai bên lối giữa (InstancedMesh: 2 lệnh vẽ cho cả 48 chỗ)
+const SEATS = []; for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) for (const sd of [-1, 1]) SEATS.push([sd * (1.9 + c * 1.15), -13.6 - r * 1.2]);
+{ const matIM = new THREE.InstancedMesh(new THREE.BoxGeometry(.95, .05, .95), IN.mat, SEATS.length), cuIM = new THREE.InstancedMesh(new THREE.TorusGeometry(.26, .14, 6, 14).rotateX(Math.PI / 2), IN.cush, SEATS.length);
+  const o = new THREE.Object3D(); SEATS.forEach(([x, z], i) => { o.position.set(x, HALL.h + .025, z); o.updateMatrix(); matIM.setMatrixAt(i, o.matrix); o.position.y = HALL.h + .16; o.updateMatrix(); cuIM.setMatrixAt(i, o.matrix); });
+  matIM.receiveShadow = cuIM.castShadow = true; scene.add(matIM, cuIM); }
 
 // --- mõ lớn trên giá gỗ (chỗ gõ mõ tụng kinh) ---
-const MO = new THREE.Vector3(4.3, HALL.h, -16.2);
+const MO = new THREE.Vector3(9.4, HALL.h, -17.6); // góc phải chánh điện, cạnh cột
 add(new THREE.BoxGeometry(1, .5, .8), MAT.darkwood, MO.x, MO.y + .25, MO.z, true);
 const moMesh = add(new THREE.SphereGeometry(.45, 10, 8), M(0x8b3a1c), MO.x, MO.y + .85, MO.z, true); moMesh.scale.set(1, .8, 1.15);
 solidC(MO.x, MO.z, .7);
@@ -622,8 +670,12 @@ function updatePlayer(dt, time) {
 }
 function updateCamera(dt) {
   const tx = player.pos.x + Math.sin(cam.yaw) * Math.cos(cam.pitch) * cam.dist, ty = player.pos.y + 1.2 + Math.sin(cam.pitch) * cam.dist, tz = player.pos.z + Math.cos(cam.yaw) * Math.cos(cam.pitch) * cam.dist;
-  cam.pos.lerp(vTmp.set(tx, ty, tz), Math.min(1, dt * 6)); camera.position.copy(cam.pos);
-  cam.look.lerp(vTmp.set(player.pos.x, player.pos.y + 1.3, player.pos.z), Math.min(1, dt * 8)); camera.lookAt(cam.look);
+  const inHall = player.pos.z < HALL.z1 + .3 && player.pos.x > HALL.x0 && player.pos.x < HALL.x1; // trong chánh điện: giữ máy quay dưới trần, trong tường
+  if (inHall) { const d = Math.min(cam.dist, 4.6), pc = Math.min(cam.pitch, .3); // máy quay tiến sát, hạ thấp để thấy rõ tượng Phật dưới trần
+    vTmp.set(clamp(player.pos.x + Math.sin(cam.yaw) * Math.cos(pc) * d, -11, 11), Math.min(player.pos.y + 1.2 + Math.sin(pc) * d, 3.9), Math.max(player.pos.z + Math.cos(cam.yaw) * Math.cos(pc) * d, -23)); }
+  else vTmp.set(tx, ty, tz);
+  cam.pos.lerp(vTmp, Math.min(1, dt * 6)); camera.position.copy(cam.pos);
+  cam.look.lerp(vTmp.set(player.pos.x, player.pos.y + (inHall ? 2.3 : 1.3), player.pos.z), Math.min(1, dt * 8)); camera.lookAt(cam.look);
 }
 
 /* =====================================================================

@@ -31,7 +31,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     const p1 = await p.evaluate(() => [LCA.player.pos.x, LCA.player.pos.z]);
     t(Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) > 1, 'đi được bằng phím W ' + p0.map(x => x.toFixed(1)) + ' → ' + p1.map(x => x.toFixed(1)));
     await p.evaluate(() => LCA.go(0, 14)); await p.keyboard.down('w'); await p.waitForTimeout(3500); await p.keyboard.up('w');
-    const pz = await p.evaluate(() => LCA.player.pos.z); t(pz > 8.3, 'không đi xuyên lư hương (z=' + pz.toFixed(2) + ')');
+    const pz = await p.evaluate(() => LCA.player.pos.z); await p.evaluate(() => LCA.go(0, -15.2)); await p.waitForTimeout(2000); await shot('hall'); t(pz > 8.3, 'không đi xuyên lư hương (z=' + pz.toFixed(2) + ')');
     // tới từng điểm → nút hành động
     const spot = async (x, z, name) => { await p.evaluate(([x, z]) => LCA.go(x, z), [x, z]); await p.waitForTimeout(300); const id = await p.evaluate(() => LCA.current()); t(id === name && await p.isVisible('#act'), 'nút hành động ở ' + name + ' (' + id + ')'); if (id === name) await p.click('#act'); await p.waitForTimeout(200); };
     // 1. thắp hương
@@ -43,7 +43,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     await spot(16, -10.5, 'bell'); for (let i = 0; i < 3; i++) { await p.click('#bg'); await p.waitForTimeout(500); }
     t((await p.textContent('#bj')).trim().length > 2, 'thỉnh chuông có lời chấm: ' + await p.textContent('#bj')); await p.click('#bx');
     // 3. mõ: gõ đúng nhịp theo đồng hồ âm thanh
-    await spot(4.3, -14.2, 'mo');
+    await spot(9.4, -15.6, 'mo');
     if (await p.isVisible('#mg')) {
       const tap = () => p.evaluate(() => { const c = document.getElementById('mg'); if (c) c.dispatchEvent(new PointerEvent('pointerdown')); });
       await tap(); for (let i = 0; i < 8; i++) { await p.waitForTimeout(720); await tap(); }
