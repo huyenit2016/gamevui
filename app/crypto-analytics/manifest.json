@@ -1,0 +1,11 @@
+{
+  "name": "Crypto Analytics – Bản đồ thanh lý Futures",
+  "short_name": "Crypto Analytics",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0f17",
+  "theme_color": "#0b0f17",
+  "lang": "vi",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

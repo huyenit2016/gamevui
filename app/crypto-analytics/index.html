@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f17">
+<title>Crypto Analytics – Bản đồ thanh lý Futures</title>
+<meta name="description" content="Bản đồ thanh lý Long/Short, Open Interest, Funding và biểu đồ Binance USDT-M Futures. Dữ liệu THỰC và mô hình ƯỚC TÍNH được ghi rõ. Chỉ để học tập.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="back" href="../../" title="Về OmniHub" aria-label="Về OmniHub">‹</a>
+  <div class="ttl"><b>Crypto Analytics</b><small>Bản đồ thanh lý Futures · Binance USDT-M</small></div>
+  <div class="ctl">
+    <select id="sym" aria-label="Chọn coin"></select>
+    <form id="addf" class="addf"><input id="addi" placeholder="+ coin" maxlength="15" autocomplete="off" aria-label="Thêm coin"><button type="submit">Thêm</button></form>
+    <span class="st"><i id="dot"></i><span id="stt">Đang kết nối…</span></span>
+    <button id="recon" class="btn sm" type="button" hidden>Kết nối lại</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="tabs" role="tablist">
+    <button class="tab on" data-page="map" role="tab">Bản đồ thanh lý</button>
+    <button class="tab" data-page="chart" role="tab">Biểu đồ</button>
+  </nav>
+
+  <div class="warn">
+    <b>Lưu ý về dữ liệu.</b> Binance <u>không công khai vị thế</u> của trader. Luồng thanh lý công khai chỉ là <b>mẫu</b>: tối đa 1 lệnh/symbol/giây, và chỉ được ghi <b>từ lúc bạn mở trang này</b> (trang tĩnh, không có máy chủ ghi liên tục).
+    Khối có nhãn <span class="bd real">THỰC</span> là số liệu từ Binance; <span class="bd est">ƯỚC TÍNH</span> là mô hình suy diễn, không phải đo lường. Không phải lời khuyên đầu tư.
+  </div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card" id="biasCard">
+    <div class="ch"><h2>Gợi ý thiên hướng Long / Short</h2><span class="bd est">HỌC TẬP</span></div>
+    <div id="bias"><p class="mut">Đang tải nến 1h…</p></div>
+  </section>
+
+  <!-- ===== TAB BẢN ĐỒ THANH LÝ ===== -->
+  <div id="pg-map" class="page">
+    <section class="card">
+      <div class="ch"><h2>Heatmap thanh lý</h2><span class="bd est">ƯỚC TÍNH</span><span class="bd real">+ giá &amp; thanh lý THỰC</span></div>
+      <div class="seg" id="winBtns"></div>
+      <div id="hm" class="plot tall"></div>
+      <p class="note" id="hmNote"></p>
+    </section>
+    <div class="grid2">
+      <section class="card">
+        <div class="ch"><h2>Đọc tín hiệu (học tập)</h2></div>
+        <ul class="read" id="read"></ul>
+      </section>
+      <section class="card">
+        <div class="ch"><h2>Thanh lý 4 giờ (nhóm 5 phút)</h2><span class="bd real">THỰC</span></div>
+        <div id="liqBars" class="plot"></div>
+        <p class="note" id="liqNote"></p>
+      </section>
+    </div>
+    <div class="grid2">
+      <section class="card">
+        <div class="ch"><h2>50 lệnh thanh lý gần nhất</h2><span class="bd real">THỰC</span></div>
+        <div class="tbl"><table><thead><tr><th>Giờ</th><th>Phía</th><th>Giá</th><th>Giá trị</th></tr></thead><tbody id="liqTbl"></tbody></table></div>
+      </section>
+      <section class="card">
+        <div class="ch"><h2>Watchlist</h2><span class="bd real">THỰC</span></div>
+        <div class="tbl"><table><thead><tr><th>Coin</th><th>Giá</th><th>24h</th><th>Funding</th><th>OI</th><th>ΔOI 1h</th><th>Liq L/S 1h</th></tr></thead><tbody id="watch"></tbody></table></div>
+        <p class="note">Bấm vào một dòng để chọn coin. Tối đa 30 coin, lưu trên máy bạn.</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== TAB BIỂU ĐỒ ===== -->
+  <div id="pg-chart" class="page" hidden>
+    <section class="card">
+      <div class="ch"><h2>Biểu đồ</h2><span class="bd real">THỰC</span></div>
+      <div class="row">
+        <div class="seg" id="intBtns"></div>
+        <label class="chk"><input type="checkbox" id="bbChk"> Bollinger 20</label>
+        <label class="chk"><input type="checkbox" id="tvChk"> TradingView</label>
+      </div>
+      <div id="chart" class="plot xl"></div>
+      <div id="tvBox" hidden><div id="tvw" class="plot xl"></div><p class="note" id="tvNote"></p></div>
+      <p class="note">Ô trên: nến + EMA20/50 (+ Bollinger) + dấu ✕ thanh lý thật · Volume · Open Interest · Funding · RSI14. Đường đỏ nét đứt là các mức tham chiếu tính tự động.</p>
+    </section>
+  </div>
+
+  <footer class="foot">Dữ liệu công khai từ Binance USDT-M Futures, gọi trực tiếp từ trình duyệt của bạn (có thể bị chặn ở một số mạng/khu vực). Heatmap là mô hình ước tính, chưa được backtest. Không phải lời khuyên đầu tư hay tín hiệu vào lệnh. Biểu đồ: Plotly.js (MIT).</footer>
+</main>
+
+<script src="../../vendor/plotly.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
