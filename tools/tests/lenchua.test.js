@@ -35,7 +35,9 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     // tới từng điểm → nút hành động
     const spot = async (x, z, name) => { await p.evaluate(([x, z]) => LCA.go(x, z), [x, z]); await p.waitForTimeout(300); const id = await p.evaluate(() => LCA.current()); t(id === name && await p.isVisible('#act'), 'nút hành động ở ' + name + ' (' + id + ')'); if (id === name) await p.click('#act'); await p.waitForTimeout(200); };
     // 1. thắp hương
-    await spot(0, 11, 'incense'); await p.click('#pc [data-n="3"]'); await p.waitForTimeout(3200);
+    await spot(0, 11, 'incense'); await p.click('#pc [data-n="3"]'); await p.waitForTimeout(2500);
+    t(await p.evaluate(() => LCA.player.bow > .05 || LCA.player.pray > .5), 'nhân vật chắp tay / lạy'); await p.waitForTimeout(3600);
+    t(await p.evaluate(() => LCA.bloomS.t >= 0), 'thắp hương xong: sen vàng nở');
     t(await p.evaluate(() => LCA.save.incense) >= 1, 'thắp 3 nén hương, đếm lần thắp'); await shot('incense');
     // 2. chuông
     await spot(16, -10.5, 'bell'); for (let i = 0; i < 3; i++) { await p.click('#bg'); await p.waitForTimeout(500); }
@@ -53,6 +55,8 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     t((await p.textContent('#we')).length > 5, 'bộ lọc từ tục chặn lời không phù hợp');
     await p.fill('#wt', 'Con xin cầu cho cha mẹ mạnh khoẻ'); await p.click('#wok');
     t(await p.evaluate(() => LCA.save.wishes.length) === 1 && await p.evaluate(() => LCA.rib.some(r => r.mine)), 'treo dải lụa đỏ trên cây bồ đề');
+    await p.waitForTimeout(1300); const bl = await p.textContent('#blessT'); t(await p.evaluate(() => document.getElementById('bless').classList.contains('on')) && /khoẻ/.test(bl), 'lời chúc theo chủ đề sức khoẻ: ' + bl); await shot('bless'); await p.click('#bless');
+    t(await p.evaluate(() => /thi/.test(LCA.blessingFor('Con xin cầu thi đỗ đại học')) ), 'lời chúc chủ đề thi cử');
     await spot(9.2, 7, 'wish'); await p.click('#pc [data-p="pond"]'); await p.click('#pc .chip'); await p.click('#wok');
     t(await p.evaluate(() => LCA.hd.some(h => h.mine)), 'thả đèn hoa đăng trên hồ'); await p.waitForTimeout(400); await shot('pond');
     // 5. xin quẻ
@@ -65,6 +69,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     if (d && process.env.SHOT_DIR) await d.saveAs(process.env.SHOT_DIR + '/lc-share-' + W + '.png');
     // lưu lại & ban đêm
     const st = await p.evaluate(() => JSON.parse(localStorage.getItem('lenchuacauan_v1'))); t(st.name === 'Minh An' && st.incense >= 1 && st.fortunes.length === 1, 'đã lưu localStorage');
+    await p.evaluate(() => { LCA.cranesFly(); LCA.flight.t = 9; }); await p.waitForTimeout(500); t(await p.evaluate(() => LCA.cranes[0].visible), 'hạc bay ngang trời');
     await p.evaluate(() => LCA.skipNight()); await p.waitForTimeout(800); await shot('night');
     t(await p.evaluate(() => LCA.visitors()) > 600, 'bộ đếm người lên chùa');
     t(errs.length === 0, 'không lỗi JS ' + errs.join(' / '));

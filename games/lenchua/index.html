@@ -66,6 +66,8 @@ button{font:inherit;cursor:pointer}
 .list small{display:block;color:#b8987a;font-size:11px}
 /* hướng dẫn */
 #qh,#tube{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#bless{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px);width:min(340px,calc(100% - 32px));z-index:40;background:linear-gradient(#3a2414f2,#24150ef2);border:1px solid #f2c879aa;border-radius:18px;padding:14px 16px;text-align:center;color:#f6dfc0;box-shadow:0 10px 40px #000a,0 0 30px #f2c87944;opacity:0;pointer-events:none;transition:opacity .6s,transform .6s}
+#bless.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#bless b{font-family:Georgia,serif;font-weight:500;color:var(--gold2);font-size:17px}#bless p{margin:8px 0 6px;line-height:1.55}#bless small{color:#c9a07a;font-size:11px}
 #tut{position:fixed;inset:0;z-index:45;display:none;place-items:center;background:#0008;padding:20px}
 #tut.on{display:grid}#tut .box{max-width:360px;background:#2b1a12;border:1px solid #f2c87966;border-radius:20px;padding:20px;text-align:center}
 #tut .ico{font-size:44px}#tut h3{font-family:Georgia,serif;font-weight:500;color:var(--gold2);margin:6px 0}#tut p{color:#ecd3b6;line-height:1.55}
@@ -99,7 +101,7 @@ button{font:inherit;cursor:pointer}
     <p>Hoàng hôn buông trên Chùa An Lạc. Dạo bước qua cổng tam quan, thắp nén hương, thỉnh hồi chuông và gửi một lời cầu an cho người thương.</p>
     <input id="nameIn" maxlength="24" placeholder="Tên của bạn" autocomplete="off">
     <div><button class="btn" id="bEnter" disabled>Đang tải…</button></div>
-    <small>Không đăng nhập · không quảng cáo · dữ liệu chỉ lưu trên máy bạn</small>
+    <small>Không đăng nhập · không quảng cáo · dữ liệu chỉ lưu trên máy bạn<br>Không gian thư giãn mang tính giải trí, không đại diện cho ngôi chùa hay tổ chức tôn giáo nào.</small>
   </div>
 </div>
 
@@ -108,6 +110,7 @@ button{font:inherit;cursor:pointer}
 
 <div id="panel"><div class="card" id="pc"></div></div>
 <div id="toast"></div>
+<div id="bless" role="status"><b>Lời chúc gửi bạn</b><p id="blessT"></p><small>Chạm để đóng</small></div>
 <div id="err"><div><h2>Không mở được cảnh 3D</h2><p id="errMsg">Trình duyệt cần hỗ trợ WebGL và có mạng để tải Three.js lần đầu.</p></div></div>
 
 <script type="module">
@@ -431,7 +434,9 @@ const head = part(new THREE.SphereGeometry(.38, 14, 12), MAT.skin, 0, 1.75, 0);
 part(new THREE.SphereGeometry(.4, 14, 10, 0, Math.PI * 2, 0, Math.PI * .55), MAT.hair, 0, 1.8, -.02);  // tóc
 part(new THREE.SphereGeometry(.16, 8, 6), MAT.hair, 0, 1.9, -.36);                          // búi tóc sau gáy (thấy từ sau lưng)
 part(new THREE.SphereGeometry(.04, 6, 4), MAT.hair, -.13, 1.78, .35); part(new THREE.SphereGeometry(.04, 6, 4), MAT.hair, .13, 1.78, .35);
-const player = { pos: new THREE.Vector3(0, 0, 40), yaw: Math.PI, vel: 0, pray: 0, busy: false };
+// gom thân trên vào một khớp hông để nhân vật cúi lạy được (chân đứng yên)
+const pTorso = new THREE.Group(); pTorso.position.y = .55; [...P.children].forEach(c => { if (c !== legL && c !== legR) { c.position.y -= .55; pTorso.add(c); } }); P.add(pTorso);
+const player = { pos: new THREE.Vector3(0, 0, 40), yaw: Math.PI, vel: 0, pray: 0, bow: 0, busy: false };
 P.position.copy(player.pos); P.rotation.y = player.yaw;
 
 /* ---------- va chạm & độ cao nền ---------- */
@@ -555,13 +560,88 @@ function updatePlayer(dt, time) {
   const ph = time * 10, sw = Math.sin(ph) * .6 * (player.vel / 4.2);
   P.position.set(player.pos.x, player.pos.y + Math.abs(Math.sin(ph)) * .05 * (player.vel / 4.2), player.pos.z); P.rotation.y = player.yaw;
   legL.rotation.x = sw; legR.rotation.x = -sw;
-  const pr = player.pray; armL.rotation.set(lerp(-sw, -1.25, pr), 0, lerp(.08, -.42, pr)); armR.rotation.set(lerp(sw, -1.25, pr), 0, lerp(-.08, .42, pr)); head.rotation.x = pr * .25;
+  const pr = player.pray; armL.rotation.set(lerp(-sw, -1.25, pr), 0, lerp(.08, -.42, pr)); armR.rotation.set(lerp(sw, -1.25, pr), 0, lerp(-.08, .42, pr)); head.rotation.x = pr * .25; pTorso.rotation.x = player.bow * .85;
 }
 function updateCamera(dt) {
   const tx = player.pos.x + Math.sin(cam.yaw) * Math.cos(cam.pitch) * cam.dist, ty = player.pos.y + 1.2 + Math.sin(cam.pitch) * cam.dist, tz = player.pos.z + Math.cos(cam.yaw) * Math.cos(cam.pitch) * cam.dist;
   cam.pos.lerp(vTmp.set(tx, ty, tz), Math.min(1, dt * 6)); camera.position.copy(cam.pos);
   cam.look.lerp(vTmp.set(player.pos.x, player.pos.y + 1.3, player.pos.z), Math.min(1, dt * 8)); camera.lookAt(cam.look);
 }
+
+/* =====================================================================
+   8b. HIỆU ỨNG LÀNH: sen vàng nở, hạc bay ngang trời, lời chúc theo điều cầu
+   (ý tưởng tham khảo dự án mã nguồn mở "di-chua-online" (MIT), viết lại hoàn toàn, không dùng tài nguyên của dự án đó)
+   ===================================================================== */
+// --- Sen vàng: 2 tầng cánh mở dần, bay lên, mờ đi; kèm một trận cánh sen hồng rơi quanh đó ---
+const LOTUS_MAT = new THREE.MeshBasicMaterial({ color: 0xffd36b, transparent: true, opacity: 0, side: THREE.DoubleSide });
+const LOTUS_GLOW = new THREE.Mesh(new THREE.CircleGeometry(1.4, 24), new THREE.MeshBasicMaterial({ color: 0xffe9a8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+const lotus = new THREE.Group(), lotusPetals = []; lotus.visible = false; scene.add(lotus); lotus.add(LOTUS_GLOW);
+{ const pg = new THREE.SphereGeometry(.5, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(.42, 1, .22).translate(0, 0, 0); // một cánh: nửa quả cầu dẹt
+  for (let ring = 0; ring < 2; ring++) for (let k = 0; k < 8; k++) { const piv = new THREE.Group(), m = new THREE.Mesh(pg, LOTUS_MAT); m.position.y = .02; piv.add(m); piv.rotation.y = k / 8 * Math.PI * 2 + ring * Math.PI / 8; const tilt = new THREE.Group(); tilt.add(piv); lotus.add(tilt); lotusPetals.push({ piv, ring }); } }
+const bloomS = { t: -1, size: 1, x: 0, z: 0 };
+function bloom(x, z, size = 1) {
+  Object.assign(bloomS, { t: 0, size, x, z }); lotus.visible = true; Audio.chime();
+  for (let i = 0; i < PET_N; i += 2) { const a = rnd(0, 6.28), r = rnd(0, 2.6 * size); pet.set([x + Math.cos(a) * r, rnd(3, 6), z + Math.sin(a) * r, rnd(.4, .7), rnd(0, 6.28)], i * 5); } // mưa cánh sen
+}
+function updateBloom(dt) {
+  if (bloomS.t < 0) return; const t = (bloomS.t += dt), L = 5, open = clamp(t / 1.6, 0, 1), fade = clamp((L - t) / 1.2, 0, 1), sz = bloomS.size;
+  lotus.position.set(bloomS.x, 1.6 + Math.min(t, 2) * .5, bloomS.z); lotus.scale.setScalar(sz * (.4 + .6 * open)); lotus.rotation.y = t * .3;
+  for (const p of lotusPetals) p.piv.children[0].rotation.x = -(p.ring ? .25 : .7) * (1 - open) - (p.ring ? .35 : .95) * open; // cánh ngả ra ngoài
+  LOTUS_MAT.opacity = fade * Math.min(1, t * 3); LOTUS_GLOW.material.opacity = fade * .55 * open; LOTUS_GLOW.lookAt(camera.position);
+  if (t > L) { bloomS.t = -1; lotus.visible = false; }
+}
+// --- Hạc bay: 1–3 con lướt ngang trời, cách nhau 35–70 giây ---
+const CR_MAT = { w: M(0xfbf8f1), k: M(0x1f1f1f), r: new THREE.MeshBasicMaterial({ color: 0xd4202a }) };
+function makeCrane() {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.SphereGeometry(.5, 8, 6).scale(1.5, .55, .6), CR_MAT.w); g.add(body);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(.06, .09, 1.2, 5), CR_MAT.w); neck.rotation.z = -1.25; neck.position.set(1.15, .22, 0); g.add(neck);
+  const hd = new THREE.Mesh(new THREE.SphereGeometry(.13, 6, 5), CR_MAT.k); hd.position.set(1.72, .4, 0); g.add(hd);
+  const crown = new THREE.Mesh(new THREE.SphereGeometry(.07, 5, 4), CR_MAT.r); crown.position.set(1.74, .5, 0); g.add(crown);
+  const beak = new THREE.Mesh(new THREE.ConeGeometry(.04, .4, 4), M(0xc9a227)); beak.rotation.z = -Math.PI / 2; beak.position.set(1.98, .38, 0); g.add(beak);
+  const legs = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, 1.1, 4), CR_MAT.k); legs.rotation.z = Math.PI / 2 - .1; legs.position.set(-1.25, -.12, 0); g.add(legs);
+  const wg = new THREE.BufferGeometry(); wg.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, .7, 0, 0, .2, 0, 2.2, -.5, 0, 1.9], 3)); wg.setIndex([0, 1, 2, 0, 2, 3]); wg.computeVertexNormals();
+  const tipG = new THREE.BufferGeometry(); tipG.setAttribute('position', new THREE.Float32BufferAttribute([.2, 0, 2.2, -.5, 0, 1.9, -.2, 0, 1.5, .25, 0, 1.75], 3)); tipG.setIndex([0, 1, 2, 0, 2, 3]); tipG.computeVertexNormals();
+  const wmat = M(0xffffff, { side: THREE.DoubleSide }), kmat = M(0x222222, { side: THREE.DoubleSide });
+  const wings = [1, -1].map(sd => { const w = new THREE.Group(); w.add(new THREE.Mesh(wg, wmat), new THREE.Mesh(tipG, kmat)); w.scale.z = sd; w.position.y = .12; g.add(w); return w; });
+  g.userData.wings = wings; g.visible = false; scene.add(g); return g;
+}
+const cranes = [makeCrane(), makeCrane(), makeCrane()];
+const flight = { t: -1, next: 15, dir: 1, y: 16, z: 0, n: 1 };
+function cranesFly() { Object.assign(flight, { t: 0, dir: Math.random() < .5 ? 1 : -1, y: rnd(13, 18), z: rnd(-20, 10), n: 1 + Math.floor(Math.random() * 3) }); }
+function updateCranes(dt, time) {
+  if (flight.t < 0) { if ((flight.next -= dt) <= 0) cranesFly(); return; }
+  const t = (flight.t += dt), X = -70 + t * 7;
+  cranes.forEach((c, i) => { if (i >= flight.n) { c.visible = false; return; }
+    c.visible = true; c.position.set(flight.dir * (X - i * 4), flight.y + Math.sin(t * .8 + i) * .6 - i * 1.2 + (i % 2) * 1.6, flight.z + i * 3 * (i % 2 ? 1 : -1)); c.rotation.y = flight.dir > 0 ? 0 : Math.PI;
+    const f = Math.sin(time * 3.2 + i * .9) * .55; c.userData.wings[0].rotation.x = f; c.userData.wings[1].rotation.x = -f; });
+  if (X > 80) { flight.t = -1; flight.next = rnd(35, 70); cranes.forEach(c => c.visible = false); }
+}
+// --- Lời chúc theo điều cầu (tự soạn; không đọc to nguyên văn lời người chơi) ---
+const plain = t => ' ' + t.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+const WISH_TOPICS = [
+  ['exam', [' thi ', ' diem ', ' dai hoc ', ' tot nghiep ', ' hoc ', ' kiem tra ', ' ielts ', ' do dat ']],
+  ['health', [' suc khoe ', ' khoe ', ' benh ', ' om ', ' binh phuc ', ' phau thuat ', ' nam vien ']],
+  ['family', [' gia dinh ', ' cha me ', ' bo me ', ' ong ba ', ' con ', ' vo chong ', ' em be ']],
+  ['love', [' nguoi yeu ', ' tinh duyen ', ' nguoi thuong ', ' duyen ', ' cuoi ']],
+  ['work', [' cong viec ', ' viec lam ', ' phong van ', ' kinh doanh ', ' lam an ', ' buon ban ']],
+  ['peace', []]];
+const BLESS = {
+  exam: ['Chúc bạn ôn bài nhẹ nhàng, vào phòng thi thật bình tĩnh và làm hết sức mình.', 'Mong bạn giữ sức khoẻ, ngủ đủ giấc, để mọi kiến thức đã học đều nhớ rõ khi cần.'],
+  health: ['Mong người bạn thương sớm khoẻ lại, ăn ngon ngủ yên, có người thân kề bên.', 'Chúc sức khoẻ vững vàng, mỗi ngày thêm một chút nhẹ nhõm trong thân và tâm.'],
+  family: ['Mong gia đình bạn luôn ấm êm, bữa cơm đông đủ tiếng cười.', 'Chúc cả nhà thương nhau, nhường nhịn nhau, cùng nhau đi qua mọi mùa mưa nắng.'],
+  love: ['Mong bạn gặp được người hiểu và thương mình thật lòng, đúng lúc.', 'Chúc tình thương của bạn luôn dịu dàng, biết lắng nghe và biết bao dung.'],
+  work: ['Chúc công việc thuận hoà, gặp người tốt giúp đỡ, mỗi ngày tiến thêm một bước.', 'Mong bạn làm việc với tâm sáng, bền bỉ, rồi thành quả sẽ đến đúng lúc.'],
+  peace: ['Mong lòng bạn được bình an, nhẹ nhàng như làn khói hương bay lên.', 'Chúc bạn và người thương một ngày an lành, tâm vui, thân khoẻ.', 'Gửi tới bạn một nụ cười hiền và một hơi thở thật sâu. Mọi chuyện rồi sẽ ổn.']};
+function blessingFor(text) { const t = plain(text); const topic = (WISH_TOPICS.find(([, w]) => w.some(x => t.includes(x))) || ['peace'])[0]; const a = BLESS[topic]; return a[Math.floor(Math.random() * a.length)]; }
+let blessT = 0;
+function showBlessing(text) {
+  const msg = blessingFor(text); $('blessT').textContent = msg; $('bless').classList.add('on'); clearTimeout(blessT); blessT = setTimeout(() => $('bless').classList.remove('on'), 8000);
+  bloom(player.pos.x, player.pos.z - 1.2, .6);
+  try { if (!save.muted && window.speechSynthesis) { const v = speechSynthesis.getVoices().find(v => /^vi/i.test(v.lang)); if (v) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(msg); u.voice = v; u.lang = v.lang; u.rate = .92; speechSynthesis.speak(u); } } } catch (e) {}
+  return msg;
+}
+$('bless').addEventListener('click', () => $('bless').classList.remove('on'));
 
 /* =====================================================================
    9. ĐIỂM HOẠT ĐỘNG: tới gần thì hiện nút hành động to, chạm một lần là làm
@@ -590,7 +670,14 @@ function actIncense() {
   panel.open(`<h2>Thắp hương</h2><p>Chọn số nén hương. Lặng lòng một chút, rồi nhẹ nhàng cắm hương vào lư.</p><div class="row"><button class="btn" data-n="1">1 nén</button><button class="btn" data-n="3">3 nén</button></div><p class="small" style="text-align:center">Thắp hương là để tâm mình lắng lại, không cần nhiều.</p>`);
   $('pc').querySelectorAll('[data-n]').forEach(b => b.onclick = () => {
     const n = +b.dataset.n; panel.close(); player.busy = true; const ang = Math.atan2(BURN.x - player.pos.x, BURN.z - player.pos.z); player.yaw = ang;
-    const t0 = performance.now(); let t = 0; const step = () => { t = (performance.now() - t0) / 1000; /* theo thời gian thật, máy chậm vẫn đúng 2,4 giây */ player.pray = clamp(t < 1.6 ? t / .4 : (2.4 - t) / .4, 0, 1); if (t >= 1.2 && !step.done) { step.done = true; plantSticks(n); Audio.chime(); } if (t < 2.4) requestAnimationFrame(step); else { player.pray = 0; player.busy = false; save.incense += 1; persist(); toast(`Bạn đã thắp ${n} nén hương. Mong lòng thanh thản 🙏`); } }; requestAnimationFrame(step);
+    const t0 = performance.now(); let t = 0; const END = 5.6; /* theo thời gian thật: chắp tay → cắm hương → lạy 3 lạy */
+    const step = () => { t = (performance.now() - t0) / 1000;
+      player.pray = clamp(t / .4, 0, 1) * clamp((END - t) / .4, 0, 1);
+      player.bow = t > 2 && t < 5 ? Math.sin(((t - 2) % 1) * Math.PI) : 0;
+      if (t >= 1.2 && !step.done) { step.done = true; plantSticks(n); Audio.chime(); }
+      if (t < END) requestAnimationFrame(step);
+      else { player.pray = player.bow = 0; player.busy = false; save.incense += 1; persist(); bloom(BURN.x, BURN.z, n === 3 ? 1.1 : .8); toast(`Bạn đã thắp ${n} nén hương, lạy ba lạy. Mong lòng thanh thản 🙏`); } };
+    requestAnimationFrame(step);
   });
 }
 
@@ -607,7 +694,7 @@ function actBell() {
   draw();
   c.onpointerdown = () => { const now = performance.now(); if (now < lock) return; lock = now + 450; const r = +c.dataset.r, d = Math.abs(r - RT);
     let msg, p; if (d < 7) { msg = 'Viên mãn – tiếng chuông ngân xa'; p = 1; } else if (d < 18) { msg = 'Tiếng chuông trong trẻo'; p = .7; } else { msg = 'Thử lại nhẹ nhàng nhé'; p = .3; }
-    Audio.bell(p); bellSwing = p; strikerT = 1; hits++; $('bj').textContent = msg; if (p === 1) { document.body.classList.remove('shake-screen'); void document.body.offsetWidth; document.body.classList.add('shake-screen'); if (navigator.vibrate) navigator.vibrate(60); } t0 = performance.now(); };
+    Audio.bell(p); bellSwing = p; strikerT = 1; hits++; $('bj').textContent = msg; if (p === 1) { bloom(BELLP.x, BELLP.z + 2.5, .9); document.body.classList.remove('shake-screen'); void document.body.offsetWidth; document.body.classList.add('shake-screen'); if (navigator.vibrate) navigator.vibrate(60); } t0 = performance.now(); };
   $('bx').onclick = () => { panel.close(); if (hits) toast('Tiếng chuông đã vang. Mong mọi điều an lành 🔔'); };
 }
 
@@ -624,7 +711,7 @@ function actMo() {
     g.save(); g.translate(150, 150); g.scale(1 + flash * .06, 1 - flash * .04); g.fillStyle = '#8b3a1c'; g.beginPath(); g.ellipse(0, 6, RM, RM * .78, 0, 0, 7); g.fill(); g.fillStyle = '#5c240f'; g.fillRect(-RM * .7, 2, RM * 1.4, 7); g.restore(); flash *= .85;
     if (!done) gameRAF = requestAnimationFrame(draw); };
   const finish = () => { done = true; stopGame(); Audio.chantLoud(false); const total = beats.length, score = Math.round(clamp((res.t + res.d * .6) / total, 0, 1) * 100);
-    const best = score > save.bestCalm; if (best) save.bestCalm = score; persist(); const pr = PRAISE.find(p => score >= p[0])[1];
+    if (score >= 70) bloom(player.pos.x, player.pos.z - 1.5, .7 + score / 200); const best = score > save.bestCalm; if (best) save.bestCalm = score; persist(); const pr = PRAISE.find(p => score >= p[0])[1];
     $('pc').innerHTML = `<h2>Tâm an</h2><div class="big">${score}</div><p style="text-align:center">${pr}</p><p class="small" style="text-align:center">Tĩnh tâm ${res.t} · Được ${res.d} · Lệch nhịp ${res.l}${best ? ' · Điểm Tâm an cao nhất mới' : ''}</p><div class="row"><button class="btn alt" id="mr">Gõ thêm lượt nữa</button><button class="btn" id="mok">Xong</button></div>`;
     $('mr').onclick = actMo; $('mok').onclick = () => panel.close(); };
   draw();
@@ -657,7 +744,7 @@ function actWish(spot) {
   $('wok').onclick = () => { const text = ta.value.trim().slice(0, 120); if (!text) { $('we').textContent = 'Bạn hãy viết đôi dòng nhé.'; return; } if (dirty(text)) { $('we').textContent = 'Lời cầu có từ chưa phù hợp nơi cửa Phật, bạn sửa lại giúp nhé.'; return; }
     save.wishes.unshift({ text, place, date: today() }); save.wishes = save.wishes.slice(0, 50); persist(); panel.close(); Audio.chime();
     if (place === 'tree') { const r = rib[ribNext % RIB_N]; ribNext++; const ang = Math.atan2(player.pos.z - TREE.z, player.pos.x - TREE.x) + rnd(-.5, .5); Object.assign(r, { x: TREE.x + Math.cos(ang) * 2.6, z: TREE.z + Math.sin(ang) * 2.6, y: 3.3, on: true, mine: true }); toast('Dải lụa đỏ mang lời cầu của bạn đã treo trên cây bồ đề 🎗️'); }
-    else { const h = hd[hdNext % HD_N]; hdNext++; const ang = Math.atan2(player.pos.z - POND.z, player.pos.x - POND.x); Object.assign(h, { a: ang, r: POND_R - .9, on: true, mine: true, born: clock.elapsedTime, sp: .05 }); toast('Đèn hoa đăng mang lời cầu của bạn đang trôi trên hồ sen 🪷'); } };
+    else { const h = hd[hdNext % HD_N]; hdNext++; const ang = Math.atan2(player.pos.z - POND.z, player.pos.x - POND.x); Object.assign(h, { a: ang, r: POND_R - .9, on: true, mine: true, born: clock.elapsedTime, sp: .05 }); toast('Đèn hoa đăng mang lời cầu của bạn đang trôi trên hồ sen 🪷'); } setTimeout(() => showBlessing(text), 900); };
   setTimeout(() => ta.focus({ preventScroll: true }), 150);
 }
 
@@ -744,14 +831,14 @@ function loop() {
   const dt = Math.min(clock.getDelta(), .05), time = clock.elapsedTime;
   World.update(dt, time); updatePlayer(dt, time); updateCamera(dt); updateAI(dt, time); updateSpots(); updateBubbles(dt);
   if (Math.random() < dt * 2.5) emitSmoke(BURN.x + rnd(-.3, .3), 1.55, BURN.z + rnd(-.3, .3), .9); // khói nền từ lư hương
-  updateSmoke(dt, time); updateFlies(dt, time); updatePetals(dt, time); updateSticks(dt, time); updateRibbons(time); updateLanterns(dt, time);
+  updateSmoke(dt, time); updateFlies(dt, time); updatePetals(dt, time); updateSticks(dt, time); updateRibbons(time); updateLanterns(dt, time); updateBloom(dt); updateCranes(dt, time);
   bellSwing *= Math.pow(.25, dt); bellGroup.rotation.z = Math.sin(time * 5) * .12 * bellSwing; strikerT = Math.max(0, strikerT - dt * 3); striker.position.x = BELLP.x - 1.8 + Math.sin(strikerT * Math.PI) * .7;
   if (Math.floor(time) !== loop.s) { loop.s = Math.floor(time); counterText(); }
   renderer.render(scene, camera);
 }
 loop();
 // tay cầm kiểm thử (không ảnh hưởng người chơi)
-window.LCA = { player, save, A, SPOTS, go: (x, z) => { player.pos.set(x, groundH(x, z), z); }, doAction, share, actIncense, actBell, actMo, actWish, actQue, openBook, dirty, World, skipNight: () => World.skip(1), keys, current: () => current && current.id, renderer, sticks, rib, hd, visitors: () => BASE + visitors + 1 };
+window.LCA = { bloom, bloomS, cranesFly, flight, cranes, blessingFor, player, save, A, SPOTS, go: (x, z) => { player.pos.set(x, groundH(x, z), z); }, doAction, share, actIncense, actBell, actMo, actWish, actQue, openBook, dirty, World, skipNight: () => World.skip(1), keys, current: () => current && current.id, renderer, sticks, rib, hd, visitors: () => BASE + visitors + 1 };
 window.dispatchEvent(new Event('lca-ready'));
 </script>
 <script>
