@@ -33,6 +33,10 @@ const { chromium } = require('playwright'); const { makeHub } = require('./hub')
   await T.click('[data-t=class]'); await T.waitForTimeout(800); await T.fill('.em', 's@x.com'); await T.click('.add'); await T.waitForTimeout(800); await T.click('.as'); await T.waitForTimeout(800);
   const libId = Object.keys(hub.tree.library.meta)[0], stuUid = Object.entries(hub.tree.users).find(([, u]) => u.email === 's@x.com')[0];
   console.log('   assign written:', JSON.stringify(hub.tree.assign && hub.tree.assign[stuUid] && Object.keys(hub.tree.assign[stuUid])), 'libId ok:', !!(hub.tree.assign[stuUid] || {})[libId]);
+  // 5b. admin cấp vai trò Lên Chùa cho học viên rồi thu hồi
+  await A.click('[data-t=lcroles]'); await A.waitForSelector('#tabc .gr'); await A.fill('#tabc .em', 's@x.com'); await A.selectOption('#tabc .rl', 'bht'); await A.click('#tabc .gr'); await A.waitForTimeout(800);
+  console.log('5b) lcroles:', JSON.stringify(hub.tree.lcroles && Object.values(hub.tree.lcroles).map(x => [x.r, x.n])), '| list:', (await A.locator('#tabc .ls').innerText()).replace(/\s+/g, ' ').slice(0, 80));
+  await A.click('#tabc .ls [data-x]'); await A.waitForTimeout(800); console.log('    after revoke:', JSON.stringify(Object.keys(hub.tree.lcroles || {})));
   // 6. student receives
   await S.click('[data-t=mywork]'); await S.waitForTimeout(1000); console.log('6) tab content:', (await S.locator('#tabc').innerText()).replace(/\s+/g,' ').slice(0,200)); console.log('6) student assigned list:', (await S.locator('.as').innerText()).replace(/\s+/g, ' ').slice(0, 90));
   await S.click('[data-g]'); await S.waitForTimeout(800); console.log('   imported local courses:', await S.evaluate(() => JSON.parse(localStorage.getItem('gv_learn_courses') || '[]').map(c => c.name)));

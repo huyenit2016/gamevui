@@ -126,6 +126,10 @@ rules = {"rules": {
     "presence": {".read": "true", "$uid": {".write": f"{AUTH} && $uid === auth.uid", ".validate": "newData.hasChildren(['at'])"}},
     "gifts": {".read": "true", ".write": f"{AUTH} && {MOD}", "$id": {".validate": "newData.hasChildren(['u', 'g', 'at'])"}}
   },
+  # ---- Lên Chùa Cầu An: vai trò nhân vật đặc biệt do admin cấp (bht = Ban hộ tự, tnv = Tình nguyện viên); chủ tài khoản chỉ đọc của mình ----
+  "lcroles": {".read": f"{AUTH} && {ADMIN}", "$uid": {
+    ".read": f"{AUTH} && ($uid === auth.uid || {ADMIN})", ".write": f"{AUTH} && {ADMIN}",
+    ".validate": "newData.hasChildren(['r', 'at']) && newData.child('r').isString() && newData.child('r').val().matches(/^(bht|tnv|all)$/) && (!newData.child('n').exists() || (newData.child('n').isString() && newData.child('n').val().length <= 80))"}},
   "teacherStudents": {"$t": {".read": f"{AUTH} && ($t === auth.uid || {ADMIN})", ".write": f"{AUTH} && (($t === auth.uid && {TEACHER}) || {ADMIN})"}},
   "assign": {"$s": {".read": f"{AUTH} && ($s === auth.uid || {TEACHER} || {ADMIN})", "$c": {
     ".write": f"{AUTH} && ({ADMIN} || ({TEACHER} && ((newData.exists() && newData.child('by').val() === auth.uid) || (!newData.exists() && data.child('by').val() === auth.uid))))"}}},

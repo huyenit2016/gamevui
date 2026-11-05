@@ -1168,8 +1168,9 @@ async function checkRole() {
     if (!window.GV) window.GV = { store: { get(k, d) { try { const v = localStorage.getItem('gv_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set() {} } };
     if (!window.GV.fbInfo) { await loadScript('../../js/firebase-config.js'); await loadScript('../../js/fb.js'); }
     const f = await GV.fbInfo().fb(); if (!f.user || f.user.isAnonymous) throw new Error('anon');
-    const adm = (await f.db.ref('admins/' + f.uid).once('value')).exists(), role = adm ? 'admin' : (await f.db.ref('users/' + f.uid + '/role').once('value')).val();
-    save.roles = role === 'admin' ? ['bht', 'tnv'] : (role === 'collab' || role === 'teacher') ? ['tnv'] : []; persist();
+    // vai trò do quản trị cấp trong CMS (tab "Vai trò Lên Chùa" → lcroles/<uid>); tài khoản admin luôn có cả hai
+    const adm = (await f.db.ref('admins/' + f.uid).once('value')).exists(), g = adm ? null : (await f.db.ref('lcroles/' + f.uid).once('value')).val();
+    save.roles = adm || (g && g.r === 'all') ? ['bht', 'tnv'] : g && SPECIAL[g.r] ? [g.r] : []; persist();
     msg.textContent = save.roles.length ? `Đã mở: ${save.roles.map(r => SPECIAL[r].n).join(', ')}.` : 'Tài khoản của bạn chưa được quản trị cấp vai trò đặc biệt.';
     if (save.roles.length) { save.av.g = 'db'; if (!save.roles.includes(save.av.sp)) save.av.sp = save.roles[0]; buildAvatar(); openAvatar(); }
   } catch (e) { msg.textContent = 'Nhân vật đặc biệt do quản trị cấp theo vai trò tài khoản OmniHub. Hãy đăng nhập bằng email ở trang chủ OmniHub (cùng trình duyệt) rồi thử lại.'; }

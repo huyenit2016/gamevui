@@ -58,6 +58,7 @@
     ['library', '📚 Thư viện khoá học', ['admin', 'collab', 'teacher']],
     ['story', '📖 Câu chuyện (Story)', ['admin', 'collab']],
     ['chua', '🪷 Chùa Online', ['admin', 'collab']],
+    ['lcroles', '🛕 Vai trò Lên Chùa', ['admin']],
     ['class', '🎓 Lớp & bài giao', ['admin', 'teacher']],
     ['mywork', '🧑‍🎓 Bài của tôi', ['admin', 'collab', 'teacher', 'student']]
   ];
@@ -79,7 +80,7 @@
     $('.lo').onclick = () => A.signOut();
     $('.rr').onclick = () => recheck(true);
     $$('.tabsx [data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; history.replaceState(null, '', EMB ? '#/cms/' + tab : '#' + tab); panelView(); });
-    const fn = { home, rooms, users, config, announce, library, story: c => GV.cmsStory(c, $, $$, fdate), chua, class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
+    const fn = { home, rooms, users, config, announce, library, story: c => GV.cmsStory(c, $, $$, fdate), chua, lcroles, class: classTab, mywork }[tab]; Promise.resolve(fn($('#tabc'))).catch(e => { $('#tabc').innerHTML = `<div class="card2"><b style="color:var(--bad)">⚠️ ${esc(GV.fbInfo().explain(e))}</b></div>`; });
     if (A.isAdmin) watchJunk();
   }
   const db = () => A.db;
@@ -233,6 +234,28 @@
       <div class="row"><button class="btn ok sv">📣 Đăng thông báo</button><button class="btn ghost rm">Gỡ thông báo</button></div></div>`;
     $('.sv', c).onclick = async () => { const text = $('.tx', c).value.trim(); if (!text) return T('Nhập nội dung thông báo.', { type: 'warn' }); await db().ref('config/announce').set({ id: Date.now(), text, type: $('.ty', c).value, link: $('.lk', c).value.trim(), active: $('.ac', c).checked, by: A.user.uid }); T('Đã đăng thông báo.', { type: 'success' }); };
     $('.rm', c).onclick = async () => { await db().ref('config/announce').remove(); $('.tx', c).value = ''; T('Đã gỡ thông báo.', { type: 'info' }); };
+  }
+
+  /* =============== VAI TRÒ ĐẶC BIỆT trong game Lên Chùa Cầu An (lcroles/<uid>) =============== */
+  const LCR = { bht: '🟡 Ban hộ tự', tnv: '🟢 Tình nguyện viên', all: '✨ Cả hai vai trò' };
+  async function lcroles(c) {
+    c.innerHTML = `<div class="card2"><h2>🛕 Vai trò đặc biệt – Lên Chùa Cầu An</h2><p class="hint">Cấp trang phục nhân vật đặc biệt cho tài khoản (đăng nhập bằng email). Người được cấp vào game → 👤 Nhân vật → Nhân vật đặc biệt → <b>Kiểm tra vai trò tài khoản</b>. Tài khoản admin luôn có cả hai vai trò. Chỉ là trang phục trong game, không thêm quyền gì trên web.</p>
+      <div class="grid2"><div><label class="f">Email tài khoản</label><input class="w em" type="email" placeholder="ten@gmail.com"></div><div><label class="f">Vai trò</label><select class="w rl">${Object.keys(LCR).map(k => `<option value="${k}">${LCR[k]}</option>`).join('')}</select></div></div>
+      <div class="row"><button class="btn ok gr">➕ Cấp vai trò</button></div></div>
+      <div class="card2"><h2>Đã cấp</h2><div class="ls"><p class="hint">Đang tải…</p></div></div>`;
+    const draw = async () => {
+      const v = (await db().ref('lcroles').once('value')).val() || {}, ks = Object.keys(v).sort((a, b) => (v[b].at || 0) - (v[a].at || 0));
+      $('.ls', c).innerHTML = ks.length ? `<table class="tbl"><tr><th>Người dùng</th><th>Vai trò</th><th>Ngày cấp</th><th></th></tr>${ks.map(k => `<tr><td>${esc(v[k].n || k)}</td><td>${LCR[v[k].r] || esc(v[k].r)}</td><td>${fdate(v[k].at)}</td><td><button class="btn ghost sm" data-x="${esc(k)}">Thu hồi</button></td></tr>`).join('')}</table>` : '<p class="hint">Chưa cấp cho ai.</p>';
+    };
+    $('.gr', c).onclick = async () => {
+      const em = $('.em', c).value.trim().toLowerCase(); if (!em) return T('Nhập email tài khoản.', { type: 'warn' });
+      try { const uid = (await db().ref('userIndex/' + A.emailKey(em)).once('value')).val(); if (!uid) return T('Không tìm thấy tài khoản với email này (người đó cần đăng ký/đăng nhập CMS ít nhất một lần).', { type: 'warn' });
+        const nm = (await db().ref('users/' + uid + '/name').once('value')).val();
+        await db().ref('lcroles/' + uid).set({ r: $('.rl', c).value, n: (nm ? nm + ' · ' : '') + em, at: Date.now(), by: A.user.uid });
+        $('.em', c).value = ''; T(`Đã cấp ${LCR[$('.rl', c).value]} cho ${nm || em}.`, { type: 'success' }); draw(); } catch (e) { T(GV.fbInfo().explain(e), { type: 'error' }); }
+    };
+    $('.ls', c).onclick = async e => { const b = e.target.closest('[data-x]'); if (!b || !confirm('Thu hồi vai trò đặc biệt của người này?')) return; try { await db().ref('lcroles/' + b.dataset.x).remove(); T('Đã thu hồi.', { type: 'info' }); draw(); } catch (x) { T(GV.fbInfo().explain(x), { type: 'error' }); } };
+    draw();
   }
 
   /* =============== CHÙA ONLINE (app/dichuaonline): cấu hình, lịch, livestream TikTok, kiểm duyệt lời nguyện =============== */

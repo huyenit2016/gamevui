@@ -107,5 +107,12 @@ W('khách KHÔNG xoá slug', false, 'stories/slugs/chuyen-a', null, who.guest, s
 // update đa đường dẫn: Firebase kiểm từng đường dẫn con nên mô phỏng từng ghi
 W('lưu: meta mới', true, 'stories/meta/s9', sm('col1', true), who.col, T); W('lưu: data mới', true, 'stories/data/s9', '{"blocks":[]}', who.col, T); W('lưu: slug mới', true, 'stories/slugs/chuyen-z', 's9', who.col, T);
 
+// Lên Chùa Cầu An: vai trò đặc biệt do admin cấp (lcroles)
+const lr = { r: 'tnv', n: 'Bạn A', at: NOW };
+W('admin cấp vai trò Lên Chùa', true, 'lcroles/col1', lr, who.adm); W('CTV KHÔNG tự cấp vai trò Lên Chùa', false, 'lcroles/col1', lr, who.col); W('khách KHÔNG tự cấp vai trò', false, 'lcroles/' + who.guest.uid, lr, who.guest);
+W('vai trò lạ bị chặn', false, 'lcroles/col1', { r: 'sư', at: NOW }, who.adm);
+const lrt = setAt(T, ['lcroles', 'col1'], lr);
+R('chủ tài khoản đọc vai trò của mình', true, 'lcroles/col1', who.col, lrt); R('người khác KHÔNG đọc vai trò', false, 'lcroles/col1', who.guest, lrt); R('admin đọc danh sách vai trò', true, 'lcroles', who.adm, lrt); R('CTV KHÔNG đọc danh sách', false, 'lcroles', who.col, lrt);
+
 console.log(`\n${pass} đạt, ${fail} lỗi`);
 process.exit(fail ? 1 : 0);

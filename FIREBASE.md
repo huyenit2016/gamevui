@@ -339,6 +339,14 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
         }
       }
     },
+    "lcroles": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('admins').child(auth.uid).exists())",
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+        ".validate": "newData.hasChildren(['r', 'at']) && newData.child('r').isString() && newData.child('r').val().matches(/^(bht|tnv|all)$/) && (!newData.child('n').exists() || (newData.child('n').isString() && newData.child('n').val().length <= 80))"
+      }
+    },
     "teacherStudents": {
       "$t": {
         ".read": "auth != null && ($t === auth.uid || root.child('admins').child(auth.uid).exists())",
