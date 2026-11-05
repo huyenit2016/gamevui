@@ -24,6 +24,20 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     t(await p.isVisible('#tut'), 'hiện hướng dẫn 3 bước');
     await p.click('#tNext'); await p.click('#tNext'); await p.click('#tNext');
     t(!(await p.isVisible('#tut')), 'xong hướng dẫn');
+    // tạo nhân vật lần đầu
+    t(await p.isVisible('#pc #avOk') && /Tạo nhân vật/.test(await p.textContent('#pc h2')), 'mở màn tạo nhân vật sau hướng dẫn');
+    const meshes = () => p.evaluate(() => { let n = 0; LCA.player && LCA.rig.hips.parent.traverse(o => o.isMesh && n++); return n; });
+    const m0 = await meshes();
+    await p.click('#pc [data-k="g"][data-v="nu"]'); await p.click('#pc [data-k="hair"][data-v="dai"]'); await p.click('#pc [data-k="face"][data-v="cuoi"]');
+    await p.click('#pc [data-k="skin"][data-v="2"]'); await p.click('#pc [data-k="bag"]'); await p.fill('#avPhap', 'Diệu Tâm');
+    const av = await p.evaluate(() => JSON.parse(localStorage.getItem('lenchuacauan_v1')).av);
+    t(av.g === 'nu' && av.hair === 'dai' && av.face === 'cuoi' && av.skin === 2 && av.bag === 1 && av.phap === 'Diệu Tâm', 'lưu tuỳ chỉnh nhân vật ' + JSON.stringify(av));
+    t((await meshes()) !== m0, 'mô hình 3D dựng lại theo tuỳ chỉnh');
+    await p.click('#pc [data-k="g"][data-v="db"]'); t(/quản trị/.test(await p.textContent('#pc')), 'nhân vật đặc biệt bị khoá khi chưa được cấp vai trò');
+    await p.click('#pc [data-k="g"][data-v="nu"]');
+    if (process.env.SHOT_DIR) await shot('avatar');
+    await p.click('#avOk'); await p.waitForTimeout(300);
+    t(/Diệu Tâm/.test(await p.textContent('#plate')), 'bảng tên có pháp danh: ' + (await p.textContent('#plate')));
     await p.waitForTimeout(800); await shot('start');
     // đi bằng phím, đâm vào lư hương thì không xuyên qua
     const p0 = await p.evaluate(() => [LCA.player.pos.x, LCA.player.pos.z]);
@@ -69,6 +83,35 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     if (d && process.env.SHOT_DIR) await d.saveAs(process.env.SHOT_DIR + '/lc-share-' + W + '.png');
     // lưu lại & ban đêm
     const st = await p.evaluate(() => JSON.parse(localStorage.getItem('lenchuacauan_v1'))); t(st.name === 'Minh An' && st.incense >= 1 && st.fortunes.length === 1, 'đã lưu localStorage');
+    // hệ thống hành động 3D
+    await p.click('#bActs'); t(await p.$$eval('#pc .atile', a => a.length) === 11, 'menu Hành động có đủ 11 hành động'); await p.click('#pc .atile[data-act="lay"]');
+    await p.waitForTimeout(3200); const ly = await p.evaluate(() => [LCA.Act.id, LCA.pose.y.toFixed(2), LCA.pose.tor.toFixed(2)]);
+    t(ly[0] === 'lay' && +ly[1] < -.15, 'lạy Phật: quỳ xuống/cúi lạy ' + ly);
+    await p.waitForFunction(() => !LCA.Act.id, null, { timeout: 20000 }).catch(() => {}); t(await p.evaluate(() => LCA.save.stats.lay === 1), 'lạy đủ 3 lạy, ghi vào sổ');
+    await p.evaluate(() => LCA.startAction('thien')); await p.waitForTimeout(2500);
+    t(await p.evaluate(() => LCA.Act.id === 'thien' && LCA.rig.L.h.rotation.x < -1 && document.getElementById('actbar').classList.contains('on')), 'ngồi thiền kiết già + thanh thời gian');
+    await p.click('#abStop'); await p.waitForTimeout(400); t(await p.evaluate(() => !LCA.Act.id && LCA.save.stats.thien >= 2), 'dừng thiền, cộng thời gian thiền');
+    await p.evaluate(() => LCA.startAction('niem')); await p.waitForTimeout(6000);
+    t(await p.evaluate(() => LCA.Act.count >= 1 && LCA.rig.handBeads.visible) && /Nam mô/.test(await p.textContent('#pbub')), 'niệm Phật: lần chuỗi + câu niệm');
+    await p.keyboard.down('s'); await p.waitForTimeout(400); await p.keyboard.up('s'); t(await p.evaluate(() => !LCA.Act.id && LCA.save.stats.niem >= 1), 'tự đi bằng phím thì dừng niệm Phật');
+    await p.evaluate(() => LCA.startAction('chao')); await p.waitForTimeout(800); t(await p.evaluate(() => LCA.Act.id === 'chao' && LCA.pose.tor > .2), 'chắp tay chào (cúi người)');
+    await p.waitForFunction(() => !LCA.Act.id, null, { timeout: 10000 }).catch(() => {});
+    await p.evaluate(() => LCA.go(0, -15.7)); await p.waitForTimeout(400); await p.evaluate(() => LCA.startAction('hoa')); await p.waitForTimeout(2200);
+    t(await p.evaluate(() => LCA.rig.flower.visible), 'dâng hoa: cầm hoa sen nâng lên'); if (process.env.SHOT_DIR) await shot('offer');
+    await p.waitForFunction(() => !LCA.Act.id, null, { timeout: 15000 }).catch(() => {}); t(await p.evaluate(() => LCA.altarFlowers.some(f => f.visible) && LCA.save.stats.hoa === 1), 'hoa sen hiện trên bàn thờ');
+    await p.evaluate(() => LCA.startAction('nghe')); await p.waitForFunction(() => LCA.Act.id === 'nghe', null, { timeout: 20000 }).catch(() => {}); await p.waitForTimeout(1500);
+    t(await p.evaluate(() => LCA.Act.id === 'nghe') && /\S/.test(await p.textContent('#capT')), 'ngồi nghe pháp trên bồ đoàn, có lời nhắc: ' + (await p.textContent('#capT')).slice(0, 40)); if (process.env.SHOT_DIR) await shot('nghe');
+    await p.click('#abStop');
+    await p.evaluate(() => LCA.go(0, 14.2)); await p.waitForTimeout(300); await p.evaluate(() => LCA.startAction('kinh')); await p.waitForTimeout(3000);
+    const kh = await p.evaluate(() => [LCA.Act.id, Math.hypot(LCA.player.pos.x, LCA.player.pos.z - 8).toFixed(2)]); t(kh[0] === 'kinh' && Math.abs(kh[1] - 5.6) < 1.5, 'đi kinh hành quanh lư hương ' + kh); await p.click('#abStop');
+    await p.evaluate(() => LCA.go(8, 3)); await p.waitForTimeout(300); await p.evaluate(() => LCA.startAction('hoadang'));
+    await p.waitForSelector('#pc #wt', { timeout: 30000 }).catch(() => {}); t(await p.isVisible('#pc #wt') && await p.evaluate(() => document.querySelector('#pc .seg [data-p="pond"]').classList.contains('on')), 'thả hoa đăng: tự đi ra hồ, quỳ rồi mở lời cầu (đã chọn hồ sen)');
+    await p.fill('#wt', 'Cầu cho mọi người bình an'); await p.click('#wok'); await p.waitForTimeout(400);
+    await p.evaluate(() => LCA.go(0, 12)); await p.waitForTimeout(300); await p.evaluate(() => LCA.startAction('nhang')); await p.waitForSelector('#pc [data-n="1"]', { timeout: 30000 }).catch(() => {});
+    t(await p.isVisible('#pc [data-n="1"]'), 'đốt nhang: mở bảng thắp hương'); await p.click('#pc [data-n="1"]'); await p.waitForFunction(() => !LCA.player.busy, null, { timeout: 15000 }).catch(() => {});
+    await p.evaluate(() => LCA.go(14, -9)); await p.waitForTimeout(300); await p.evaluate(() => LCA.startAction('chuong')); await p.waitForSelector('#pc #bg', { timeout: 30000 }).catch(() => {}); t(await p.isVisible('#pc #bg'), 'thỉnh chuông qua menu hành động'); await p.click('#bx');
+    await p.evaluate(() => LCA.go(9.4, -15)); await p.waitForTimeout(300); await p.evaluate(() => LCA.startAction('mo')); await p.waitForSelector('#pc #mg', { timeout: 30000 }).catch(() => {}); t(await p.isVisible('#pc #mg'), 'gõ mõ qua menu hành động'); await p.click('#mx');
+    await p.click('#bBook'); t(/lần lạy Phật/.test(await p.textContent('#pc')) && /Diệu Tâm/.test(await p.textContent('#pc')), 'Sổ cầu an có thống kê hành động và pháp danh'); await p.click('#bkx');
     await p.evaluate(() => { LCA.cranesFly(); LCA.flight.t = 9; }); await p.waitForTimeout(500); t(await p.evaluate(() => LCA.cranes[0].visible), 'hạc bay ngang trời');
     await p.evaluate(() => LCA.skipNight()); await p.waitForTimeout(800); await shot('night');
     t(await p.evaluate(() => LCA.visitors()) > 600, 'bộ đếm người lên chùa');

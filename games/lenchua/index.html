@@ -129,6 +129,25 @@ html,body{background:#0e0705;color:#f5f0eb;font-family:var(--sans)}
 #splash small{color:#d9a55a}
 #err{background:#0e0705}
 @media (prefers-reduced-motion:reduce){#brand .wh,#notice span,.big,#splash .pagoda,#splash .pagoda:before,#splash .pagoda:after{animation:none}}
+
+/* ===== nhân vật & hành động ===== */
+#plate{position:absolute;transform:translate(-50%,-100%);text-align:center;pointer-events:none;white-space:nowrap;text-shadow:0 1px 4px #000,0 0 10px #000}
+#plate b{display:block;font-family:var(--serif);color:#fde68a;font-size:14px}#plate small{display:block;color:#fbe7b8;font-size:11px}#plate i{display:inline-block;font-style:normal;font-size:10px;color:#1c1007;background:#fbbf24;border-radius:6px;padding:0 6px;margin-top:2px}
+#pbub{margin-top:-40px;z-index:2}
+#bActs{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(116px,calc(env(safe-area-inset-bottom) + 106px));pointer-events:auto;font-size:15px;padding:11px 16px;border-radius:999px;background:linear-gradient(180deg,rgba(90,52,19,.95),rgba(42,22,8,.95));color:#fde68a;border:2px solid var(--gold);box-shadow:var(--glow)}
+#actbar{position:absolute;left:50%;top:calc(max(6px,env(safe-area-inset-top)) + 150px);transform:translateX(-50%);display:none;align-items:center;gap:10px;background:var(--glass);border:1px solid rgba(251,191,36,.55);border-radius:999px;padding:6px 8px 6px 14px;pointer-events:auto;color:#fde68a;font-weight:600;font-size:14px;box-shadow:var(--glow);white-space:nowrap}
+#actbar.on{display:flex}#actbar b{font-variant-numeric:tabular-nums;color:#fff3d0}#abStop{border:0;border-radius:999px;background:#fbbf24;color:#1c1007;font-weight:800;padding:6px 12px}
+#cap{position:absolute;left:50%;bottom:max(190px,calc(env(safe-area-inset-bottom) + 180px));transform:translateX(-50%);width:min(560px,calc(100% - 32px));text-align:center;background:linear-gradient(180deg,var(--card-a),var(--card-b));border:1.5px solid var(--gold);border-radius:14px;padding:8px 14px;display:none;box-shadow:var(--glow)}
+#cap.on{display:block}#cap small{color:#d9a55a;font-size:11px}#cap p{margin:4px 0 0;font-family:var(--serif);font-style:italic;color:#fff3d0;line-height:1.5}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:10px}
+.atile{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:14px;border:1px solid rgba(243,208,138,.45);background:rgba(28,25,23,.7);color:#fbe7b8;font-size:13px;font-weight:600}
+.atile span{font-size:28px}.atile:active{transform:scale(.96)}
+#panel.avp{background:transparent}#panel.avp .card{max-height:52vh}
+@media(min-width:700px){#panel.avp{justify-content:flex-end;align-items:center;padding-right:24px}#panel.avp .card{width:440px;max-height:86vh}}
+.avs{margin:8px 0}.avs>b{display:block;font-size:13px;color:#fde68a;margin-bottom:4px}.chip.on{background:rgba(251,191,36,.25);border-color:#fbbf24;color:#fff3d0}
+.sws{display:flex;gap:8px;flex-wrap:wrap}.sw{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.25)}.sw.on{border-color:#fbbf24;box-shadow:0 0 0 2px #fbbf2466}
+.avs.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.avs label{font-size:12px;color:#d9a55a;display:flex;flex-direction:column;gap:3px}
+.avs input{background:rgba(14,7,5,.75);border:1px solid rgba(243,208,138,.6);color:#fff;border-radius:10px;padding:8px 10px;font:15px var(--sans);outline:none;user-select:text;-webkit-user-select:text;width:100%}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
@@ -140,6 +159,7 @@ html,body{background:#0e0705;color:#f5f0eb;font-family:var(--sans)}
   <div id="topbar"><div id="brand"><span class="wh">☸</span><span>Chùa An Lạc</span></div>
     <div id="topbtns">
     <a class="ib" id="bHome" href="../../" title="Về trang chủ" aria-label="Về trang chủ" style="display:grid;place-items:center;text-decoration:none;color:#fde68a">‹</a>
+    <button class="ib" id="bAvatar" title="Nhân vật của tôi" aria-label="Nhân vật của tôi">👤</button>
     <button class="ib" id="bMute" title="Bật/tắt âm thanh" aria-label="Bật/tắt âm thanh">🔊</button>
     <button class="ib" id="bBook" title="Sổ cầu an của tôi" aria-label="Sổ cầu an của tôi">📖</button>
     <button class="ib" id="bShare" title="Chia sẻ" aria-label="Chia sẻ">📤</button>
@@ -149,6 +169,10 @@ html,body{background:#0e0705;color:#f5f0eb;font-family:var(--sans)}
   <div id="hint">Kéo màn hình để xoay góc nhìn</div>
   <div id="joyGhost">Giữ &amp; kéo<br>để đi</div>
   <div id="joy"><i></i></div>
+  <div id="plate"></div><div id="pbub" class="bub"></div>
+  <div id="actbar"><span id="abL"></span><b id="abT"></b><button id="abStop" type="button">⏹ Dừng</button></div>
+  <div id="cap"><small>📜 Lời nhắc chánh niệm</small><p id="capT"></p></div>
+  <button class="btn" id="bActs" type="button">☸ Hành động</button>
   <button class="btn" id="act">🙏 Thắp hương</button>
 </div>
 
@@ -556,24 +580,108 @@ scene.add(hdIM); let hdNext = 14;
 function updateLanterns(dt, time) { hd.forEach((h, i) => { h.a += h.sp * dt; const x = POND.x + Math.cos(h.a) * h.r, z = POND.z + Math.sin(h.a) * h.r; D.position.set(x, .2 + Math.sin(time * 2 + i) * .03, z); D.rotation.set(0, h.a, 0); const grow = h.mine ? clamp((time - h.born) * 1.5, 0, 1) : 1; D.scale.setScalar(h.on ? (h.mine ? 1.3 : 1) * grow : 0); D.updateMatrix(); hdIM.setMatrixAt(i, D.matrix); }); hdIM.instanceMatrix.needsUpdate = true; hdIM.material.emissiveIntensity = .5 + World.night() * 1.2; }
 
 /* =====================================================================
-   6. NHÂN VẬT NGƯỜI CHƠI: chibi áo lam, nhìn từ sau lưng; đi, chắp tay
+   6. NHÂN VẬT ĐẠI DIỆN: mỗi người chơi (mỗi máy/tài khoản) có một nhân vật dựng bằng code theo tuỳ chọn.
+   Khung xương đơn giản: hông → đùi → gối → cẳng chân; thân (cúi được) → vai → cánh tay; cổ → đầu.
+   Mọi hành động (lạy, ngồi thiền, dâng hoa…) là các TƯ THẾ gán góc cho các khớp, nội suy mượt.
    ===================================================================== */
+const AVG = { nam: 'Phật tử nam', nu: 'Phật tử nữ', cusi: 'Cư sĩ', db: 'Nhân vật đặc biệt' };
+const HAIRS = { ngan: 'Tóc ngắn', huicua: 'Húi cua', renngoi: 'Rẽ ngôi', bui: 'Búi tóc', dai: 'Tóc dài', vai: 'Ngang vai' };
+const HAIR_OF = { nam: ['ngan', 'huicua', 'renngoi'], nu: ['bui', 'dai', 'vai'], cusi: Object.keys(HAIRS), db: Object.keys(HAIRS) };
+const FACES = { hien: 'Hiền hoà', cuoi: 'Tươi cười', khep: 'Mắt khép' };
+const SKINS = ['#f6d6b8', '#efc39a', '#d6a173', '#a8724a'];
+const TOPS = { lam: ['#6d8fae', '#8a95a3', '#e9e4d8', '#7c9a82'], cusi: ['#efe9dc', '#c9b48f', '#6f7d5a', '#7f8794'] }; // áo lam: lam, xám, trắng, xanh lá · cư sĩ: trắng, be, rêu, xám
+const ROBES = { nam: ['#6b4a2e', '#4f3a2a', '#7a7f86'], nu: ['#5f7f9e', '#7a7f86', '#6b4a2e'] };           // áo tràng: nam nâu…, nữ lam…
+const PANTS = ['#3b2f2a', '#2a2a2e', '#6f6a63'];
+const SPECIAL = { bht: { n: 'Ban hộ tự', robe: '#d9a03a', top: '#e9dcc0', scarf: '#b8392b' }, tnv: { n: 'Tình nguyện viên', robe: null, top: '#6d8fae', scarf: '#f2c13d' } }; // do quản trị cấp theo vai trò tài khoản
+const AV0 = { g: 'nam', hair: 'ngan', face: 'hien', skin: 1, top: 0, robe: 1, robeC: 0, pants: 0, beads: 1, bag: 0, phap: '', sp: 'tnv' };
+save.av = Object.assign({}, AV0, save.av || {}); save.roles = save.roles || []; save.stats = Object.assign({ lay: 0, thien: 0, niem: 0, hoa: 0, kinh: 0, nghe: 0, chao: 0 }, save.stats || {});
 const P = new THREE.Group(); scene.add(P);
-const part = (geo, mat, x, y, z, parent = P) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
-const legL = new THREE.Group(), legR = new THREE.Group(); legL.position.set(-.15, .5, 0); legR.position.set(.15, .5, 0); P.add(legL, legR);
-part(new THREE.CylinderGeometry(.09, .09, .5, 6).translate(0, -.25, 0), MAT.darkwood, 0, 0, 0, legL); part(new THREE.CylinderGeometry(.09, .09, .5, 6).translate(0, -.25, 0), MAT.darkwood, 0, 0, 0, legR);
-part(new THREE.CylinderGeometry(.3, .44, .85, 10), MAT.cloth, 0, .9, 0);                    // áo lam
-part(new THREE.CylinderGeometry(.16, .3, .12, 10), M(0x58789a), 0, 1.33, 0);
-const armL = new THREE.Group(), armR = new THREE.Group(); armL.position.set(-.36, 1.25, 0); armR.position.set(.36, 1.25, 0); P.add(armL, armR);
-part(new THREE.CylinderGeometry(.08, .1, .6, 6).translate(0, -.3, 0), MAT.cloth, 0, 0, 0, armL); part(new THREE.CylinderGeometry(.08, .1, .6, 6).translate(0, -.3, 0), MAT.cloth, 0, 0, 0, armR);
-part(new THREE.SphereGeometry(.07, 6, 4), MAT.skin, 0, -.62, 0, armL); part(new THREE.SphereGeometry(.07, 6, 4), MAT.skin, 0, -.62, 0, armR);
-const head = part(new THREE.SphereGeometry(.38, 14, 12), MAT.skin, 0, 1.75, 0);
-part(new THREE.SphereGeometry(.4, 14, 10, 0, Math.PI * 2, 0, Math.PI * .55), MAT.hair, 0, 1.8, -.02);  // tóc
-part(new THREE.SphereGeometry(.16, 8, 6), MAT.hair, 0, 1.9, -.36);                          // búi tóc sau gáy (thấy từ sau lưng)
-part(new THREE.SphereGeometry(.04, 6, 4), MAT.hair, -.13, 1.78, .35); part(new THREE.SphereGeometry(.04, 6, 4), MAT.hair, .13, 1.78, .35);
-// gom thân trên vào một khớp hông để nhân vật cúi lạy được (chân đứng yên)
-const pTorso = new THREE.Group(); pTorso.position.y = .55; [...P.children].forEach(c => { if (c !== legL && c !== legR) { c.position.y -= .55; pTorso.add(c); } }); P.add(pTorso);
-const player = { pos: new THREE.Vector3(0, 0, 40), yaw: Math.PI, vel: 0, pray: 0, bow: 0, busy: false };
+const rig = {}; let avGeos = [], avMats = [];
+const avM = (c, o = {}) => { const m = new THREE.MeshLambertMaterial(Object.assign({ color: new THREE.Color(c), flatShading: true }, o)); avMats.push(m); return m; };
+const ap = (geo, mat, x, y, z, parent) => { avGeos.push(geo); const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
+const avGroup = () => (save.av.g === 'db' && !save.roles.includes(save.av.sp)) ? 'nam' : save.av.g; // chưa được cấp vai trò thì về Phật tử nam
+function buildAvatar() {
+  const a = save.av, g = avGroup(), spc = g === 'db' ? SPECIAL[a.sp] : null;
+  P.clear(); avGeos.forEach(x => x.dispose()); avMats.forEach(x => x.dispose()); avGeos = []; avMats = [];
+  const topC = spc ? spc.top : g === 'cusi' ? TOPS.cusi[a.top % 4] : TOPS.lam[a.top % 4];
+  const robeC = spc ? spc.robe : (g === 'nam' || g === 'nu') && a.robe ? ROBES[g][a.robeC % 3] : null;
+  const mSkin = avM(SKINS[a.skin % 4]), mHair = avM('#2a1d16', { side: THREE.DoubleSide }), mTop = avM(topC, { side: THREE.DoubleSide }), mPant = avM(g === 'cusi' ? PANTS[a.pants % 3] : topC), mShoe = avM('#3a2a20');
+  const mRobe = robeC ? avM(robeC, { side: THREE.DoubleSide }) : null, mOut = mRobe || mTop, mDark = avM('#1c1410');
+  const hips = new THREE.Group(); hips.position.y = .5; P.add(hips); rig.hips = hips;
+  const leg = s => { const h = new THREE.Group(); h.rotation.order = 'YXZ'; h.position.set(s * .13, 0, 0); hips.add(h);
+    ap(new THREE.CylinderGeometry(.1, .09, .27, 8).translate(0, -.135, 0), mPant, 0, 0, 0, h);
+    const k = new THREE.Group(); k.position.y = -.26; h.add(k);
+    ap(new THREE.CylinderGeometry(.085, .075, .24, 8).translate(0, -.12, 0), mPant, 0, 0, 0, k); ap(new THREE.BoxGeometry(.15, .08, .25), mShoe, 0, -.22, .05, k); return { h, k }; };
+  rig.L = leg(-1); rig.R = leg(1);
+  const skH = robeC ? .5 : .28; rig.skirt = ap(new THREE.CylinderGeometry(.33, robeC ? .5 : .4, skH, 14, 1, true).translate(0, .06 - skH / 2, 0), mOut, 0, 0, 0, hips); // vạt áo (áo tràng dài tới mắt cá)
+  const tor = new THREE.Group(); tor.position.y = .05; hips.add(tor); rig.tor = tor;
+  ap(new THREE.CylinderGeometry(.3, .35, .8, 12), mOut, 0, .4, 0, tor);
+  ap(new THREE.CylinderGeometry(.15, .29, .1, 12), mTop, 0, .82, 0, tor);                         // cổ áo (áo lam lộ ra dưới áo tràng)
+  if (robeC) ap(new THREE.BoxGeometry(.06, .7, .02), avM(new THREE.Color(robeC).multiplyScalar(.75).getStyle()), 0, .42, .32, tor); // nẹp áo tràng
+  if (g === 'cusi') ap(new THREE.CylinderGeometry(.355, .355, .07, 12), mPant, 0, .03, 0, tor);  // thắt lưng
+  const arm = s => { const gr = new THREE.Group(); gr.position.set(s * .36, .72, 0); tor.add(gr);
+    ap(new THREE.CylinderGeometry(.085, robeC ? .13 : .1, .58, 8).translate(0, -.29, 0), mOut, 0, 0, 0, gr); ap(new THREE.SphereGeometry(.075, 8, 6), mSkin, 0, -.62, 0, gr); return gr; };
+  rig.aL = arm(-1); rig.aR = arm(1);
+  const hd = new THREE.Group(); hd.position.y = .83; tor.add(hd); rig.hd = hd;
+  ap(new THREE.CylinderGeometry(.1, .11, .12, 8), mSkin, 0, .04, 0, hd);
+  ap(new THREE.SphereGeometry(.38, 18, 14), mSkin, 0, .37, 0, hd);
+  // tóc
+  const hairCap = (r, th, y) => ap(new THREE.SphereGeometry(r, 18, 12, 0, Math.PI * 2, 0, Math.PI * th), mHair, 0, y, -.02, hd);
+  if (a.hair === 'huicua') hairCap(.392, .4, .4); else hairCap(.405, .52, .4);
+  if (a.hair === 'ngan' || a.hair === 'renngoi' || a.hair === 'huicua') ap(new THREE.SphereGeometry(.3, 12, 8).scale(1.15, .8, .75), mHair, 0, .33, -.17, hd);
+  if (a.hair === 'renngoi') ap(new THREE.SphereGeometry(.2, 10, 8).scale(1.5, .45, 1), mHair, -.1, .7, .2, hd);
+  if (a.hair === 'bui') { ap(new THREE.SphereGeometry(.17, 10, 8), mHair, 0, .55, -.36, hd); ap(new THREE.SphereGeometry(.3, 12, 8).scale(1.15, .8, .75), mHair, 0, .33, -.17, hd); }
+  if (a.hair === 'dai') { ap(new THREE.SphereGeometry(.3, 12, 8).scale(1.15, .8, .75), mHair, 0, .33, -.17, hd); ap(new THREE.BoxGeometry(.62, .8, .14), mHair, 0, .05, -.26, hd); }
+  if (a.hair === 'vai') ap(new THREE.CylinderGeometry(.41, .46, .46, 16, 1, true, .8, Math.PI * 2 - 1.6), mHair, 0, .26, -.01, hd);
+  // khuôn mặt (nhìn thấy khi xoay máy quay ra trước hoặc trong màn Nhân vật)
+  const arc = (r, t, x, y, rotZ) => { const m = ap(new THREE.TorusGeometry(r, t, 4, 10, Math.PI), mDark, x, y, .355, hd); m.rotation.z = rotZ; return m; };
+  [-1, 1].forEach(s => { if (a.face === 'hien') ap(new THREE.SphereGeometry(.045, 8, 6), mDark, s * .13, .4, .34, hd); else arc(.05, .013, s * .13, .39, a.face === 'cuoi' ? 0 : Math.PI);
+    ap(new THREE.BoxGeometry(.11, .022, .02), mHair, s * .13, .49, .34, hd).rotation.z = -s * .12;
+    if (g === 'nu') ap(new THREE.SphereGeometry(.06, 8, 6).scale(1, .6, .4), avM('#f0a3a3'), s * .2, .3, .32, hd); });
+  arc(a.face === 'cuoi' ? .08 : .055, .014, 0, .26, Math.PI);
+  // phụ kiện: tràng hạt trên ngực, túi kinh đeo chéo, khăn/huy hiệu vai trò đặc biệt
+  const beadsRing = (parent, n, r, x, y, z, tilt, size) => { const gr = new THREE.Group(); gr.position.set(x, y, z); gr.rotation.x = tilt; parent.add(gr); const m = avM('#6b3a1e'); for (let k = 0; k < n; k++) { const t = k / n * Math.PI * 2; ap(new THREE.SphereGeometry(size, 6, 5), m, Math.cos(t) * r, 0, Math.sin(t) * r, gr); } return gr; };
+  if (a.beads) { const bm = avM('#6b3a1e'); for (let k = 0; k <= 14; k++) { const t = -Math.PI / 2 + k / 14 * Math.PI, x = .25 * Math.sin(t); ap(new THREE.SphereGeometry(.036, 6, 5), bm, x, .8 - .3 * Math.cos(t), Math.sqrt(Math.max(0, .335 * .335 - x * x)) + .025, tor); } ap(new THREE.ConeGeometry(.04, .12, 6), avM('#c0392b'), 0, .43, .36, tor); } // tràng hạt vắt trước ngực
+  rig.handBeads = beadsRing(rig.aR, 12, .1, 0, -.6, .08, 0, .025); rig.handBeads.visible = false; // chuỗi cầm tay khi niệm Phật
+  if (a.bag) { ap(new THREE.BoxGeometry(.32, .34, .1), avM('#b98a3e'), .4, .12, .12, tor).rotation.y = -.4; const st = ap(new THREE.TorusGeometry(.48, .025, 4, 24), avM('#8a5a24'), .02, .5, .02, tor); st.rotation.set(0, 0, .95); st.scale.z = .78; }
+  if (spc) { ap(new THREE.TorusGeometry(.27, .05, 6, 18), avM(spc.scarf), 0, .82, 0, tor).rotation.x = Math.PI / 2; const sash = ap(new THREE.TorusGeometry(.47, .04, 4, 24), avM(spc.scarf), 0, .42, 0, tor); sash.rotation.set(0, 0, -.95); sash.scale.z = .78; ap(new THREE.BoxGeometry(.14, .09, .02), avM('#fff4d0'), .14, .6, .34, tor); }
+  // hoa sen cầm tay khi dâng hoa
+  rig.flower = new THREE.Group(); rig.flower.position.set(-.14, -.72, .12); rig.aR.add(rig.flower); rig.flower.visible = false;
+  for (let k = 0; k < 6; k++) { const p = ap(new THREE.SphereGeometry(.09, 6, 5).scale(.55, 1, .35), avM('#f2a3b8'), Math.cos(k) * .06, .08, Math.sin(k) * .06, rig.flower); p.rotation.set(Math.sin(k) * .5, k, Math.cos(k) * .5); }
+  ap(new THREE.CylinderGeometry(.015, .015, .35, 4), avM('#4f7f3a'), 0, -.12, 0, rig.flower);
+  P.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  applyPose(pose);
+  $('plate') && plateText();
+}
+// ----- tư thế: góc các khớp (rad). x âm = đưa ra trước (tay/chân), x dương = cúi (thân/đầu) -----
+const PZ = o => Object.assign({ hL: 0, hR: 0, kL: 0, kR: 0, kzL: 0, kzR: 0, sp: 0, tor: 0, hd: 0, aLx: 0, aLz: .08, aRx: 0, aRz: -.08, y: 0, sq: 0 }, o);
+const PRAYA = { aLx: -1.25, aLz: -.42, aRx: -1.25, aRz: .42 };
+const LOTUS = { hL: -1.5, hR: -1.5, sp: .55, kzL: 1.9, kzR: -1.9, y: -.37, sq: 1 };
+const POSE = {
+  stand: PZ({}),
+  pray: PZ(Object.assign({ hd: .2 }, PRAYA)),                                                  // chắp tay
+  prayLow: PZ({ aLx: -.8, aLz: -.5, aRx: -.8, aRz: .5, hd: .18 }),                            // chắp tay thấp khi kinh hành
+  kneel: PZ(Object.assign({ kL: 1.57, kR: 1.57, y: -.25, sq: .45, hd: .2 }, PRAYA)),         // quỳ chắp tay
+  prostrate: PZ({ hL: -1.2, hR: -1.2, kL: 2.75, kR: 2.75, y: -.3, tor: 1.35, hd: .25, aLx: -2.7, aLz: -.2, aRx: -2.7, aRz: .2, sq: .8 }), // lạy sát đất
+  lotus: PZ(Object.assign({ aLx: -.55, aLz: .5, aRx: -.55, aRz: -.5, hd: .12 }, LOTUS)),      // kiết già, tay ấn thiền định
+  lotusPray: PZ(Object.assign({ hd: .15 }, LOTUS, PRAYA)),
+  offer: PZ({ aLx: -1.75, aLz: -.3, aRx: -1.75, aRz: .3, hd: -.12, tor: .08 }),               // nâng hoa dâng lên
+  greet: PZ(Object.assign({ hd: .35, tor: .5 }, PRAYA)),                                       // chắp tay chào (cúi đầu)
+  beads: PZ({ aLx: -1.2, aLz: -.4, aRx: -1.05, aRz: .25, hd: .25 }),                          // lần chuỗi niệm Phật
+  strike: PZ({ aRx: -1.6, aRz: .15, aLx: -.3, tor: .1 }),                                       // vung tay thỉnh chuông/gõ mõ
+  kneelLow: PZ({ kL: 1.57, kR: 1.57, y: -.25, sq: .45, tor: .5, hd: .3, aLx: -1.1, aRx: -1.1, aLz: -.15, aRz: .15 }) // quỳ bên hồ thả đèn
+};
+const pose = PZ({});
+function applyPose(p) {
+  if (!rig.L) return;
+  rig.L.h.rotation.set(p.hL, -p.sp, 0); rig.R.h.rotation.set(p.hR, p.sp, 0);
+  rig.L.k.rotation.set(p.kL, 0, p.kzL); rig.R.k.rotation.set(p.kR, 0, p.kzR);
+  rig.tor.rotation.x = p.tor; rig.hd.rotation.x = p.hd;
+  rig.aL.rotation.set(p.aLx, 0, p.aLz); rig.aR.rotation.set(p.aRx, 0, p.aRz);
+  const q = clamp(p.sq, 0, 1); rig.skirt.scale.set(1 + .45 * q, 1 - .65 * q, 1 + .45 * q);
+}
+buildAvatar();
+const player = { pos: new THREE.Vector3(0, 0, 40), yaw: Math.PI, vel: 0, pray: 0, bow: 0, busy: false, auto: null, strikeT: 0 };
 P.position.copy(player.pos); P.rotation.y = player.yaw;
 
 /* ---------- va chạm & độ cao nền ---------- */
@@ -687,19 +795,51 @@ function updatePlayer(dt, time) {
   let ix = joy.x, iy = -joy.y;
   if (keys.w || keys.arrowup) iy += 1; if (keys.s || keys.arrowdown) iy -= 1; if (keys.a || keys.arrowleft) ix -= 1; if (keys.d || keys.arrowright) ix += 1;
   const l = Math.hypot(ix, iy); if (l > 1) { ix /= l; iy /= l; }
-  if (player.busy) ix = iy = 0;
+  const manual = l > .15 && !player.busy;
+  if (manual && (Act.looping || player.auto)) actStop();                       // tự đi bằng cần/phím thì dừng hành động liên tục
   fwd.set(-Math.sin(cam.yaw), 0, -Math.cos(cam.yaw)); right.set(Math.cos(cam.yaw), 0, -Math.sin(cam.yaw));
-  mv.copy(fwd).multiplyScalar(iy).addScaledVector(right, ix);
-  const sp = 4.2 * Math.min(1, Math.hypot(ix, iy));
-  if (sp > .05) { player.pos.addScaledVector(mv.normalize(), sp * dt); collide(player.pos, .42); const ty = Math.atan2(mv.x, mv.z); player.yaw += Math.atan2(Math.sin(ty - player.yaw), Math.cos(ty - player.yaw)) * Math.min(1, dt * 10); }
+  let sp = 0;
+  if (manual) { mv.copy(fwd).multiplyScalar(iy).addScaledVector(right, ix); sp = 4.2 * Math.min(1, l); }
+  else if (player.auto && !player.busy) { const w = autoStep(dt); if (w) { mv.set(w.x - player.pos.x, 0, w.z - player.pos.z); sp = player.auto ? player.auto.speed : 0; } }
+  if (sp > .05 && mv.lengthSq() > 1e-6) { player.pos.addScaledVector(mv.normalize(), sp * dt); collide(player.pos, .42); const ty = Math.atan2(mv.x, mv.z); player.yaw += Math.atan2(Math.sin(ty - player.yaw), Math.cos(ty - player.yaw)) * Math.min(1, dt * 10); }
+  else if (player.face != null) { player.yaw += Math.atan2(Math.sin(player.face - player.yaw), Math.cos(player.face - player.yaw)) * Math.min(1, dt * 6); }
   player.vel = lerp(player.vel, sp, Math.min(1, dt * 10));
   const gy = groundH(player.pos.x, player.pos.z); player.pos.y = lerp(player.pos.y, gy, Math.min(1, dt * 12));
-  const ph = time * 10, sw = Math.sin(ph) * .6 * (player.vel / 4.2);
-  P.position.set(player.pos.x, player.pos.y + Math.abs(Math.sin(ph)) * .05 * (player.vel / 4.2), player.pos.z); P.rotation.y = player.yaw;
-  legL.rotation.x = sw; legR.rotation.x = -sw;
-  const pr = player.pray; armL.rotation.set(lerp(-sw, -1.25, pr), 0, lerp(.08, -.42, pr)); armR.rotation.set(lerp(sw, -1.25, pr), 0, lerp(-.08, .42, pr)); head.rotation.x = pr * .25; pTorso.rotation.x = player.bow * .85;
+  // tư thế mục tiêu = tư thế của hành động (+ chắp tay/cúi khi thắp hương, + vung tay khi thỉnh chuông/gõ mõ)
+  const tgt = Object.assign({}, POSE[Act.pose] || POSE.stand);
+  if (player.pray > 0) for (const k in POSE.pray) tgt[k] = lerp(tgt[k], POSE.pray[k], player.pray);
+  tgt.tor += player.bow * .85;
+  player.strikeT = Math.max(0, player.strikeT - dt); if (player.strikeT > 0) Object.assign(tgt, { aRx: POSE.strike.aRx * Math.sin(player.strikeT / .35 * Math.PI), aRz: .15 });
+  if (Act.id === 'thien' || Act.id === 'nghe') tgt.tor += Math.sin(time * 1.1) * .03;  // nhịp thở
+  if (Act.id === 'niem') tgt.aRx += Math.sin(time * 5) * .12;                                  // lần chuỗi
+  const k = 1 - Math.exp(-dt * 7); for (const key in pose) pose[key] = lerp(pose[key], tgt[key], k);
+  // bước đi chồng lên tư thế (không áp khi đang ngồi/quỳ)
+  const walk = player.vel / 4.2, ph = time * (player.auto && player.auto.speed < 2 ? 6 : 10), sw = Math.sin(ph) * .6 * Math.min(1, walk * 1.6);
+  const out = Object.assign({}, pose); if (pose.y > -.1) { out.hL += sw; out.hR -= sw; out.kL += Math.max(0, -Math.sin(ph)) * .5 * walk; out.kR += Math.max(0, Math.sin(ph)) * .5 * walk; if (Act.pose === 'stand' && player.pray < .1 && player.strikeT <= 0) { out.aLx -= sw; out.aRx += sw; } }
+  applyPose(out);
+  P.position.set(player.pos.x, player.pos.y + pose.y + Math.abs(Math.sin(ph)) * .05 * walk, player.pos.z); P.rotation.y = player.yaw;
+  if (rig.handBeads) rig.handBeads.visible = Act.id === 'niem'; if (rig.flower) rig.flower.visible = !!Act.flower;
+}
+// ----- tự đi tới một điểm (qua cửa chánh điện nếu cần), tự vòng khi bị kẹt -----
+const inHallXZ = (x, z) => z < HALL.z1 && x > HALL.x0 && x < HALL.x1;
+function walkTo(x, z, cb, speed = 3.4) {
+  const pts = [], a = inHallXZ(player.pos.x, player.pos.z), b = inHallXZ(x, z);
+  if (a && !b) pts.push({ x: 0, z: -13.4 }, { x: 0, z: -9.6 }); else if (!a && b) pts.push({ x: 0, z: -9.6 }, { x: 0, z: -13.4 });
+  pts.push({ x, z }); player.auto = { pts, cb, speed, t: 0, max: 40, ck: .9, lx: player.pos.x, lz: player.pos.z, side: 1 }; player.face = null;
+}
+function autoStep(dt) {
+  const A_ = player.auto; A_.t += dt; if (A_.t > A_.max) { player.auto = null; A_.cb && A_.cb(false); return null; }
+  let w = A_.pts[0];
+  if (Math.hypot(w.x - player.pos.x, w.z - player.pos.z) < (A_.pts.length > 1 ? .8 : .35)) { A_.pts.shift(); if (!A_.pts.length) { if (A_.keep) { A_.pts.push(A_.keep()); return A_.pts[0]; } player.auto = null; A_.cb && A_.cb(true); return null; } w = A_.pts[0]; }
+  A_.ck -= dt; if (A_.ck <= 0) { A_.ck = .9; const moved = Math.hypot(player.pos.x - A_.lx, player.pos.z - A_.lz); A_.lx = player.pos.x; A_.lz = player.pos.z;
+    if (moved < .2 * A_.speed / 3.4) { const dx = w.x - player.pos.x, dz = w.z - player.pos.z, d = Math.hypot(dx, dz) || 1; A_.side = -A_.side; A_.pts.unshift({ x: player.pos.x - dz / d * 2.2 * A_.side + dx / d * .8, z: player.pos.z + dx / d * 2.2 * A_.side + dz / d * .8 }); } }
+  return w;
 }
 function updateCamera(dt) {
+  if (cam.front) { // màn Nhân vật: máy quay ra trước mặt, nhân vật nằm ở nửa trên (điện thoại) hoặc bên trái (máy tính)
+    const fy = player.yaw + (cam.fo || 0), wide = innerWidth >= 700, d = wide ? 4.4 : 7, sx = Math.cos(fy), sz = -Math.sin(fy), off = wide ? 1.15 : 0;
+    cam.pos.lerp(vTmp.set(player.pos.x + Math.sin(fy) * d, player.pos.y + 1.55, player.pos.z + Math.cos(fy) * d), Math.min(1, dt * 5)); camera.position.copy(cam.pos);
+    cam.look.lerp(vTmp.set(player.pos.x + sx * off, player.pos.y + (wide ? 1.05 : -.2), player.pos.z + sz * off), Math.min(1, dt * 6)); camera.lookAt(cam.look); return; }
   const tx = player.pos.x + Math.sin(cam.yaw) * Math.cos(cam.pitch) * cam.dist, ty = player.pos.y + 1.2 + Math.sin(cam.pitch) * cam.dist, tz = player.pos.z + Math.cos(cam.yaw) * Math.cos(cam.pitch) * cam.dist;
   const inHall = player.pos.z < HALL.z1 + .3 && player.pos.x > HALL.x0 && player.pos.x < HALL.x1; // trong chánh điện: giữ máy quay dưới trần, trong tường
   if (inHall) { const d = Math.min(cam.dist, 4.6), pc = Math.min(cam.pitch, .3); // máy quay tiến sát, hạ thấp để thấy rõ tượng Phật dưới trần
@@ -805,7 +945,7 @@ function updateSpots() {
 }
 $('act').addEventListener('click', () => doAction());
 function doAction() { if (!current || player.busy) return; Audio.start(); ({ incense: actIncense, bell: actBell, mo: actMo, wish: actWish, que: actQue })[current.id](current); }
-const panel = { open(html) { $('pc').innerHTML = html; $('panel').classList.add('on'); player.busy = true; $('act').classList.remove('show'); current = null; }, close() { $('panel').classList.remove('on'); player.busy = false; Audio.chantLoud(false); stopGame(); } };
+const panel = { open(html) { $('pc').innerHTML = html; $('panel').classList.add('on'); player.busy = true; $('act').classList.remove('show'); current = null; }, close() { $('panel').classList.remove('on', 'avp'); cam.front = false; player.busy = false; Audio.chantLoud(false); stopGame(); if (typeof avOnClose === 'function') { const f = avOnClose; avOnClose = null; f(); } } };
 $('panel').addEventListener('pointerdown', e => { if (e.target.id === 'panel') panel.close(); });
 let gameRAF = 0; const stopGame = () => { cancelAnimationFrame(gameRAF); gameRAF = 0; };
 
@@ -838,7 +978,7 @@ function actBell() {
   draw();
   c.onpointerdown = () => { const now = performance.now(); if (now < lock) return; lock = now + 450; const r = +c.dataset.r, d = Math.abs(r - RT);
     let msg, p; if (d < 7) { msg = 'Viên mãn – tiếng chuông ngân xa'; p = 1; } else if (d < 18) { msg = 'Tiếng chuông trong trẻo'; p = .7; } else { msg = 'Thử lại nhẹ nhàng nhé'; p = .3; }
-    Audio.bell(p); bellSwing = p; strikerT = 1; hits++; $('bj').textContent = msg; if (p === 1) { bloom(BELLP.x, BELLP.z + 2.5, .9); document.body.classList.remove('shake-screen'); void document.body.offsetWidth; document.body.classList.add('shake-screen'); if (navigator.vibrate) navigator.vibrate(60); } t0 = performance.now(); };
+    Audio.bell(p); player.strikeT = .35; bellSwing = p; strikerT = 1; hits++; $('bj').textContent = msg; if (p === 1) { bloom(BELLP.x, BELLP.z + 2.5, .9); document.body.classList.remove('shake-screen'); void document.body.offsetWidth; document.body.classList.add('shake-screen'); if (navigator.vibrate) navigator.vibrate(60); } t0 = performance.now(); };
   $('bx').onclick = () => { panel.close(); if (hits) toast('Tiếng chuông đã vang. Mong mọi điều an lành 🔔'); };
 }
 
@@ -859,7 +999,7 @@ function actMo() {
     $('pc').innerHTML = `<h2>Tâm an</h2><div class="big">${score}</div><p style="text-align:center">${pr}</p><p class="small" style="text-align:center">Tĩnh tâm ${res.t} · Được ${res.d} · Lệch nhịp ${res.l}${best ? ' · Điểm Tâm an cao nhất mới' : ''}</p><div class="row"><button class="btn alt" id="mr">Gõ thêm lượt nữa</button><button class="btn" id="mok">Xong</button></div>`;
     $('mr').onclick = actMo; $('mok').onclick = () => panel.close(); };
   draw();
-  c.onpointerdown = () => { const now = Audio.now(); Audio.mo(); flash = 1; moMesh.scale.set(1.08, .74, 1.2); setTimeout(() => moMesh.scale.set(1, .8, 1.15), 90);
+  c.onpointerdown = () => { const now = Audio.now(); Audio.mo(); player.strikeT = .35; flash = 1; moMesh.scale.set(1.08, .74, 1.2); setTimeout(() => moMesh.scale.set(1, .8, 1.15), 90);
     if (!start) { start = now; beats = []; for (let b = 0; b * BEAT < LEN; b++) beats.push(b * BEAT + 1.2); /* nhịp đầu sau 1,2 giây */ Audio.chantLoud(true); $('mj').textContent = 'Nam mô A Di Đà Phật…'; return; }
     const el = now - start; let bi = -1, bd = 1; for (let i = idx; i < Math.min(beats.length, idx + 3); i++) { const d = Math.abs(beats[i] - el); if (d < bd) { bd = d; bi = i; } }
     if (bi < 0 || bd > .35) { $('mj').textContent = 'Lệch nhịp'; res.l++; return; }
@@ -910,10 +1050,171 @@ function actQue() {
 }
 
 /* =====================================================================
+   9.6 HỆ THỐNG HÀNH ĐỘNG 3D: lạy Phật, ngồi thiền, đốt nhang, thả hoa đăng, thỉnh chuông, gõ mõ,
+       niệm Phật, dâng hoa, đi kinh hành, chắp tay chào, ngồi nghe pháp.
+   Hành động theo chuỗi (lạy, dâng hoa, chào) khoá điều khiển tới khi xong; hành động liên tục (thiền, niệm,
+   kinh hành, nghe pháp) dừng khi bấm "Dừng" hoặc tự đi bằng cần/phím. Thời gian tính theo đồng hồ thật.
+   ===================================================================== */
+const Act = { id: null, pose: 'stand', seq: null, si: 0, st: 0, end: null, looping: false, tick: null, onStop: null, t0: 0, flower: false, last: performance.now() };
+function actPlay(id, steps, end) {
+  actStop(true); Object.assign(Act, { id, seq: steps, si: 0, st: 0, end }); player.busy = true; Act.pose = steps[0][0]; steps[0][2] && steps[0][2]();
+}
+function actLoop(id, poseName, label, tick, onStop) {
+  actStop(true); Object.assign(Act, { id, pose: poseName, looping: true, tick, onStop, t0: performance.now() });
+  $('abL').textContent = label; $('actbar').classList.add('on'); updActBar();
+}
+function actStop(silent) {
+  if (player.auto) { const cb = player.auto.cb; player.auto = null; cb && !silent && cb(false); }
+  if (Act.looping && Act.onStop) Act.onStop((performance.now() - Act.t0) / 1000, silent);
+  if (Act.seq) player.busy = false;
+  Object.assign(Act, { id: null, pose: 'stand', seq: null, looping: false, tick: null, onStop: null, flower: false }); player.face = null;
+  $('actbar').classList.remove('on'); $('cap').classList.remove('on'); Audio.chantLoud(false);
+}
+const mmss = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function updActBar() { if (Act.looping) $('abT').textContent = mmss((performance.now() - Act.t0) / 1000) + (Act.count != null ? ` · ${Act.count}` : ''); }
+function updateAct() {
+  const now = performance.now(), rdt = Math.min(.25, (now - Act.last) / 1000); Act.last = now;
+  if (Act.seq) { Act.st += rdt; const s = Act.seq[Act.si]; if (Act.st >= s[1]) { Act.st = 0; Act.si++;
+      if (Act.si >= Act.seq.length) { const e = Act.end; Object.assign(Act, { seq: null, id: null, pose: 'stand', flower: false }); player.busy = false; player.face = null; e && e(); }
+      else { const n = Act.seq[Act.si]; Act.pose = n[0]; n[2] && n[2](); } } }
+  else if (Act.looping) { Act.tick && Act.tick(rdt); updActBar(); }
+}
+$('abStop').addEventListener('click', () => actStop());
+// bong bóng lời nói trên đầu người chơi + bảng tên
+function say(text, ms = 2200) { const b = $('pbub'); b.textContent = text; b.classList.add('on'); clearTimeout(say.t); say.t = setTimeout(() => b.classList.remove('on'), ms); }
+function plateText() { const a = save.av, g = avGroup(); $('plate').innerHTML = `<b>${esc(save.name || 'Phật tử')}</b>${a.phap ? `<small>Pháp danh ${esc(a.phap)}</small>` : ''}${g === 'db' ? `<i>${esc(SPECIAL[a.sp].n)}</i>` : ''}`; }
+function updateHead() {
+  vTmp.set(player.pos.x, player.pos.y + pose.y + 2.35, player.pos.z).project(camera);
+  const vis = vTmp.z < 1 && !$('panel').classList.contains('on'), x = (vTmp.x * .5 + .5) * innerWidth + 'px', y = (-vTmp.y * .5 + .5) * innerHeight + 'px';
+  for (const id of ['plate', 'pbub']) { const e = $(id); e.style.left = x; e.style.top = y; e.style.visibility = vis ? '' : 'hidden'; }
+}
+const faceTo = (x, z) => { player.face = Math.atan2(x - player.pos.x, z - player.pos.z); };
+const BUDDHA_XZ = { x: 0, z: -21 };
+// đi tới điểm hoạt động rồi mở hoạt động đó
+const STAND_R = { incense: 2.7, bell: 3, mo: 1.7, wish: 3.2, que: 1.9 };
+function goSpot(id, place, then) {
+  const s = SPOTS.find(x => x.id === id && (!place || x.place === place)); if (!s) return;
+  let r = id === 'wish' && place === 'pond' ? POND_R + .9 : STAND_R[id], dx = player.pos.x - s.x, dz = player.pos.z - s.z, d = Math.hypot(dx, dz) || 1;
+  if (id === 'mo') { dx = 0; dz = 1; d = 1; } // mõ đặt sát tường: đứng phía lối đi
+  const run = () => { faceTo(s.x, s.z); then ? then(s) : ({ incense: actIncense, bell: actBell, mo: actMo, wish: actWish, que: actQue })[id](s); };
+  if (d <= r + .6) return run();
+  say('Con đi tới ' + s.label.replace(/^\S+\s/, '').toLowerCase() + '…', 1800);
+  walkTo(s.x + dx / d * r, s.z + dz / d * r, ok => ok ? run() : toast('Chưa tới được nơi đó, bạn thử đi gần hơn nhé.'));
+}
+function doLay() {
+  faceTo(BUDDHA_XZ.x, BUDDHA_XZ.z); say('Nam mô A Di Đà Phật', 1600);
+  const st = [['pray', 1], ['kneel', .9]]; for (let k = 0; k < 3; k++) st.push(['prostrate', 1.3, () => Audio.soft()], ['kneel', .8]); st.push(['pray', .8]);
+  actPlay('lay', st, () => { save.stats.lay++; persist(); bloom(player.pos.x, player.pos.z - 1.3, .55); toast('Bạn đã lạy Phật ba lạy. Mong tâm thanh tịnh 🙇'); });
+}
+function doThien() {
+  say('Thở vào… thở ra…', 2200); Act.count = null;
+  actLoop('thien', 'lotus', '🧘 Ngồi thiền', null, (s, silent) => { save.stats.thien += Math.round(s); persist(); if (!silent && s > 3) toast(`Bạn đã ngồi thiền ${Math.floor(s / 60)} phút ${Math.round(s % 60)} giây. Thân tâm an lạc 🧘`); });
+}
+function doNiem() {
+  let acc = 0; Act.count = 0;
+  actLoop('niem', 'beads', '📿 Niệm Phật', dt => { acc += dt; if (acc >= 2.6) { acc = 0; Act.count++; say('Nam mô A Di Đà Phật', 1900); Audio.soft(); } }, (s, silent) => { const n = Act.count || 0; save.stats.niem += n; persist(); Act.count = null; if (!silent && n) toast(`Bạn đã niệm ${n} câu Nam mô A Di Đà Phật 📿`); });
+  Act.count = 0; Audio.chantLoud(true); say('Nam mô A Di Đà Phật', 1900);
+}
+// hoa sen đã dâng hiện trên bàn thờ (tối đa 10 đoá trong một lượt chơi)
+const altarFlowers = []; for (let k = 0; k < 10; k++) { const gr = new THREE.Group(); gr.position.set(-2.25 + k * .5, HALL.h + 1.32, -17.85); for (let j = 0; j < 7; j++) { const p = new THREE.Mesh(new THREE.SphereGeometry(.09, 6, 5).scale(.55, 1, .35), MAT.pink); p.position.set(Math.cos(j) * .06, .06, Math.sin(j) * .06); p.rotation.set(Math.sin(j) * .5, j, Math.cos(j) * .5); gr.add(p); } gr.visible = false; scene.add(gr); altarFlowers.push(gr); }
+let flowerN = 0;
+function doDangHoa() {
+  const go = () => { faceTo(0, -21); actPlay('hoa', [['pray', .6], ['offer', 1.4, () => { Act.flower = true; }], ['offer', 1, () => Audio.chime()], ['greet', 1, () => { Act.flower = false; altarFlowers[flowerN % 10].visible = true; flowerN++; }], ['stand', .3]],
+    () => { save.stats.hoa++; persist(); bloom(0, -18, .6); toast('Bạn đã dâng một đoá sen lên bàn thờ 💐'); }); };
+  if (Math.hypot(player.pos.x, player.pos.z + 15.7) < 1.2) return go();
+  say('Con mang hoa lên chánh điện…', 1800); walkTo(0, -15.7, ok => ok ? go() : toast('Chưa tới được bàn thờ, bạn thử đi gần hơn nhé.'));
+}
+const KH = { x: BURN.x, z: BURN.z, r: 5.6 };
+function doKinhHanh() {
+  const ang = () => Math.atan2(player.pos.z - KH.z, player.pos.x - KH.x), ptAt = a => ({ x: KH.x + Math.cos(a) * KH.r, z: KH.z + Math.sin(a) * KH.r });
+  const start = () => { actLoop('kinh', 'prayLow', '🚶 Đi kinh hành', null, (s, silent) => { save.stats.kinh += Math.round(s); persist(); if (!silent && s > 3) toast(`Bạn đã đi kinh hành ${mmss(s)} quanh lư hương 🚶`); });
+    player.auto = { pts: [ptAt(ang() - .45)], speed: 1.3, t: 0, max: 1e9, ck: .9, lx: player.pos.x, lz: player.pos.z, side: 1, keep: () => ptAt(ang() - .45) }; say('Mỗi bước chân là một bước an', 2200); };
+  if (Math.abs(Math.hypot(player.pos.x - KH.x, player.pos.z - KH.z) - KH.r) < 1.5) return start();
+  const p = ptAt(ang()); say('Con ra sân đi kinh hành…', 1800); walkTo(p.x, p.z, ok => ok ? start() : toast('Chưa tới được sân lư hương.'));
+}
+function doChao() {
+  say('A Di Đà Phật 🙏', 2000);
+  actPlay('chao', [['pray', .5], ['greet', 1.1, () => Audio.soft()], ['pray', .4], ['stand', .3]], () => { save.stats.chao++; persist(); });
+  let n = 0; for (let i = 0; i < AI_N && n < 2; i++) { const a = A[i]; if (!a.on || Math.hypot(a.x - player.pos.x, a.z - player.pos.z) > 7) continue; const b = bubs.find(x => x.t <= 0); if (!b) break; b.ai = i; b.t = 3; b.el.textContent = pick(['A Di Đà Phật 🙏', 'A Di Đà Phật, chúc bạn an lành', 'Mô Phật, chào bạn']); b.el.classList.add('on'); n++; }
+}
+const PHAP = ['Mời đại chúng ngồi thẳng lưng, thả lỏng đôi vai, nhẹ nhàng trở về với hơi thở.', 'Tâm an không phải là không có khó khăn, mà là biết bình tĩnh đi qua khó khăn.', 'Mỗi lời nói dịu dàng là một bông hoa ta trao cho người bên cạnh.', 'Biết ơn cha mẹ, thầy cô và những người đã giúp mình là gốc rễ của hạnh phúc.', 'Khi giận, hãy dừng lại một nhịp thở trước khi nói.', 'Việc thiện không cần lớn lao: một nụ cười, một lời hỏi han cũng là gieo hạt lành.', 'Buông bớt những lo toan chưa tới, sống trọn vẹn với giây phút hiện tại.', 'Thân khoẻ nhờ ăn ngủ điều độ, tâm khoẻ nhờ biết đủ và biết thương.', 'Xin hồi hướng công đức buổi nghe pháp hôm nay đến mọi người, mọi loài được bình an.'];
+function speak(t) { try { if (!save.muted && window.speechSynthesis) { const v = speechSynthesis.getVoices().find(v => /^vi/i.test(v.lang)); if (v) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.voice = v; u.lang = v.lang; u.rate = .9; speechSynthesis.speak(u); } } } catch (e) {} }
+function doNghe() {
+  const seat = SEATS.slice().sort((p, q) => Math.hypot(p[0] - player.pos.x, p[1] - player.pos.z) - Math.hypot(q[0] - player.pos.x, q[1] - player.pos.z))[0];
+  const sit = () => { player.pos.x = seat[0]; player.pos.z = seat[1]; player.face = Math.PI; let i = 0, acc = 0;
+    const show = () => { $('capT').textContent = PHAP[i % PHAP.length]; $('cap').classList.add('on'); speak(PHAP[i % PHAP.length]); i++; };
+    actLoop('nghe', 'lotus', '📜 Ngồi nghe pháp', dt => { acc += dt; if (acc >= 7) { acc = 0; show(); } }, (s, silent) => { save.stats.nghe++; persist(); try { speechSynthesis.cancel(); } catch (e) {} if (!silent && s > 3) toast('Cảm ơn bạn đã lắng nghe. Mong lời hay ở lại trong lòng 📜'); });
+    player.face = Math.PI; show(); };
+  if (Math.hypot(player.pos.x - seat[0], player.pos.z - seat[1]) < .8) return sit();
+  say('Con vào chánh điện nghe pháp…', 1800); walkTo(seat[0], seat[1], ok => ok ? sit() : toast('Chưa tới được bồ đoàn, bạn thử đi gần hơn nhé.'));
+}
+const ACTIONS = [
+  ['lay', '🙇', 'Lạy Phật', doLay], ['thien', '🧘', 'Ngồi thiền', doThien], ['nhang', '🕯️', 'Đốt nhang', () => goSpot('incense')], ['hoadang', '🪷', 'Thả hoa đăng', () => goSpot('wish', 'pond', s => actPlay('hoadang', [['kneelLow', 1.2]], () => actWish(s)))],
+  ['chuong', '🔔', 'Thỉnh chuông', () => goSpot('bell')], ['mo', '🪘', 'Gõ mõ', () => goSpot('mo')], ['niem', '📿', 'Niệm Phật', doNiem], ['hoa', '💐', 'Dâng hoa', doDangHoa],
+  ['kinh', '🚶', 'Đi kinh hành', doKinhHanh], ['chao', '🙏', 'Chắp tay chào', doChao], ['nghe', '📜', 'Ngồi nghe pháp', doNghe]];
+function startAction(id) { const a = ACTIONS.find(x => x[0] === id); if (!a || player.busy) return; Audio.start(); actStop(true); a[3](); }
+function openActions() {
+  if (!$('splash').hidden) return; actStop(true);
+  panel.open(`<h2>Hành động</h2><p class="small" style="text-align:center">Chọn một hành động. Nhân vật sẽ tự đi tới nơi cần thiết. Hành động liên tục dừng khi bạn bấm Dừng hoặc tự đi.</p><div class="agrid">${ACTIONS.map(a => `<button class="atile" data-act="${a[0]}"><span>${a[1]}</span>${a[2]}</button>`).join('')}</div>`);
+  $('pc').querySelectorAll('[data-act]').forEach(b => b.onclick = () => { panel.close(); startAction(b.dataset.act); });
+}
+$('bActs').addEventListener('click', openActions);
+
+/* ---------- 9.7 TẠO / TUỲ CHỈNH NHÂN VẬT (xem trực tiếp trên mô hình 3D, máy quay xoay ra trước mặt) ---------- */
+function loadScript(src) { return new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('load')); document.head.appendChild(s); }); }
+async function checkRole() {
+  const msg = $('avRole'); msg.textContent = 'Đang kiểm tra tài khoản OmniHub…';
+  try {
+    if (!window.GV) window.GV = { store: { get(k, d) { try { const v = localStorage.getItem('gv_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set() {} } };
+    if (!window.GV.fbInfo) { await loadScript('../../js/firebase-config.js'); await loadScript('../../js/fb.js'); }
+    const f = await GV.fbInfo().fb(); if (!f.user || f.user.isAnonymous) throw new Error('anon');
+    const adm = (await f.db.ref('admins/' + f.uid).once('value')).exists(), role = adm ? 'admin' : (await f.db.ref('users/' + f.uid + '/role').once('value')).val();
+    save.roles = role === 'admin' ? ['bht', 'tnv'] : (role === 'collab' || role === 'teacher') ? ['tnv'] : []; persist();
+    msg.textContent = save.roles.length ? `Đã mở: ${save.roles.map(r => SPECIAL[r].n).join(', ')}.` : 'Tài khoản của bạn chưa được quản trị cấp vai trò đặc biệt.';
+    if (save.roles.length) { save.av.g = 'db'; if (!save.roles.includes(save.av.sp)) save.av.sp = save.roles[0]; buildAvatar(); openAvatar(); }
+  } catch (e) { msg.textContent = 'Nhân vật đặc biệt do quản trị cấp theo vai trò tài khoản OmniHub. Hãy đăng nhập bằng email ở trang chủ OmniHub (cùng trình duyệt) rồi thử lại.'; }
+}
+let avOnClose = null;
+function openAvatar(first) {
+  const a = save.av, g = a.g, sw = (k, arr) => arr.map((c, i) => `<button class="sw${a[k] === i ? ' on' : ''}" data-k="${k}" data-v="${i}" style="background:${c}" aria-label="màu ${i + 1}"></button>`).join('');
+  const chip = (k, v, label, extra = '') => `<button class="chip${a[k] === v ? ' on' : ''}" data-k="${k}" data-v="${v}" ${extra}>${label}</button>`;
+  const hairs = HAIR_OF[g].includes(a.hair) ? a.hair : (a.hair = HAIR_OF[g][0]);
+  const dbLocked = !save.roles.length;
+  panel.open(`<h2>${first ? 'Tạo nhân vật của bạn' : 'Nhân vật của tôi'}</h2>
+  <div class="avs"><b>Nhóm</b><div class="chips">${Object.keys(AVG).map(k => chip('g', k, AVG[k] + (k === 'db' && dbLocked ? ' 🔒' : ''))).join('')}</div></div>
+  ${g === 'db' ? `<div class="avs"><b>Vai trò</b><div class="chips">${Object.keys(SPECIAL).map(k => chip('sp', k, SPECIAL[k].n + (save.roles.includes(k) ? '' : ' 🔒'))).join('')}</div><p class="small" id="avRole">${dbLocked ? 'Nhân vật đặc biệt chỉ dành cho tài khoản được quản trị cấp vai trò.' : ''}</p><div class="row" style="margin-top:4px"><button class="btn alt" id="avChk">🔑 Kiểm tra vai trò tài khoản</button></div></div>` : '<p class="small" id="avRole" hidden></p>'}
+  <div class="avs"><b>Kiểu tóc</b><div class="chips">${HAIR_OF[g].map(k => chip('hair', k, HAIRS[k])).join('')}</div></div>
+  <div class="avs"><b>Khuôn mặt</b><div class="chips">${Object.keys(FACES).map(k => chip('face', k, FACES[k])).join('')}</div></div>
+  <div class="avs"><b>Màu da</b><div class="sws">${sw('skin', SKINS)}</div></div>
+  ${g === 'db' ? '' : `<div class="avs"><b>${g === 'cusi' ? 'Áo' : 'Áo lam'}</b><div class="sws">${sw('top', g === 'cusi' ? TOPS.cusi : TOPS.lam)}</div></div>`}
+  ${g === 'nam' || g === 'nu' ? `<div class="avs"><b>Áo tràng</b><div class="chips">${chip('robe', 0, 'Không mặc')}${chip('robe', 1, 'Mặc áo tràng')}</div>${a.robe ? `<div class="sws">${sw('robeC', ROBES[g])}</div>` : ''}</div>` : ''}
+  ${g === 'cusi' ? `<div class="avs"><b>Quần</b><div class="sws">${sw('pants', PANTS)}</div></div>` : ''}
+  <div class="avs"><b>Phụ kiện</b><div class="chips">${chip('beads', a.beads ? 1 : 0, (a.beads ? '✓ ' : '') + '📿 Tràng hạt', `data-tg="1"`)}${chip('bag', a.bag ? 1 : 0, (a.bag ? '✓ ' : '') + '👜 Túi kinh', `data-tg="1"`)}</div></div>
+  <div class="avs two"><label>Tên hiển thị<input id="avName" maxlength="24" value="${esc(save.name)}" placeholder="Tên của bạn"></label><label>Pháp danh (không bắt buộc)<input id="avPhap" maxlength="24" value="${esc(a.phap || '')}" placeholder="Ví dụ: Diệu Tâm"></label></div>
+  <div class="row"><button class="btn alt" id="avRnd">🎲 Ngẫu nhiên</button><button class="btn" id="avOk">Xong</button></div>`);
+  $('panel').classList.add('avp'); cam.front = true;
+  const pc = $('pc');
+  pc.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
+    const k = b.dataset.k, v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
+    if (b.dataset.tg) a[k] = a[k] ? 0 : 1; else if (k === 'g' && v === 'db' && !save.roles.length) { a.g = 'db'; } else if (k === 'sp' && !save.roles.includes(v)) { $('avRole').hidden = false; $('avRole').textContent = 'Vai trò này cần quản trị cấp cho tài khoản của bạn.'; return; } else a[k] = v;
+    if (k === 'g' && v !== 'db') a.hair = HAIR_OF[v].includes(a.hair) ? a.hair : HAIR_OF[v][0];
+    persist(); buildAvatar(); keepInputs(); openAvatar(first);
+  });
+  const keepInputs = () => { save.name = ($('avName').value.trim() || save.name).slice(0, 24); a.phap = $('avPhap').value.trim().slice(0, 24); };
+  $('avName').oninput = $('avPhap').oninput = () => { keepInputs(); persist(); plateText(); };
+  $('avChk') && ($('avChk').onclick = checkRole);
+  $('avRnd').onclick = () => { const gg = pick(['nam', 'nu', 'cusi']); Object.assign(a, { g: gg, hair: pick(HAIR_OF[gg]), face: pick(Object.keys(FACES)), skin: Math.floor(rnd(0, 4)), top: Math.floor(rnd(0, 4)), robe: Math.random() < .6 ? 1 : 0, robeC: Math.floor(rnd(0, 3)), pants: Math.floor(rnd(0, 3)), beads: Math.random() < .6 ? 1 : 0, bag: Math.random() < .4 ? 1 : 0 }); keepInputs(); persist(); buildAvatar(); openAvatar(first); };
+  $('avOk').onclick = () => { keepInputs(); save.avDone = true; persist(); plateText(); panel.close(); };
+  avOnClose = first ? () => toast('Chạm ☸ Hành động để lạy Phật, ngồi thiền, dâng hoa… 🙏', 3600) : null;
+}
+$('bAvatar').addEventListener('click', () => { if (!$('splash').hidden || player.busy) return; actStop(true); openAvatar(false); });
+
+/* =====================================================================
    10. SỔ CẦU AN CỦA TÔI
    ===================================================================== */
 function openBook() {
-  panel.open(`<h2>Sổ cầu an của tôi</h2><p><b>${esc(save.name || 'Phật tử')}</b> · 🙏 ${save.incense} lần thắp hương · 🪷 Tâm an cao nhất: <b>${save.bestCalm}</b></p>
+  panel.open(`<h2>Sổ cầu an của tôi</h2><p><b>${esc(save.name || 'Phật tử')}</b>${save.av.phap ? ` · Pháp danh ${esc(save.av.phap)}` : ''} · ${esc(AVG[avGroup()])} · 🙏 ${save.incense} lần thắp hương · 🪷 Tâm an cao nhất: <b>${save.bestCalm}</b></p>
+  <p class="small">🙇 ${save.stats.lay} lần lạy Phật · 🧘 ${mmss(save.stats.thien)} ngồi thiền · 📿 ${save.stats.niem} câu niệm Phật · 💐 ${save.stats.hoa} lần dâng hoa · 🚶 ${mmss(save.stats.kinh)} kinh hành · 📜 ${save.stats.nghe} buổi nghe pháp</p>
   <h3 style="margin:10px 0 4px;color:#ffe2a6;font-weight:500">Lời cầu đã viết</h3><div class="list">${save.wishes.map(w => `<div>${esc(w.text)}<small>${w.place === 'pond' ? '🪷 Đèn hoa đăng' : '🎗️ Dải lụa đỏ'} · ${esc(w.date)}</small></div>`).join('') || '<div>Chưa có lời cầu nào.</div>'}</div>
   <h3 style="margin:10px 0 4px;color:#ffe2a6;font-weight:500">Quẻ đã xin</h3><div class="list">${save.fortunes.map(f => `<div>Quẻ số ${f.n}: ${esc(f.text)}<small>${esc(f.date)}</small></div>`).join('') || '<div>Chưa xin quẻ.</div>'}</div>
   <p class="small">Dữ liệu chỉ lưu trên máy này. Lời cầu là để tâm an, không hứa hẹn điều gì chắc chắn.</p><div class="row"><button class="btn alt" id="bkx">Đóng</button><button class="btn" id="bks">📤 Chia sẻ ảnh</button></div>`);
@@ -949,16 +1250,17 @@ $('bMute').textContent = save.muted ? '🔇' : '🔊';
 /* =====================================================================
    12. MÀN CHÀO & HƯỚNG DẪN 3 BƯỚC
    ===================================================================== */
-const TUT = [['🕹️', 'Đi lại', isTouch ? 'Đặt ngón tay ở nửa trái màn hình rồi kéo để đi. Kéo nửa phải để xoay góc nhìn.' : 'Dùng phím W A S D hoặc các phím mũi tên để đi. Kéo chuột để xoay góc nhìn.'], ['🏮', 'Tới gần', 'Đi tới lư hương, gác chuông, mõ trong chánh điện, cây bồ đề, hồ sen hay bàn xin quẻ.'], ['🙏', 'Chạm nút hành động', 'Khi nút vàng hiện lên ở góc phải, chạm một lần để bắt đầu. Thong thả thôi nhé.']];
+const TUT = [['🕹️', 'Đi lại', isTouch ? 'Đặt ngón tay ở nửa trái màn hình rồi kéo để đi. Kéo nửa phải để xoay góc nhìn.' : 'Dùng phím W A S D hoặc các phím mũi tên để đi. Kéo chuột để xoay góc nhìn.'], ['🏮', 'Tới gần', 'Đi tới lư hương, gác chuông, mõ trong chánh điện, cây bồ đề, hồ sen hay bàn xin quẻ: nút vàng hiện lên, chạm một lần để bắt đầu.'], ['☸', 'Hành động', 'Nút ☸ Hành động: lạy Phật, ngồi thiền, niệm Phật, dâng hoa, đi kinh hành, ngồi nghe pháp… Nút 👤 để đổi nhân vật của bạn.']];
 let tutI = 0; const tutShow = () => { const [i, h, p] = TUT[tutI]; $('tIco').textContent = i; $('tH').textContent = `${tutI + 1}. ${h}`; $('tP').textContent = p; $('tD').textContent = TUT.map((_, k) => k === tutI ? '●' : '○').join(''); $('tNext').textContent = tutI === TUT.length - 1 ? 'Bắt đầu' : 'Tiếp'; };
-const tutEnd = () => { $('tut').classList.remove('on'); save.tutDone = true; persist(); player.busy = false; };
+const tutEnd = () => { $('tut').classList.remove('on'); save.tutDone = true; persist(); player.busy = false; if (!save.avDone) openAvatar(true); }; // lần đầu: tạo nhân vật ngay sau hướng dẫn
 $('tSkip').onclick = tutEnd; $('tNext').onclick = () => { if (++tutI >= TUT.length) tutEnd(); else tutShow(); };
 $('nameIn').value = save.name;
 $('bEnter').disabled = false; $('bEnter').textContent = 'Vào chùa';
 $('bEnter').onclick = () => {
   const n = $('nameIn').value.trim().slice(0, 24); save.name = dirty(n) ? '' : n; persist(); Audio.start(); Audio.bell(.6);
   $('splash').hidden = true; $('splash').style.display = 'none';
-  if (!save.tutDone) { player.busy = true; tutI = 0; tutShow(); $('tut').classList.add('on'); }
+  if (!save.tutDone) { player.busy = true; tutI = 0; tutShow(); $('tut').classList.add('on'); } else if (!save.avDone) openAvatar(true);
+  plateText();
   setTimeout(() => $('hint').style.opacity = 0, 7000);
 };
 $('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('bEnter').click(); });
@@ -973,7 +1275,7 @@ cam.pos.set(0, 6, 48); counterText();
 function loop() {
   if (!running) return; requestAnimationFrame(loop);
   const dt = Math.min(clock.getDelta(), .05), time = clock.elapsedTime;
-  World.update(dt, time); updatePlayer(dt, time); updateCamera(dt); updateAI(dt, time); updateSpots(); updateBubbles(dt);
+  World.update(dt, time); updateAct(); updatePlayer(dt, time); updateCamera(dt); updateAI(dt, time); updateSpots(); updateBubbles(dt); updateHead();
   if (Math.random() < dt * 2.5) emitSmoke(BURN.x + rnd(-.3, .3), 1.55, BURN.z + rnd(-.3, .3), .9); // khói nền từ lư hương
   updateSmoke(dt, time); updateFlies(dt, time); updatePetals(dt, time); updateSticks(dt, time); updateRibbons(time); updateLanterns(dt, time); updateBloom(dt); updateCranes(dt, time);
   bellSwing *= Math.pow(.25, dt); bellGroup.rotation.z = Math.sin(time * 5) * .12 * bellSwing; strikerT = Math.max(0, strikerT - dt * 3); striker.position.x = BELLP.x - 1.8 + Math.sin(strikerT * Math.PI) * .7;
@@ -982,7 +1284,7 @@ function loop() {
 }
 loop();
 // tay cầm kiểm thử (không ảnh hưởng người chơi)
-window.LCA = { bloom, bloomS, cranesFly, flight, cranes, blessingFor, player, save, A, SPOTS, go: (x, z) => { player.pos.set(x, groundH(x, z), z); }, doAction, share, actIncense, actBell, actMo, actWish, actQue, openBook, dirty, World, skipNight: () => World.skip(1), keys, current: () => current && current.id, renderer, sticks, rib, hd, visitors: () => BASE + visitors + 1 };
+window.LCA = { cam, Act, rig, pose, POSE, startAction, actStop, openAvatar, buildAvatar, walkTo, ACTIONS, altarFlowers, bloom, bloomS, cranesFly, flight, cranes, blessingFor, player, save, A, SPOTS, go: (x, z) => { player.pos.set(x, groundH(x, z), z); }, doAction, share, actIncense, actBell, actMo, actWish, actQue, openBook, dirty, World, skipNight: () => World.skip(1), keys, current: () => current && current.id, renderer, sticks, rib, hd, visitors: () => BASE + visitors + 1 };
 window.dispatchEvent(new Event('lca-ready'));
 </script>
 <script>
