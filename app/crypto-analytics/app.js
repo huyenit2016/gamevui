@@ -331,6 +331,20 @@ $('addf').addEventListener('submit', async e => {
   if (!S.tick[s]) return alert(`Không tìm thấy ${s} trên Binance USDT-M Futures.`);
   S.watch.push(s); $('addi').value = ''; persist(); await seedOI(s); selectSym(s);
 });
+// nút ⛶ toàn màn hình cho heatmap / biểu đồ
+const resizePlots = () => setTimeout(() => window.Plotly && document.querySelectorAll('.js-plotly-plot').forEach(el => el.offsetParent && Plotly.Plots.resize(el)), 80);
+function setFs(card, on) {
+  card.classList.toggle('fs', on); document.body.classList.toggle('fsOn', on);
+  const b = card.querySelector('.fsb'); b.textContent = on ? '✕' : '⛶'; b.title = on ? 'Thoát toàn màn hình' : 'Toàn màn hình';
+  if (on) { if (card.id === 'hmCard') renderHeatmap(); else renderChart(); } resizePlots();
+}
+document.querySelectorAll('.fsb').forEach(b => b.addEventListener('click', async () => {
+  const card = $(b.dataset.fs), on = !card.classList.contains('fs');
+  if (on) { setFs(card, true); try { if (card.requestFullscreen) await card.requestFullscreen(); else if (card.webkitRequestFullscreen) card.webkitRequestFullscreen(); } catch (e) {} }
+  else { if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch (e) {} } setFs(card, false); }
+}));
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.querySelectorAll('.card.fs').forEach(c => setFs(c, false)); else resizePlots(); });
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); document.querySelectorAll('.card.fs').forEach(c => setFs(c, false)); });
 window.addEventListener('resize', () => { clearTimeout(window.__rz); window.__rz = setTimeout(() => window.Plotly && document.querySelectorAll('.js-plotly-plot').forEach(el => el.offsetParent && Plotly.Plots.resize(el)), 200); });
 
 /* ===== 13. KHỞI ĐỘNG + CHU KỲ LÀM MỚI ===== */

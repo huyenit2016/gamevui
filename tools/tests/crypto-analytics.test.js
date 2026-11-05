@@ -64,6 +64,11 @@ async function mockBinance(page) {
       t(info.types.join() === 'heatmap,scatterlines,scattermarkers,scattermarkers' && info.nz === 140 && info.nt > 0, `heatmap ${w}: 140 bin × ${info.nt} nến, có đường giá + dấu ✕`);
     }
     t(/ΔOI/.test(await p.textContent('#hmNote')), 'ghi chú heatmap nói rõ mô hình dựa trên ΔOI');
+    const w0 = await p.evaluate(() => document.getElementById('hm').clientWidth); t(w0 >= vp.width - 70, `heatmap rộng gần hết màn hình (${w0}px / ${vp.width}px)`);
+    await p.click('#hmCard .fsb'); await p.waitForTimeout(900);
+    const fs = await p.evaluate(() => { const c = document.getElementById('hmCard').getBoundingClientRect(), h = document.getElementById('hm').getBoundingClientRect(); return [document.getElementById('hmCard').classList.contains('fs'), Math.round(c.width), Math.round(c.height), Math.round(h.height)]; });
+    t(fs[0] && fs[1] >= vp.width - 2 && fs[3] > vp.height * .6, 'heatmap toàn màn hình ' + fs); if (process.env.SHOT_DIR) await p.screenshot({ path: `${process.env.SHOT_DIR}/ca-fs-${vp.width}.png` });
+    await p.click('#hmCard .fsb'); await p.waitForTimeout(500); t(!(await p.evaluate(() => document.getElementById('hmCard').classList.contains('fs'))), 'thoát toàn màn hình');
     // thẻ gợi ý
     await p.waitForSelector('.ftab tbody tr', { timeout: 15000 });
     t(await p.$$eval('.ftab tbody tr', a => a.length) === 6, 'thẻ gợi ý có đủ 6 yếu tố');
@@ -81,6 +86,8 @@ async function mockBinance(page) {
     let tr = await p.evaluate(() => (document.getElementById('chart').data || []).map(x => x.yaxis));
     t(['y', 'y2', 'y3', 'y4', 'y5'].every(a => tr.includes(a)), 'biểu đồ đủ 5 ô (giá, volume, OI, funding, RSI)');
     t(await p.evaluate(() => (document.getElementById('chart').layout.shapes || []).some(s => s.line && s.line.color === '#ff3b30')), 'biểu đồ có đường đỏ tham chiếu');
+    await p.click('#chCard .fsb'); await p.waitForTimeout(1200); const cf = await p.evaluate(() => [document.getElementById('chCard').classList.contains('fs'), Math.round(document.getElementById('chart').getBoundingClientRect().height)]);
+    t(cf[0] && cf[1] > vp.height * .6, 'biểu đồ toàn màn hình ' + cf); if (process.env.SHOT_DIR) await p.screenshot({ path: `${process.env.SHOT_DIR}/ca-chfs-${vp.width}.png` }); await p.keyboard.press('Escape'); await p.waitForTimeout(400); t(await p.evaluate(() => !document.getElementById('chCard').classList.contains('fs') && !document.fullscreenElement), 'Esc thoát toàn màn hình biểu đồ');
     await p.click('#intBtns [data-i="15m"]'); await p.waitForTimeout(800);
     t(await p.evaluate(() => CAT.S.int === '15m' && JSON.parse(localStorage.getItem('gv_crypto_analytics')).int === '15m'), 'đổi khung 15M và nhớ trong localStorage');
     await p.check('#bbChk'); await p.waitForTimeout(800);

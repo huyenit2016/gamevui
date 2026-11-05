@@ -42,8 +42,8 @@
 
   <!-- ===== TAB BẢN ĐỒ THANH LÝ ===== -->
   <div id="pg-map" class="page">
-    <section class="card">
-      <div class="ch"><h2>Heatmap thanh lý</h2><span class="bd est">ƯỚC TÍNH</span><span class="bd real">+ giá &amp; thanh lý THỰC</span></div>
+    <section class="card" id="hmCard">
+      <div class="ch"><h2>Heatmap thanh lý</h2><span class="bd est">ƯỚC TÍNH</span><span class="bd real">+ giá &amp; thanh lý THỰC</span><button class="fsb" type="button" data-fs="hmCard" title="Toàn màn hình" aria-label="Toàn màn hình">⛶</button></div>
       <div class="seg" id="winBtns"></div>
       <div id="hm" class="plot tall"></div>
       <p class="note" id="hmNote"></p>
@@ -74,8 +74,8 @@
 
   <!-- ===== TAB BIỂU ĐỒ ===== -->
   <div id="pg-chart" class="page" hidden>
-    <section class="card">
-      <div class="ch"><h2>Biểu đồ</h2><span class="bd real">THỰC</span></div>
+    <section class="card" id="chCard">
+      <div class="ch"><h2>Biểu đồ</h2><span class="bd real">THỰC</span><button class="fsb" type="button" data-fs="chCard" title="Toàn màn hình" aria-label="Toàn màn hình">⛶</button></div>
       <div class="row">
         <div class="seg" id="intBtns"></div>
         <label class="chk"><input type="checkbox" id="bbChk"> Bollinger 20</label>
