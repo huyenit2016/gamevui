@@ -44,6 +44,8 @@ select,input{background:var(--card2);color:var(--fg);border:1px solid var(--line
 .card.fs .plot{height:calc(100vh - 150px)!important;height:calc(100dvh - 150px)!important}
 #chCard.fs .plot{height:calc(100vh - 170px)!important;height:calc(100dvh - 170px)!important}
 .card:fullscreen{background:var(--card)}
+.card.fs .ch{position:relative;padding-right:44px}.card.fs .fsb{position:absolute;right:0;top:0} /* nút ✕ luôn ở góc phải, không xuống dòng */
+@media (max-width:600px){.card.fs{padding:6px 6px max(6px,env(safe-area-inset-bottom))}.card.fs .ch h2{font-size:14px}.card.fs .seg button{padding:4px 8px}.card.fs .plot{height:calc(100dvh - 120px)!important}.card.fs .note{display:none}}
 body.fsOn{overflow:hidden}
 .note{color:var(--mut);font-size:12px;margin:6px 0 0}
 .tbl{overflow-x:auto;max-height:420px}

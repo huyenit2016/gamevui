@@ -229,7 +229,8 @@ function renderBias() {
     <p class="disc">Các mức tính tự động để tham khảo, không phải điểm đặt lệnh bán được khuyến nghị.${b.below ? `<br>Phía dưới: cụm thanh lý Long ước tính mạnh nhất ở ${fP(b.below[0])} (${fUsd(b.below[1] * 1e6)}).` : ''}</p></div></div>
     <p class="disc">Chưa được backtest, không phải lời khuyên đầu tư hay tín hiệu vào lệnh.</p>`;
 }
-const refShapes = (x0, x1) => { const sh = [], an = []; levels.above.forEach(([n, p]) => { sh.push({ type: 'line', xref: 'x', yref: 'y', x0, x1, y0: p, y1: p, line: { color: '#ff3b30', width: 1.4, dash: 'dash' } }); an.push({ x: x1, y: p, xref: 'x', yref: 'y', text: `<b>${fP(p)} ${esc(n.replace(/ \(.*\)$/, ''))}</b>`, showarrow: false, xanchor: 'right', yanchor: 'bottom', font: { color: '#ff3b30', size: 10 } }); }); return { sh, an }; };
+const isMob = () => innerWidth < 600; // màn hẹp: thanh màu nằm ngang dưới đáy, lề trục nhỏ, nhãn mức chỉ ghi giá
+const refShapes = (x0, x1) => { const sh = [], an = []; levels.above.forEach(([n, p]) => { sh.push({ type: 'line', xref: 'x', yref: 'y', x0, x1, y0: p, y1: p, line: { color: '#ff3b30', width: 1.4, dash: 'dash' } }); an.push({ x: x1, y: p, xref: 'x', yref: 'y', text: isMob() ? `<b>${fP(p)}</b>` : `<b>${fP(p)} ${esc(n.replace(/ \(.*\)$/, ''))}</b>`, showarrow: false, xanchor: 'right', yanchor: 'bottom', font: { color: '#ff3b30', size: 10 } }); }); return { sh, an }; };
 
 /* ===== 8. ĐỌC TÍN HIỆU (học tập) ===== */
 function renderRead() {
@@ -252,11 +253,11 @@ async function renderHeatmap(force) {
     $('hmNote').textContent = `Mô hình dựa trên ${hm.oi_based ? 'phần OI tăng thêm (ΔOI)' : '3% volume giao dịch (thiếu OI lịch sử)'} · ${hm.times.length} nến ${WINDOWS[w][0]} · đòn bẩy 5–100x, MMR 0,5% · đơn vị: triệu USD. Dấu ✕ đỏ = Long bị thanh lý thật, ✕ xanh = Short bị thanh lý thật.`;
     if (!window.Plotly || S.page !== 'map') return;
     const t0 = +hm.times[0], L = (S.liq[s] || []).filter(x => x.t >= t0), x1 = hm.times[hm.times.length - 1], ref = refShapes(hm.times[0], x1);
-    const tr = [{ type: 'heatmap', x: hm.times, y: hm.prices, z: hm.z, colorscale: 'Viridis', zmin: 0, zmax: (hm.max || 1) * .6, colorbar: { title: { text: 'triệu $', side: 'right' }, thickness: 10, len: .9 }, hovertemplate: '%{y:.4~f}<br>%{z:.2f} triệu $<extra></extra>' },
+    const tr = [{ type: 'heatmap', x: hm.times, y: hm.prices, z: hm.z, colorscale: 'Viridis', zmin: 0, zmax: (hm.max || 1) * .6, colorbar: isMob() ? { orientation: 'h', x: .5, xanchor: 'center', y: -.07, yanchor: 'top', thickness: 8, len: 1, tickfont: { size: 9 }, title: { text: 'triệu $', side: 'right', font: { size: 9 } } } : { title: { text: 'triệu $', side: 'right' }, thickness: 10, len: .9 }, hovertemplate: '%{y:.4~f}<br>%{z:.2f} triệu $<extra></extra>' },
       { type: 'scatter', mode: 'lines', x: hm.times, y: hm.close, line: { color: '#fff', width: 1.6 }, hovertemplate: 'Giá %{y}<extra></extra>' },
       { type: 'scatter', mode: 'markers', x: L.filter(x => x.side === 'long').map(x => new Date(x.t)), y: L.filter(x => x.side === 'long').map(x => x.price), marker: { symbol: 'x', color: '#ff4d4f', size: 8 }, hovertemplate: 'Long bị thanh lý %{y}<extra></extra>' },
       { type: 'scatter', mode: 'markers', x: L.filter(x => x.side === 'short').map(x => new Date(x.t)), y: L.filter(x => x.side === 'short').map(x => x.price), marker: { symbol: 'x', color: '#16c784', size: 8 }, hovertemplate: 'Short bị thanh lý %{y}<extra></extra>' }];
-    Plotly.react('hm', tr, dark(plotH($('hm')), { hovermode: 'closest', margin: { l: 64, r: 8, t: 8, b: 30 }, xaxis: { gridcolor: '#1a2233' }, yaxis: { gridcolor: '#1a2233', range: [hm.prices[0], hm.prices[hm.prices.length - 1]] }, shapes: ref.sh, annotations: ref.an }), PCFG);
+    Plotly.react('hm', tr, dark(plotH($('hm')), { hovermode: 'closest', margin: isMob() ? { l: 40, r: 4, t: 4, b: 62 } : { l: 64, r: 8, t: 8, b: 30 }, xaxis: { gridcolor: '#1a2233', tickfont: { size: isMob() ? 9 : 11 } }, yaxis: { gridcolor: '#1a2233', tickfont: { size: isMob() ? 9 : 11 }, range: [hm.prices[0], hm.prices[hm.prices.length - 1]] }, shapes: ref.sh, annotations: ref.an }), PCFG);
   } catch (e) { if (tok === hmTok) $('hmNote').innerHTML = `<span class="err">Không tải được dữ liệu heatmap: ${esc(e.message)}</span>`; }
 }
 
@@ -287,7 +288,7 @@ async function renderChart() {
     if (S.bb) { const b = boll(d.c); tr.push({ type: 'scatter', mode: 'lines', x: d.t, y: b.up, line: { color: 'rgba(200,200,200,.5)', width: 1, dash: 'dot' }, name: 'BB trên', yaxis: 'y' }, { type: 'scatter', mode: 'lines', x: d.t, y: b.dn, line: { color: 'rgba(200,200,200,.5)', width: 1, dash: 'dot' }, name: 'BB dưới', yaxis: 'y' }); }
     const ax = (dom, title) => ({ domain: dom, gridcolor: '#1a2233', title: { text: title, font: { size: 10 } }, fixedrange: true });
     const shapes = ref.sh.concat([30, 70].map(v => ({ type: 'line', xref: 'x', yref: 'y5', x0: d.t[0], x1, y0: v, y1: v, line: { color: '#555', width: 1, dash: 'dot' } })));
-    Plotly.react('chart', tr, dark(plotH($('chart')), { margin: { l: 58, r: 10, t: 6, b: 28 }, xaxis: { rangeslider: { visible: false }, gridcolor: '#1a2233', anchor: 'y5' },
+    Plotly.react('chart', tr, dark(plotH($('chart')), { margin: isMob() ? { l: 40, r: 4, t: 4, b: 26 } : { l: 58, r: 10, t: 6, b: 28 }, xaxis: { rangeslider: { visible: false }, gridcolor: '#1a2233', anchor: 'y5' },
       yaxis: ax([.47, 1], 'Giá'), yaxis2: ax([.36, .45], 'Vol'), yaxis3: ax([.25, .34], 'OI'), yaxis4: ax([.13, .23], 'Fund %'), yaxis5: Object.assign(ax([0, .11], 'RSI'), { range: [0, 100] }), shapes, annotations: ref.an }), PCFG);
   } catch (e) { if (tok === chTok) $('chart').innerHTML = `<p class="err">Không tải được biểu đồ: ${esc(e.message)}</p>`; }
 }
@@ -334,13 +335,15 @@ $('addf').addEventListener('submit', async e => {
 // nút ⛶ toàn màn hình cho heatmap / biểu đồ
 const resizePlots = () => setTimeout(() => window.Plotly && document.querySelectorAll('.js-plotly-plot').forEach(el => el.offsetParent && Plotly.Plots.resize(el)), 80);
 function setFs(card, on) {
+  if (!on && screen.orientation && screen.orientation.unlock) try { screen.orientation.unlock(); } catch (e) {}
   card.classList.toggle('fs', on); document.body.classList.toggle('fsOn', on);
   const b = card.querySelector('.fsb'); b.textContent = on ? '✕' : '⛶'; b.title = on ? 'Thoát toàn màn hình' : 'Toàn màn hình';
   if (on) { if (card.id === 'hmCard') renderHeatmap(); else renderChart(); } resizePlots();
 }
 document.querySelectorAll('.fsb').forEach(b => b.addEventListener('click', async () => {
   const card = $(b.dataset.fs), on = !card.classList.contains('fs');
-  if (on) { setFs(card, true); try { if (card.requestFullscreen) await card.requestFullscreen(); else if (card.webkitRequestFullscreen) card.webkitRequestFullscreen(); } catch (e) {} }
+  if (on) { setFs(card, true); try { if (card.requestFullscreen) await card.requestFullscreen(); else if (card.webkitRequestFullscreen) card.webkitRequestFullscreen(); } catch (e) {}
+    if (isMob() && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').then(resizePlots).catch(() => {}); } // điện thoại: xoay ngang cho biểu đồ rộng (Android; iPhone bỏ qua)
   else { if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch (e) {} } setFs(card, false); }
 }));
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.querySelectorAll('.card.fs').forEach(c => setFs(c, false)); else resizePlots(); });
