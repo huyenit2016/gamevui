@@ -17,6 +17,11 @@ const BOOKS = process.env.BOOKS || path.join(__dirname, 'fixtures');
     const info = await p.evaluate(() => ({ t: document.querySelector('.tt').textContent, pages: GV.abT.st.bk.pages.length, first: document.querySelector('.s').textContent.trim().slice(0, 40) }));
     console.log(f, '→', JSON.stringify(info));
   }
+  // PDF ảnh quét → OCR tiếng Việt
+  { const fp = path.join(BOOKS, 'scan.pdf'); await p.evaluate(() => { document.querySelector('.rd').hidden = true; document.querySelector('.home').hidden = false; }); await p.setInputFiles('.fi', fp);
+    await p.waitForSelector('.rd:not([hidden])', { timeout: 180000 }); const t = await p.evaluate(() => GV.abT.st.bk.pages.join('\n'));
+    console.log('OCR PDF quét:', /bể dâu/.test(t) && /hoa sữa/.test(t) ? 'ĐẠT' : 'LỖI → ' + JSON.stringify(t.slice(0, 200)));
+    console.log('cleanOcr:', await p.evaluate(() => GV.abT.cleanOcr('Xin chào các\nbạn thân mến-\nthương\n\n12\n\nĐoạn hai').replace(/\n/g, '|')) === 'Xin chào các bạn thân mến thương|Đoạn hai' ? 'ĐẠT' : 'LỖI'); }
   // mẫu: lật trang tự đọc + tô sáng
   await p.evaluate(() => { document.querySelector('.rbk').click(); }); console.log('errs trước demo:', errs.join(' || ') || 'none', '| home hidden =', await p.evaluate(() => document.querySelector('.home').hidden), await p.evaluate(() => document.querySelector('.home').innerHTML.slice(0, 80))); await p.evaluate(() => GV.abT.open(GV.abT.lib.find(b => b.type === 'pdf'))); await p.waitForSelector('.s'); const n0 = await spoken();
   await p.click('.pl'); await p.waitForTimeout(400); console.log('phát → đọc câu, có tô sáng:', (await spoken()) > n0, await p.locator('.s.cur').count());
@@ -30,5 +35,8 @@ const BOOKS = process.env.BOOKS || path.join(__dirname, 'fixtures');
   await p.evaluate(() => { GV.store.set('audiobook', Object.assign(GV.store.get('audiobook', {}), { voice: 'vieneu', vnUrl: 'http://vn.test' })); });
   await p.reload(); await p.waitForTimeout(500); await p.evaluate(() => { location.hash = '#/tool/audiobook'; }); await p.waitForTimeout(500);
   await p.click('.demo'); await p.click('.pl'); await p.waitForTimeout(800); console.log('VieNeu gọi máy chủ:', vnCalls >= 1);
+  { const bodies = []; await p.unroute('http://vn.test/tts'); await p.route('http://vn.test/tts', r => { bodies.push(r.request().postData()); r.fulfill({ status: 200, contentType: 'audio/wav', headers: { 'access-control-allow-origin': '*' }, body: Buffer.from('UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=', 'base64') }); });
+    await p.click('.pl'); await p.selectOption('.vs', 'vieneu:Minh Quân'); await p.waitForTimeout(1200); await p.selectOption('.vs', 'vieneu:Adam bựa'); await p.waitForTimeout(1200);
+    console.log('chọn giọng VieNeu:', bodies.some(x => /Minh Quân/.test(x)) && bodies.some(x => /Adam bựa/.test(x)) ? 'ĐẠT' : 'LỖI ' + JSON.stringify(bodies.slice(0, 3))); }
   console.log(errs.filter(e => !/vn\.test|Audio|play|media/i.test(e)).join('\n') || 'no errors'); await b.close(); srv.close();
 })();

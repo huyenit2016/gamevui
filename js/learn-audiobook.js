@@ -3,7 +3,7 @@
   const $ = (r, s) => r.querySelector(s), esc = GV.esc;
   const loadScript = src => new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('Không tải được thư viện đọc tệp.')); document.head.appendChild(s); });
   const libs = {};
-  const need = k => libs[k] || (libs[k] = ({ pdf: () => loadScript('vendor/pdf.min.js'), docx: () => loadScript('vendor/mammoth.browser.min.js'), zip: () => loadScript('vendor/jszip.min.js') })[k]());
+  const need = k => libs[k] || (libs[k] = ({ pdf: () => loadScript('vendor/pdf.min.js'), docx: () => loadScript('vendor/mammoth.browser.min.js'), zip: () => loadScript('vendor/jszip.min.js'), ocr: () => loadScript('vendor/ocr/tesseract.min.js') })[k]());
   /* ---------- kho sách (IndexedDB) ---------- */
   const idb = (() => { let db = null; const open = () => db ? Promise.resolve(db) : new Promise((ok, no) => { try { const r = indexedDB.open('gv_books', 1); r.onupgradeneeded = () => r.result.createObjectStore('books', { keyPath: 'id' }); r.onsuccess = () => ok(db = r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } });
     const tx = (m, f) => open().then(d => new Promise((ok, no) => { const t = d.transaction('books', m), s = t.objectStore('books'), r = f(s); t.oncomplete = () => ok(r && r.result); t.onerror = () => no(t.error); }));
@@ -27,7 +27,28 @@
       lines.forEach(l => { if (prev) { const gap = prev.y - l.y; if (gap > mh * 1.9) out += '\n'; else if (/-$/.test(prev.t)) out = out.replace(/-$/, ''); else out += ' '; } out += l.t; prev = l; });
       pages.push(out.replace(/ +\n/g, '\n').trim()); prog && prog(i, N);
     }
-    return { title, pages, scanned: pages.every(p => p.length < 20) };
+    if (pages.every(p => p.length < 20)) return { title, pages: await ocrPDF(pdf, N, prog), scanned: false, ocr: true };
+    return { title, pages, scanned: false };
+  }
+  /* ---------- OCR tiếng Việt cho PDF ảnh quét (Tesseract.js + vie.traineddata, chạy ngay trong trình duyệt) ---------- */
+  function cleanOcr(t) { // văn bản OCR → các đoạn sạch: nối dòng, nối từ bị gạch nối, bỏ số trang lẻ
+    const out = []; let cur = [];
+    const flush = () => { if (cur.length) { let s = ''; cur.forEach(l => { s = (s ? s.replace(/(\p{L})-$/u, '$1') + ' ' : '') + l; }); out.push(s.replace(/\s+/g, ' ').trim()); cur = []; } };
+    String(t).normalize('NFC').replace(/\r/g, '').split('\n').forEach(l => { l = l.replace(/[|¦]/g, ' ').replace(/\s+/g, ' ').trim(); if (!l) { flush(); return; } if (/^[\d\s.\-–—]{1,6}$/.test(l)) return; cur.push(l); });
+    flush(); return out.filter(p => /\p{L}/u.test(p)).join('\n');
+  }
+  async function ocrPDF(pdf, N, prog) {
+    await need('ocr'); const base = new URL('vendor/ocr/', location.href).href, pages = [];
+    const w = await Tesseract.createWorker('vie', 1, { workerPath: base + 'worker.min.js', corePath: base, langPath: base, gzip: true, workerBlobURL: false });
+    try {
+      for (let i = 1; i <= N; i++) {
+        prog && prog(i - 1, N, 'ocr');
+        const pg = await pdf.getPage(i), v1 = pg.getViewport({ scale: 1 }), v = pg.getViewport({ scale: Math.max(1, Math.min(3, 1700 / v1.width)) }), c = document.createElement('canvas'); c.width = Math.round(v.width); c.height = Math.round(v.height);
+        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); await pg.render({ canvasContext: g, viewport: v }).promise;
+        const r = await w.recognize(c); pages.push(cleanOcr(r.data.text)); c.width = c.height = 1;
+      }
+    } finally { try { await w.terminate(); } catch (e) {} }
+    prog && prog(N, N, 'ocr'); return pages;
   }
   async function readDOCX(buf) { await need('docx'); const r = await mammoth.extractRawText({ arrayBuffer: buf }); return { title: '', pages: paginate(r.value) }; }
   const htmlText = html => { const d = new DOMParser().parseFromString(html, 'text/html'); d.querySelectorAll('script,style,nav').forEach(e => e.remove()); const out = []; d.body.querySelectorAll('h1,h2,h3,h4,p,li,blockquote,div').forEach(e => { if (e.querySelector('p,li,div,h1,h2,h3,blockquote')) return; const t = e.textContent.replace(/\s+/g, ' ').trim(); if (t) out.push(t); }); return out.length ? out.join('\n') : d.body.textContent; };
@@ -50,7 +71,6 @@
     else if (['html', 'htm', 'xhtml'].includes(ext)) r = { pages: paginate(htmlText(await f.text())) };
     else if (ext === 'doc') throw new Error('Định dạng .doc cũ chưa hỗ trợ – hãy lưu lại thành .docx hoặc PDF.');
     else throw new Error('Chưa hỗ trợ định dạng .' + ext + ' (dùng PDF, DOCX, EPUB, TXT, HTML).');
-    if (r.scanned) throw new Error('PDF này là ảnh quét, không có chữ để đọc (cần OCR).');
     r.pages = r.pages.filter(Boolean); if (!r.pages.length) throw new Error('Không tìm thấy chữ trong tệp.');
     return { id: 'b' + Date.now().toString(36), title: (r.title || base).slice(0, 120), pages: r.pages, pos: { p: 0, s: 0 }, added: Date.now(), type: ext };
   }
@@ -58,9 +78,9 @@
   const splitSentences = para => { const out = []; String(para).split(/(?<=[.!?…;:])\s+/).forEach(s => { s = s.trim(); if (!s) return; while (s.length > 220) { let k = s.lastIndexOf(',', 200); if (k < 60) k = s.lastIndexOf(' ', 200); if (k < 40) k = 200; out.push(s.slice(0, k + 1).trim()); s = s.slice(k + 1).trim(); } if (s) out.push(s); }); return out; };
 
   GV.register({
-    id: 'audiobook', type: 'tool', cat: 'Học tập', name: 'Sách nói – nghe ebook', icon: '🎧', desc: 'Tải lên PDF, Word, EPUB hoặc TXT rồi nghe: lật sang trang nào, hệ thống tự động đọc trang đó. Tô sáng câu đang đọc, đổi giọng, tốc độ, lưu vị trí.',
+    id: 'audiobook', type: 'tool', cat: 'Học tập', name: 'Sách nói – nghe ebook', icon: '🎧', desc: 'Sách nói tiếng Việt: tải PDF (kể cả PDF ảnh quét – tự nhận dạng chữ OCR), Word, EPUB hoặc TXT rồi nghe, có giọng VieNeu Adam bựa / Minh Quân: lật sang trang nào, hệ thống tự động đọc trang đó. Tô sáng câu đang đọc, đổi giọng, tốc độ, lưu vị trí.',
     mount(el) {
-      const st = Object.assign({ rate: 1, voice: '', size: 19, theme: 'cream', auto: true, vnUrl: '', vnVoice: '' }, GV.store.get('audiobook', {}));
+      const st = Object.assign({ rate: 1, voice: '', size: 19, theme: 'cream', auto: true, vnUrl: '', vnVoice: 'Adam bựa' }, GV.store.get('audiobook', {}));
       let lib = [], bk = null, pg = 0, si = 0, sents = [], playing = false, tok = 0, dead = false, voices = [], wl = null;
       const saveSt = () => GV.store.set('audiobook', st);
       el.innerHTML = `<style>.ak{width:100%;max-width:760px;font-family:inherit}body.ingame .ak{flex:1;min-height:0;display:flex;flex-direction:column}body.ingame .ak .rd{flex:1;min-height:0;height:auto}body.ingame .ak .home{overflow:auto}.ak .drop{border:2px dashed var(--line);border-radius:18px;padding:22px;text-align:center;cursor:pointer;background:var(--md-sc-low,#211f23)}.ak .drop.on{border-color:var(--md-primary,#D0BCFF)}.ak .bkl{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--md-sc-high,#2b292d);margin:6px 0;cursor:pointer;text-align:left}.ak .bkl .pr{height:4px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}.ak .bkl .pr i{display:block;height:100%;background:var(--ok)}.ak .rd{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;height:min(80vh,760px);position:relative}.ak .rd.cream{background:#f6efdd;color:#2b2823}.ak .rd.white{background:#fff;color:#222}.ak .rd.dark{background:#17181a;color:#d9d6cf}.ak .hd{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-size:13px;opacity:.75;gap:8px}.ak .hd b{flex:1;text-align:center;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ak .hd button,.ak .ctl button,.ak .ctl select{background:none;border:0;color:inherit;font:inherit;cursor:pointer}.ak .tx{position:relative;flex:1;min-height:0;overflow-y:auto;padding:6px 20px 24px;font-family:Georgia,"Noto Serif","Times New Roman",serif;line-height:1.75;text-align:justify;hyphens:auto;-webkit-overflow-scrolling:touch}.ak .tx p{margin:0 0 .9em}.ak .s{border-radius:4px;cursor:pointer;transition:background .2s}.ak .cream .s.cur{background:#f3dcab}.ak .white .s.cur{background:#ffe9a8}.ak .dark .s.cur{background:#4a3f1f}.ak .ctl{display:flex;align-items:center;gap:6px;padding:10px 12px;border-top:1px solid #0001;background:inherit}.ak .ctl .vc{flex:1;min-width:0;text-align:left;line-height:1.2}.ak .ctl .vc small{display:block;opacity:.6;font-size:11px}.ak .ctl select{max-width:100%;padding:0;font-weight:700;font-size:14px;appearance:none;-webkit-appearance:none;text-overflow:ellipsis}.ak .ctl .ib{width:42px;height:42px;border-radius:50%;font-size:18px;display:grid;place-items:center}.ak .ctl .pl{width:58px;height:58px;border-radius:50%;background:#b5761d;color:#fff;font-size:22px;box-shadow:0 3px 8px #0003}.ak .pgn{display:flex;align-items:center;gap:8px;padding:0 14px 6px;font-size:12px;opacity:.75}.ak .pgn input{flex:1}.ak .set{display:flex;gap:6px;flex-wrap:wrap;padding:6px 12px;font-size:13px;justify-content:center;border-top:1px solid #0001}.ak .set button{border:1px solid #0003;border-radius:12px;padding:3px 10px;background:none;color:inherit;cursor:pointer}.ak .set button.on{background:#b5761d;color:#fff;border-color:#b5761d}.ak .pgwrap{animation:pgin .25s ease}@keyframes pgin{from{opacity:.2;transform:translateX(14px)}to{opacity:1;transform:none}}.ak .msg4{min-height:1.3em;font-size:13px}.ak .bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin:8px 0}.ak .bar i{display:block;height:100%;background:var(--ok);width:0}</style>
@@ -76,7 +96,7 @@
       }
       async function addFile(f) {
         const bar = $(home, '.bar'), bi = $(bar, 'i'); msg('⏳ Đang đọc tệp…'); bar.hidden = false; bi.style.width = '3%';
-        try { const b = await parseFile(f, (i, n) => { bi.style.width = i / n * 100 + '%'; }); lib.unshift(b); if (lib.length > 20) { const x = lib.pop(); idb.del(x.id).catch(() => {}); } await idb.put(b).catch(() => msg('Không lưu được vào thư viện (bộ nhớ trình duyệt bị chặn), vẫn đọc được lần này.')); openBook(b); }
+        try { const b = await parseFile(f, (i, n, k) => { bi.style.width = Math.max(3, i / n * 100) + '%'; if (k === 'ocr') msg('🔍 PDF ảnh quét – đang nhận dạng chữ tiếng Việt (OCR) trang ' + Math.min(i + 1, n) + '/' + n + '… (lần đầu tải ~7 MB dữ liệu OCR, có thể mất vài phút)'); }); lib.unshift(b); if (lib.length > 20) { const x = lib.pop(); idb.del(x.id).catch(() => {}); } await idb.put(b).catch(() => msg('Không lưu được vào thư viện (bộ nhớ trình duyệt bị chặn), vẫn đọc được lần này.')); openBook(b); }
         catch (e) { bar.hidden = true; msg('⚠️ ' + (e.message || e)); }
       }
       home.addEventListener('click', e => {
@@ -92,8 +112,8 @@
       ['dragover', 'drop'].forEach(ev => home.addEventListener(ev, e => { if (!e.target.closest('.drop')) return; e.preventDefault(); if (ev === 'drop' && e.dataTransfer.files[0]) addFile(e.dataTransfer.files[0]); }));
 
       /* ---------- trình đọc ---------- */
-      const tts = () => window.speechSynthesis;
-      function loadVoices() { try { voices = tts() ? tts().getVoices() : []; } catch (e) { voices = []; } const sel = $(rd, '.vs'); if (!sel) return; const vn = '<optgroup label="AI"><option value="vieneu">VieNeu AI (giọng Việt tự nhiên)</option></optgroup>'; const vi = voices.filter(v => /^vi/i.test(v.lang)), rest = voices.filter(v => !/^vi/i.test(v.lang)); sel.innerHTML = vn + (vi.length ? '<optgroup label="Tiếng Việt">' + vi.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)}</option>`).join('') + '</optgroup>' : '') + (rest.length ? '<optgroup label="Giọng khác">' + rest.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('') + '</optgroup>' : '<option value="">Giọng mặc định</option>'); if (st.voice === 'vieneu' || (st.voice && voices.some(v => v.voiceURI === st.voice))) sel.value = st.voice; else if (vi[0]) { sel.value = vi[0].voiceURI; st.voice = vi[0].voiceURI; } }
+      const VN_PICK = ['Adam bựa', 'Minh Quân'], tts = () => window.speechSynthesis;
+      function loadVoices() { try { voices = tts() ? tts().getVoices() : []; } catch (e) { voices = []; } const sel = $(rd, '.vs'); if (!sel) return; const vn = '<optgroup label="VieNeu AI (cần máy chủ)"><option value="vieneu:Adam bựa">VieNeu · Adam bựa</option><option value="vieneu:Minh Quân">VieNeu · Minh Quân</option><option value="vieneu">VieNeu · giọng khác (⚙)</option></optgroup>'; const vi = voices.filter(v => /^vi/i.test(v.lang)), rest = voices.filter(v => !/^vi/i.test(v.lang)); sel.innerHTML = vn + (vi.length ? '<optgroup label="Tiếng Việt">' + vi.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)}</option>`).join('') + '</optgroup>' : '') + (rest.length ? '<optgroup label="Giọng khác">' + rest.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('') + '</optgroup>' : '<option value="">Giọng mặc định</option>'); if (st.voice === 'vieneu') sel.value = VN_PICK.includes(st.vnVoice) ? 'vieneu:' + st.vnVoice : 'vieneu'; else if (st.voice && voices.some(v => v.voiceURI === st.voice)) sel.value = st.voice; else if (vi[0]) { sel.value = vi[0].voiceURI; st.voice = vi[0].voiceURI; } }
       function openBook(b) {
         bk = b; pg = Math.min(b.pos.p, b.pages.length - 1); si = b.pos.s || 0; home.hidden = true; rd.hidden = false; stop();
         rd.className = 'rd ' + st.theme;
@@ -159,10 +179,10 @@
         else if (b.dataset.a) { st.size = Math.max(14, Math.min(30, st.size + (b.dataset.a === '+' ? 2 : -2))); saveSt(); $(rd, '.pgwrap').style.fontSize = st.size + 'px'; }
         else if (b.classList.contains('aut')) { st.auto = !st.auto; b.classList.toggle('on', st.auto); saveSt(); }
         else if (b.classList.contains('thm')) { const T = ['cream', 'white', 'dark']; st.theme = T[(T.indexOf(st.theme) + 1) % 3]; rd.className = 'rd ' + st.theme; saveSt(); }
-        else if (b.classList.contains('vnb')) { const u = window.prompt('Địa chỉ máy chủ VieNeu (vd http://localhost:8000). Xem hướng dẫn chạy ở tools/vieneu-server/README.md. Để trống = tắt.', st.vnUrl || 'http://localhost:8000'); if (u === null) return; const v = window.prompt('Tên giọng VieNeu (để trống = mặc định, vd Hải Đăng):', st.vnVoice || ''); st.vnUrl = u.trim(); st.vnVoice = (v || '').trim(); if (st.vnUrl) st.voice = 'vieneu'; else if (st.voice === 'vieneu') st.voice = ''; vnClear(); saveSt(); loadVoices(); if (st.vnUrl) { msg('⏳ Đang kiểm tra máy chủ VieNeu…'); fetch(st.vnUrl.replace(/\/+$/, '') + '/health').then(r => r.json()).then(j => msg(j && j.ok ? '✅ Kết nối VieNeu được. Bấm ▶ để nghe.' : '⚠️ Máy chủ trả lời lạ, kiểm tra lại địa chỉ.')).catch(() => msg('⚠️ Không kết nối được tới ' + st.vnUrl + ' (sai địa chỉ, Colab đã tắt hoặc bị chặn CORS).')); } if (playing) play(si); }
+        else if (b.classList.contains('vnb')) { const u = window.prompt('Địa chỉ máy chủ VieNeu (vd http://localhost:8000). Xem hướng dẫn chạy ở tools/vieneu-server/README.md. Để trống = tắt.', st.vnUrl || 'http://localhost:8000'); if (u === null) return; const v = window.prompt('Tên giọng VieNeu (Adam bựa · Minh Quân · hoặc tên khác; để trống = mặc định):', st.vnVoice || 'Adam bựa'); st.vnUrl = u.trim(); st.vnVoice = (v || '').trim(); if (st.vnUrl) st.voice = 'vieneu'; else if (st.voice === 'vieneu') st.voice = ''; vnClear(); saveSt(); loadVoices(); if (st.vnUrl) { msg('⏳ Đang kiểm tra máy chủ VieNeu…'); fetch(st.vnUrl.replace(/\/+$/, '') + '/health').then(r => r.json()).then(j => msg(j && j.ok ? '✅ Kết nối VieNeu được. Bấm ▶ để nghe.' : '⚠️ Máy chủ trả lời lạ, kiểm tra lại địa chỉ.')).catch(() => msg('⚠️ Không kết nối được tới ' + st.vnUrl + ' (sai địa chỉ, Colab đã tắt hoặc bị chặn CORS).')); } if (playing) play(si); }
         else if (b.classList.contains('zz')) { const m = parseInt(window.prompt('Hẹn giờ tắt sau bao nhiêu phút? (0 = huỷ)', '30'), 10); clearTimeout(sleepT); if (m > 0) { sleepT = setTimeout(() => { stop(); }, m * 60000); b.textContent = '⏲ ' + m + ' phút'; } else b.textContent = '⏲ Hẹn giờ'; }
       });
-      rd.addEventListener('change', e => { if (e.target.classList.contains('vs')) { st.voice = e.target.value; vnClear(); saveSt(); if (st.voice === 'vieneu' && !st.vnUrl) { rd.querySelector('.vnb').click(); return; } if (playing) play(si); } else if (e.target.classList.contains('sl')) go(+e.target.value - 1, true); });
+      rd.addEventListener('change', e => { if (e.target.classList.contains('vs')) { const sv = e.target.value; if (sv.startsWith('vieneu:')) { st.voice = 'vieneu'; st.vnVoice = sv.slice(7); } else { st.voice = sv; if (sv === 'vieneu') st.vnVoice = VN_PICK.includes(st.vnVoice) ? '' : st.vnVoice; } vnClear(); saveSt(); if (st.voice === 'vieneu' && !st.vnUrl) { rd.querySelector('.vnb').click(); return; } if (playing) play(si); } else if (e.target.classList.contains('sl')) go(+e.target.value - 1, true); });
       // vuốt ngang để lật trang
       let sx = 0, sy = 0; rd.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
       rd.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) go(pg + (dx < 0 ? 1 : -1), true); }, { passive: true });
@@ -170,7 +190,7 @@
       window.addEventListener('keydown', key);
       if (tts()) tts().onvoiceschanged = loadVoices;
       idb.all().then(l => { lib = l || []; if (!bk) renderHome(); }).catch(() => { if (!bk) renderHome(); }); renderHome();
-      GV.abT = { parseFile, paginate, splitSentences, get st() { return { pg, si, playing, bk }; }, go, play, stop, open: openBook, get lib() { return lib; } };
+      GV.abT = { parseFile, cleanOcr, paginate, splitSentences, get st() { return { pg, si, playing, bk }; }, go, play, stop, open: openBook, get lib() { return lib; } };
       return () => { dead = true; stop(); vnClear(); window.removeEventListener('keydown', key); clearTimeout(sleepT); if (tts()) tts().onvoiceschanged = null; };
     }
   });

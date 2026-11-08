@@ -13,3 +13,10 @@ Trong Sách nói: ⚙ VieNeu → địa chỉ `http://localhost:8000` → tên g
 
 ## Chạy trên Google Colab (không cần cài gì)
 Mở [vieneu_colab.ipynb](https://colab.research.google.com/github/huyenit2016/gamevui/blob/main/tools/vieneu-server/vieneu_colab.ipynb), chạy cả 3 ô, lấy địa chỉ `https://….trycloudflare.com` in ra và dán vào ⚙ VieNeu. Địa chỉ đổi mỗi lần chạy lại.
+
+
+## Hai giọng cho Sách nói tiếng Việt
+`server.py` nạp 2 engine: **Adam bựa** (VieNeu v3 Turbo, 48 kHz) và **Minh Quân** (VieNeu v3 Nano, 24 kHz). Trên trang Sách nói chọn "VieNeu · Adam bựa" hoặc "VieNeu · Minh Quân" trong ô giọng.
+- `GET /voices` liệt kê giọng; `POST /tts {"text","voice"}` chọn engine theo tên giọng.
+- Máy yếu RAM: `ENGINES=nano python server.py` (chỉ nạp Nano, khi đó chỉ dùng được Minh Quân).
+- Lần đầu chạy tải mô hình về `~/vieneu_models` (đổi bằng `VIENEU_DIR`).
