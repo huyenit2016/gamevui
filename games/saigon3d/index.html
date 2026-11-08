@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#1c4a5a">
+<title>Sài Gòn Du Ký 3D – Du lịch Thành phố Hồ Chí Minh</title>
+<meta name="description" content="Game 3D du lịch Thành phố Hồ Chí Minh chơi online: dạo phố, check-in địa danh, hỏi đáp, thưởng thức ẩm thực đường phố, chụp ảnh và cùng bạn bè khám phá.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏙️%3C/text%3E%3C/svg%3E">
+<style>
+:root{--tile:rgba(58,42,34,.9);--bd:rgba(255,226,180,.3);--fg:#fbe9cf;--gold:#ffcc33;--teal:#23b0a0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#0d1620;color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}#hud button{pointer-events:auto}
+#topL{position:absolute;left:14px;top:max(10px,env(safe-area-inset-top));max-width:64%}
+#loc{font-size:26px;font-weight:800;color:#fff;text-shadow:0 2px 10px #000b,0 0 2px #000}
+#next,.chip{display:inline-block;font-size:12.5px;color:#fff;background:rgba(0,0,0,.42);padding:3px 11px;border-radius:99px;margin:4px 4px 0 0}
+.chip.on{background:rgba(35,176,160,.6)}
+#topR{position:absolute;right:10px;top:max(10px,env(safe-area-inset-top));display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.cnt{background:var(--tile);border:1px solid var(--bd);border-radius:99px;padding:5px 13px;font-weight:700;font-size:15px;box-shadow:0 3px 10px #0005}.cnt b{color:#fff3d0}
+.sq{width:38px;height:38px;border-radius:11px;background:var(--tile);border:1px solid var(--bd);font-size:18px}
+#zoom{position:absolute;left:12px;top:40%;display:flex;flex-direction:column;gap:10px}
+#zoom button{width:46px;height:46px;border-radius:50%;background:var(--tile);border:1px solid var(--bd);font-size:26px;font-weight:700;line-height:1}
+#ctx{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom) + 150px);display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.cap{padding:11px 18px;border-radius:99px;background:var(--tile);border:1px solid var(--bd);font-weight:700;font-size:15px;box-shadow:0 4px 14px #0007}.cap[hidden]{display:none}
+#acts{position:absolute;right:10px;bottom:calc(env(safe-area-inset-bottom) + 72px);display:flex;flex-direction:column;gap:10px}
+.tile{width:62px;height:62px;border-radius:16px;background:var(--tile);border:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;gap:2px;box-shadow:0 4px 12px #0006}.tile i{font-style:normal;font-size:23px}
+.tile:active,.cap:active,#bar button:active{transform:scale(.94)}
+#bar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 8px);display:flex;gap:5px;width:min(calc(100% - 16px),430px)}
+#bar button{flex:1 1 0;min-width:0;height:46px;border-radius:13px;background:var(--tile);border:1px solid var(--bd);font-size:21px;box-shadow:0 4px 12px #0006}
+#chatlog{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom) + 64px);max-width:min(60%,360px);font-size:13px;text-shadow:0 1px 3px #000;opacity:0;transition:opacity .5s;pointer-events:none}#chatlog.on{opacity:1}
+#chatlog div{background:rgba(0,0,0,.4);border-radius:10px;padding:3px 9px;margin-top:3px;width:max-content;max-width:100%;overflow-wrap:anywhere}#chatlog b{color:#ffd98a}
+#joy{position:absolute;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),rgba(255,255,255,.06));border:2px solid rgba(255,255,255,.4);display:none;transform:translate(-50%,-50%)}
+#joy i{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3d6,#e9b765);box-shadow:0 4px 12px #0007}
+#joyGhost{position:absolute;left:max(70px,env(safe-area-inset-left));bottom:calc(env(safe-area-inset-bottom) + 84px);width:96px;height:96px;margin-left:-20px;border-radius:50%;border:2px dashed rgba(255,255,255,.4);display:none;place-items:center;color:rgba(255,255,255,.7);font-size:11px;text-align:center;pointer-events:none}
+#tags{position:fixed;inset:0;pointer-events:none;z-index:9;overflow:hidden}
+.tag{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font-size:12.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);padding:2px 9px;border-radius:99px;text-shadow:0 1px 2px #000}.tag.me{border:1px solid var(--gold);color:#ffe9b8}
+@media(max-width:520px){#loc{font-size:21px}#topL{max-width:62%}}
+#toast{position:fixed;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 76px);transform:translateX(-50%) translateY(-14px);opacity:0;z-index:60;background:rgba(30,22,18,.94);color:#ffe9b8;border:1px solid var(--bd);padding:10px 16px;border-radius:14px;font-weight:600;font-size:14px;max-width:90vw;text-align:center;pointer-events:none;transition:.3s}#toast.on{opacity:1;transform:translateX(-50%)}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:55;transition:opacity .4s}#fade.on{opacity:1}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:56;transition:opacity .15s}#flash.on{opacity:.85}
+/* bảng thông tin */
+#panel{position:fixed;inset:0;z-index:40;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}#panel.on{display:flex}
+.sheet{position:relative;width:min(560px,100%);max-height:84vh;max-height:84dvh;overflow:auto;background:linear-gradient(180deg,#45342b,#241915);border:1.5px solid var(--bd);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px #000a;touch-action:pan-y;user-select:text;-webkit-user-select:text}
+@media(min-width:700px){#panel{align-items:center}.sheet{border-radius:20px}}
+#panel.avp{background:transparent;pointer-events:none}#panel.avp .sheet{pointer-events:auto;max-height:54vh;max-height:54dvh}
+@media(min-width:700px){#panel.avp{justify-content:flex-end;padding-right:24px}#panel.avp .sheet{width:430px;max-height:88vh}}
+#px{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid var(--bd);font-size:15px}
+#pt{margin:0 40px 10px 0;font-size:20px;color:#ffe9b8}
+.btn{border:0;border-radius:13px;padding:11px 18px;font-weight:800;font-size:15px;background:linear-gradient(180deg,#ffe08a,#f3b72c 60%,#d9921a);color:#2a1a08;box-shadow:0 3px 0 #8a5a10,0 6px 14px #0006}
+.btn.alt{background:rgba(255,255,255,.1);color:var(--fg);border:1px solid var(--bd);box-shadow:none}.btn.sm{padding:7px 12px;font-size:13px}.btn:active{transform:translateY(2px)}.btn:disabled{opacity:.45}
+.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.small{font-size:12.5px;color:#d9bf9f}
+.gh{display:flex;gap:12px;align-items:center;margin-bottom:8px}.gh>span{font-size:44px}.gh b{font-size:18px;color:#fff3d0;display:block}.gh small{color:#d9bf9f}
+.tip{background:rgba(255,204,51,.1);border:1px solid rgba(255,204,51,.25);border-radius:12px;padding:8px 12px}
+.qq{font-size:17px;font-weight:700;color:#fff3d0}.opts{display:grid;gap:9px;margin:10px 0}.opts .btn{text-align:left}
+.pp{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.pp b{font-size:18px;color:#fff3d0}.pp span{background:rgba(255,255,255,.1);border-radius:99px;padding:2px 10px;font-size:13px}
+.stamps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stamp{border:2px dashed rgba(255,255,255,.22);border-radius:14px;padding:8px 4px;text-align:center;background:rgba(255,255,255,.04);min-width:0}
+.stamp.on{border:2px solid var(--gold);background:rgba(255,204,51,.1)}.stamp span{font-size:30px;display:block}.stamp b{display:block;font-size:12px;overflow-wrap:anywhere}.stamp small{font-size:11px;color:#d9bf9f}
+#map{width:100%;height:auto;border-radius:14px;border:1px solid var(--bd);display:block}
+.list{margin:8px 0}.li{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:12px;padding:8px 10px;margin:6px 0}.li>span{font-size:26px}.li>div{flex:1;min-width:0}.li b{display:block;font-size:14.5px}.li small{color:#d9bf9f;font-size:12px}.li.me{outline:1.5px solid var(--gold)}.li.click{cursor:pointer}
+.chl{height:210px;overflow:auto;background:rgba(0,0,0,.25);border-radius:12px;padding:8px;font-size:14px}.chl div{margin:3px 0;overflow-wrap:anywhere}.chl b{color:#ffd98a}
+.chf{display:flex;gap:8px;margin-top:8px}.chf input,.avs input{flex:1;background:rgba(10,6,4,.7);border:1px solid var(--bd);color:#fff;border-radius:11px;padding:10px 12px;font:15px system-ui;outline:none;user-select:text;-webkit-user-select:text;min-width:0}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:9px}.atile{display:flex;flex-direction:column;align-items:center;gap:4px;padding:13px 6px;border-radius:14px;border:1px solid var(--bd);background:rgba(255,255,255,.07);font-size:13px;font-weight:600}.atile span{font-size:28px}
+.avs{margin:9px 0}.avs>b{display:block;font-size:13px;color:#ffe9b8;margin-bottom:5px}.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip.on,.chips .chip.on{background:rgba(255,204,51,.28);border-color:var(--gold);color:#fff3d0}.chips .chip{border:1px solid var(--bd);background:rgba(255,255,255,.07);border-radius:99px;padding:6px 12px;font-size:13px;margin:0;color:var(--fg)}
+.sws{display:flex;gap:8px;flex-wrap:wrap}.sw{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}.sw.on{border-color:var(--gold);box-shadow:0 0 0 2px rgba(255,204,51,.45)}
+.tg{display:flex;gap:8px;align-items:center;margin:9px 0;font-size:15px}.tg input{width:20px;height:20px}
+.tut{text-align:center}.tut .big{font-size:52px}.tut h3{margin:4px 0;color:#ffe9b8}.tut p{line-height:1.55}
+/* màn chào */
+#splash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;text-align:center;padding:22px;background:radial-gradient(ellipse at 50% 0%,#ffb066 0,#e4684a 28%,#3e3b7a 62%,#14202e 100%);overflow:hidden}
+#splash .sk{position:absolute;left:0;right:0;bottom:0;width:100%;height:42%;opacity:.55}
+#splash>div{position:relative;max-width:460px}
+#splash h1{font-size:clamp(34px,10vw,58px);margin:4px 0;color:#fff3d0;text-shadow:0 4px 18px #0009}
+#splash p{margin:0 auto 16px;line-height:1.6;color:#ffe9d2}
+#splash input{width:min(300px,80vw);padding:13px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.35);color:#fff;font-size:17px;text-align:center;outline:none;margin-bottom:14px;user-select:text;-webkit-user-select:text}
+#splash small{display:block;margin-top:14px;color:#ffd9bd;font-size:12px;line-height:1.5}
+#err{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;z-index:70;background:#14202e}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<canvas id="c" aria-label="Thành phố Hồ Chí Minh 3D"></canvas>
+<div id="tags"><div id="mytag" class="tag me"></div></div>
+<div id="hud">
+  <div id="topL"><div id="loc">Sài Gòn</div><div><span id="next"></span></div><span id="net" class="chip">⚪ Chơi một mình</span></div>
+  <div id="topR"><div class="cnt"><b id="cXu">0</b> 🪙</div><div class="cnt"><b id="cPts">0</b> 💎</div><button class="sq" id="bFull" aria-label="Toàn màn hình" title="Toàn màn hình">⛶</button></div>
+  <div id="zoom"><button id="zIn" aria-label="Phóng to">+</button><button id="zOut" aria-label="Thu nhỏ">−</button></div>
+  <div id="ctx"><button class="cap" id="bCheck" hidden>📍 Check-in</button><button class="cap" id="bInfo" hidden>📖 Tìm hiểu</button><button class="cap" id="bQuiz" hidden>❓ Hỏi đáp</button><button class="cap" id="bEat" hidden>🍜 Thưởng thức</button></div>
+  <div id="acts"><button class="tile" data-e="wave"><i>🙋</i>Vẫy tay</button><button class="tile" data-e="cheer"><i>🙌</i>Reo mừng</button><button class="tile" id="bPhoto"><i>📷</i>Chụp ảnh</button></div>
+  <div id="chatlog"></div>
+  <div id="bar"><button data-b="passport" title="Hộ chiếu" aria-label="Hộ chiếu">📒</button><button data-b="map" title="Bản đồ" aria-label="Bản đồ">🗺️</button><button data-b="food" title="Ẩm thực" aria-label="Ẩm thực">🍜</button><button data-b="friends" title="Bạn bè" aria-label="Bạn bè">👥</button><button data-b="rank" title="Xếp hạng" aria-label="Xếp hạng">🏆</button><button data-b="chat" title="Trò chuyện" aria-label="Trò chuyện">💬</button><button data-b="emote" title="Cảm xúc" aria-label="Cảm xúc">🎭</button><button data-b="more" title="Thêm" aria-label="Thêm">☰</button></div>
+  <div id="joyGhost">Giữ &amp; kéo<br>để đi</div><div id="joy"><i></i></div>
+</div>
+<div id="panel"><div class="sheet"><button id="px" aria-label="Đóng">✕</button><h2 id="pt"></h2><div id="pb"></div></div></div>
+<div id="splash"><svg class="sk" viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#0d1a28"><rect x="0" y="120" width="400" height="20"/><path d="M30 120V70l8-6 8 6v50zM60 120V90h22v30zM96 120V60l10-10 10 10v60zM140 120V84l14-10 14 10v36zM190 120V22l5-8 5 8v98zM205 120V54h26v66zM245 120V76l12-14 12 14v44zM290 120V34l4-14 4 14v86zM300 120V64h20v56zM335 120V80h30v40z"/></g></svg>
+  <div><div style="font-size:54px">🏙️</div><h1>Sài Gòn Du Ký 3D</h1>
+    <p>Dạo quanh Thành phố Hồ Chí Minh: check-in chợ Bến Thành, Nhà thờ Đức Bà, Dinh Độc Lập, Landmark 81… thưởng thức ẩm thực đường phố và cùng bạn bè khám phá.</p>
+    <input id="nameIn" maxlength="20" placeholder="Tên của bạn" autocomplete="off"><div><button class="btn" id="bEnter" disabled>Đang tải…</button></div>
+    <small>Bản đồ cách điệu, thông tin chỉ mang tính tham khảo.<br>Không cần đăng nhập. Khi chơi online chỉ có tên hiển thị, vị trí, tin nhắn và điểm được gửi lên.</small></div></div>
+<div id="toast"></div><div id="fade"></div><div id="flash"></div>
+<div id="err"><div><h2>Không mở được cảnh 3D</h2><p>Trình duyệt cần hỗ trợ WebGL và có mạng để tải Three.js lần đầu.</p></div></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

@@ -347,6 +347,80 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
         ".validate": "newData.hasChildren(['r', 'at']) && newData.child('r').isString() && newData.child('r').val().matches(/^(bht|tnv|all)$/) && (!newData.child('n').exists() || (newData.child('n').isString() && newData.child('n').val().length <= 80))"
       }
     },
+    "saigon": {
+      "players": {
+        ".read": "true",
+        "$uid": {
+          ".write": "auth != null && ($uid === auth.uid || (data.exists() && !newData.exists() && data.child('at').isNumber() && data.child('at').val() < now - 90000) || (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab'))",
+          ".validate": "newData.hasChildren(['n', 'x', 'z', 'at'])",
+          "n": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
+          "x": {
+            ".validate": "newData.isNumber() && newData.val() > -500 && newData.val() < 500"
+          },
+          "z": {
+            ".validate": "newData.isNumber() && newData.val() > -500 && newData.val() < 500"
+          },
+          "a": {
+            ".validate": "newData.isNumber()"
+          },
+          "e": {
+            ".validate": "newData.isString() && newData.val().length <= 10"
+          },
+          "av": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
+          "at": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": "false"
+          }
+        }
+      },
+      "chat": {
+        ".read": "true",
+        "$id": {
+          ".write": "auth != null && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && data.child('at').isNumber() && data.child('at').val() < now - 3600000) || (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab'))",
+          ".validate": "newData.hasChildren(['n', 't', 'at'])",
+          "n": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
+          "t": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+          },
+          "at": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": "false"
+          }
+        }
+      },
+      "rank": {
+        ".read": "true",
+        ".indexOn": [
+          "s"
+        ],
+        "$uid": {
+          ".write": "auth != null && $uid === auth.uid",
+          ".validate": "newData.hasChildren(['n', 's'])",
+          "n": {
+            ".validate": "newData.isString() && newData.val().length <= 24"
+          },
+          "s": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000"
+          },
+          "k": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20"
+          },
+          "$other": {
+            ".validate": "false"
+          }
+        }
+      }
+    },
     "teacherStudents": {
       "$t": {
         ".read": "auth != null && ($t === auth.uid || root.child('admins').child(auth.uid).exists())",

@@ -114,5 +114,18 @@ W('vai trò lạ bị chặn', false, 'lcroles/col1', { r: 'sư', at: NOW }, who
 const lrt = setAt(T, ['lcroles', 'col1'], lr);
 R('chủ tài khoản đọc vai trò của mình', true, 'lcroles/col1', who.col, lrt); R('người khác KHÔNG đọc vai trò', false, 'lcroles/col1', who.guest, lrt); R('admin đọc danh sách vai trò', true, 'lcroles', who.adm, lrt); R('CTV KHÔNG đọc danh sách', false, 'lcroles', who.col, lrt);
 
+// Sài Gòn Du Ký 3D (saigon): hiện diện, chat, xếp hạng
+const sp = { n: 'An', x: 10.5, z: -3, a: 1.2, e: 'wave', av: '1,0,0,1,0,0,0', at: NOW };
+W('người chơi ghi vị trí của mình', true, 'saigon/players/g1', sp, who.guest); W('KHÔNG ghi thay người khác', false, 'saigon/players/col1', sp, who.guest);
+W('toạ độ ngoài khoảng bị chặn', false, 'saigon/players/g1', Object.assign({}, sp, { x: 9999 }), who.guest); W('khoá lạ bị chặn', false, 'saigon/players/g1', Object.assign({}, sp, { hack: 1 }), who.guest);
+W('tên quá dài bị chặn', false, 'saigon/players/g1', Object.assign({}, sp, { n: 'x'.repeat(25) }), who.guest); R('khách đọc danh sách người chơi', true, 'saigon/players', who.guest);
+const ghost = setAt(T, ['saigon', 'players', 'col1'], { n: 'Ma', x: 0, z: 0, at: NOW - 200000 }), live = setAt(T, ['saigon', 'players', 'col1'], { n: 'Ma', x: 0, z: 0, at: NOW - 10000 });
+W('dọn bản ghi quá 90 giây của người khác', true, 'saigon/players/col1', null, who.guest, ghost); W('KHÔNG xoá bản ghi còn mới của người khác', false, 'saigon/players/col1', null, who.guest, live); W('CTV xoá được bản ghi', true, 'saigon/players/col1', null, who.col, live);
+const chat = { n: 'An', t: 'Xin chào', at: NOW }; W('gửi tin chat', true, 'saigon/chat/k1', chat, who.guest); W('chat rỗng bị chặn', false, 'saigon/chat/k1', Object.assign({}, chat, { t: '' }), who.guest); W('chat quá 120 ký tự bị chặn', false, 'saigon/chat/k1', Object.assign({}, chat, { t: 'x'.repeat(121) }), who.guest);
+const ct = setAt(T, ['saigon', 'chat', 'k1'], chat), cto = setAt(T, ['saigon', 'chat', 'k1'], { n: 'An', t: 'Cũ', at: NOW - 4000000 });
+W('KHÔNG sửa tin chat đã có', false, 'saigon/chat/k1', Object.assign({}, chat, { t: 'sửa' }), who.guest, ct); W('KHÔNG xoá tin chat mới', false, 'saigon/chat/k1', null, who.guest, ct); W('dọn tin chat cũ hơn 1 giờ', true, 'saigon/chat/k1', null, who.guest, cto); W('CTV xoá tin chat', true, 'saigon/chat/k1', null, who.col, ct);
+W('ghi điểm của mình', true, 'saigon/rank/g1', { n: 'An', s: 120, k: 5 }, who.guest); W('KHÔNG ghi điểm hộ người khác', false, 'saigon/rank/col1', { n: 'An', s: 120, k: 5 }, who.guest);
+W('điểm quá lớn bị chặn', false, 'saigon/rank/g1', { n: 'An', s: 5000, k: 5 }, who.guest); W('điểm âm bị chặn', false, 'saigon/rank/g1', { n: 'An', s: -1 }, who.guest); R('khách đọc bảng xếp hạng', true, 'saigon/rank', who.guest);
+
 console.log(`\n${pass} đạt, ${fail} lỗi`);
 process.exit(fail ? 1 : 0);
