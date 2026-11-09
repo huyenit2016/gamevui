@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   await p.addInitScript({path:require('path').join(__dirname,'mock.js')});
   await p.goto('file://' + ROOT + '/index.html'); await p.waitForTimeout(300);
   const ids = await p.evaluate(() => GV.items.map(i => i.type + '/' + i.id)); console.log(ids.length, 'items;', 'learn:', await p.evaluate(()=>GV.items.filter(i=>i.cat==='Học tập').map(i=>i.id).join(',')));
-  for (const id of ids) { if (id === 'game/masoi-vip' || id === 'game/lenchua' || id === 'game/saigon3d' || id === 'tool/crypto-analytics') continue; /* mở ở trang riêng (location.replace) */ await p.evaluate(h => location.hash = '#/' + h, id); await p.waitForTimeout(60); if (!await p.evaluate(() => document.querySelector('#stage').children.length)) errs.push('empty '+id); }
+  for (const id of ids) { if (id === 'game/masoi-vip' || id === 'game/lenchua' || id === 'game/saigon3d' || id === 'game/dalat3d' || id === 'tool/crypto-analytics') continue; /* mở ở trang riêng (location.replace) */ await p.evaluate(h => location.hash = '#/' + h, id); await p.waitForTimeout(60); if (!await p.evaluate(() => document.querySelector('#stage').children.length)) errs.push('empty '+id); }
   await p.evaluate(()=>location.hash='#/'); await p.waitForTimeout(400);
   console.log('sections:', await p.locator('#grid .sec').allTextContents());
   await p.locator('#grid .sec').nth(1).scrollIntoViewIfNeeded(); await p.screenshot({path:'home_learn.png'});

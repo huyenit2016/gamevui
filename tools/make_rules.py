@@ -158,6 +158,38 @@ rules = {"rules": {
       "k": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20"},
       "$other": {".validate": "false"}}}
   },
+  # ---- Đà Lạt Phố Hội 3D (games/dalat3d): hiện diện + quầy của người chơi, chat, xếp hạng doanh thu. Cùng khuôn với saigon ----
+  "dalat": {
+    "players": {".read": "true", "$uid": {
+      ".write": f"{AUTH} && ($uid === auth.uid || (data.exists() && !newData.exists() && data.child('at').isNumber() && data.child('at').val() < now - 90000) || {MOD})",
+      ".validate": "newData.hasChildren(['n', 'x', 'z', 'at'])",
+      "n": {".validate": "newData.isString() && newData.val().length <= 24"},
+      "x": {".validate": "newData.isNumber() && newData.val() > -500 && newData.val() < 500"},
+      "z": {".validate": "newData.isNumber() && newData.val() > -500 && newData.val() < 500"},
+      "a": {".validate": "newData.isNumber()"},
+      "e": {".validate": "newData.isString() && newData.val().length <= 10"},
+      "av": {".validate": "newData.isString() && newData.val().length <= 24"},
+      "s": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 11"},
+      "t": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"},
+      "p": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 15"},
+      "o": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"},
+      "at": {".validate": "newData.isNumber()"},
+      "$other": {".validate": "false"}}},
+    "chat": {".read": "true", "$id": {
+      ".write": f"{AUTH} && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && data.child('at').isNumber() && data.child('at').val() < now - 3600000) || {MOD})",
+      ".validate": "newData.hasChildren(['n', 't', 'at'])",
+      "n": {".validate": "newData.isString() && newData.val().length <= 24"},
+      "t": {".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"},
+      "at": {".validate": "newData.isNumber()"},
+      "$other": {".validate": "false"}}},
+    "rank": {".read": "true", ".indexOn": ["s"], "$uid": {
+      ".write": f"{AUTH} && $uid === auth.uid",
+      ".validate": "newData.hasChildren(['n', 's'])",
+      "n": {".validate": "newData.isString() && newData.val().length <= 24"},
+      "s": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5000000"},
+      "k": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 60"},
+      "$other": {".validate": "false"}}}
+  },
   "teacherStudents": {"$t": {".read": f"{AUTH} && ($t === auth.uid || {ADMIN})", ".write": f"{AUTH} && (($t === auth.uid && {TEACHER}) || {ADMIN})"}},
   "assign": {"$s": {".read": f"{AUTH} && ($s === auth.uid || {TEACHER} || {ADMIN})", "$c": {
     ".write": f"{AUTH} && ({ADMIN} || ({TEACHER} && ((newData.exists() && newData.child('by').val() === auth.uid) || (!newData.exists() && data.child('by').val() === auth.uid))))"}}},
