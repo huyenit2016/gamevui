@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0d12">
+<title>Cảng Đen – Đột kích bến cảng trong mưa (FPS 3D)</title>
+<meta name="description" content="Game bắn súng góc nhìn thứ nhất 3D chạy ngay trong trình duyệt: cắt 3 trạm điều khiển, hạ robot an ninh nổi loạn và chạy ra tàu giữa bến cảng đêm mưa. Mọi hình ảnh và âm thanh đều tạo bằng code.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚓%3C/text%3E%3C/svg%3E">
+<style>
+:root{--acc:#ffb23f;--fg:#ece8df;--dim:#9a968c;--bad:#ff4a3d;--ok:#5ee08a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#05070a;color:var(--fg);font-family:"Bahnschrift","DIN Alternate","Arial Narrow",system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:5;display:none}
+body.play #hud{display:block}
+#cross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;transition:transform .08s}
+#cross i{position:absolute;background:#fff;opacity:.85;box-shadow:0 0 3px #000}
+#cross i:nth-child(1){left:12px;top:0;width:2px;height:8px}#cross i:nth-child(2){left:12px;bottom:0;width:2px;height:8px}#cross i:nth-child(3){top:12px;left:0;width:8px;height:2px}#cross i:nth-child(4){top:12px;right:0;width:8px;height:2px}
+body.ads #cross{transform:scale(.45)}
+#hit{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:2px solid #fff;transform:rotate(45deg) scale(.6);opacity:0;transition:opacity .15s}#hit.on{opacity:1;transform:rotate(45deg) scale(1)}#hit.kill{border-color:var(--bad)}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(180,10,0,.75));opacity:0;transition:opacity .25s}
+#obj{position:absolute;left:18px;top:max(14px,env(safe-area-inset-top));font-size:15px;letter-spacing:.06em;text-transform:uppercase;text-shadow:0 2px 6px #000}
+#obj b{display:block;font-size:22px;color:var(--acc)}#obj span{color:var(--dim);font-size:13px}
+#bot{position:absolute;right:18px;bottom:max(16px,env(safe-area-inset-bottom));text-align:right;text-shadow:0 2px 8px #000}
+#ammo{font-size:46px;font-weight:700;letter-spacing:.04em}#ammo small{font-size:20px;color:var(--dim)}
+#hpw{position:absolute;left:18px;bottom:max(16px,env(safe-area-inset-bottom));width:min(240px,40vw)}
+#hpw .l{font-size:12px;color:var(--dim);letter-spacing:.14em}#hpb{height:10px;background:rgba(255,255,255,.14);margin-top:4px;position:relative}#hpb i{position:absolute;inset:0;background:var(--ok);transform-origin:left;transition:transform .2s,background .2s}
+#prog{position:absolute;left:50%;top:62%;transform:translateX(-50%);text-align:center;display:none;text-shadow:0 2px 8px #000;font-size:15px;letter-spacing:.1em}
+#prog .bar{width:220px;height:8px;background:rgba(255,255,255,.2);margin:8px auto 0}#prog .bar i{display:block;height:100%;width:0;background:var(--acc)}
+#msg{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:24px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 2px 12px #000;opacity:0;transition:opacity .4s;text-align:center;color:var(--acc);max-width:90vw}#msg.on{opacity:1}
+#dir{position:absolute;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%);font-size:14px;letter-spacing:.1em;text-shadow:0 2px 6px #000;text-align:center}#dir i{display:inline-block;font-style:normal;color:var(--acc);font-size:18px;transition:transform .1s}
+/* menu */
+.scr{position:fixed;inset:0;z-index:20;display:none;align-items:flex-end;padding:6vh 5vw;background:linear-gradient(90deg,rgba(3,5,8,.92),rgba(3,5,8,.55) 45%,rgba(3,5,8,.1))}
+.scr.on{display:flex}.scr>div{max-width:560px}
+.eyebrow{font-size:12px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}.eyebrow b{background:var(--acc);color:#000;padding:2px 6px;margin-right:8px}
+h1{font-size:clamp(52px,12vw,120px);margin:6px 0 4px;letter-spacing:.14em;line-height:.95;font-weight:800;text-transform:uppercase}
+.sub{font-size:16px;line-height:1.5;margin:10px 0 18px;max-width:46ch;border-top:2px solid var(--acc);padding-top:10px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}.b{padding:12px 26px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.35);letter-spacing:.2em;font-size:13px;text-transform:uppercase}.b.p{background:var(--acc);color:#000;border-color:var(--acc);font-weight:700}.b:active{transform:translateY(1px)}
+.fine{font-size:11px;color:var(--dim);margin-top:14px;line-height:1.5}
+.panel{display:none;margin:14px 0;font-size:14px;line-height:1.8}.panel.on{display:block}.panel label{display:flex;justify-content:space-between;gap:16px;align-items:center;margin:6px 0}.panel input[type=range]{width:180px}.panel select{background:#111;color:#fff;border:1px solid #555;padding:4px}
+.keys span{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);padding:0 7px;margin-right:4px;font-size:12px}
+#stats{font-size:15px;line-height:1.9;margin:10px 0}
+/* cảm ứng */
+#touch{position:fixed;inset:0;z-index:6;display:none;pointer-events:none}body.play.tch #touch{display:block}
+#joy{position:absolute;width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.07);display:none;transform:translate(-50%,-50%)}#joy i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;background:rgba(255,255,255,.35)}
+.tb{position:absolute;pointer-events:auto;border-radius:50%;border:2px solid rgba(255,255,255,.45);background:rgba(0,0,0,.4);display:grid;place-items:center;font-size:12px;letter-spacing:.08em;text-transform:uppercase;width:58px;height:58px}.tb:active,.tb.on{background:rgba(255,178,63,.6)}
+#bF{right:18px;bottom:90px;width:84px;height:84px;font-size:14px}#bA{right:116px;bottom:60px}#bR{right:18px;bottom:190px}#bJ{right:116px;bottom:130px}#bE{right:116px;bottom:200px;display:none;width:74px;height:74px;background:rgba(255,178,63,.45)}#bC{right:18px;bottom:270px}
+#err{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;z-index:70;background:#05070a}
+#load{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:#05070a;letter-spacing:.2em;font-size:13px;color:var(--dim)}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c" aria-label="Bến cảng 3D"></canvas>
+<div id="hud">
+  <div id="vig"></div><div id="cross"><i></i><i></i><i></i><i></i></div><div id="hit"></div>
+  <div id="obj"><b id="objT">Cắt trạm điều khiển 0/3</b><span id="objS"></span></div>
+  <div id="dir"><i id="arrow">▲</i> <span id="dist"></span></div>
+  <div id="msg"></div>
+  <div id="prog"><div id="progT">Đang cắt kết nối…</div><div class="bar"><i id="progB"></i></div></div>
+  <div id="hpw"><div class="l">GIÁP / MÁU</div><div id="hpb"><i id="hpi"></i></div></div>
+  <div id="bot"><div id="ammo">30<small> / 120</small></div><div id="wlab" style="font-size:12px;color:var(--dim);letter-spacing:.14em">SÚNG TRƯỜNG · TỰ ĐỘNG</div></div>
+</div>
+<div id="touch"><div id="joy"><i></i></div><button class="tb" id="bF">Bắn</button><button class="tb" id="bA">Ngắm</button><button class="tb" id="bR">Nạp</button><button class="tb" id="bJ">Nhảy</button><button class="tb" id="bC">Cúi</button><button class="tb" id="bE">Cắt</button></div>
+<div class="scr on" id="menu"><div>
+  <div class="eyebrow"><b>04</b>Đơn vị đột kích cảng · Bến container số 9</div>
+  <h1>Cảng Đen</h1>
+  <p class="sub">Hệ thống robot an ninh của bến cảng đã mất kiểm soát. Vô hiệu hoá ba trạm điều khiển, rồi chạy ra tàu cứu hộ ở cuối cầu tàu trước khi chúng tìm thấy bạn.</p>
+  <div class="btns"><button class="b p" id="bGo">Triển khai</button><button class="b" id="bSet">Cài đặt</button><button class="b" id="bCtl">Điều khiển</button></div>
+  <div class="panel" id="pSet"><label>Độ nhạy chuột<input type="range" id="sSens" min="1" max="10" step=".5"></label><label>Âm lượng<input type="range" id="sVol" min="0" max="10" step="1"></label><label>Chất lượng đồ hoạ<select id="sQ"><option value="high">Cao (bloom, đổ bóng)</option><option value="mid">Vừa</option><option value="low">Thấp (máy yếu/điện thoại)</option></select></label></div>
+  <div class="panel keys" id="pCtl"><div><span>W</span><span>A</span><span>S</span><span>D</span> Di chuyển · <span>Chuột</span> Nhìn · <span>Trái</span> Bắn · <span>Phải</span> Ngắm</div><div><span>R</span> Nạp đạn · <span>Giữ E</span> Cắt trạm · <span>Space</span> Nhảy · <span>Shift</span> Chạy · <span>C</span> Cúi · <span>Esc</span> Tạm dừng</div><div>Cảm ứng: cần trái để đi, vuốt bên phải để nhìn, các nút bắn/ngắm/nạp/nhảy ở bên phải. Có hỗ trợ tay cầm.</div></div>
+  <div class="fine">Mọi hình ảnh, ánh sáng và âm thanh đều được tạo bằng code trong trình duyệt, không tải tệp nào.<span id="best"></span></div>
+</div></div>
+<div class="scr" id="pause"><div><div class="eyebrow">Tạm dừng</div><h1 style="font-size:64px">Đã dừng</h1><div class="btns"><button class="b p" id="bRes">Tiếp tục</button><button class="b" id="bQuit">Về menu</button></div></div></div>
+<div class="scr" id="over"><div><div class="eyebrow" id="oEye">Kết quả</div><h1 style="font-size:clamp(40px,9vw,84px)" id="oT">Thất bại</h1><div id="stats"></div><div class="btns"><button class="b p" id="bAgain">Chơi lại</button><button class="b" id="bMenu">Menu</button></div></div></div>
+<div id="err"><div><h2>Không mở được cảnh 3D</h2><p>Trình duyệt cần hỗ trợ WebGL2 và có mạng để tải Three.js lần đầu.</p></div></div>
+<div id="load">ĐANG TẠO BẾN CẢNG…</div>
+<script type="module" src="game.js"></script>
+</body>
+</html>
