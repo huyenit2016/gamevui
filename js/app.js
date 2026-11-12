@@ -67,7 +67,7 @@
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
   const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
-  const DEF_NEW = ['cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+  const DEF_NEW = ['cangden3d', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
   const PIN_HOT = ['crypto-analytics']; // ghim vào "Đang hot" (vị trí thứ 2), kể cả khi CMS đặt danh sách riêng
   const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id)); return l.slice(0, 1).concat(PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
