@@ -28,6 +28,9 @@ function broadcast(ev) {
   }
   console.log(`🎁 ${ev.u} tặng ${ev.n} × ${ev.g} (${ev.d} 💎)`);
 }
+// Bình luận trong phòng LIVE → SSE { type:'chat', u, id, text } (dùng cho game Đà Lạt Phố Hội 3D ở chế độ ?live=1; không đẩy lên Firebase)
+function normalizeChat(d) { if (!d || !d.comment) return null; return { u: String(d.nickname || d.uniqueId || 'Khách').slice(0, 40), id: String(d.uniqueId || '').slice(0, 40), text: String(d.comment).slice(0, 120), at: Date.now() }; }
+function broadcastChat(ev) { const line = 'data: ' + JSON.stringify({ type: 'chat', ...ev }) + '\n\n'; clients.forEach(res => { try { res.write(line); } catch (e) {} }); }
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', ORIGIN); res.setHeader('Access-Control-Allow-Private-Network', 'true');
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
@@ -36,6 +39,7 @@ const server = http.createServer((req, res) => {
     res.write(': kết nối\n\n'); clients.add(res); const ka = setInterval(() => { try { res.write(': ping\n\n'); } catch (e) {} }, 25000);
     req.on('close', () => { clients.delete(res); clearInterval(ka); }); return;
   }
+  if (req.url.split('?')[0] === '/test-chat' && req.method === 'POST') { broadcastChat({ u: 'Khách thử', id: 'test', text: 'cho mình 1 khoai nướng', at: Date.now() }); res.writeHead(200); return res.end('ok'); }
   if (req.url.split('?')[0] === '/test' && req.method === 'POST') { broadcast({ u: 'Phật tử thử nghiệm', id: 'test', av: '', g: 'Hoa hồng', n: 3, d: 3, at: Date.now() }); res.writeHead(200); return res.end('ok'); }
   res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Đi Chùa Online relay đang chạy. SSE: /events · thử: POST /test\n');
 });
@@ -47,8 +51,9 @@ function start() {
   const Conn = lib.WebcastPushConnection || lib.TikTokLiveConnection, opts = process.env.TIKTOK_SESSION_ID ? { sessionId: process.env.TIKTOK_SESSION_ID } : {};
   const connect = () => { const c = new Conn(USER, opts); c.connect().then(s => console.log('Đã nối phòng LIVE của @' + USER + (s && s.roomId ? ' (room ' + s.roomId + ')' : ''))).catch(e => { console.error('Chưa nối được (kênh có đang LIVE không?):', e.message || e); setTimeout(connect, 15000); });
     c.on('gift', d => { const ev = normalizeGift(d); if (ev) broadcast(ev); });
+    c.on('chat', d => { const ev = normalizeChat(d); if (ev) broadcastChat(ev); });
     c.on('disconnected', () => { console.log('Mất kết nối, thử lại sau 10 giây…'); setTimeout(connect, 10000); }); c.on('streamEnd', () => console.log('Phiên LIVE đã kết thúc.')); };
   connect();
 }
 if (require.main === module) start();
-module.exports = { normalizeGift, broadcast, server, start };
+module.exports = { normalizeChat, broadcastChat, normalizeGift, broadcast, server, start };

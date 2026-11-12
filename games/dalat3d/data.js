@@ -2,14 +2,14 @@
 export { dirty } from '../saigon3d/data.js';
 // Món hàng: cost = giá nguyên liệu gốc, price = giá bán tham chiếu, hot = bán chạy khi trời lạnh/mưa, cold = bán chạy khi nắng. free = có trong bản thử.
 export const PRODUCTS = [
-  { id: 'khoai', n: 'Khoai lang nướng', ic: '🍠', cost: 5, price: 14, hot: 1, lv: 1, free: 1 },
-  { id: 'banh', n: 'Bánh tráng nướng', ic: '🫓', cost: 6, price: 16, hot: 1, lv: 1, free: 1 },
-  { id: 'sua', n: 'Sữa đậu nành nóng', ic: '🥛', cost: 4, price: 11, hot: 1, lv: 1, free: 1 },
-  { id: 'caphe', n: 'Cà phê Cầu Đất', ic: '☕', cost: 8, price: 22, hot: 1, lv: 2 },
-  { id: 'dau', n: 'Dâu tây Đà Lạt', ic: '🍓', cost: 10, price: 26, cold: 1, lv: 2 },
-  { id: 'atiso', n: 'Trà atiso', ic: '🍵', cost: 5, price: 13, lv: 3 },
-  { id: 'kem', n: 'Kem bơ', ic: '🍦', cost: 9, price: 24, cold: 1, lv: 3 },
-  { id: 'mut', n: 'Mứt dâu hộp', ic: '🍯', cost: 12, price: 30, lv: 4 }
+  { id: 'khoai', n: 'Khoai lang nướng', ic: '🍠', cost: 5, price: 14, hot: 1, lv: 1, free: 1, kw: ['khoai', '🍠'] },
+  { id: 'banh', n: 'Bánh tráng nướng', ic: '🫓', cost: 6, price: 16, hot: 1, lv: 1, free: 1, kw: ['banh', '🫓'] },
+  { id: 'sua', n: 'Sữa đậu nành nóng', ic: '🥛', cost: 4, price: 11, hot: 1, lv: 1, free: 1, kw: ['sua', 'dau nanh', '🥛'] },
+  { id: 'caphe', n: 'Cà phê Cầu Đất', ic: '☕', cost: 8, price: 22, hot: 1, lv: 2, kw: ['ca phe', 'caphe', 'cafe', 'coffee', '☕'] },
+  { id: 'dau', n: 'Dâu tây Đà Lạt', ic: '🍓', cost: 10, price: 26, cold: 1, lv: 2, kw: ['dau', '🍓'] },
+  { id: 'atiso', n: 'Trà atiso', ic: '🍵', cost: 5, price: 13, lv: 3, kw: ['atiso', 'tra', '🍵'] },
+  { id: 'kem', n: 'Kem bơ', ic: '🍦', cost: 9, price: 24, cold: 1, lv: 3, kw: ['kem', '🍦'] },
+  { id: 'mut', n: 'Mứt dâu hộp', ic: '🍯', cost: 12, price: 30, lv: 4, kw: ['mut', '🍯'] }
 ];
 // Cấp quầy (cap = số phần tối đa trong quầy, rate = tốc độ khách đến)
 export const TIERS = [
@@ -47,3 +47,4 @@ export const marketMul = (pid, now = Date.now()) => .75 + (hashStr(pid + ':' + M
 export const weatherAt = (now = Date.now()) => WEATHER[hashStr('w' + Math.floor(now / 240000)) % 3];
 export const levelOf = xp => 1 + Math.floor(Math.sqrt(xp / 60));
 export const xpFor = lv => (lv - 1) * (lv - 1) * 60;
+export const plain = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();

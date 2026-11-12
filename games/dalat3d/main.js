@@ -1,6 +1,6 @@
 // Đà Lạt Phố Hội 3D: điều khiển, kinh tế quầy hàng, khách NPC, chợ, nâng cấp, mở khoá bản đầy đủ, online.
 import * as THREE from 'three';
-import { PRODUCTS, TIERS, DECOR, WEATHER, LAND, PAY, PLOTS, MARKET, NPC_STALLS, marketMul, weatherAt, levelOf, xpFor, hashStr, dirty } from './data.js';
+import { PRODUCTS, TIERS, DECOR, WEATHER, LAND, PAY, PLOTS, MARKET, NPC_STALLS, marketMul, weatherAt, levelOf, xpFor, hashStr, dirty, plain } from './data.js';
 import { makeTraveler, SKINS, TOPS, PANTS, BAGS, HAIRC, HATS, HAIRS, DEF, encodeAv, decodeAv, randomAv } from '../saigon3d/char.js';
 import { buildWorld } from './world.js';
 import { makeStall } from './stall.js';
@@ -128,6 +128,7 @@ function openCraft() {
   openPanel('Chế biến', `<p class="small">Chọn món rồi bấm <b>Dừng</b> khi vạch trắng nằm trong vùng xanh. Sức chứa quầy: ${stockN()}/${cap()}.</p><div class="opts">${opts}</div><p class="small">${PRODUCTS.some(p => (save.ing[p.id] | 0) > 0) ? '' : 'Bạn chưa có nguyên liệu. Hãy ra chợ đầu mối (🧺) để mua.'}</p>`);
   bind('[data-c]', b => craftGame(PROD[b.dataset.c]));
 }
+function makeBatch(p, q, n) { save.ing[p.id] -= n; const st = save.stock[p.id] || (save.stock[p.id] = { n: 0, q: 2 }); st.q = (st.q * st.n + q * n) / (st.n + n); st.n += n; gain(0, 2 * n); persist(); buildMyStall(); }
 function craftGame(p) {
   if (stockN() >= cap()) { toast('Quầy đã đầy, hãy bán bớt hoặc nâng cấp quầy.'); return; }
   const zone = Math.max(.14, .34 - lvl() * .012), c0 = .25 + Math.random() * .5; let x = 0, dir = 1, run = true, last = performance.now();
@@ -135,7 +136,7 @@ function craftGame(p) {
   Snd.sizzle(); const speed = .9 + lvl() * .06;
   panelTick = setInterval(() => { const now = performance.now(), dt = (now - last) / 1000; last = now; if (!run) return; x += dir * speed * dt; if (x > 1) { x = 1; dir = -1; } if (x < 0) { x = 0; dir = 1; } const m = $('mk'); if (m) m.style.left = x * 100 + '%'; }, 16);
   const stop = () => { if (!run) return; run = false; clearInterval(panelTick); const d = Math.abs(x - c0), q = d < zone * .6 ? 3 : d < zone * 1.6 ? 2 : 1, n = Math.min(2, save.ing[p.id] | 0, cap() - stockN()); if (n < 1) { toast('Không đủ nguyên liệu hoặc quầy đầy.'); return openCraft(); }
-    save.ing[p.id] -= n; const st = save.stock[p.id] || (save.stock[p.id] = { n: 0, q: 2 }); st.q = (st.q * st.n + q * n) / (st.n + n); st.n += n; gain(0, 2 * n); persist(); buildMyStall(); Snd[q === 3 ? 'good' : 'coin'](); setEmote('cheer', 1200);
+    makeBatch(p, q, n); Snd[q === 3 ? 'good' : 'coin'](); setEmote('cheer', 1200);
     $('cm').textContent = (q === 3 ? '🌟 Hoàn hảo!' : q === 2 ? '👍 Tốt!' : '🙂 Tạm được.') + ` Làm được ${n} phần ${p.n} (${stars(q)}).`; $('stop').textContent = 'Làm tiếp'; $('stop').onclick = () => (save.ing[p.id] | 0) > 0 && stockN() < cap() ? craftGame(p) : openCraft(); };
   $('stop').onclick = stop; $('cb').onclick = stop;
 }
@@ -152,21 +153,22 @@ function openMarket(force) {
 /* ============ 8. KHÁCH HÀNG NPC ============ */
 const cust = []; let spawnT = 3;
 const demand = p => { const w = weatherAt(); return p.hot ? w.hot : p.cold ? w.cold : 1; };
-function spawnCustomer() {
-  if (cust.length >= 4) return;
-  const ids = PRODUCTS.filter(p => (save.stock[p.id] || {}).n > 0 && prodOk(p)); if (!ids.length) return;
-  let tot = 0; const ws = ids.map(p => (tot += demand(p), tot)); let r = Math.random() * tot, p = ids[ws.findIndex(v => r <= v)] || ids[0];
-  const st = save.stock[p.id], pr = priceOf(p), ratio = pr / p.price, acc = clamp((1.5 + (st.q - 2) * .14 - ratio) / .55, 0, 1), f = stallFront(), ok = Math.random() < acc;
+function spawnCustomer(o = {}) {
+  if (cust.length >= (LIVE ? 7 : 4)) return false;
+  const ids = PRODUCTS.filter(p => (save.stock[p.id] || {}).n > 0 && prodOk(p)); if (!ids.length) return false;
+  let tot = 0; const ws = ids.map(p => (tot += demand(p), tot)); let r = Math.random() * tot, p = o.p && ids.includes(o.p) ? o.p : ids[ws.findIndex(v => r <= v)] || ids[0];
+  const st = save.stock[p.id], pr = priceOf(p) * (o.vip ? 2 : 1), ratio = pr / p.price, acc = clamp((1.5 + (st.q - 2) * .14 - ratio) / .55, 0, 1), f = stallFront(), ok = o.p || o.vip ? true : Math.random() < acc;
   const t = makeTraveler(randomAv()); t.g.scale.setScalar(.92); const a = Math.random() * Math.PI - Math.PI / 2; t.g.position.set(f.x + Math.sin(a) * 26, .05, f.z - 18 - Math.random() * 10); scene.add(t.g);
   if (ok) { st.n--; if (!st.n) delete save.stock[p.id]; buildMyStall(); persist(); }
-  cust.push({ t, p, ok, q: st.q, price: pr, state: 'in', wait: 0, vel: 0, tx: f.x + (Math.random() - .5) * 2.4, tz: f.z - .5 });
+  let tag = null; if (o.nick) { tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = (o.vip ? '👑 ' : '') + o.nick; tagsEl.appendChild(tag); }
+  cust.push({ t, p, ok, q: st.q, price: pr, state: 'in', wait: 0, vel: 0, tag, nick: o.nick, vip: !!o.vip, tx: f.x + (Math.random() - .5) * 2.4, tz: f.z - .5 }); return true;
 }
 function updateCustomers(dt, t) {
   for (let i = cust.length - 1; i >= 0; i--) {
     const c = cust[i], g = c.t.g; let dx = c.tx - g.position.x, dz = c.tz - g.position.z, d = Math.hypot(dx, dz), sp = 0;
     if (c.state === 'in') { if (d < .7) { c.state = 'wait'; c.wait = 1.3; } else sp = 3.2; }
     else if (c.state === 'wait') { c.wait -= dt; c.t.g.rotation.y = Math.PI; if (c.wait <= 0) { c.state = 'out'; const f = stallFront(); c.tx = f.x + (Math.random() - .5) * 50; c.tz = f.z - 40; sale(c); } }
-    else { sp = 3.2; if (d < 1 || g.position.z < stallFront().z - 34) { scene.remove(g); cust.splice(i, 1); continue; } }
+    else { sp = 3.2; if (d < 1 || g.position.z < stallFront().z - 34) { scene.remove(g); if (c.tag) c.tag.remove(); cust.splice(i, 1); continue; } }
     if (sp) { g.position.x += dx / d * sp * dt; g.position.z += dz / d * sp * dt; const ty = Math.atan2(dx, dz); g.rotation.y += Math.atan2(Math.sin(ty - g.rotation.y), Math.cos(ty - g.rotation.y)) * Math.min(1, dt * 8); }
     c.vel = lerp(c.vel, sp, Math.min(1, dt * 8)); c.t.anim.update(dt, t, c.vel, c.state === 'wait' && c.ok ? 'cheer' : '');
   }
@@ -177,7 +179,7 @@ function sale(c) {
   else floatAt(pos, '😕 Đắt quá!', 3.6);
 }
 function milestones() { const M = [[10, 100], [50, 400], [200, 1500], [1000, 8000]]; M.forEach(([n, xu], i) => { if (save.sold >= n && !(save.bonus & (1 << i))) { save.bonus |= 1 << i; gain(xu, 20); toast(`🏅 Đã bán ${n} phần! Thưởng +${fmt(xu)} xu.`, 3600); } }); }
-function updateSales(dt) { if (!save.open || !started) return; if ((spawnT -= dt) > 0) return; spawnT = (8 + Math.random() * 6) / (TIERS[save.tier].rate * decoRate()); spawnCustomer(); }
+function updateSales(dt) { if (!save.open || !started) return; if ((spawnT -= dt) > 0) return; spawnT = (8 + Math.random() * 6) / (TIERS[save.tier].rate * decoRate()) / (LIVE ? 1.6 : 1); spawnCustomer(); }
 
 /* ============ 9. ĐỊA DANH, THỜI TIẾT ============ */
 let curLand = null, curWx = '';
@@ -266,8 +268,8 @@ function resolveSlot() { // hai người trùng ô: người có uid lớn hơn 
 function refreshNetChip() { const n = [...R.values()].filter(r => r.visible).length + 1; if (!Net.on) R.forEach((r, id) => Net.handlers.leave(id)); const el = $('net'), on = Net.on && isPaid(); el.textContent = !isPaid() ? '🔓 Bản thử · chơi một mình' : on ? `🟢 Online · ${n} người` : '⚪ Chơi một mình'; el.className = 'chip' + (on ? ' on' : ''); }
 function updateRemotes(dt, t) { const now = Date.now(); R.forEach(r => { r.visible = now - r.seen < 30000; r.t.g.visible = r.visible; if (r.stall) r.stall.visible = r.visible; if (!r.visible) return; const px = r.pos.x, pz = r.pos.z; r.pos.x = lerp(r.pos.x, r.tx, Math.min(1, dt * 6)); r.pos.z = lerp(r.pos.z, r.tz, Math.min(1, dt * 6)); const sp = Math.hypot(r.pos.x - px, r.pos.z - pz) / Math.max(dt, .001); r.vel = lerp(r.vel, Math.min(sp, 9), Math.min(1, dt * 8)); r.ya += Math.atan2(Math.sin(r.ty - r.ya), Math.cos(r.ty - r.ya)) * Math.min(1, dt * 8); r.t.g.position.set(r.pos.x, .05, r.pos.z); r.t.g.rotation.y = r.ya; r.t.anim.update(dt, t, r.vel, r.e); }); }
 function updateTags() {
-  const show = (el, text, pos, y, dist) => { vTmp.set(pos.x, y, pos.z).project(camera); const vis = vTmp.z < 1 && dist < 80 && save.names && !panelOpen(); el.style.visibility = vis ? '' : 'hidden'; if (!vis) return; if (el._t !== text) { el.textContent = text; el._t = text; } el.style.left = (vTmp.x * .5 + .5) * innerWidth + 'px'; el.style.top = (-vTmp.y * .5 + .5) * innerHeight + 'px'; };
-  show($('mytag'), myName(), P.pos, 2.5, 0); R.forEach(r => { if (r.visible) show(r.tag, r.name, r.pos, 2.5, Math.hypot(r.pos.x - P.pos.x, r.pos.z - P.pos.z)); else r.tag.style.visibility = 'hidden'; });
+  const show = (el, text, pos, y, dist) => { vTmp.set(pos.x, y, pos.z).project(camera); const vis = vTmp.z < 1 && dist < 80 && (save.names || el !== $('mytag')) && !panelOpen(); el.style.visibility = vis ? '' : 'hidden'; if (!vis) return; if (el._t !== text) { el.textContent = text; el._t = text; } el.style.left = (vTmp.x * .5 + .5) * innerWidth + 'px'; el.style.top = (-vTmp.y * .5 + .5) * innerHeight + 'px'; };
+  show($('mytag'), myName(), P.pos, 2.5, 0); cust.forEach(c => { if (c.tag) show(c.tag, c.tag.textContent, c.t.g.position, 2.4, 0); }); R.forEach(r => { if (r.visible) show(r.tag, r.name, r.pos, 2.5, Math.hypot(r.pos.x - P.pos.x, r.pos.z - P.pos.z)); else r.tag.style.visibility = 'hidden'; });
 }
 function goOnline() { if (!isPaid() || !started || !Net.on) return; Net.join(() => started ? { n: myName(), x: P.pos.x, z: P.pos.z, a: P.yaw, e: emote, av: encodeAv(save.av), s: save.slot, t: save.tier, p: PRODUCTS.indexOf(mainProd()), o: save.open } : null); Net.chatStart(chatAdd); }
 
@@ -297,9 +299,48 @@ function loop() {
   if (!running) return; requestAnimationFrame(loop); const dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
   if ((wxT -= dt) < 0) { wxT = 2; updWeather(); }
   if (started) { updatePlayer(dt, t); refreshCtx(); updateSales(dt); if ((hintT -= dt) < 0) { hintT = .6; updHint(); } } else me.anim.update(dt, t, 0, '');
-  updateCustomers(dt, t); W.update(dt, t, P.pos); updateRemotes(dt, t); updateCamera(dt); updateTags(); renderer.render(scene, camera); frames++;
+  updateLive(dt, t); updateCustomers(dt, t); W.update(dt, t, P.pos); updateRemotes(dt, t); updateCamera(dt); updateTags(); renderer.render(scene, camera); frames++;
 }
 document.addEventListener('visibilitychange', () => { running = !document.hidden; clock.getDelta(); if (running) loop(); });
+
+
+/* ============ 16. CHẾ ĐỘ TIKTOK LIVE (?live=1) ============ */
+// Cảnh sạch cho TikTok LIVE Studio (quay cửa sổ) hoặc quay màn hình điện thoại: tự chạy quầy, camera quay quanh, bình luận gọi món, quà tặng = khách VIP.
+// Sự kiện đến từ relay (tools/dichua-relay/relay.js, SSE /events; ?relay=<địa chỉ> để đổi, mặc định http://localhost:8787). Thư viện kết nối TikTok là KHÔNG chính thức.
+const Q = new URLSearchParams(location.search), LIVE = Q.get('live') === '1';
+const feed = (html, cls = '') => { const f = $('lvFeed'); if (!f) return; const d = document.createElement('div'); if (cls) d.className = cls; d.innerHTML = html; f.appendChild(d); while (f.children.length > 6) f.firstChild.remove(); setTimeout(() => d.remove(), 14000); };
+const lastOrder = new Map();
+function liveChat(ev) {
+  const u = cleanName(ev.u), raw = String(ev.text || '').slice(0, 120), txt = dirty(raw) ? '***' : raw; feed(`<b>${esc(u)}:</b> ${esc(txt)}`); if (txt === '***') return;
+  const k = plain(raw), p = PRODUCTS.find(p => p.kw.some(w => k.includes(plain(w)))); if (!p) return;
+  const now = Date.now(); if (now - (lastOrder.get(u) || 0) < 8000) return; lastOrder.set(u, now); if (lastOrder.size > 200) lastOrder.clear();
+  if (!prodOk(p)) return feed(`🔒 ${p.ic} ${esc(p.n)} chưa có trong quầy`, 'g'); if (!(save.stock[p.id] || {}).n) return feed(`😅 ${p.ic} ${esc(p.n)} đang hết, chờ quầy làm thêm nhé ${esc(u)}!`);
+  if (spawnCustomer({ p, nick: u })) feed(`🛍️ ${esc(u)} gọi ${p.ic} ${esc(p.n)}`);
+}
+function liveGift(ev) {
+  const u = cleanName(ev.u), n = Math.max(1, +ev.n || 1), d = Math.max(0, +ev.d || 0), tip = Math.min(5000, Math.max(20, d * 10));
+  gain(tip, 5); save.rev += tip; persist(); feed(`🎁 <b>${esc(u)}</b> tặng ${n} × ${esc(String(ev.g || 'quà').slice(0, 30))} · +${fmt(tip)} 🪙`, 'g'); Snd.good(); setEmote('cheer', 2500); floatAt(P.pos, `🎁 +${tip}`, 3.2);
+  if (!spawnCustomer({ nick: u, vip: true })) { /* không còn hàng: vẫn nhận tiền thưởng */ }
+}
+function connectRelay() {
+  if (!LIVE) return; let base = Q.get('relay') || 'http://localhost:8787'; try { const u = new URL(base); if (!/^https?:$/.test(u.protocol)) return; base = u.href.replace(/\/?$/, '/') + 'events'; } catch (e) { return; }
+  let es; const open = () => { try { es = new EventSource(base); } catch (e) { return; } es.onmessage = m => { try { const d = JSON.parse(m.data); if (d.type === 'chat') liveChat(d); else if (d.type === 'gift' || d.g) liveGift(d); } catch (e) {} }; es.onopen = () => feed('🟢 Đã nối TikTok LIVE'); es.onerror = () => { es.close(); setTimeout(open, 8000); }; }; open();
+}
+// Tự vận hành: mở quầy, mua nguyên liệu, chế biến (chất lượng 2★) để buổi live không cần tay người chơi
+function autopilot() {
+  if (!LIVE || !started) return; if (!save.open) { save.open = true; persist(); refreshOpenBtn(); }
+  const usable = PRODUCTS.filter(prodOk); if (!stockN() && save.xu < 40 && !Object.values(save.ing).some(n => n > 0)) { gain(80, 0); feed('🎀 Quỹ khởi nghiệp +80 🪙'); }
+  const have = usable.filter(p => (save.ing[p.id] | 0) > 0);
+  if (stockN() < cap() - 1 && have.length) { const p = have[Math.floor(Math.random() * have.length)], n = Math.min(2, save.ing[p.id], cap() - stockN()); makeBatch(p, 2, n); Snd.sizzle(); }
+  const low = usable.filter(p => (save.ing[p.id] | 0) < 3); if (low.length) { const p = low[Math.floor(Math.random() * low.length)], n = 6, pr = mPrice(p) * n; if (save.xu >= pr + 20) { gain(-pr, 0); save.ing[p.id] = (save.ing[p.id] | 0) + n; persist(); } }
+}
+function liveHud() { $('lvName').textContent = `🌼 ${myName()} · ${TIERS[save.tier].n}`; $('lvStat').textContent = `🪙 ${fmt(save.xu)} · Cấp ${lvl()} · đã bán ${fmt(save.sold)}`; const w = weatherAt(); $('lvWx').textContent = `${w.ic} ${w.n} · ${stockN()}/${cap()} phần`; }
+let apT = 0, wvT = 0;
+function updateLive(dt, t) {
+  if (!LIVE) return; cam.yaw += dt * .14; cam.dist = innerHeight > innerWidth ? 15 : 12; cam.pitch = .34;
+  if ((apT -= dt) < 0) { apT = 3; autopilot(); liveHud(); } if ((wvT -= dt) < 0) { wvT = 9 + Math.random() * 6; setEmote('wave', 2200); }
+}
+if (LIVE) { document.body.classList.add('live'); save.name = (Q.get('name') || save.name || 'Quầy Đà Lạt').replace(/[<>]/g, '').slice(0, 20); if (dirty(save.name)) save.name = 'Quầy Đà Lạt'; save.avDone = save.tutDone = true; save.shadows = !isTouch; W.setShadows(save.shadows); persist(); }
 
 /* ============ 14. NÚT BẤM ============ */
 $('bCraft').onclick = () => openCraft(); $('bMarket').onclick = () => openMarket(); $('bInfo').onclick = () => curLand && openLand(curLand); $('bPhoto').onclick = () => { if (!locked()) doPhoto(); };
@@ -316,6 +357,6 @@ function enter() {
 }
 $('bEnter').onclick = enter; $('nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') enter(); });
 if (isPaid()) Net.init().then(ok => { refreshNetChip(); if (ok) goOnline(); });
-$('hud').style.visibility = 'hidden'; loop();
-window.DL = { save, P, W, cam, Net, R, scene, camera, renderer, PRODUCTS, cust, openStall, openMarket, openCraft, openPay, openLand, setOpen, goHome, spawnCustomer, craftGame, stockN, cap, state: () => ({ started, frames, curLand: curLand && curLand.id, open: save.open, lvl: lvl(), paid: isPaid(), custN: cust.length }) };
+$('hud').style.visibility = 'hidden'; if (LIVE) { buildMyStall(); enter(); connectRelay(); feed('🌼 Chào mừng đến Đà Lạt Phố Hội! Bình luận tên món để gọi nhé'); } loop();
+window.DL = { save, P, W, cam, Net, R, scene, camera, renderer, PRODUCTS, cust, openStall, openMarket, openCraft, openPay, openLand, setOpen, goHome, spawnCustomer, craftGame, liveChat, liveGift, autopilot, feed, stockN, cap, state: () => ({ started, frames, curLand: curLand && curLand.id, open: save.open, lvl: lvl(), paid: isPaid(), custN: cust.length }) };
 window.dispatchEvent(new Event('dl-ready'));

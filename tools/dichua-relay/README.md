@@ -32,3 +32,10 @@ Thử không cần LIVE: `curl -X POST http://localhost:8787/test` → trang đa
 ## Bảo mật
 - Relay chỉ phát dữ liệu quà (tên hiển thị, ảnh https, tên quà, số lượng) – không chứa khoá nào. `FIREBASE_SECRET` và `TIKTOK_SESSION_ID` chỉ nằm trên máy bạn, **đừng commit**.
 - Trang chỉ nhận ảnh `https://`; mọi chữ đều được escape.
+
+## Dùng cho Đà Lạt Phố Hội 3D (TikTok LIVE)
+Relay còn đẩy **bình luận** (`{type:'chat', u, text}`) qua SSE `/events`. Mở game ở chế độ live: `games/dalat3d/index.html?live=1&name=<tên quầy>` (thêm `&relay=<địa chỉ>` nếu relay không ở `http://localhost:8787`).
+- Bình luận có tên món → khách mang tên người xem đi tới quầy mua món đó (mỗi người 1 lần / 8 giây).
+- Quà tặng → khách VIP 👑 (mua giá gấp đôi) + xu thưởng theo kim cương.
+- Thử không cần LIVE: `DICHUA_NO_CONNECT=1 node relay.js` rồi `curl -X POST localhost:8787/test-chat` hoặc `/test`.
+- Quay: TikTok LIVE Studio → Window capture cửa sổ trình duyệt (dọc hoặc ngang đều được). Thư viện kết nối TikTok là KHÔNG chính thức.

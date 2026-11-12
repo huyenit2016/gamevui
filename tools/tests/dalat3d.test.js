@@ -16,9 +16,10 @@ const CODE = 'DLTEST9999', HASH = crypto.createHash('sha256').update('dalat3d:' 
     p.on('pageerror', e => errs.push(name + ': ' + e.message)); p.on('console', m => m.type() === 'error' && !/ERR_|Failed to load|404/.test(m.text()) && errs.push(name + ': ' + m.text()));
     await p.route(/^https?:\/\/(?!localhost)/, r => r.abort()); await p.route('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js', r => r.fulfill({ path: THREE, contentType: 'text/javascript' }));
     await p.route('**/games/dalat3d/codes.json', r => r.fulfill({ json: { h: [HASH] } }));
+    if (o.sse) await p.route('http://localhost:8787/events', r => r.fulfill({ status: 200, contentType: 'text/event-stream', headers: { 'access-control-allow-origin': '*' }, body: o.sse }));
     if (o.save) await p.addInitScript(s => localStorage.setItem('dalat3d_v1', JSON.stringify(s)), o.save);
     if (o.hub !== false) { await hub.attach(p, 'anon-' + name); await p.addInitScript({ path: path.join(__dirname, 'mock_shared.js') }); }
-    await p.goto(URL); await p.waitForFunction(() => window.DL, null, { timeout: 40000 }); return p;
+    await p.goto(URL + (o.query || '')); await p.waitForFunction(() => window.DL, null, { timeout: 40000 }); return p;
   };
   const start = async (p, name) => { await p.fill('#nameIn', name); await p.click('#bEnter'); await p.waitForTimeout(400); };
   const tp = async (p, x, z) => { await p.evaluate(([x, z]) => DL.P.pos.set(x, 0, z), [x, z]); await p.waitForTimeout(400); };
@@ -102,6 +103,22 @@ const CODE = 'DLTEST9999', HASH = crypto.createHash('sha256').update('dalat3d:' 
   ok('trạng thái mở quầy đồng bộ', await P2.evaluate(() => [...DL.R.values()][0].open) === 1);
   await P1.click('#bar [data-b="rank"]'); await P1.waitForTimeout(800); ok('bảng xếp hạng mở được', /Tiểu thương/.test(await P1.textContent('#pt')));
   await P1.context().close(); await P2.context().close();
+  // ===== TikTok LIVE (?live=1) =====
+  const ev = o => 'data: ' + JSON.stringify(o) + '\n\n';
+  const L = await mk('live', { hub: false, query: '?live=1&name=Quầy%20Live', save: { avDone: true, tutDone: true, stock: { khoai: { n: 4, q: 3 }, sua: { n: 3, q: 2 } }, ing: { banh: 4 }, xu: 300 },
+    sse: ev({ type: 'chat', u: 'Lan', text: 'cho mình 1 khoai nướng nha' }) + ev({ type: 'chat', u: 'Nam', text: 'địt mẹ' }) + ev({ type: 'chat', u: 'Bé Na', text: 'cà phê đi' }) + ev({ type: 'gift', u: 'Hoa', g: 'Hoa hồng', n: 2, d: 2 }) });
+  await L.waitForFunction(() => document.getElementById('lvFeed').children.length >= 4, null, { timeout: 30000 }).catch(() => {});
+  ok('chế độ live: HUD thường ẩn, HUD live hiện', await L.evaluate(() => document.body.classList.contains('live') && getComputedStyle(document.getElementById('hud')).display === 'none' && getComputedStyle(document.getElementById('live')).display === 'block'));
+  ok('live: tự vào game + tự mở quầy, tên từ URL', await L.evaluate(() => DL.state().started && DL.save.open && DL.save.name === 'Quầy Live'));
+  const feedTxt = await L.textContent('#lvFeed'); ok('bình luận hiện trong khung, từ tục bị che', /Lan/.test(feedTxt) && !/địt/.test(feedTxt) && /\*\*\*/.test(feedTxt), feedTxt);
+  ok('bình luận "khoai" → khách của người xem có tên', await L.evaluate(() => DL.cust.some(c => c.nick === 'Lan' && c.p.id === 'khoai')));
+  ok('quà tặng → khách VIP + xu thưởng', await L.evaluate(() => DL.cust.some(c => c.nick === 'Hoa' && c.vip !== false)) && /Hoa/.test(feedTxt) && (await L.evaluate(() => DL.save.rev)) >= 20);
+  ok('món không có trong quầy (cà phê, cần cấp/bản đầy đủ) được báo', /Bé Na|cà phê|chưa có/i.test(await L.textContent('#lvFeed')));
+  await L.waitForFunction(() => DL.save.stock.banh && DL.save.stock.banh.n > 0, null, { timeout: 30000 }).catch(() => {});
+  ok('autopilot tự chế biến từ nguyên liệu có sẵn', await L.evaluate(() => !!(DL.save.stock.banh && DL.save.stock.banh.n > 0)));
+  const y0 = await L.evaluate(() => DL.cam.yaw); await L.waitForTimeout(1500); ok('camera tự quay quanh quầy', (await L.evaluate(() => DL.cam.yaw)) !== y0);
+  ok('live: không lỗi gọi mạng Firebase (chơi bản thử)', !(await L.evaluate(() => DL.Net.on)));
+  await L.screenshot({ path: process.env.LIVE_SHOT || '/tmp/dalat-live.png' }); await L.context().close();
   // ===== điện thoại =====
   const M = await mk('m', { w: 390, h: 760, touch: true, hub: false, save: Object.assign({}, base, { slot: 1 }) }); await start(M, 'Mobi');
   ok('điện thoại: HUD không tràn ngang, có nút Mở quầy', await M.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1) && await M.isVisible('#bOpen'));
