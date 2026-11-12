@@ -11,12 +11,15 @@ let renderer; try { renderer = new THREE.WebGLRenderer({ canvas: $('c'), antiali
 renderer.setPixelRatio(Math.min(devicePixelRatio, cfg.q === 'high' ? 1.75 : 1.25)); renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.AgXToneMapping || THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; renderer.shadowMap.enabled = cfg.q !== 'low'; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, .1, 600); scene.add(camera);
-scene.fog = new THREE.FogExp2(0x2b2d33, .0125);
-let composer = null;
+scene.fog = new THREE.FogExp2(0x45403b, .0105);
+let composer = null, grade = null;
 async function setupComposer() {
   if (cfg.q !== 'high') { composer = null; return; }
   try { const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }] = await Promise.all(['postprocessing/EffectComposer.js', 'postprocessing/RenderPass.js', 'postprocessing/UnrealBloomPass.js', 'postprocessing/OutputPass.js'].map(p => import('three/addons/' + p)));
-    composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera)); composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .55, .7, .82)); composer.addPass(new OutputPass()); composer.setSize(innerWidth, innerHeight);
+    composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera)); composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .55, .7, .82)); composer.addPass(new OutputPass());
+    const { ShaderPass } = await import('three/addons/postprocessing/ShaderPass.js'); grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, t: { value: 0 } }, vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader: 'uniform sampler2D tDiffuse;uniform float t;varying vec2 vUv;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){vec3 c=texture2D(tDiffuse,vUv).rgb;float l=dot(c,vec3(.299,.587,.114));c=mix(c,vec3(l),.18);c+=vec3(-.012,.004,.02)*(1.-l);c*=mix(vec3(.94,.97,1.03),vec3(1.06,1.,.9),smoothstep(.25,.8,l));c=(c-.5)*1.06+.5;vec2 d=vUv-.5;c*=1.-dot(d,d)*.55;c+=(h(vUv*vec2(1920.,1080.)+t)-.5)*.035;gl_FragColor=vec4(c,1.);}' });
+    composer.addPass(grade); composer.setSize(innerWidth, innerHeight);
   } catch (e) { composer = null; }
 }
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); composer && composer.setSize(innerWidth, innerHeight); });
@@ -30,7 +33,7 @@ float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h
 float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*n(p);p*=2.03;a*=.5;}return s;}
 void main(){vec3 d=normalize(vP);float y=max(d.y,0.);vec3 hor=vec3(.62,.38,.26),mid=vec3(.2,.2,.25),top=vec3(.06,.07,.1);
 vec3 c=mix(hor,mid,smoothstep(0.,.18,y));c=mix(c,top,smoothstep(.15,.8,y));
-vec2 uv=d.xz/(d.y+.25)*1.2+vec2(t*.01,0.);float cl=fbm(uv*1.6);c*=.55+cl*.9;c+=vec3(.9,.55,.35)*smoothstep(.5,.9,cl)*(1.-y)*.25;c+=vec3(.6,.7,1.)*flash*(.4+cl);gl_FragColor=vec4(c,1.);}` });
+vec2 uv=d.xz/(d.y+.25)*1.2+vec2(t*.01,0.);float cl=fbm(uv*1.6);c*=.55+cl*.9;c+=vec3(.9,.55,.35)*smoothstep(.5,.9,cl)*(1.-y)*.25;vec3 sd=normalize(vec3(1.,.06,-.25));float sg=max(dot(d,sd),0.);c+=vec3(1.,.5,.25)*(pow(sg,6.)*.55+pow(sg,40.)*.6)*(1.-cl*.5);c+=vec3(.6,.7,1.)*flash*(.4+cl);gl_FragColor=vec4(c,1.);}` });
 const dome = new THREE.Mesh(new THREE.SphereGeometry(450, 24, 14), skyMat); dome.renderOrder = -10; scene.add(dome);
 { const pm = new THREE.PMREMGenerator(renderer), es = new THREE.Scene(); es.add(new THREE.Mesh(new THREE.SphereGeometry(100, 16, 10), skyMat.clone())); scene.environment = pm.fromScene(es, .04).texture; scene.environmentIntensity = .62; }
 const hemi = new THREE.HemisphereLight(0x7f8fa8, 0x2a2420, .55); scene.add(hemi);
@@ -40,24 +43,31 @@ const moon = new THREE.DirectionalLight(0xffc89a, 1.25); moon.position.set(-60, 
 function canvasTex(w, h, draw, rep = [1, 1], srgb = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); t.anisotropy = 4; if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; }
 const noise = (g, w, h, a, s = 1) => { const im = g.getImageData(0, 0, w, h), d = im.data; for (let i = 0; i < d.length; i += 4) { const v = (R() - .5) * a; d[i] += v; d[i + 1] += v; d[i + 2] += v; } g.putImageData(im, 0, 0); };
 // mặt đường ướt: map tối + roughnessMap có vũng nước (nhẵn như gương → phản chiếu bầu trời)
-const puddles = []; for (let i = 0; i < 70; i++) puddles.push([R() * 1024, R() * 1024, rr(25, 110), rr(.5, 1)]);
+const puddles = []; for (let i = 0; i < 45; i++) puddles.push([R() * 1024, R() * 1024, rr(25, 110), rr(.5, 1)]);
 const asphaltMap = canvasTex(1024, 1024, (g, w, h) => { g.fillStyle = '#2a2b2e'; g.fillRect(0, 0, w, h); noise(g, w, h, 34);
   g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = 1.5; for (let i = 0; i < 40; i++) { g.beginPath(); let x = R() * w, y = R() * h; g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += rr(-30, 30); y += rr(-30, 30); g.lineTo(x, y); } g.stroke(); }
   g.fillStyle = 'rgba(205,190,120,.35)'; for (let i = 0; i < 4; i++) g.fillRect(i * 256 + 120, 0, 10, h * .62); g.fillStyle = 'rgba(190,190,180,.22)'; g.fillRect(0, 700, w, 8);
   for (const [x, y, r] of puddles) { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(8,9,12,.75)'); gr.addColorStop(1, 'rgba(8,9,12,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); } }, [26, 26]);
-const asphaltRough = canvasTex(1024, 1024, (g, w, h) => { g.fillStyle = '#c8c8c8'; g.fillRect(0, 0, w, h); noise(g, w, h, 40); for (const [x, y, r, a] of puddles) { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(12,12,12,${a})`); gr.addColorStop(.7, `rgba(12,12,12,${a * .8})`); gr.addColorStop(1, 'rgba(12,12,12,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); } }, [26, 26], false);
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ map: asphaltMap, roughnessMap: asphaltRough, roughness: 1, metalness: .15 })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; ground.position.set(0, 0, -20); scene.add(ground);
-const water = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshStandardMaterial({ color: '#0a141b', roughness: .12, metalness: .85 })); water.rotation.x = -Math.PI / 2; water.position.set(290, -1.3, -20); scene.add(water);
+const asphaltRough = canvasTex(1024, 1024, (g, w, h) => { g.fillStyle = '#c8c8c8'; g.fillRect(0, 0, w, h); noise(g, w, h, 40); for (const [x, y, r, a] of puddles) { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(70,70,70,${a})`); gr.addColorStop(.7, `rgba(70,70,70,${a * .7})`); gr.addColorStop(1, 'rgba(12,12,12,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); } }, [26, 26], false);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(272, 400), new THREE.MeshStandardMaterial({ map: asphaltMap, roughnessMap: asphaltRough, roughness: 1, metalness: .05, envMapIntensity: .8 })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; ground.position.set(-64, 0, -20); scene.add(ground);
+{ const q = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.6, 400), new THREE.MeshStandardMaterial({ color: '#4a4b4d', roughness: .95 })); q.position.set(72.6, -1.3, -20); q.receiveShadow = true; scene.add(q); }
+const water = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.MeshStandardMaterial({ color: '#141c22', roughness: .18, metalness: .9, envMapIntensity: 1.2 })); water.rotation.x = -Math.PI / 2; water.position.set(500, -1.3, -20); scene.add(water);
 
 /* ================= BẢN ĐỒ ================= */
 const boxes = [], mat = {}; // vật cản {x0,x1,z0,z1,h}
 const addBox = (x0, x1, z0, z1, h) => boxes.push({ x0, x1, z0, z1, h });
 const sm = (c, r = .7, m = .2) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
 const NAMES = ['KESTREL', 'TAMARIND', 'BLUEHARBOR', 'OXBOW', 'MERIDIAN', 'HALCYON'], COLS = ['#8c2f2a', '#2c4f6e', '#3d6a4a', '#b5792a', '#5b5f66', '#6a3d5e'];
-const cMats = COLS.map((c, i) => new THREE.MeshStandardMaterial({ roughness: .62, metalness: .35, map: canvasTex(256, 128, (g, w, h) => { g.fillStyle = c; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 6) { g.fillStyle = (x / 6) % 2 ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.07)'; g.fillRect(x, 0, 3, h); } noise(g, w, h, 30); g.fillStyle = 'rgba(70,40,20,.28)'; for (let k = 0; k < 30; k++) g.fillRect(R() * w, h * R(), rr(2, 10), rr(8, 40)); g.fillStyle = 'rgba(255,255,255,.75)'; g.font = 'bold 24px sans-serif'; g.textAlign = 'center'; g.fillText(NAMES[i], w / 2, h * .55); g.font = '10px sans-serif'; g.fillText('SALTLESS · ' + (1000 + i * 137), w / 2, h * .72); }) }));
+const cMats = COLS.map((c, i) => new THREE.MeshStandardMaterial({ roughness: .62, metalness: .35, map: canvasTex(256, 128, (g, w, h) => { g.fillStyle = c; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 6) { g.fillStyle = (x / 6) % 2 ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.07)'; g.fillRect(x, 0, 3, h); } noise(g, w, h, 30); g.fillStyle = 'rgba(70,40,20,.28)'; for (let k = 0; k < 30; k++) g.fillRect(R() * w, h * R(), rr(2, 10), rr(8, 40)); g.fillStyle = 'rgba(255,255,255,.75)'; g.font = 'bold 24px sans-serif'; g.textAlign = 'center'; g.fillText(NAMES[i], w / 2, h * .55); g.font = '10px sans-serif'; g.fillText('CẢNG ĐEN · ' + (1000 + i * 137), w / 2, h * .72); }) }));
 const cGeo = new THREE.BoxGeometry(1, 1, 1);
 function container(x, z, along, stacks) { for (let s = 0; s < stacks; s++) { const L = 12, Wd = 2.5, H = 2.6, mt = cMats[(R() * cMats.length) | 0], m = new THREE.Mesh(cGeo, mt); m.scale.set(along ? L : Wd, H, along ? Wd : L); m.position.set(x, s * H + H / 2, z); m.castShadow = m.receiveShadow = true; scene.add(m); } const hx = along ? 6 : 1.25, hz = along ? 1.25 : 6; addBox(x - hx, x + hx, z - hz, z + hz, stacks * 2.6); }
-const OPEN = new Set(['0,5', '1,2', '3,0', '5,4', '5,2', '4,2', '2,3']);
+const brandM = new THREE.MeshStandardMaterial({ roughness: .55, metalness: .45, map: canvasTex(1024, 256, (g, w, h) => { g.fillStyle = '#1f2c3a'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 14) { g.fillStyle = (x / 14) % 2 ? 'rgba(0,0,0,.28)' : 'rgba(255,255,255,.05)'; g.fillRect(x, 0, 7, h); } noise(g, w, h, 26);
+  g.strokeStyle = 'rgba(190,205,215,.75)'; g.lineWidth = 8; g.beginPath(); g.arc(250, 120, 44, .5, TAU - .5); g.stroke(); g.fillStyle = 'rgba(190,205,215,.8)'; g.beginPath(); g.moveTo(250, 82); g.lineTo(272, 120); g.lineTo(250, 158); g.lineTo(228, 120); g.closePath(); g.fill();
+  g.font = 'italic 900 78px "Arial Narrow", Impact, sans-serif'; g.textAlign = 'left'; g.fillText('SAO BIỂN LINE', 310, 140); g.font = '600 18px Arial, sans-serif'; g.fillText('B I Ể N   Đ Ô N G  ·  Á  –  Â U  ·  V Ậ N   T Ả I', 318, 176);
+  g.fillStyle = 'rgba(90,45,25,.35)'; for (let k = 0; k < 60; k++) g.fillRect(R() * w, R() * h, rr(2, 6), rr(10, 60)); }) });
+function brandBox(x, z, ry, stacks = 2) { for (let s = 0; s < stacks; s++) { const m = new THREE.Mesh(new THREE.BoxGeometry(12, 2.6, 2.5), [cMats[1], cMats[1], cMats[1], cMats[1], brandM, brandM]); m.position.set(x, s * 2.6 + 1.3, z); m.rotation.y = ry; m.castShadow = m.receiveShadow = true; scene.add(m); } const c = Math.abs(Math.cos(ry)) > .5, hx = c ? 6 : 1.25, hz = c ? 1.25 : 6; addBox(x - hx, x + hx, z - hz, z + hz, stacks * 2.6); }
+brandBox(64, -18, 0, 3); brandBox(46, -1, 0, 3);
+const OPEN = new Set(['5,3', '0,5', '1,2', '3,0', '5,4', '5,2', '4,2', '2,3']);
 for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) { if (OPEN.has(i + ',' + j)) continue; const cx = -55 + 22 * i, cz = -77 + 22 * j; if (R() < .18) continue; const al = R() < .5; for (let k = -1; k <= 1; k += 2) if (R() < .85) container(cx + (al ? rr(-3, 3) : k * 3.2), cz + (al ? k * 3.2 : rr(-3, 3)), al, 1 + ((R() * 3) | 0)); }
 // tường bao (bê tông) + cần cẩu giàn
 const wallM = sm('#55585c', .9, .05), hazT = canvasTex(64, 64, (g, w, h) => { g.fillStyle = '#d6a21c'; g.fillRect(0, 0, w, h); g.fillStyle = '#16171a'; for (let i = -4; i < 8; i++) { g.beginPath(); g.moveTo(i * 16, h); g.lineTo(i * 16 + 8, h); g.lineTo(i * 16 + 40, 0); g.lineTo(i * 16 + 32, 0); g.fill(); } }, [1, 3]);
@@ -70,6 +80,33 @@ function crane(z) { const g = new THREE.Group(); const leg = (x, zz) => { const 
   const spr = new THREE.Mesh(new THREE.BoxGeometry(14, 1.2, 4), sm('#3a2f22', .8, .4)); spr.position.set(68, 24, 0); g.add(spr); [-5, 5].forEach(x => { const c = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, 14, 4), sm('#111')); c.position.set(68 + x, 31, 0); g.add(c); });
   const lamp = new THREE.Mesh(new THREE.BoxGeometry(2.6, .3, .6), new THREE.MeshBasicMaterial({ color: '#fff2c8' })); lamp.position.set(66, 38.2, 2.4); g.add(lamp); g.position.set(0, 0, z); scene.add(g); }
 crane(-60); crane(-8);
+/* ---------- cảnh xa: thành phố mờ bên kia vịnh, cần cẩu xa, đèn pha ---------- */
+{ const sky = new THREE.MeshBasicMaterial({ color: '#3a3634', fog: true }), N = 90, im = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), sky, N), D = new THREE.Object3D();
+  for (let i = 0; i < N; i++) { const h = rr(5, 22) * (R() < .12 ? 2.2 : 1); D.position.set(rr(380, 430), h / 2 - 1, rr(-360, 260)); D.scale.set(rr(10, 24), h, rr(10, 24)); D.updateMatrix(); im.setMatrixAt(i, D.matrix); } scene.add(im);
+  const far = sm('#25292e', .9, .3); for (let k = 0; k < 3; k++) { const g = new THREE.Group(), z = -160 + k * 70; [[0, -6], [0, 6], [14, -6], [14, 6]].forEach(([x, zz]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 34, 1.4), far); m.position.set(x, 17, zz); g.add(m); }); const a = new THREE.Mesh(new THREE.BoxGeometry(60, 2, 2.5), far); a.position.set(20, 33, 0); g.add(a); g.position.set(250, 0, z); scene.add(g); } }
+const floods = [], floodM = new THREE.MeshBasicMaterial({ color: '#fff6dc' });
+function floodTower(x, z, h = 22) { const p = new THREE.Mesh(new THREE.CylinderGeometry(.18, .26, h, 6), steel); p.position.set(x, h / 2, z); p.castShadow = true; scene.add(p); addBox(x - .3, x + .3, z - .3, z + .3, h);
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(3.2, .25, .25), steel); bar.position.set(x, h, z); scene.add(bar); for (let k = -1; k <= 1; k += 2) { const l = new THREE.Mesh(new THREE.BoxGeometry(.9, .55, .3), floodM); l.position.set(x + k * 1.1, h + .45, z); l.rotation.x = .5; scene.add(l); }
+  const sp = new THREE.SpotLight(0xffe7c2, 900, 70, .55, .6, 1.6); sp.position.set(x, h, z); sp.target.position.set(x - 8, 0, z + 6); sp.castShadow = false; scene.add(sp, sp.target); floods.push(sp); }
+floodTower(66, -27); floodTower(66, 18); floodTower(-30, -88, 18);
+/* ---------- đạo cụ quanh chân cần cẩu (cảnh mở màn) ---------- */
+// cầu thang xoắn bám chân cần cẩu
+{ const g = new THREE.Group(), stM = sm('#3a4654', .5, .75), rail = sm('#6c7a86', .45, .8); for (let f = 0; f < 6; f++) { const y0 = f * 5, dir = f % 2 ? -1 : 1, fl = new THREE.Mesh(new THREE.BoxGeometry(1.2, .12, 6.4), stM); fl.position.set(0, y0 + 2.5, 0); fl.rotation.x = dir * .66; g.add(fl);
+    const pl = new THREE.Mesh(new THREE.BoxGeometry(1.4, .12, 1.6), stM); pl.position.set(0, y0 + 5, dir * 3.6); g.add(pl); for (const s of [-.65, .65]) { const r = new THREE.Mesh(new THREE.BoxGeometry(.05, .05, 6.6), rail); r.position.set(s, y0 + 3.4, 0); r.rotation.x = dir * .66; g.add(r); } }
+  g.position.set(62.6, 0, -11); scene.add(g); }
+// chồng dầm thép chữ I
+{ const bm = sm('#3b3d40', .55, .8); for (let row = 0; row < 3; row++) for (let k = 0; k < 6 - row; k++) { const b = new THREE.Group(); [[0, .02, .28], [0, .3, .28], [0, .16, .03]].forEach(([x, y, w], i) => { const m = new THREE.Mesh(new THREE.BoxGeometry(16, i === 2 ? .3 : .04, i === 2 ? .04 : .3), bm); m.position.y = y; b.add(m); }); b.position.set(48, row * .34, -24 + k * .34 + row * .17); b.rotation.y = .02; b.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); scene.add(b); } addBox(40, 56, -24.2, -21.8, 1); }
+// cuộn cáp có in chữ
+const reelT = canvasTex(256, 256, (g, w, h) => { g.fillStyle = '#3d3a35'; g.fillRect(0, 0, w, h); noise(g, w, h, 26); g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 3; for (let r = 30; r < 128; r += 18) { g.beginPath(); g.arc(128, 128, r, 0, TAU); g.stroke(); } g.fillStyle = 'rgba(230,225,210,.55)'; g.font = 'bold 22px Arial Narrow, sans-serif'; g.textAlign = 'center'; g.save(); g.translate(128, 128); g.rotate(-.2); g.fillText('BẾN CẢNG ĐEN', 0, 8); g.restore(); });
+function reel(x, z, r = 1.6, ry = 0) { const g = new THREE.Group(), side = new THREE.MeshStandardMaterial({ map: reelT, roughness: .8, metalness: .2 }), m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .16, 28), side); [-.9, .9].forEach(zz => { const d = m.clone(); d.rotation.x = Math.PI / 2; d.position.z = zz; g.add(d); }); const core = new THREE.Mesh(new THREE.CylinderGeometry(r * .62, r * .62, 1.7, 20), sm('#1c1d1f', .5, .4)); core.rotation.x = Math.PI / 2; g.add(core); g.position.set(x, r, z); g.rotation.y = ry; g.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); scene.add(g); addBox(x - r, x + r, z - r, z + r, r * 2); }
+reel(49, -36, 1.7, .5); reel(46, 6, 1.4, -.2); reel(-20, 30, 1.5, 1.1);
+// pa-lét chồng, rào lưới, chốt gác
+{ const pm = sm('#5a4733', .9, .02); for (let k = 0; k < 7; k++) { const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, .16, 1.2), pm); m.position.set(57, .08 + k * .18, -16); m.rotation.y = rr(-.05, .05); m.castShadow = m.receiveShadow = true; scene.add(m); } addBox(56.3, 57.7, -16.6, -15.4, 1.3);
+  const fm = new THREE.MeshStandardMaterial({ color: '#8a9096', roughness: .5, metalness: .8, transparent: true, opacity: .55, map: canvasTex(64, 64, (g, w, h) => { g.clearRect(0, 0, w, h); g.strokeStyle = '#ccc'; g.lineWidth = 2; for (let i = -64; i < 64; i += 8) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 64, 64); g.stroke(); g.beginPath(); g.moveTo(i + 64, 0); g.lineTo(i, 64); g.stroke(); } }, [6, 1]), side: THREE.DoubleSide, depthWrite: false });
+  const fe = new THREE.Mesh(new THREE.PlaneGeometry(12, 2.2), fm); fe.position.set(66.5, 1.1, -38); scene.add(fe); addBox(60.5, 72.5, -38.1, -37.9, 2.2);
+  const bo = new THREE.Mesh(new THREE.BoxGeometry(2, 2.6, 2), sm('#4b5258', .6, .4)); bo.position.set(63, 1.3, -24); bo.castShadow = true; scene.add(bo); const bw = new THREE.Mesh(new THREE.BoxGeometry(2.02, .6, 1.4), new THREE.MeshStandardMaterial({ color: '#2a2a20', emissive: '#ffcf7a', emissiveIntensity: 1.1 })); bw.position.set(63, 1.8, -24); scene.add(bw); addBox(62, 64, -25, -23, 2.6);
+  const bl = new THREE.Mesh(new THREE.SphereGeometry(.35, 12, 8), sm('#c8ccd0', .3, .9)); bl.position.set(63, 3.2, -24); scene.add(bl); }
+
 // cầu tàu + tàu cứu hộ
 const jetty = new THREE.Mesh(new THREE.BoxGeometry(24, 1.3, 9), sm('#3b3128', .85, .05)); jetty.position.set(82, -.62, -33); jetty.receiveShadow = true; scene.add(jetty);
 const BOAT = new THREE.Vector3(88, 0, -33), boat = new THREE.Group();
@@ -126,9 +163,27 @@ const MAG = 30, keys = {}, input = { fire: false, ads: false, jump: false, reloa
 let state = 'menu', tNow = 0, kills = 0, shots = 0, hits = 0, startT = 0, dmgTaken = 0, relaysCut = 0, msgT = 0;
 const msg = (t, ms = 2600) => { const m = $('msg'); m.textContent = t; m.classList.add('on'); clearTimeout(msgT); msgT = setTimeout(() => m.classList.remove('on'), ms); };
 // súng (viewmodel)
-const gun = new THREE.Group(), gunM = sm('#16191d', .4, .8);
-{ const b = new THREE.Mesh(new THREE.BoxGeometry(.07, .1, .55), gunM); b.position.z = -.1; gun.add(b); const br = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, .35, 8).rotateX(Math.PI / 2), sm('#0b0c0e', .3, .9)); br.position.set(0, .02, -.52); gun.add(br); const st = new THREE.Mesh(new THREE.BoxGeometry(.06, .13, .22), sm('#2b2f36', .6, .3)); st.position.set(0, -.02, .26); gun.add(st); const gr = new THREE.Mesh(new THREE.BoxGeometry(.05, .14, .06), gunM); gr.position.set(0, -.11, .02); gr.rotation.x = .25; gun.add(gr); const mg = new THREE.Mesh(new THREE.BoxGeometry(.05, .16, .08), sm('#222', .5, .5)); mg.position.set(0, -.12, -.1); gun.add(mg);
-  const sg = new THREE.Mesh(new THREE.BoxGeometry(.03, .04, .1), sm('#0b0c0e')); sg.position.set(0, .075, -.22); gun.add(sg); const dot = new THREE.Mesh(new THREE.SphereGeometry(.006, 6, 4), new THREE.MeshBasicMaterial({ color: '#ff3a2a' })); dot.position.set(0, .075, -.27); gun.add(dot); }
+const gun = new THREE.Group(), gunM = sm('#1a1d21', .42, .7), gunD = sm('#0d0f12', .35, .85), gunP = sm('#24282e', .75, .1), gunT = sm('#3a3f36', .8, .1);
+{ const add = (geo, m, x, y, z, rx = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.x = rx; gun.add(o); return o; }, B = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  add(B(.072, .085, .32), gunM, 0, 0, -.06);                       // thân trên
+  add(B(.066, .06, .22), gunM, 0, -.055, -.02);                    // thân dưới
+  add(B(.08, .075, .3), gunT, 0, -.005, -.36);                     // ốp tay có ray
+  for (let k = 0; k < 9; k++) add(B(.084, .012, .016), gunD, 0, .036, -.24 - k * .028); // ray trên ốp
+  add(new THREE.CylinderGeometry(.016, .016, .2, 10).rotateX(Math.PI / 2), gunD, 0, .01, -.6);   // nòng
+  add(new THREE.CylinderGeometry(.024, .022, .07, 8).rotateX(Math.PI / 2), gunD, 0, .01, -.72);  // bù giật
+  add(B(.012, .05, .012), gunD, 0, .07, -.48);                     // đầu ngắm trước
+  add(B(.07, .014, .3), gunD, 0, .05, -.1);                        // ray picatinny
+  const sc = add(new THREE.CylinderGeometry(.03, .03, .1, 14).rotateX(Math.PI / 2), gunD, 0, .1, -.12); // ống red-dot
+  add(B(.03, .03, .03), gunD, 0, .07, -.12);
+  add(new THREE.RingGeometry(.018, .027, 16), sm('#2a2e33', .3, .9), 0, .1, -.069);
+  add(B(.05, .17, .075), gunP, 0, -.13, -.13, .16);                // băng đạn
+  add(B(.05, .07, .07), gunP, 0, -.22, -.12, .32);
+  add(B(.048, .13, .055), gunP, 0, -.12, .07, .28);                // tay cầm
+  add(B(.016, .04, .06), gunD, 0, -.085, -.02);                    // vòng cò
+  add(B(.06, .05, .22), gunP, 0, -.01, .2);                        // báng
+  add(B(.06, .12, .05), gunP, 0, -.04, .31);
+  add(B(.004, .02, .05), sm('#9a8a6a', .5, .7), .037, .015, -.03); // cửa thoát vỏ đạn
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(.004, 6, 4), new THREE.MeshBasicMaterial({ color: '#ff3a2a' })); dot.position.set(0, .1, -.14); gun.add(dot); }
 const flashM = new THREE.Mesh(new THREE.PlaneGeometry(.25, .25), new THREE.MeshBasicMaterial({ color: '#ffd9a0', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); flashM.position.set(0, .02, -.72); gun.add(flashM);
 const flashL = new THREE.PointLight(0xffc27a, 0, 18, 2); flashL.position.set(0, 0, -.8); gun.add(flashL); camera.add(gun); gun.scale.setScalar(.85); gun.position.set(.2, -.2, -.38);
 gun.traverse(o => { if (o.isMesh && o !== flashM) o.renderOrder = 2; });
@@ -204,7 +259,7 @@ function updatePlayer(dt) {
   // trạm điều khiển
   nearRelay = null; for (const r of RELAYS) if (!r.cut && Math.hypot(P.x - r.x, P.z - r.z) < 3.4) nearRelay = r;
   const holding = (keys.e || input.cut || input.cutGp) && nearRelay; $('prog').style.display = nearRelay ? 'block' : 'none'; if (isTouch) $('bE').style.display = nearRelay ? 'grid' : 'none';
-  if (nearRelay) { $('progT').textContent = holding ? 'ĐANG CẮT KẾT NỐI…' : (isTouch ? 'Giữ nút CẮT' : 'Giữ [E] để cắt trạm'); if (holding) { nearRelay.prog += dt / 3.2; if (Math.floor(nearRelay.prog * 10) !== Math.floor((nearRelay.prog - dt / 3.2) * 10)) Snd.beep(300 + nearRelay.prog * 700); if (nearRelay.prog >= 1) cutRelay(nearRelay); } else nearRelay.prog = Math.max(0, nearRelay.prog - dt * .6); $('progB').style.width = (nearRelay.prog * 100) + '%'; }
+  if (nearRelay) { $('progT').innerHTML = holding ? 'Đang cắt kết nối…' : (isTouch ? 'Giữ nút <b style="color:var(--acc)">Cắt</b>' : 'Giữ <span class="kc">E</span> để cắt trạm'); if (holding) { nearRelay.prog += dt / 3.2; if (Math.floor(nearRelay.prog * 10) !== Math.floor((nearRelay.prog - dt / 3.2) * 10)) Snd.beep(300 + nearRelay.prog * 700); if (nearRelay.prog >= 1) cutRelay(nearRelay); } else nearRelay.prog = Math.max(0, nearRelay.prog - dt * .6); $('progB').style.width = (nearRelay.prog * 100) + '%'; }
   // nhặt đồ
   for (let i = pickups.length - 1; i >= 0; i--) { const p = pickups[i]; p.t += dt; p.m.rotation.y += dt * 1.5; p.m.position.y = .3 + Math.sin(p.t * 3) * .06; if (Math.hypot(p.x - P.x, p.z - P.z) < 1.3) { if (p.kind === 'ammo') { P.res = Math.min(240, P.res + 30); msg('+30 đạn', 1200); } else { if (P.hp >= 100) continue; P.hp = Math.min(100, P.hp + 30); msg('+30 máu', 1200); } Snd.pick(); scene.remove(p.m); pickups.splice(i, 1); } }
   // đích: lên tàu
@@ -234,7 +289,7 @@ function updateEnemies(dt, t) {
   Snd.drone(clamp((40 - nearD) / 40, 0, 1) * (enemies.some(e => !e.dead && e.type === 'drone') ? 1 : 0));
 }
 function updateFx(dt, t) {
-  for (let i = bolts.length - 1; i >= 0; i--) { const b = bolts[i]; b.life -= dt; b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.m.position.set(b.x, b.y, b.z); b.m.lookAt(b.x + b.vx, b.y + b.vy, b.z + b.vz); let dead = b.life <= 0 || b.y < 0; const bx = inBox(b.x, b.z); if (bx && b.y < bx.h) { dead = true; spark(b.m.position, 2, '#ff7a4a'); } if (!dead && Math.hypot(b.x - P.x, b.z - P.z) < .55 && b.y > P.y && b.y < P.y + P.h + .2) { hurtP(b.dmg); dead = true; } if (dead) { scene.remove(b.m); bolts.splice(i, 1); } }
+  for (let i = bolts.length - 1; i >= 0; i--) { const b = bolts[i]; b.life -= dt; b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.m.position.set(b.x, b.y, b.z); b.m.lookAt(b.x + b.vx, b.y + b.vy, b.z + b.vz); let dead = b.life <= 0 || b.y < 0; const bx = inBox(b.x, b.z); if (bx && b.y < bx.h) { dead = true; spark(b.m.position, 2, '#ff7a4a'); } if (!dead && Math.hypot(b.x - P.x, b.z - P.z) < .55 && b.y > P.y && b.y < P.y + P.h + .2) { dmgDir(b.x - b.vx, b.z - b.vz); hurtP(b.dmg); dead = true; } if (dead) { scene.remove(b.m); bolts.splice(i, 1); } }
   for (let i = tracers.length - 1; i >= 0; i--) { const k = tracers[i]; k.t -= dt; k.m.material.opacity = k.t * 9; if (k.t <= 0) { scene.remove(k.m); k.m.geometry.dispose(); k.m.material.dispose(); tracers.splice(i, 1); } }
   for (let i = sparks.length - 1; i >= 0; i--) { const s = sparks[i]; s.t -= dt; s.v.y -= 12 * dt; s.m.position.addScaledVector(s.v, dt); if (s.t <= 0) { scene.remove(s.m); s.m.geometry.dispose(); s.m.material.dispose(); sparks.splice(i, 1); } }
   for (const r of RELAYS) { if (!r.cut) { r.lt.intensity = 22 + Math.sin(t * 9 + r.i) * 8; r.scr.emissiveIntensity = 1.6 + Math.sin(t * 14 + r.i) * .8; } else r.scr.emissiveIntensity = 2; }
@@ -246,11 +301,20 @@ function updateFx(dt, t) {
   moon.position.set(P.x - 60, 40, P.z + 50); moon.target.position.set(P.x, 0, P.z); moon.target.updateMatrixWorld();
 }
 let lt = 6, flashT = 0;
+let compBuilt = false;
+function buildComp() { const c = $('comp'), L = { 0: 'B', 45: 'ĐB', 90: 'Đ', 135: 'ĐN', 180: 'N', 225: 'TN', 270: 'T', 315: 'TB' }; let h = ''; for (let d = -360; d <= 720; d += 15) { const k = ((d % 360) + 360) % 360; h += `<span data-d="${d}" class="${L[k] && k % 90 === 0 ? 'c' : ''}" style="left:${d * 3}px">${L[k] || (d % 45 === 0 ? k : '·')}</span>`; } c.innerHTML = h; compBuilt = true; }
 function hud() {
-  $('ammo').innerHTML = `${P.reload > 0 ? '…' : P.mag}<small> / ${P.res}</small>`; $('ammo').style.color = P.mag === 0 ? 'var(--bad)' : ''; const hp = clamp(P.hp / 100, 0, 1); $('hpi').style.transform = `scaleX(${hp})`; $('hpi').style.background = hp < .3 ? 'var(--bad)' : hp < .6 ? 'var(--acc)' : 'var(--ok)';
-  $('objT').textContent = relaysCut < 3 ? `Cắt trạm điều khiển ${relaysCut}/3` : 'Chạy ra tàu cứu hộ!'; $('objS').textContent = `Hạ gục ${kills} · ${fmtT((tNow - startT) / 1000)}`;
-  const tg = relaysCut >= 3 ? { x: 82, z: -33 } : RELAYS.filter(r => !r.cut).sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z))[0]; if (tg) { const a = Math.atan2(-(tg.x - P.x), -(tg.z - P.z)) - P.yaw; $('arrow').style.transform = `rotate(${(-a * 180 / Math.PI).toFixed(0)}deg)`; $('dist').textContent = Math.round(Math.hypot(tg.x - P.x, tg.z - P.z)) + ' m'; }
+  if (!compBuilt) buildComp();
+  const am = $('ammo'); am.innerHTML = `${P.reload > 0 ? '··' : P.mag}<small> / ${P.res}</small>`; am.classList.toggle('empty', P.mag === 0);
+  const mb = $('magbar'); if (mb._m !== P.mag + '|' + (P.reload > 0)) { mb._m = P.mag + '|' + (P.reload > 0); let h = ''; for (let i = 0; i < MAG; i++) h += `<i class="${i < P.mag && !(P.reload > 0) ? '' : 'off'}"></i>`; mb.innerHTML = h; }
+  const hp = clamp(P.hp / 100, 0, 1), hb = $('hpb'), on = Math.ceil(hp * 10); if (hb._on !== on) { hb._on = on; [...hb.children].forEach((e, i) => e.classList.toggle('on', i < on)); hb.classList.toggle('low', hp < .3); } $('hpn').textContent = Math.max(0, Math.round(P.hp)); $('hpi').style.transform = `scaleX(${hp})`;
+  $('objT').textContent = relaysCut < 3 ? `Cắt trạm điều khiển ${relaysCut}/3` : 'Chạy ra tàu cứu hộ!'; [...$('pips').children].forEach((e, i) => e.classList.toggle('on', i < relaysCut)); $('objS').textContent = `Hạ gục ${kills} · ${fmtT((tNow - startT) / 1000)} · ${relaysCut >= 3 ? 'điểm đón: cầu tàu' : 'trạm gần nhất được đánh dấu'}`;
+  // la bàn: hướng nhìn (độ, 0 = bắc = -z)
+  const head = ((-P.yaw * 180 / Math.PI) % 360 + 360) % 360, W2 = $('dir').clientWidth / 2; $('comp').style.transform = `translateX(${W2 - head * 3}px)`;
+  const tg = relaysCut >= 3 ? { x: 82, z: -33 } : RELAYS.filter(r => !r.cut).sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z))[0];
+  if (tg) { const brg = ((Math.atan2(tg.x - P.x, -(tg.z - P.z)) * 180 / Math.PI) + 360) % 360; let rel = brg - head; rel = ((rel + 540) % 360) - 180; $('tgt').style.left = clamp(W2 + rel * 3, 6, W2 * 2 - 6) + 'px'; $('dist').textContent = (relaysCut >= 3 ? 'Tàu · ' : 'Trạm · ') + Math.round(Math.hypot(tg.x - P.x, tg.z - P.z)) + ' m'; const a = Math.atan2(-(tg.x - P.x), -(tg.z - P.z)) - P.yaw; $('arrow').style.transform = `rotate(${(-a * 180 / Math.PI).toFixed(0)}deg)`; }
 }
+function dmgDir(sx, sz) { const a = Math.atan2(sx - P.x, sz - P.z) - P.yaw + Math.PI, k = ((Math.round(a / (Math.PI / 2)) % 4) + 4) % 4, el = $('dmg').children[k]; if (!el) return; el.style.transform = `rotate(${a}rad)`; el.style.opacity = 1; clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = 0, 450); }
 const fmtT = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 /* ================= TRẠNG THÁI ================= */
@@ -259,15 +323,17 @@ function reset() { for (const e of enemies) scene.remove(e.g); enemies.length = 
   Object.assign(P, { x: -60, y: 0, z: 36, vy: 0, vx: 0, vz: 0, yaw: -Math.PI / 2 - .6, pitch: 0, hp: 100, h: 1.7, mag: MAG, res: 120, reload: 0, kick: 0, recoil: 0, spread: 0 }); kills = shots = hits = relaysCut = 0; dmgTaken = 0; sd = 99; populate(); $('vig').style.opacity = 0; }
 function begin() { reset(); Snd.start(); state = 'play'; startT = tNow; document.body.classList.add('play'); document.body.classList.toggle('tch', isTouch); ['menu', 'pause', 'over'].forEach(i => $(i).classList.remove('on')); msg('Tìm 3 trạm điều khiển đỏ · cắt chúng rồi chạy ra tàu', 4200); lock(); }
 function end(win) { if (state !== 'play') return; state = win ? 'win' : 'dead'; const sec = (tNow - startT) / 1000; if (win && (!cfg.best || sec < cfg.best)) { cfg.best = sec; saveCfg(); } document.body.classList.remove('play'); try { document.exitPointerLock(); } catch (e) {}
-  $('oEye').textContent = win ? 'Nhiệm vụ hoàn thành' : 'Mất liên lạc'; $('oT').textContent = win ? 'Thoát được!' : 'Thất bại'; $('stats').innerHTML = `Thời gian: <b>${fmtT(sec)}</b>${win && cfg.best === sec ? ' · kỷ lục mới!' : ''}<br>Hạ gục: <b>${kills}</b> · Độ chính xác: <b>${shots ? Math.round(hits / shots * 100) : 0}%</b><br>Trạm đã cắt: <b>${relaysCut}/3</b> · Sát thương nhận: <b>${Math.round(dmgTaken)}</b>`; $('over').classList.add('on'); }
+  $('oEye').textContent = win ? 'Nhiệm vụ hoàn thành · đã lên tàu' : 'Mất liên lạc · đơn vị bị hạ'; $('oT').textContent = win ? 'Thoát được!' : 'Thất bại'; $('oT').classList.toggle('win', win); $('stats').innerHTML = `<div>Thời gian<b>${fmtT(sec)}</b></div><div>Hạ gục<b>${kills}</b></div><div>Chính xác<b>${shots ? Math.round(hits / shots * 100) : 0}%</b></div><div>Trạm đã cắt<b>${relaysCut}/3</b></div>${win && cfg.best === sec ? '<div style="grid-column:1/-1;color:var(--acc)">Kỷ lục mới</div>' : ''}`; $('over').classList.add('on'); }
 function pause() { if (state !== 'play') return; state = 'pause'; document.body.classList.remove('play'); $('pause').classList.add('on'); }
 function resume() { state = 'play'; document.body.classList.add('play'); $('pause').classList.remove('on'); lock(); }
 const lock = () => { if (!isTouch) try { const p = $('c').requestPointerLock(); p && p.catch && p.catch(() => {}); } catch (e) {} };
 document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement && state === 'play' && !isTouch && !window.__noPause) pause(); });
 $('bGo').onclick = begin; $('bAgain').onclick = begin; $('bRes').onclick = resume; $('bQuit').onclick = () => { state = 'menu'; $('pause').classList.remove('on'); $('menu').classList.add('on'); }; $('bMenu').onclick = () => { state = 'menu'; $('over').classList.remove('on'); $('menu').classList.add('on'); };
-$('bSet').onclick = () => { $('pSet').classList.toggle('on'); $('pCtl').classList.remove('on'); }; $('bCtl').onclick = () => { $('pCtl').classList.toggle('on'); $('pSet').classList.remove('on'); };
+$('bSet').onclick = () => { $('pSet').classList.toggle('on'); $('pCtl').classList.remove('on'); $('bSet').classList.toggle('on', $('pSet').classList.contains('on')); $('bCtl').classList.remove('on'); }; $('bCtl').onclick = () => { $('pCtl').classList.toggle('on'); $('pSet').classList.remove('on'); $('bCtl').classList.toggle('on', $('pCtl').classList.contains('on')); $('bSet').classList.remove('on'); };
 $('sSens').value = cfg.sens; $('sVol').value = cfg.vol; $('sQ').value = cfg.q; $('sSens').oninput = e => { cfg.sens = +e.target.value; saveCfg(); }; $('sVol').oninput = e => { cfg.vol = +e.target.value; saveCfg(); Snd.vol(); }; $('sQ').onchange = e => { cfg.q = e.target.value; saveCfg(); location.reload(); };
-if (cfg.best) $('best').textContent = ' · Kỷ lục: ' + fmtT(cfg.best);
+if (cfg.best) $('best').textContent = ' Kỷ lục: ' + fmtT(cfg.best) + '.';
+$('bP').addEventListener('pointerdown', e => { e.preventDefault(); pause(); });
+{ const tick = () => { const d = new Date(); $('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }; tick(); setInterval(tick, 20000); }
 /* ================= ĐIỀU KHIỂN ================= */
 const kmap = { ShiftLeft: 'shift', ShiftRight: 'shift', Space: ' ' };
 addEventListener('keydown', e => { if (e.repeat) return; const k = kmap[e.code] || e.key.toLowerCase(); keys[k] = true; if (state === 'play' && ['w', 'a', 's', 'd', ' '].includes(k)) e.preventDefault(); if (k === 'escape' && state === 'play' && isTouch) pause(); });
@@ -285,9 +351,9 @@ if (isTouch) { const hold = (id, k) => { const b = $(id); b.addEventListener('po
 let last = performance.now(), frames = 0;
 function loop(now) { requestAnimationFrame(loop); const dt = Math.min((now - last) / 1000, .05); last = now; tNow = now; frames++;
   if (state === 'play') { updatePlayer(dt); updateEnemies(dt, now / 1000); updateFx(dt, now / 1000); hud(); }
-  else { const t = now / 1000; if (state === 'menu' || state === 'dead' || state === 'win') { camera.position.set(-8 + Math.sin(t * .05) * 6, 3.2, 10); camera.rotation.set(-.02, -1.7 + Math.sin(t * .08) * .25, 0); gun.visible = false; updateFx(dt, t); } }
+  else { const t = now / 1000; if (state === 'menu' || state === 'dead' || state === 'win') { camera.position.set(54 + Math.sin(t * .04) * .6, 1.75 + Math.sin(t * .3) * .02, -28.5); camera.rotation.order = 'YXZ'; camera.rotation.set(.16 + Math.sin(t * .05) * .015, -1.3 + Math.sin(t * .03) * .05, 0); camera.fov = 66; camera.updateProjectionMatrix(); moon.position.set(camera.position.x - 60, 40, camera.position.z + 50); moon.target.position.set(camera.position.x, 0, camera.position.z); moon.target.updateMatrixWorld(); gun.visible = false; updateFx(dt, t); } }
   if (state === 'play') gun.visible = true;
-  composer ? composer.render() : renderer.render(scene, camera); }
+  if (grade) grade.uniforms.t.value = (now % 1000) / 10; composer ? composer.render() : renderer.render(scene, camera); }
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play' && !window.__noPause) pause(); });
 await setupComposer(); $('load').remove();
 requestAnimationFrame(loop);
