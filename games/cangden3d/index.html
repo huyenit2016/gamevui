@@ -4,11 +4,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-	<title>Saltline</title>
+	<title>Saltline — Field Intel Edition</title>
+	<meta name="description" content="Saltline — a self-contained 3D first-person harbor combat game with a live tactical map.">
+	<meta name="theme-color" content="#0b0d0f">
+	<meta name="color-scheme" content="dark">
 	<meta name="claude:viewport-fit-sides" content="cover">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&family=Barlow+Condensed:wght@400;500;600&display=swap">
 	<style>
 		/* game/ui.css — owned by the Game agent. One deliberate dark look (a game viewport): port-authority signage meets a film title card.
    Sections: tokens · page + boot · HUD · radio · touch controls · menus · panel · motion preferences. */
@@ -27,9 +27,9 @@
 			--line: rgba(232, 228, 218, .2);
 			--plate: rgba(11, 13, 15, .6);
 			--plate-solid: rgba(11, 13, 15, .9);
-			--f-display: 'Big Shoulders Display', 'Impact', 'Haettenschweiler', 'Arial Narrow', sans-serif;
-			--f-label: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
-			--f-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+			--f-display: Impact, Haettenschweiler, 'Arial Narrow', 'Roboto Condensed', sans-serif;
+			--f-label: 'Arial Narrow', 'Roboto Condensed', 'Liberation Sans Narrow', system-ui, sans-serif;
+			--f-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 			--sat: env(safe-area-inset-top, 0px);
 			--sab: env(safe-area-inset-bottom, 0px);
 			--sal: env(safe-area-inset-left, 0px);
@@ -1972,6 +1972,26 @@
 				animation: none;
 			}
 		}
+	
+/* Saltline field-intel upgrade: responsive tactical map and compact mission telemetry. */
+#sl-intel-toggle{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:calc(82px + env(safe-area-inset-top,0px));z-index:24;pointer-events:auto;border:1px solid rgba(255,179,71,.55);background:rgba(11,13,15,.82);color:#ffcf86;padding:10px 13px;font:700 11px/1 ui-monospace,monospace;letter-spacing:.14em;backdrop-filter:blur(10px);border-radius:3px;cursor:pointer;touch-action:manipulation}
+#sl-intel-toggle:active{transform:translateY(1px);background:rgba(210,98,42,.35)}
+#sl-intel{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:calc(124px + env(safe-area-inset-top,0px));z-index:23;width:min(340px,calc(100vw - 32px));padding:12px;background:rgba(8,11,13,.91);border:1px solid rgba(232,228,218,.22);box-shadow:0 14px 45px rgba(0,0,0,.38);backdrop-filter:blur(12px);pointer-events:auto;opacity:0;visibility:hidden;transform:translateY(-7px);transition:opacity .18s ease,transform .18s ease,visibility .18s}
+#sl-intel.open{opacity:1;visibility:visible;transform:translateY(0)}
+#sl-intel .sl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font:700 10px/1.3 ui-monospace,monospace;letter-spacing:.17em;color:#ffbd63}
+#sl-intel .sl-zone{font:10px ui-monospace,monospace;color:rgba(232,228,218,.55);letter-spacing:.1em}
+#sl-map{display:block;width:100%;height:auto;aspect-ratio:320/210;background:linear-gradient(145deg,#182126,#0c1215);border:1px solid rgba(232,228,218,.12)}
+#sl-intel .sl-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font:9px ui-monospace,monospace;color:rgba(232,228,218,.7);letter-spacing:.07em}
+#sl-intel .sl-legend span{display:inline-flex;align-items:center;gap:5px}
+#sl-intel .sl-dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#ffb347}
+#sl-intel .sl-dot.enemy{background:#ff604b}.sl-dot.player{background:#e8e4da}.sl-dot.extract{background:#66d6b0}
+#sl-intel .sl-objective{margin-top:10px;padding-top:9px;border-top:1px solid rgba(232,228,218,.13);font:10px/1.5 ui-monospace,monospace;color:#e8e4da}
+#sl-intel .sl-objective b{color:#ffbd63;font-weight:600}
+#sl-intel .sl-foot{margin-top:7px;font:9px ui-monospace,monospace;color:rgba(232,228,218,.42)}
+@media(max-width:700px){#sl-intel-toggle{top:auto;bottom:calc(160px + env(safe-area-inset-bottom,0px));right:14px;padding:12px 14px}#sl-intel{top:auto;bottom:calc(205px + env(safe-area-inset-bottom,0px));right:12px;width:min(310px,calc(100vw - 24px))}#sl-map{max-height:185px}}
+@media(max-height:520px) and (orientation:landscape){#sl-intel-toggle{top:calc(62px + env(safe-area-inset-top,0px));bottom:auto}#sl-intel{top:calc(104px + env(safe-area-inset-top,0px));bottom:auto;width:270px}#sl-map{max-height:145px}}
+@media(prefers-reduced-motion:reduce){#sl-intel,#sl-intel-toggle{transition:none}}
+
 	</style>
 	<div id="app">
 		<canvas id="view" tabindex="0"></canvas>
@@ -7922,6 +7942,124 @@ errors ${window.__errors.length}${window.__errors.length ? `
 		})();
 
 	</script>
-	</body>
+	
+<script>
+/* Field Intel is deliberately additive: it reads the live game state and never mutates gameplay. */
+(()=>{
+  const boot=()=>{
+    const game=window.__G, app=document.getElementById('app');
+    if(!game||!game.level||!game.player||!game.enemies||!app)return false;
+    if(document.getElementById('sl-intel'))return true;
+    const toggle=document.createElement('button');toggle.id='sl-intel-toggle';toggle.type='button';toggle.textContent='FIELD MAP  [M]';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls','sl-intel');
+    const panel=document.createElement('section');panel.id='sl-intel';panel.setAttribute('aria-label','Tactical field map');panel.innerHTML='<div class="sl-head"><span>FIELD INTELLIGENCE</span><span class="sl-zone" id="sl-zone">SECTOR B4</span></div><canvas id="sl-map" width="640" height="420" aria-label="Live tactical map"></canvas><div class="sl-legend"><span><i class="sl-dot player"></i>YOU</span><span><i class="sl-dot"></i>RELAY</span><span><i class="sl-dot enemy"></i>HOSTILE</span><span><i class="sl-dot extract"></i>EXTRACT</span></div><div class="sl-objective" id="sl-objective">OBJECTIVE // Locate relay uplinks</div><div class="sl-foot">M / BUTTON · CLOSE MAP</div>';
+    app.append(toggle,panel);
+    const canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d'),objective=panel.querySelector('#sl-objective'),zoneLabel=panel.querySelector('#sl-zone');
+    let open=false,last=0;
+    const setOpen=v=>{open=!!v;panel.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open));};
+    toggle.addEventListener('click',()=>setOpen(!open));
+    window.addEventListener('keydown',e=>{if(e.code==='KeyM'&&!e.repeat&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){e.preventDefault();setOpen(!open)}});
+    const px=(x)=>24+(x+40)/80*592, py=(z)=>24+(30-z)/60*372;
+    const dot=(x,y,r,color)=>{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()};
+    function draw(now){
+      if(!open)return;
+      const l=game.level,p=game.player,run=game.game&&game.game.run||{}, relays=Array.isArray(l.objectives)?l.objectives:[], enemies=game.enemies.list||[];
+      ctx.clearRect(0,0,640,420);ctx.fillStyle='#111a1e';ctx.fillRect(0,0,640,420);
+      ctx.strokeStyle='rgba(180,196,196,.12)';ctx.lineWidth=1;
+      for(let x=24;x<=616;x+=49.33){ctx.beginPath();ctx.moveTo(x,24);ctx.lineTo(x,396);ctx.stroke()}
+      for(let y=24;y<=396;y+=46.5){ctx.beginPath();ctx.moveTo(24,y);ctx.lineTo(616,y);ctx.stroke()}
+      // Sector outlines correspond to the authored yard / shed / quay level zones.
+      ctx.strokeStyle='rgba(255,179,71,.22)';ctx.setLineDash([5,5]);ctx.strokeRect(px(-24),py(30),px(16)-px(-24),py(-10)-py(30));ctx.strokeRect(px(-24),py(-10),px(16)-px(-24),py(-30)-py(-10));ctx.strokeRect(px(16),py(30),px(40)-px(16),py(-30)-py(30));ctx.setLineDash([]);
+      ctx.font='10px ui-monospace,monospace';ctx.fillStyle='rgba(232,228,218,.34)';ctx.fillText('YARD',150,90);ctx.fillText('SHED',150,335);ctx.fillText('QUAY',485,215);
+      relays.forEach((o,i)=>{if(!o||!o.pos)return;const x=px(o.pos.x),y=py(o.pos.z),done=Array.isArray(run.relays)&&run.relays[i]?!!run.relays[i].cut:i<(run.cut||0);dot(x,y,done?8:9,done?'#65c99c':'#ffb347');ctx.strokeStyle='#101619';ctx.lineWidth=2;ctx.strokeRect(x-4,y-4,8,8);ctx.fillStyle='#f1e8d7';ctx.font='bold 10px ui-monospace,monospace';ctx.fillText(String.fromCharCode(65+i),x+11,y-8)});
+      const ex=l.extraction&&l.extraction.pos;if(ex){dot(px(ex.x),py(ex.z),8,'#66d6b0');ctx.strokeStyle='#66d6b0';ctx.beginPath();ctx.arc(px(ex.x),py(ex.z),14,0,Math.PI*2);ctx.stroke()}
+      let hostiles=0;for(const e of enemies){if(!e||!e.alive||!e.pos)continue;hostiles++;dot(px(e.pos.x),py(e.pos.z),5,e.type==='gull'?'#ff8b5b':'#ff5147');}
+      if(p.pos){const x=px(p.pos.x),y=py(p.pos.z);ctx.save();ctx.translate(x,y);ctx.rotate(-(p.yaw||0));ctx.fillStyle='#f2eee4';ctx.beginPath();ctx.moveTo(0,-12);ctx.lineTo(8,9);ctx.lineTo(0,5);ctx.lineTo(-8,9);ctx.closePath();ctx.fill();ctx.restore()}
+      const zone=(l.zones||[]).find(z=>p.pos&&p.pos.x>=z.min[0]&&p.pos.x<=z.max[0]&&p.pos.z>=z.min[1]&&p.pos.z<=z.max[1]);zoneLabel.textContent=(zone?zone.name:'OUTER') .toUpperCase()+' // B4';
+      const done=Math.max(0,Math.min(3,Number(run.cut)||0));objective.innerHTML='<b>MISSION //</b> '+(done>=3?'All uplinks disabled — reach the extraction boat':`Disable relay uplinks · ${done}/3 complete`)+`<br><b>CONTACTS //</b> ${hostiles} active hostile${hostiles===1?'':'s'}`;
+    }
+    function tick(now){if(now-last>220){last=now;draw(now)}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+    return true;
+  };
+  let attempts=0;const wait=()=>{if(boot()||attempts++>240)return;setTimeout(wait,250)};wait();
+})();
+</script>
+
+<script>
+(()=>{'use strict';
+const $=(s,r=document)=>r.querySelector(s), storeKey='saltline21.progress.v1';
+const css=`
+#sl21-panel{position:fixed;z-index:65;left:16px;top:16px;width:min(360px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:14px;background:rgba(6,12,16,.94);border:1px solid #ffb34777;backdrop-filter:blur(14px);color:#e8e4da;font:12px/1.45 ui-monospace,monospace;box-shadow:0 16px 48px #0009;pointer-events:auto}
+#sl21-panel .head{display:flex;justify-content:space-between;color:#ffc16b;font-weight:900;letter-spacing:.14em;margin-bottom:9px}#sl21-panel .sub{font-size:10px;color:#9eacb1;letter-spacing:.14em;margin:12px 0 6px}#sl21-panel .ops{display:grid;gap:5px}#sl21-panel button{background:#172126;color:#eee8dc;border:1px solid #52616a;padding:9px;text-align:left;font:inherit;cursor:pointer;border-radius:2px}#sl21-panel button[aria-pressed=true]{border-color:#ffb347;background:#302719;color:#ffc977}#sl21-panel button:focus-visible{outline:2px solid #ffb347;outline-offset:2px}#sl21-panel .desc{display:block;color:#9eaaad;font-size:10px;margin-top:2px}#sl21-panel .foot{color:#9eaaad;font-size:10px;margin-top:10px}
+#sl21-toggle{position:fixed;z-index:66;left:16px;bottom:16px;background:#111a1eeF;border:1px solid #ffb347;color:#ffc16b;padding:10px 13px;font:11px ui-monospace,monospace;letter-spacing:.12em;pointer-events:auto}
+#sl21-hud{position:fixed;z-index:64;right:16px;bottom:16px;min-width:205px;padding:11px 13px;background:#071015df;border:1px solid #ffb34766;color:#e8e4da;font:11px/1.55 ui-monospace,monospace;pointer-events:none;backdrop-filter:blur(8px)}#sl21-hud strong{color:#ffc16b;letter-spacing:.1em;font-size:13px}#sl21-hud .muted{color:#a5b0b3}#sl21-toast{position:fixed;z-index:90;left:50%;top:15%;transform:translateX(-50%);padding:10px 15px;background:#0b1115ed;border:1px solid #ffb347;color:#ffe1ad;font:11px ui-monospace,monospace;letter-spacing:.08em;opacity:0;transition:opacity .2s;pointer-events:none}#sl21-toast.on{opacity:1}
+@media(max-width:650px){#sl21-panel{left:8px;top:8px;width:min(310px,calc(100vw - 16px));max-height:58dvh;padding:10px}#sl21-toggle{left:8px;bottom:calc(92px + env(safe-area-inset-bottom));padding:9px}#sl21-hud{right:8px;bottom:calc(92px + env(safe-area-inset-bottom));min-width:155px;padding:8px;font-size:10px}}
+`;
+const st=document.createElement('style');st.textContent=css;document.head.append(st);
+const panel=document.createElement('aside');panel.id='sl21-panel';panel.setAttribute('aria-label','Saltline 2.1 operations');
+panel.innerHTML=`<div class="head"><span>SALTLINE // 2.1</span><span>FIELD OPS</span></div><div class="sub">SELECT THEATRE</div><div class="ops"><button data-map="factory" aria-pressed="false">01 · IRONWORKS<span class="desc">Abandoned steel factory · close-quarters combat</span></button><button data-map="harbor" aria-pressed="true">02 · DEAD RELAY<span class="desc">Container port · disable three uplinks</span></button><button data-map="base" aria-pressed="false">03 · BLACKSITE<span class="desc">Military perimeter · eliminate the command unit</span></button></div><div class="sub">MISSION</div><div class="ops"><button data-mission="sweep" aria-pressed="false">SECTOR SWEEP <span class="desc">Clear hostile presence in the selected theatre</span></button><button data-mission="relay" aria-pressed="true">RELAY SABOTAGE <span class="desc">Disable three relay objectives</span></button><button data-mission="boss" aria-pressed="false">COMMANDER HUNT <span class="desc">Find and eliminate the armored hound</span></button></div><div class="sub">ARSENAL</div><div class="ops" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button data-weapon="rifle">1 · RIFLE</button><button data-weapon="shotgun">2 · SHOTGUN</button><button data-weapon="sniper">3 · SNIPER</button></div><div class="foot" id="sl21-progress">CAMPAIGN RECORD // 0 / 3 COMPLETE</div><div class="foot">1/2/3 WEAPON · R RELOAD · M MENU</div>`;
+document.body.append(panel);
+const toggle=document.createElement('button');toggle.id='sl21-toggle';toggle.textContent='FIELD OPS [M]';toggle.setAttribute('aria-expanded','true');document.body.append(toggle);
+const hud=document.createElement('div');hud.id='sl21-hud';hud.innerHTML='<strong id="sl21-weapon">RIFLE / 5.56</strong><div>AMMO <span id="sl21-ammo">30 / 120</span></div><div class="muted" id="sl21-objective">SELECT AN OPERATION</div><div class="muted" id="sl21-threat">HOSTILES: STANDBY</div><div class="muted" id="sl21-boss"></div>';document.body.append(hud);
+const toast=document.createElement('div');toast.id='sl21-toast';document.body.append(toast);let toastTimer;function say(t){toast.textContent=t;toast.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('on'),2100)}
+let progress={completed:[],bestKills:0};try{const v=JSON.parse(localStorage.getItem(storeKey)||'{}');if(Array.isArray(v.completed))progress=v}catch{}
+const theatres={factory:{label:'IRONWORKS',center:[-19,5],spawn:[-28,5],accent:0xc16a35,mission:'sweep',description:'Clear 8 hostiles inside the steelworks.'},harbor:{label:'DEAD RELAY',center:[0,-13],spawn:[-9,-20],accent:0x3e8d9b,mission:'relay',description:'Disable the three harbor uplinks.'},base:{label:'BLACKSITE',center:[17,5],spawn:[8,5],accent:0x788b9c,mission:'boss',description:'Eliminate the armored command hound.'}};
+const profiles={rifle:{label:'RIFLE / 5.56',mag:30,reserve:150,damage:29,range:260,rate:.105,reload:1.55,pellets:1,spread:.002},shotgun:{label:'SHOTGUN / 12G',mag:8,reserve:48,damage:10,range:48,rate:.72,reload:2.05,pellets:8,spread:.052},sniper:{label:'SNIPER / .308',mag:5,reserve:30,damage:105,range:480,rate:1.05,reload:2.35,pellets:1,spread:.0005}};
+let G=null, weaponRig=null, weaponModels={}, theatre='harbor',mission='relay',weapon='rifle',ammo=30,reserve=150,fireAt=0,reloading=false,reloadEnd=0,baseShot=null,baseUpdate=null,baseEnemyUpdate=null,decor=null,colliders=[],boss=null,missionKills=0,started=false,completed=false,reinforceAt=0,wave=0,lastState='',lastSave='',mapOpen=true,enemyTick=0;
+const ammoEl=()=>$('#sl21-ammo'),objEl=()=>$('#sl21-objective'),threatEl=()=>$('#sl21-threat');
+function save(){try{localStorage.setItem(storeKey,JSON.stringify(progress))}catch{};$('#sl21-progress').textContent=`CAMPAIGN RECORD // ${progress.completed.length} / 3 COMPLETE`}
+function setWeapon(w){weapon=w;ammo=profiles[w].mag;reserve=profiles[w].reserve;reloading=false;for(const [k,g] of Object.entries(weaponModels))g.visible=k===w;renderHud();say('ARSENAL // '+profiles[w].label)}
+function buildWeaponModels(){if(!G||!G.THREE||!G.camera||weaponRig)return;const T=G.THREE,root=new T.Group();root.name='saltline21-first-person-arsenal';root.position.set(.34,-.29,-.62);G.camera.add(root);weaponRig=root;const steel=new T.MeshStandardMaterial({color:0x30383d,metalness:.82,roughness:.34}),black=new T.MeshStandardMaterial({color:0x111619,metalness:.48,roughness:.56}),wood=new T.MeshStandardMaterial({color:0x574638,metalness:.12,roughness:.82}),optic=new T.MeshStandardMaterial({color:0x162b31,metalness:.6,roughness:.2}),brass=new T.MeshStandardMaterial({color:0x9b7540,metalness:.72,roughness:.32});const box=(g,m,x,y,z,w,h,d)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,d),m);o.position.set(x,y,z);g.add(o);return o},tube=(g,m,x,y,z,r,len)=>{const o=new T.Mesh(new T.CylinderGeometry(r,r,len,12),m);o.rotation.x=Math.PI/2;o.position.set(x,y,z-len/2);g.add(o);return o};
+const rifle=new T.Group();box(rifle,black,0,0,0,.16,.13,.38);box(rifle,wood,-.13,-.025,.1,.13,.1,.3);tube(rifle,steel,0,.015,-.18,.025,.62);box(rifle,black,0,.105,-.02,.08,.07,.18);box(rifle,steel,.015,.17,-.02,.035,.07,.16);box(rifle,black,.01,-.11,.02,.06,.13,.12);box(rifle,brass,.085,.015,-.02,.012,.06,.09);root.add(rifle);weaponModels.rifle=rifle;
+const shotgun=new T.Group();box(shotgun,wood,-.12,-.025,.08,.15,.12,.36);box(shotgun,black,0,0,-.015,.17,.13,.36);tube(shotgun,steel,0,.015,-.19,.037,.58);tube(shotgun,black,.075,-.055,-.12,.025,.27);box(shotgun,black,0,.11,-.02,.055,.04,.13);root.add(shotgun);weaponModels.shotgun=shotgun;
+const sniper=new T.Group();box(sniper,black,0,0,.015,.15,.12,.48);box(sniper,wood,-.13,-.025,.11,.12,.1,.34);tube(sniper,steel,0,.015,-.27,.018,.82);tube(sniper,black,0,.115,-.03,.035,.29);tube(sniper,optic,0,.115,-.04,.025,.31);box(sniper,black,0,-.1,.015,.055,.1,.12);box(sniper,steel,.09,.01,-.1,.012,.035,.16);root.add(sniper);weaponModels.sniper=sniper;for(const g of Object.values(weaponModels)){g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=false}});g.visible=false}if(G.weapon&&G.weapon.setVisible)G.weapon.setVisible(false);weaponModels.rifle.visible=true}
+function renderHud(){if(!$('#sl21-weapon'))return;$('#sl21-weapon').textContent=profiles[weapon].label;ammoEl().textContent=ammo+' / '+reserve;$('#sl21-boss').textContent=boss&&boss.alive?`COMMANDER HP // ${Math.ceil(boss.hp)} / 650`:''}
+function setPanel(v){mapOpen=!!v;panel.hidden=!mapOpen;toggle.setAttribute('aria-expanded',String(mapOpen))}toggle.addEventListener('click',()=>setPanel(!mapOpen));
+function addBox(group,mat,x,y,z,w,h,d,collide=true){const geo=new G.THREE.BoxGeometry(w,h,d),mesh=new G.THREE.Mesh(geo,mat);mesh.position.set(x,y+h/2,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);if(collide){const b=G.physics.addBox(new G.THREE.Vector3(x-w/2,y,z-d/2),new G.THREE.Vector3(x+w/2,y+h,z+d/2),{surface:'metal'});colliders.push(b)}return mesh}
+function clearTheatre(){if(decor&&G.scene)G.scene.remove(decor);decor=null;for(const b of colliders)G.physics.removeBox(b);colliders=[];G.physics.build()}
+function buildTheatre(id){if(!G||!G.THREE||!G.scene||!G.physics)return;clearTheatre();const T=G.THREE,t=theatres[id],group=new T.Group();group.name='saltline21-'+id;decor=group;G.scene.add(group);
+const metal=new T.MeshStandardMaterial({color:id==='factory'?0x555b5c:id==='base'?0x59636a:0x34505a,roughness:.88,metalness:.45}),dark=new T.MeshStandardMaterial({color:0x171e22,roughness:.9}),accent=new T.MeshStandardMaterial({color:t.accent,roughness:.72,metalness:.25}),glass=new T.MeshStandardMaterial({color:0x8bb8bf,roughness:.2,metalness:.3,transparent:true,opacity:.3});
+const [cx,cz]=t.center;
+// Three distinct, walkable themed compounds are staged as separate sectors on the shared harbour terrain.
+if(id==='factory'){
+ addBox(group,metal,cx-10,0,cz-7,20,5,1);addBox(group,metal,cx-10,0,cz+7,20,5,1);addBox(group,metal,cx-10,0,cz-7,1,5,15);addBox(group,metal,cx+9,0,cz-7,1,5,15);
+ for(let n=0;n<5;n++){const x=cx-7+n*3.4;addBox(group,dark,x,0,cz-3,1.4,3.5,1.4);addBox(group,accent,x,3.5,cz-3,.12,.7,.12,false)}
+ for(let n=0;n<3;n++){const x=cx-6+n*6;addBox(group,metal,x,0,cz+2,2.2,2.4,2.2);addBox(group,accent,x,2.4,cz+2,2.4,.18,2.4,false)}
+}else if(id==='harbor'){
+ for(let n=0;n<4;n++){const x=cx-7+n*4.6;addBox(group,metal,x,0,cz-3,4,2.8,2.4);addBox(group,accent,x,2.8,cz-3,4,.12,2.4,false);addBox(group,dark,x,0,cz+3,4,2.8,2.4)}
+ addBox(group,metal,cx-10,0,cz-9,1,4,18);addBox(group,metal,cx+10,0,cz-9,1,4,18);
+}else{
+ addBox(group,metal,cx-10,0,cz-8,20,3.8,.8);addBox(group,metal,cx-10,0,cz+8,20,3.8,.8);addBox(group,metal,cx-10,0,cz-8,.8,3.8,17);addBox(group,metal,cx+9.2,0,cz-8,.8,3.8,17);
+ addBox(group,dark,cx-3,0,cz-2,6,3,5);addBox(group,accent,cx-3,3,cz-2,6,.16,5,false);addBox(group,metal,cx+5,0,cz+3,2,2,2);addBox(group,metal,cx-7,0,cz+3,2,2,2);
+ // Watchtower legs and platform
+ for(const dx of [-5,5])for(const dz of [-5,5])addBox(group,metal,cx+dx,0,cz+dz,.35,6,.35);
+ addBox(group,accent,cx-5,6,cz-5,10,.35,10,false);
+}
+// Perimeter warning lamps and ground markers are visual-only.
+for(let n=0;n<4;n++){const lamp=new T.Mesh(new T.SphereGeometry(.16,10,8),new T.MeshBasicMaterial({color:0xffa33b}));lamp.position.set(cx-8+(n%2)*16,3.2,cz-6+Math.floor(n/2)*12);group.add(lamp)}
+G.physics.build();
+}
+function spawnAt(pos,type='hound',opts={}){if(!G||!G.enemies||!G.enemies.spawn)return null;try{return G.enemies.spawn(type,new G.THREE.Vector3(pos.x,0,pos.z),opts)}catch(e){console.warn('[Saltline 2.1] spawn failed',e);return null}}
+function spawnRing(count,radius=12){const p=G.player.pos;for(let k=0;k<count;k++){const a=Math.PI*2*k/count+Math.random()*.25,r=radius+Math.random()*5;spawnAt({x:p.x+Math.cos(a)*r,z:p.z+Math.sin(a)*r},k%4===0?'gull':'hound',{state:'alert',target:p})}}
+function spawnCommander(){const c=theatres.base.center,p={x:c[0]+5,z:c[1]-2};boss=spawnAt(p,'hound',{state:'alert',target:G.player.pos});if(!boss){say('COMMANDER SPAWN FAILED // RETRY OPERATION');return}boss.hp=650;boss.maxHp=650;boss._saltlineBoss=true;if(boss.rig&&boss.rig.group){boss.rig.group.scale.setScalar(1.72)};say('WARNING // ARMORED COMMANDER DETECTED')}
+function startOperation(){if(!G||!G.game)return;completed=false;started=false;missionKills=0;wave=0;boss=null;reinforceAt=0;G.enemies.clear();buildTheatre(theatre);const t=theatres[theatre],pos=new G.THREE.Vector3(t.spawn[0],0,t.spawn[1]);G.player.reset({pos,yaw:0});G.player.health=G.player.maxHealth;if(G.game.run){G.game.run.cut=0;G.game.run.allCut=false;if(Array.isArray(G.game.run.relays)){for(const r of G.game.run.relays){r.cut=false;r.cutting=false;if(r.o&&r.o.object&&r.o.object.userData&&r.o.object.userData.setState)r.o.object.userData.setState('live')}}}mission=mission==='auto'?t.mission:mission;panel.querySelectorAll('[data-map]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.map===theatre)));panel.querySelectorAll('[data-mission]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mission===mission)));objEl().textContent=t.description;started=true;
+if(mission==='boss'){spawnCommander();spawnRing(3,19)}else if(mission==='sweep'){spawnRing(8,15)}else if(mission==='relay'){if(theatre!=='harbor'){say('RELAY OBJECTIVE AVAILABLE IN DEAD RELAY THEATRE');mission='sweep';spawnRing(8,15)}else{spawnRing(4,22)}}
+renderHud();say('DEPLOYED // '+t.label);setPanel(false)}
+function deploySelected(){if(!G||!G.game)return;if(G.game.state==='title')G.game.start({skipIntro:true});else if(G.game.state==='paused')G.game.resume();startOperation()}
+function selectMap(id){theatre=id;mission=theatres[id].mission;deploySelected()}
+function selectMission(id){mission=id;deploySelected()}
+panel.addEventListener('click',e=>{const m=e.target.closest('[data-map]');if(m){selectMap(m.dataset.map);return}const q=e.target.closest('[data-mission]');if(q){selectMission(q.dataset.mission);return}const w=e.target.closest('[data-weapon]');if(w)setWeapon(w.dataset.weapon)});
+function reload(){if(reloading||ammo===profiles[weapon].mag||reserve<=0)return;reloading=true;reloadEnd=performance.now()/1000+profiles[weapon].reload;say('RELOADING // '+profiles[weapon].label)}
+function shoot(origin,dir){if(!G||!G.combat||!baseShot||!G.player||!G.player.alive)return null;const now=performance.now()/1000,p=profiles[weapon];if(reloading||now-fireAt<p.rate||ammo<=0){if(ammo<=0&&!reloading)say('MAGAZINE EMPTY // PRESS R');return null}fireAt=now;ammo--;let result=null;for(let n=0;n<p.pellets;n++){const d=dir.clone();if(p.spread){d.x+=(Math.random()-.5)*p.spread;d.y+=(Math.random()-.5)*p.spread;d.z+=(Math.random()-.5)*p.spread;d.normalize()}const hit=baseShot(origin,d,{damage:p.damage,range:p.range,impulse:weapon==='shotgun'?2.2:1});if(hit)result=hit}G.events.emit('weapon:fire',{weapon,mode:weapon});renderHud();return result}
+function complete(){if(completed)return;completed=true;if(!progress.completed.includes(theatre))progress.completed.push(theatre);progress.bestKills=Math.max(progress.bestKills,missionKills);save();objEl().textContent='OPERATION COMPLETE // RECORD SAVED';say('MISSION COMPLETE // CAMPAIGN RECORD UPDATED')}
+function patch(){G=window.__G;if(!G||!G.game||!G.combat||!G.enemies||G.__saltline21)return false;G.__saltline21=true;buildWeaponModels();baseShot=G.combat.playerShot.bind(G.combat);G.combat.playerShot=(o,d)=>shoot(o,d);
+baseEnemyUpdate=G.enemies.update.bind(G.enemies);G.enemies.update=dt=>{baseEnemyUpdate(dt);if(!G.player||!G.player.alive)return;enemyTick+=dt;if(enemyTick>1.5){enemyTick=0;const a=G.enemies.list.filter(e=>e&&e.alive&&!e.passive);if(a.some(e=>e.mode==='engage'||e.mode==='investigate')){G.enemies.alert(G.player.pos,62);a.forEach((e,i)=>{if(e._saltlineBoss||!e.lastKnown)return;const p=G.player.pos,ang=Math.atan2(p.z-e.pos.z,p.x-e.pos.x)+(i%2?1:-1)*.9,rad=7+(i%3)*2;e.lastKnown.set(p.x+Math.cos(ang)*rad,0,p.z+Math.sin(ang)*rad);if(e.mode!=='engage'){e.mode='investigate';e.modeT=8}})}}};
+baseUpdate=G.game.update.bind(G.game);G.game.update=dt=>{const result=baseUpdate(dt);if(G.game.state==='playing'&&started&&!completed&&G.player&&G.player.alive){const alive=G.enemies.list.filter(e=>e&&e.alive).length;if(mission==='sweep'){objEl().textContent=`${theatres[theatre].label} // HOSTILES ${missionKills}/8`;if(missionKills>=8&&alive===0)complete();else if(alive===0&&missionKills<8&&G.time.t>reinforceAt){reinforceAt=G.time.t+18;spawnRing(Math.min(4,8-missionKills),18);say('HOSTILES REPOSITIONING // NEW CONTACT')}}else if(mission==='relay'){const cut=Number(G.game.run.cut)||0;objEl().textContent=`DEAD RELAY // UPLINKS ${cut}/3`;if(cut>=3&&G.game.run.allCut)complete()}else if(mission==='boss'){objEl().textContent='BLACKSITE // ELIMINATE ARMORED COMMANDER';if(boss&&!boss.alive)complete();if(boss&&boss.alive)$('#sl21-boss').textContent=`COMMANDER HP // ${Math.ceil(boss.hp)} / 650`}}
+return result};G.events.on('enemy:killed',e=>{missionKills++;if(e&&e.enemy&&e.enemy._saltlineBoss){boss=e.enemy;$('#sl21-boss').textContent='COMMANDER // NEUTRALIZED'}renderHud()});G.events.on('player:dead',()=>{started=false;say('OPERATION FAILED // DEPLOY TO RETRY')});return true}
+function keys(e){if(e.repeat||e.altKey||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;if(e.code==='Digit1')setWeapon('rifle');if(e.code==='Digit2')setWeapon('shotgun');if(e.code==='Digit3')setWeapon('sniper');if(e.code==='KeyR')reload();if(e.code==='KeyM'){e.preventDefault();setPanel(!mapOpen)}}window.addEventListener('keydown',keys);
+function tick(){if(!G)patch();if(G){if(reloading&&performance.now()/1000>=reloadEnd){const p=profiles[weapon],n=Math.min(p.mag-ammo,reserve);ammo+=n;reserve-=n;reloading=false;say('READY // '+p.label);renderHud()}if(G.game&&G.game.state!==lastState){lastState=G.game.state;if(lastState==='playing'&&G.weapon&&G.weapon.setVisible)G.weapon.setVisible(false);if(lastState==='playing'&&!started){mission=theatres[theatre].mission;startOperation()}if(lastState==='title'||lastState==='paused')setPanel(true)}if(G.enemies&&threatEl())threatEl().textContent='HOSTILES: '+G.enemies.aliveCount()+' ACTIVE';if(boss&&boss.alive)$('#sl21-boss').textContent=`COMMANDER HP // ${Math.ceil(boss.hp)} / 650`}requestAnimationFrame(tick)}
+setWeapon('rifle');save();requestAnimationFrame(tick);
+})();
+</script>
+</body>
 
 </html>
