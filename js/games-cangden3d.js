@@ -1,4 +1,4 @@
-// Saltline 3D: game FPS 3D một tệp HTML (bản gốc của bên thứ ba, chủ trang tải lên, giữ nguyên) ở trang riêng games/cangden3d/.
+// Saltline 3D: game FPS 3D một tệp HTML do chủ dự án (Huyen) tạo, © 2026 Huyen, ở trang riêng games/cangden3d/.
 (function () {
   GV.register({
     id: 'cangden3d', type: 'game', cat: 'Hành động', name: 'Saltline 3D', icon: '🚢',
