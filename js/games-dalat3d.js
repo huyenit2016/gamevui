@@ -2,6 +2,7 @@
 (function () {
   GV.register({
     id: 'dalat3d', type: 'game', cat: 'Mô phỏng', name: 'Đà Lạt Phố Hội 3D', icon: '🌼',
+    cover: 'img/cover-dalat3d.webp', coverS: 'img/cover-dalat3d-s.webp',
     desc: 'Hoá thân tiểu thương ở Quảng trường Lâm Viên Đà Lạt: mua nguyên liệu ở chợ, chế biến khoai nướng, bánh tráng nướng, cà phê, dâu tây… và bán cho khách, bạn bè. Bản thử miễn phí, mua một lần để mở khoá đầy đủ. Mở ở trang riêng.',
     mount(el) {
       const url = 'games/dalat3d/index.html';
