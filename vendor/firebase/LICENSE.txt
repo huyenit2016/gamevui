@@ -1,0 +1,3 @@
+Firebase JavaScript SDK 10.12.2 (bản compat: app, auth, database) – Copyright Google LLC.
+Giấy phép Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0
+Lấy từ gói npm "firebase@10.12.2", không sửa đổi.

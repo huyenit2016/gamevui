@@ -1,7 +1,9 @@
 // Tiện ích Firebase dùng chung (nạp SDK, đăng nhập ẩn danh, giải thích lỗi). Xem FIREBASE.md.
 (function () {
   const V = '10.12.2';
-  const SRC = ['app', 'auth', 'database'].map(m => `https://www.gstatic.com/firebasejs/${V}/firebase-${m}-compat.js`);
+  // SDK phục vụ cục bộ (vendor/firebase, Apache-2.0) thay vì CDN gstatic; đường dẫn tính theo vị trí fb.js nên dùng được từ trang ở mọi thư mục
+  const BASE = (() => { try { return new URL('../vendor/firebase/', document.currentScript.src).href; } catch (e) { return 'vendor/firebase/'; } })();
+  const SRC = ['app', 'auth', 'database'].map(m => `${BASE}firebase-${m}-compat.js?v=${V}`);
   const loadScript = src => new Promise((ok, no) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('Không tải được thư viện Firebase (kiểm tra mạng)')); document.head.appendChild(s); });
   const getCfg = () => window.GV_FIREBASE || GV.store.get('fbcfg', null);
 
