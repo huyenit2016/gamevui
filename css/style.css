@@ -601,3 +601,6 @@ body.novbar .vbar{display:none}
 :root[data-theme=light] *::-webkit-scrollbar-thumb{background:#b6c0d0;background-clip:content-box}
 :root[data-theme=light] *::-webkit-scrollbar-thumb:hover{background:#0891b2;background-clip:content-box}
 @media(max-width:599px){*::-webkit-scrollbar{width:6px;height:6px}}
+
+/* chip danh mục Game 3D (đang hot) */
+#chips button.c3d{border-color:rgba(255,140,60,.55);color:#ffb070}#chips button.c3d.on{background:linear-gradient(90deg,#ff7a2f,#ffb347);color:#1a0f05;border-color:transparent}

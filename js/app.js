@@ -61,11 +61,13 @@
   function cats() {
     const set = new Set();
     GV.items.filter(i => tab === 'all' || tab === 'fav' || i.type === tab).forEach(i => set.add(i.cat));
-    return [...set];
+    const l = [...set]; if (tab !== 'tool' && GV.items.some(i => G3D.includes(i.id) && (tab === 'all' || tab === 'game' || (tab === 'fav' && favs().includes(i.id))))) l.unshift(C3D); return l;
   }
 
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
+  // Danh mục ảo "Game 3D": chip lọc riêng + khu riêng trên trang chủ, mọi game trong đây gắn nhãn HOT
+  const G3D = ['cangden3d', 'cangden', 'dalat3d', 'saigon3d', 'lenchua', 'blocks'], C3D = '3D', catLabel = c => c === C3D ? '🔥 Game 3D' : c || 'Mọi thể loại';
   const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
   const DEF_NEW = ['cangden3d', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
   const PIN_HOT = ['cangden3d', 'crypto-analytics']; // ghim vào "Đang hot" (từ vị trí thứ 2), kể cả khi CMS đặt danh sách riêng
@@ -78,7 +80,7 @@
   const verbOf = (i, big) => i.cat === 'Học tập' ? [big ? 'Học ngay' : 'Học', 'cap'] : i.type === 'game' ? [big ? 'Chơi ngay' : 'Chơi', 'play'] : ['Dùng thử', 'sparkles'];
   // variant: '' thẻ thường · 'big' thẻ lớn · 'feat' thẻ nổi bật (chiếm 2x2 trong "Đang hot")
   function cardHTML(i, f, variant) {
-    const badge = NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
+    const badge = G3D.includes(i.id) ? '<span class="bdg hot">HOT</span>' : NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
     const on = f.includes(i.id), v = variant === true ? 'big' : (variant || '');
     return `<a class="card${v ? ' ' + v : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${GV.esc(i.name)}">
       <div class="art"><span class="bg"></span><span class="ic" aria-hidden="true">${i.icon}</span>${badge}
@@ -117,12 +119,13 @@
     const chips = $('#chips');
     const list = cats();
     if (cat && !list.includes(cat)) cat = '';
-    chips.innerHTML = list.length > 1 ? ['', ...list].map(c => `<button data-c="${GV.esc(c)}" class="${c === cat ? 'on' : ''}">${c || 'Mọi thể loại'}</button>`).join('') : '';
+    chips.innerHTML = list.length > 1 ? ['', ...list].map(c => `<button data-c="${GV.esc(c)}" class="${c === cat ? 'on' : ''}${c === C3D ? ' c3d' : ''}">${GV.esc(catLabel(c))}</button>`).join('') : '';
     const f = favs(), q = query.trim().toLowerCase();
     const items = GV.items.filter(i => visible(i) &&
       (tab === 'all' || (tab === 'fav' ? f.includes(i.id) : i.type === tab)) &&
-      (!cat || i.cat === cat) &&
+      (!cat || (cat === C3D ? G3D.includes(i.id) : i.cat === cat)) &&
       (!q || (i.name + ' ' + i.desc + ' ' + i.cat).toLowerCase().includes(q)));
+    if (cat === C3D) items.sort((a, b) => G3D.indexOf(a.id) - G3D.indexOf(b.id));
     const showcase = tab === 'all' && !cat && !q;
     const th = $('#thead'); if (th) th.hidden = !(tab === 'tool' && !q);
     const wsEl = $('#ws'), want = tab === 'tool' && !cat && !q;
@@ -136,10 +139,10 @@
     const ha = $('#heroart'); if (ha) ha.innerHTML = (hot.length ? hot : GV.items).slice(0, 4).map((i, k) => `<a class="ht t${k}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" tabindex="-1"><span>${i.icon}</span><b>${GV.esc(i.name)}</b></a>`).join('');
     let html;
     if (showcase) {
-      const multi = items.filter(i => i.cat === 'Nhiều người'), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người'), learn = items.filter(i => i.cat === 'Học tập'), tools = items.filter(i => i.type === 'tool' && i.cat !== 'Học tập');
+      const multi = items.filter(i => i.cat === 'Nhiều người'), g3d = G3D.map(id => items.find(i => i.id === id)).filter(Boolean), games = items.filter(i => i.type === 'game' && i.cat !== 'Nhiều người' && !G3D.includes(i.id)), learn = items.filter(i => i.cat === 'Học tập'), tools = items.filter(i => i.type === 'tool' && i.cat !== 'Học tập');
       const sec = (ic, t, arr, sub) => arr.length ? `<div class="sech span"><h2 class="sec">${GV.ic(ic, 22)}${t} <small>${arr.length}</small></h2>${sub ? `<p class="secsub">${sub}</p>` : ''}</div>` + arr.map(i => cardHTML(i, f)).join('') : '';
       const adSlot = '<div class="ad span" data-slot="inline"></div>';
-      html = sec('users', 'Chơi cùng bạn bè', multi, 'Tạo phòng, gửi mã và chơi cùng nhau') + adSlot + sec('cap', 'Học tập', learn, 'Ngoại ngữ, trợ lý AI, phiên dịch và lớp học 1-1') + sec('gamepad', 'Game giải trí', games, 'Giải trí nhanh, chơi một mình hoặc thử thách kỷ lục') + adSlot + sec('wrench', 'Tiện ích hằng ngày', tools, 'Công cụ nhỏ – dùng là có ích');
+      html = sec('flame', '🔥 Game 3D · Đang hot', g3d, 'Thế giới 3D chạy ngay trên trình duyệt: bắn súng, du lịch, kinh doanh, xây dựng') + sec('users', 'Chơi cùng bạn bè', multi, 'Tạo phòng, gửi mã và chơi cùng nhau') + adSlot + sec('cap', 'Học tập', learn, 'Ngoại ngữ, trợ lý AI, phiên dịch và lớp học 1-1') + sec('gamepad', 'Game giải trí', games, 'Giải trí nhanh, chơi một mình hoặc thử thách kỷ lục') + adSlot + sec('wrench', 'Tiện ích hằng ngày', tools, 'Công cụ nhỏ – dùng là có ích');
     } else html = items.map(i => cardHTML(i, f)).join('');
     $('#grid').innerHTML = html;
     if (window.GV.ads) GV.ads.hydrate($('#home'));
