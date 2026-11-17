@@ -264,7 +264,7 @@
     return `${vn ? o(vn, 'c', 1) : '<option value="c:vn">Việt Nam</option>'}<option value="fav">★ Yêu thích / kênh của tôi</option><optgroup label="Thể loại">${L.cat.map(c => o(c, 'g')).join('')}</optgroup><optgroup label="Quốc gia">${L.country.map(c => o(c, 'c', 1)).join('')}</optgroup><optgroup label="Ngôn ngữ">${L.lang.map(c => o(c, 'l')).join('')}</optgroup>`; };
   const tvUrl = k => { const m = /^([cgl]):(\w+)$/.exec(k) || ['', 'c', k === 'news' ? 'news' : k]; const d = { c: 'countries', g: 'categories', l: 'languages' }[m[1]]; return `https://iptv-org.github.io/iptv/${d}/${m[2]}.m3u`; };
   let hlsLoad = null;
-  const loadHls = () => hlsLoad || (hlsLoad = new Promise((res, rej) => { if (window.Hls) return res(window.Hls); const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js'; s.onload = () => res(window.Hls); s.onerror = () => { hlsLoad = null; rej(new Error('hls')); }; document.head.appendChild(s); }));
+  const loadHls = () => hlsLoad || (hlsLoad = new Promise((res, rej) => { if (window.Hls) return res(window.Hls); const s = document.createElement('script'); s.src = 'vendor/hls.min.js'; s.onload = () => res(window.Hls); s.onerror = () => { hlsLoad = null; rej(new Error('hls')); }; document.head.appendChild(s); }));
   GV.register({
     id: 'tv', type: 'tool', cat: 'Giải trí', name: 'Xem TV', icon: '📺', desc: 'Xem kênh truyền hình trực tuyến công khai (Việt Nam & quốc tế). Không chèn quảng cáo.',
     mount(el) {

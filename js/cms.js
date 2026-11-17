@@ -1,6 +1,7 @@
 // CMS OmniHub: đăng nhập, phân quyền (admin · CTV · giáo viên · học sinh), quản lý phòng & dọn rác, người dùng, cấu hình web, thông báo, thư viện khoá học, giao bài.
 (function () {
   const A = GV.account, L = GV.learn, esc = GV.esc, T = (m, o) => GV.toast(m, o);
+  const num = v => { const n = Number(v); return Number.isFinite(n) ? Math.round(n) : 0; }; // số do học sinh tự ghi lên Firebase: ép về số để không chèn được HTML
   const root = document.getElementById('cms');
   const $ = (s, r = root) => r.querySelector(s), $$ = (s, r = root) => [...r.querySelectorAll(s)];
   const fdate = t => t ? new Date(t).toLocaleString('vi-VN') : '—';
@@ -342,7 +343,7 @@
       const r = e.target.closest('[data-r]'), rm = e.target.closest('[data-rm]'), ua = e.target.closest('[data-ua]');
       if (ua) { e.preventDefault(); const [sid, cid] = ua.dataset.ua.split('|'); await db().ref('assign/' + sid + '/' + cid).remove(); T('Đã thu hồi bài.', { type: 'info' }); draw(); }
       if (rm && confirm('Bỏ học sinh này khỏi danh sách?')) { await db().ref('teacherStudents/' + me + '/' + rm.dataset.rm).remove(); load(); }
-      if (r) { const s = await db().ref('results/' + r.dataset.r).limitToLast(30).once('value'), list = Object.values(s.val() || {}).sort((a, b) => b.at - a.at); $('.rs', c).innerHTML = list.length ? `<b>${esc(S[r.dataset.r].name)}</b><table><tr><th>Khoá</th><th>Điểm</th><th>Lúc</th></tr>${list.map(x => `<tr><td>${esc(x.c)}</td><td><b>${x.ok}/${x.n}</b> (${Math.round(x.ok / x.n * 100)}%)</td><td class="hint">${fdate(x.at)}</td></tr>`).join('')}</table>` : 'Học sinh này chưa có kết quả.'; }
+      if (r) { const s = await db().ref('results/' + r.dataset.r).limitToLast(30).once('value'), list = Object.values(s.val() || {}).sort((a, b) => b.at - a.at); $('.rs', c).innerHTML = list.length ? `<b>${esc(S[r.dataset.r].name)}</b><table><tr><th>Khoá</th><th>Điểm</th><th>Lúc</th></tr>${list.map(x => `<tr><td>${esc(x.c)}</td><td><b>${num(x.ok)}/${num(x.n)}</b> (${num(x.n) ? Math.round(num(x.ok) / num(x.n) * 100) : 0}%)</td><td class="hint">${fdate(x.at)}</td></tr>`).join('')}</table>` : 'Học sinh này chưa có kết quả.'; }
     };
     load();
   }
@@ -352,7 +353,7 @@
     c.innerHTML = '<div class="card2"><h2>📌 Bài được giao</h2><div class="as">Đang tải…</div></div><div class="card2"><h2>📊 Kết quả của tôi</h2><div class="rs">Đang tải…</div></div>';
     const asg = await L.library.assigned(), rs = Object.values((await db().ref('results/' + A.user.uid).limitToLast(40).once('value')).val() || {}).sort((a, b) => b.at - a.at);
     $('.as', c).innerHTML = asg.length ? asg.map(a => `<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0"><span><b>${esc(a.name)}</b> <span class="hint">· GV ${esc(a.byName || '')} · ${fdate(a.at)}</span></span><button class="btn sm" data-g="${a.cid}">Nhận & học ▶</button></div>`).join('') : '<div class="hint">Chưa có bài nào được giao.</div>';
-    $('.rs', c).innerHTML = rs.length ? `<table><tr><th>Khoá</th><th>Điểm</th><th>Lúc</th></tr>${rs.map(x => `<tr><td>${esc(x.c)}</td><td><b>${x.ok}/${x.n}</b> (${Math.round(x.ok / x.n * 100)}%)</td><td class="hint">${fdate(x.at)}</td></tr>`).join('')}</table>` : '<div class="hint">Chưa có kết quả – làm bài kiểm tra trong "Học ngoại ngữ" khi đã đăng nhập.</div>';
+    $('.rs', c).innerHTML = rs.length ? `<table><tr><th>Khoá</th><th>Điểm</th><th>Lúc</th></tr>${rs.map(x => `<tr><td>${esc(x.c)}</td><td><b>${num(x.ok)}/${num(x.n)}</b> (${num(x.n) ? Math.round(num(x.ok) / num(x.n) * 100) : 0}%)</td><td class="hint">${fdate(x.at)}</td></tr>`).join('')}</table>` : '<div class="hint">Chưa có kết quả – làm bài kiểm tra trong "Học ngoại ngữ" khi đã đăng nhập.</div>';
     c.onclick = async e => { const b = e.target.closest('[data-g]'); if (!b) return; b.disabled = true; try { await L.library.importToLocal(b.dataset.g); T('Đã nhận bài! Mở "Học ngoại ngữ" để học.', { type: 'success', action: { label: 'Mở ngay', fn: () => { location.href = './#/tool/lang'; } } }); } catch (x) { T(x.message, { type: 'error' }); b.disabled = false; } };
   }
 

@@ -260,8 +260,9 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
       }
     },
     "userIndex": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab' || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
       "$k": {
+        ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'collab' || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
         ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid && $k === auth.token.email.toLowerCase().replace('.', ',')) || root.child('admins').child(auth.uid).exists())"
       }
     },
@@ -527,7 +528,22 @@ Bản này dùng cho tất cả game nhiều người (Lô tô online, Uno, Ti�
         ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
         "$id": {
           ".write": "auth != null && $s === auth.uid && !data.exists()",
-          ".validate": "newData.hasChildren(['c', 'ok', 'n', 'at'])"
+          ".validate": "newData.hasChildren(['c', 'ok', 'n', 'at'])",
+          "c": {
+            ".validate": "newData.isString() && newData.val().length <= 120"
+          },
+          "ok": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000"
+          },
+          "n": {
+            ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 1000"
+          },
+          "at": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": "false"
+          }
         }
       }
     }

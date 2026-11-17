@@ -56,7 +56,7 @@ W('học sinh KHÔNG sửa hồ sơ người khác', false, 'users/stu2/name', '
 W('admin đổi role người khác', true, 'users/stu1/role', 'teacher', who.adm); W('admin gán admins/stu1', true, 'admins/stu1', { k: 'by-admin' }, who.adm);
 R('admin đọc toàn bộ users', true, 'users', who.adm); R('học sinh đọc hồ sơ của mình', true, 'users/stu1', who.stu); R('giáo viên đọc tên học sinh', true, 'users/stu1/name', who.tea); R('giáo viên KHÔNG đọc email/hồ sơ đầy đủ', false, 'users/stu1', who.tea);
 W('userIndex đúng email của mình', true, 'userIndex/stu@x,com', 'stu1', who.stu); W('userIndex chiếm email người khác bị chặn', false, 'userIndex/victim@x,com', 'stu1', who.stu);
-R('giáo viên đọc userIndex', true, 'userIndex/stu1@x,com', who.tea); R('học sinh KHÔNG đọc userIndex', false, 'userIndex/stu2@x,com', who.stu);
+R('giáo viên đọc userIndex', true, 'userIndex/stu1@x,com', who.tea); R('học sinh KHÔNG đọc userIndex', false, 'userIndex/stu2@x,com', who.stu); R('giáo viên KHÔNG liệt kê toàn bộ email', false, 'userIndex', who.tea); R('admin liệt kê userIndex', true, 'userIndex', who.adm);
 
 console.log('--- CMS: cấu hình & thông báo ---');
 W('admin ghi config/site', true, 'config/site', { pill: 'x' }, who.adm); W('CTV KHÔNG ghi config/site', false, 'config/site', { pill: 'x' }, who.col);
@@ -77,7 +77,7 @@ W('giáo viên giao bài (by=mình)', true, 'assign/stu1/l1', { name: 'N', by: '
 W('học sinh KHÔNG tự giao bài', false, 'assign/stu1/l1', { name: 'N', by: 'stu1' }, who.stu); R('học sinh đọc bài được giao', true, 'assign/stu1', who.stu); R('học sinh KHÔNG đọc bài của bạn', false, 'assign/stu2', who.stu);
 W('giáo viên thêm học sinh vào danh sách', true, 'teacherStudents/tea1/stu1', { email: 'a', name: 'b' }, who.tea); W('giáo viên KHÔNG sửa danh sách GV khác', false, 'teacherStudents/tea2/stu1', { email: 'a' }, who.tea); W('học sinh KHÔNG có danh sách', false, 'teacherStudents/stu1/stu2', { email: 'a' }, who.stu);
 W('học sinh lưu kết quả của mình', true, 'results/stu1/r1', { c: 'x', ok: 3, n: 5, at: 1 }, who.stu); W('học sinh KHÔNG ghi kết quả hộ bạn', false, 'results/stu2/r1', { c: 'x', ok: 5, n: 5, at: 1 }, who.stu);
-W('kết quả thiếu trường bị chặn', false, 'results/stu1/r2', { ok: 1 }, who.stu); R('giáo viên đọc kết quả HS', true, 'results/stu1', who.tea); R('học sinh KHÔNG đọc kết quả bạn', false, 'results/stu1', who.stu2); R('CTV KHÔNG đọc kết quả', false, 'results/stu1', who.col);
+W('kết quả thiếu trường bị chặn', false, 'results/stu1/r2', { ok: 1 }, who.stu); W('kết quả có HTML thay số bị chặn', false, 'results/stu1/r3', { c: 'x', ok: '<img src=x onerror=alert(1)>', n: 5, at: 1 }, who.stu); W('kết quả thêm trường lạ bị chặn', false, 'results/stu1/r4', { c: 'x', ok: 1, n: 5, at: 1, h: '<b>' }, who.stu); R('giáo viên đọc kết quả HS', true, 'results/stu1', who.tea); R('học sinh KHÔNG đọc kết quả bạn', false, 'results/stu1', who.stu2); R('CTV KHÔNG đọc kết quả', false, 'results/stu1', who.col);
 
 console.log('--- Admin & phòng rác ---');
 const rooms = { mprooms: { 1111: { host: 'hx', meta: { game: 'uno' }, players: { hx: { online: false } } } }, mplobby: { 1111: { at: NOW - 3 * 3600e3 } }, calls: { 2222: { host: 'hx' } }, calllobby: { 2222: { at: NOW - 3 * 3600e3 } }, rooms: { 3333: { x: 1 } }, lobby: { 3333: { y: 1 } } };

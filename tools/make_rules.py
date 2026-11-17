@@ -92,7 +92,8 @@ rules = {"rules": {
     "email": {".write": f"{AUTH} && (auth.uid === $uid || {ADMIN})"},
     "requested": {".write": f"{AUTH} && (auth.uid === $uid || {ADMIN})", ".validate": "newData.val() === 'teacher' || newData.val() === 'collab'"},
     "role": {".write": f"{AUTH} && {ADMIN}", ".validate": "newData.val() === 'student' || newData.val() === 'teacher' || newData.val() === 'collab'"}}},
-  "userIndex": {".read": f"{AUTH} && {STAFF}", "$k": {".write": f"{AUTH} && ((!data.exists() && newData.val() === auth.uid && $k === auth.token.email.toLowerCase().replace('.', ',')) || {ADMIN})"}},
+  # chỉ admin liệt kê cả danh sách email; giáo viên/CTV chỉ tra được đúng 1 email đã biết (không dò hàng loạt)
+  "userIndex": {".read": f"{AUTH} && {ADMIN}", "$k": {".read": f"{AUTH} && {STAFF}", ".write": f"{AUTH} && ((!data.exists() && newData.val() === auth.uid && $k === auth.token.email.toLowerCase().replace('.', ',')) || {ADMIN})"}},
 
   # ---- thư viện khoá học / bài giao / kết quả ----
   "library": {
@@ -194,7 +195,12 @@ rules = {"rules": {
   "assign": {"$s": {".read": f"{AUTH} && ($s === auth.uid || {TEACHER} || {ADMIN})", "$c": {
     ".write": f"{AUTH} && ({ADMIN} || ({TEACHER} && ((newData.exists() && newData.child('by').val() === auth.uid) || (!newData.exists() && data.child('by').val() === auth.uid))))"}}},
   "results": {"$s": {".read": f"{AUTH} && ($s === auth.uid || {TEACHER} || {ADMIN})", ".write": f"{AUTH} && {ADMIN}", "$id": {
-    ".write": f"{AUTH} && $s === auth.uid && !data.exists()", ".validate": "newData.hasChildren(['c', 'ok', 'n', 'at'])"}}}
+    ".write": f"{AUTH} && $s === auth.uid && !data.exists()", ".validate": "newData.hasChildren(['c', 'ok', 'n', 'at'])",
+    "c": {".validate": "newData.isString() && newData.val().length <= 120"},
+    "ok": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000"},
+    "n": {".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 1000"},
+    "at": {".validate": "newData.isNumber()"},
+    "$other": {".validate": "false"}}}}
 }}
 
 root = pathlib.Path(__file__).resolve().parent.parent

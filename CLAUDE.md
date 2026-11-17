@@ -45,7 +45,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 | `audio/` | (tuỳ chọn) `thien.mp3` = nhạc thiền thật cho Tích Đức Online; thiếu file thì dùng nhạc tự soạn |
 | `img/` | Ảnh tĩnh (hiện: `bg-temple.webp` cho Tích Đức Online); `build.mjs` chép nguyên thư mục |
 | `js/tools-youtube.js` | **Xem YouTube** (id `youtube`, lưu `gv_yt_hist/yt_fav`): dán link/ID/playlist → trình phát nhúng CHÍNH THỨC `youtube-nocookie.com` (KHÔNG chặn/lách quảng cáo – trái điều khoản YouTube; ghi rõ trong giao diện). Iframe sống ở `<body>#ytfloat` (`GV.ytPlayer`) để không tải lại khi đổi chế độ: `page` (đè lên khung trong trang, theo rect bằng rAF), `mini` (cửa sổ nhỏ kéo thả, ở lại khi chuyển trang), PiP thật qua Document PiP (Chrome/Edge 116+; iframe tải lại từ giây đang xem nhờ `enablejsapi`). Chủ đã đồng ý nhúng YouTube chính thức (quy ước 'không thêm quảng cáo YouTube' vẫn giữ: không tự chèn quảng cáo) |
-| `js/media.js`, `js/tv-lists.js` | Nghe nhạc (Openverse CC), Karaoke (mic/echo/thu âm), Xem TV (nguồn iptv-org — CHỦ YÊU CẦU ẨN tên/link nguồn khỏi giao diện, chỉ giữ trong mã/chú thích): `tv-lists.js` = danh sách playlist sinh từ `PLAYLISTS.md` của iptv-org (30 thể loại, 206 ngôn ngữ, 189 quốc gia; đã loại XXX); ô chọn dùng giá trị `c:<mã nước>` / `g:<thể loại>` / `l:<mã ngôn ngữ>` / `fav`, URL `https://iptv-org.github.io/iptv/{countries,categories,languages}/<mã>.m3u`; cập nhật danh sách = chạy lại script sinh từ file PLAYLISTS.md mới |
+| `js/media.js`, `js/tv-lists.js` | Nghe nhạc (Openverse CC), Karaoke (mic/echo/thu âm), Xem TV (hls.js 1.5.13 phục vụ cục bộ `vendor/hls.min.js`, Apache-2.0; nguồn iptv-org — CHỦ YÊU CẦU ẨN tên/link nguồn khỏi giao diện, chỉ giữ trong mã/chú thích): `tv-lists.js` = danh sách playlist sinh từ `PLAYLISTS.md` của iptv-org (30 thể loại, 206 ngôn ngữ, 189 quốc gia; đã loại XXX); ô chọn dùng giá trị `c:<mã nước>` / `g:<thể loại>` / `l:<mã ngôn ngữ>` / `fav`, URL `https://iptv-org.github.io/iptv/{countries,categories,languages}/<mã>.m3u`; cập nhật danh sách = chạy lại script sinh từ file PLAYLISTS.md mới |
 | `js/fb.js`, `js/firebase-config.js` | Firebase (Realtime DB + Auth, SDK compat 10.12.2) |
 | `js/account.js`, `js/cms.js`, `css/cms.css`, `cms.html` | Đăng nhập, phân quyền, CMS. **CMS đã gộp vào web**: route `#/cms[/<tab>]` (app.js `loadCMS` nạp lười `css/cms.css` + `registry/story-render/cms-story/cms.js` vào `#cmsroot > #cms[data-embedded]`); mục rail **CMS Admin** (`#navcms`) chỉ hiện khi `A.isAdmin` (account.js `paintHeader`); nút tài khoản `#acct` mở `#/cms` (đăng nhập/hồ sơ cho mọi vai trò); `cms.html` chỉ còn chuyển hướng `cms.html#tab → index.html#/cms/tab`. Giao diện CMS nhúng = tối kính mờ, thanh tab ngang dạng viên thuốc, avatar mở menu (Cập nhật quyền/Đăng xuất); bản ban ngày ở cuối `cms.css` (`:root[data-theme=light] #cmsview`); chế độ sáng toàn site = khối cuối `style.css` (`:root[data-theme=light] body.m3 …`). Tab lưu trong hash `#/cms/<tab>`. Trong test phải scope `#cms .pill/.foot/.lead/.grad…` (trùng class với trang chủ) |
 | `js/ads.js`, `js/ads-config.js`, `js/stats.js` | Quảng cáo, bộ đếm lượt (IP băm) |
@@ -65,6 +65,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - **Quy tắc vàng khi xoá phòng:** xoá `calls` và `calllobby` (hay `mprooms/...`) bằng **một lệnh `update` đa đường dẫn** (và `onDisconnect().update`), vì Rules của lobby kiểm tra phòng chính còn tồn tại.
 - Firebase **bỏ mảng rỗng / key null** khi lưu → code phải chịu được (`x || []`).
 - `stats/ips` chỉ admin đọc được; chat phòng giới hạn 200 ký tự (Rules).
+- **Bảo mật (rà soát 11/2026)**: `results/<uid>/<id>` ép kiểu (`c` chuỗi ≤120, `ok`/`n` số 0–1000, cấm trường lạ) + CMS hiện điểm qua `num()` (trước đó học sinh ghi HTML vào `ok/n` → XSS lên giáo viên/admin); `userIndex` chỉ admin liệt kê, giáo viên/CTV chỉ tra đúng 1 email (`userIndex/$k`). Mọi dữ liệu từ Firebase/URL đưa vào `innerHTML` PHẢI qua `GV.esc` (số thì ép `Number`). Còn tồn: Firebase SDK (gstatic) và Three.js (jsdelivr, các game 3D) tải từ CDN không có SRI; chưa có CSP (GitHub Pages không đặt header được); chưa bật Firebase App Check; mã mở khoá Đà Lạt kiểm ở trình duyệt; relay TikTok `/test`, `/test-chat` không xác thực (chỉ chạy trên máy cá nhân).
 
 ## 4. Build, deploy, kiểm thử
 - Push lên `main` → GitHub Actions: `npm ci && npm run build` (`tools/build.mjs`: terser + javascript-obfuscator + clean-css + html-minifier, copy `css/fonts`, `LICENSE`, `ads.txt`) → `dist/` → Pages (Settings → Pages → Source = **GitHub Actions**, đã bật).
@@ -72,7 +73,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Chạy thử cục bộ: `npm install && npm run build`, mở `dist/index.html`.
 - **Test** (Playwright, cần cài global; mạng bị chặn nên dùng mock): `NODE_PATH=$(npm root -g) node tools/tests/<file>`
   - `mount-all.test.js` — mở cả 100 mục, báo lỗi (luôn chạy sau khi sửa UI)
-  - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `153 đạt, 0 lỗi`)
+  - `rules.test.js` — mô phỏng Firebase Rules (kỳ vọng `157 đạt, 0 lỗi`; bộ mô phỏng `rulesim.js` CHƯA hỗ trợ `newData.parent()`)
   - `cms-e2e.test.js` — CMS end-to-end với Firebase giả (`hub.js`, `mock_shared.js`)
   - `town.test.js` — Làng Nông Vui: khoá/mở khoá, chuồng, nhà, cày xu, game nhúng, cờ tỷ phú, hàng xóm, thưởng xu
   - `new-games.test.js` — 35 game + 4 tiện ích mới (thao tác cơ bản, kiểm tra canvas có vẽ)
@@ -98,7 +99,7 @@ Website tĩnh (GitHub Pages) gồm **game, tiện ích, học tập, chơi onlin
 - Icon UI là SVG nét Lucide (`js/icons.js`, thêm icon = thêm path). Emoji chỉ còn là biểu tượng của từng game và nội dung bên trong game.
 
 ## 7. Giới hạn đã biết
-- Phụ thuộc dịch vụ ngoài chưa kiểm chứng trên môi trường thật: Openverse (giới hạn lượt ẩn danh), iptv-org (nhiều kênh chặn CORS/khu vực), hls.js từ cdnjs (chưa gắn SRI), Firebase.
+- Phụ thuộc dịch vụ ngoài chưa kiểm chứng trên môi trường thật: Openverse (giới hạn lượt ẩn danh), iptv-org (nhiều kênh chặn CORS/khu vực), Firebase.
 - Email đăng ký chưa bắt xác minh; tài khoản Firebase Auth không xoá được từ trình duyệt.
 - Mã nguồn gốc vẫn công khai trên GitHub (repo public); làm rối chỉ gây khó cho người xem bản deploy.
 - Một số màu canvas trong game giữ màu cũ, emoji quân cờ đen hơi chìm trên nền tối; tên trên thẻ hero bị thẻ kề che một phần.
