@@ -83,7 +83,7 @@
     const badge = G3D.includes(i.id) ? '<span class="bdg hot">HOT</span>' : NEW().includes(i.id) ? '<span class="bdg new">NEW</span>' : (HOT().includes(i.id) ? '<span class="bdg hot">HOT</span>' : '');
     const on = f.includes(i.id), v = variant === true ? 'big' : (variant || '');
     return `<a class="card${v ? ' ' + v : ''}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" aria-label="${GV.esc(i.name)}">
-      <div class="art"><span class="bg"></span><span class="ic" aria-hidden="true">${i.icon}</span>${badge}
+      <div class="art${i.cover ? ' cv' : ''}">${i.cover ? `<img class="cvi" src="${GV.esc(v === 'feat' ? i.cover : (i.coverS || i.cover))}" alt="" loading="lazy" decoding="async">` : `<span class="bg"></span><span class="ic" aria-hidden="true">${i.icon}</span>`}${badge}
         <span class="fv${on ? ' on' : ''}" data-f="${i.id}" role="button" tabindex="0" aria-pressed="${on}" aria-label="Yêu thích" title="Yêu thích">${GV.ic('star', 16, on)}</span></div>
       <div class="body"><span class="cat">${tagOf(i)}</span><h3>${GV.esc(i.name)}</h3><p>${GV.esc(i.desc)}</p><span class="go">${(([t, ic]) => GV.ic(ic, 14, ic === 'play') + t)(verbOf(i, !!v))}</span></div>
     </a>`;

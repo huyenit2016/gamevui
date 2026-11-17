@@ -604,3 +604,9 @@ body.novbar .vbar{display:none}
 
 /* chip danh mục Game 3D (đang hot) */
 #chips button.c3d{border-color:rgba(255,140,60,.55);color:#ffb070}#chips button.c3d.on{background:linear-gradient(90deg,#ff7a2f,#ffb347);color:#1a0f05;border-color:transparent}
+
+/* ảnh bìa thẻ game (trường cover/coverS khi GV.register) */
+.card .art.cv{background:#0b0d10}.card .art.cv::after{display:none}
+.card .art.cv .cvi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .5s var(--ease)}
+.card .art.cv::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent 38%,transparent 70%,rgba(0,0,0,.35))}
+.card:hover .art.cv .cvi{transform:scale(1.06)}
