@@ -2,6 +2,7 @@
 (function () {
   GV.register({
     id: 'cangden', type: 'game', cat: 'Hành động', name: 'Cảng Đen · Đột kích 3D', icon: '⚓',
+    cover: 'img/cover-cangden.webp', coverS: 'img/cover-cangden-s.webp',
     desc: 'Bắn súng 3D góc nhìn thứ nhất giữa bến cảng đêm mưa: cắt 3 trạm điều khiển, hạ robot an ninh nổi loạn và chạy ra tàu cứu hộ. Mặt đường ướt, bloom, âm thanh tạo bằng code; chơi bằng chuột phím, cảm ứng hoặc tay cầm. Mở ở trang riêng.',
     mount(el) {
       const url = 'games/cangden/index.html';
