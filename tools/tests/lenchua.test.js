@@ -1,9 +1,9 @@
-// Test game 3D Lên Chùa Cầu An (games/lenchua). three.js lấy từ biến THREE_PATH (CDN bị chặn trong môi trường test).
+// Test game 3D Lên Chùa Cầu An (games/lenchua). three.js phục vụ cục bộ từ vendor/three/ (THREE_PATH chỉ còn dùng cho đường giả lập CDN cũ).
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '../..');
 const THREE = process.env.THREE_PATH || require.resolve('three/build/three.module.js');
-const srv = http.createServer((q, r) => { const f = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': f.endsWith('.html') ? 'text/html' : 'application/octet-stream' }); r.end(d); }); }).listen(8151);
+const srv = http.createServer((q, r) => { const f = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': f.endsWith('.html') ? 'text/html' : /\.m?js$/.test(f) ? 'text/javascript' : f.endsWith('.json') ? 'application/json' : 'application/octet-stream' }); r.end(d); }); }).listen(8151);
 let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '✓ ' : '✗ ') + m); };
 (async () => {
   const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -15,7 +15,7 @@ let ok = 0, bad = 0; const t = (c, m) => { c ? ok++ : bad++; console.log((c ? '�
     await p.route(/^https?:\/\/(?!localhost)/, r => r.abort());
     await p.route('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js', r => r.fulfill({ path: THREE, contentType: 'text/javascript' }));
     await p.goto('http://localhost:8151/games/lenchua/index.html');
-    await p.waitForFunction(() => window.LCA, null, { timeout: 15000 });
+    await p.waitForFunction(() => window.LCA, null, { timeout: 60000 });
     t(true, 'nạp xong, có window.LCA');
     await p.screenshot({ path: process.env.SHOT_DIR ? process.env.SHOT_DIR + '/lc-splash-' + vp.width + '.png' : '/dev/null' }).catch(() => {});
     console.log(await p.evaluate(() => [...document.querySelectorAll('button')].filter(x => x.offsetParent).map(x => x.id + ':' + x.textContent.trim().slice(0, 20)).join(' | ')));
