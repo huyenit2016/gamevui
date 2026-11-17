@@ -70,8 +70,8 @@
   const G3D = ['cangden3d', 'cangden', 'dalat3d', 'saigon3d', 'lenchua', 'blocks'], C3D = '3D', catLabel = c => c === C3D ? '🔥 Game 3D' : c || 'Mọi thể loại';
   const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
   const DEF_NEW = ['cangden3d', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
-  const PIN_HOT = ['cangden3d', 'crypto-analytics']; // ghim vào "Đang hot" (từ vị trí thứ 2), kể cả khi CMS đặt danh sách riêng
-  const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id)); return l.slice(0, 1).concat(PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
+  const PIN_FIRST = ['cangden3d'], PIN_HOT = ['crypto-analytics']; // ghim "Đang hot": PIN_FIRST đứng đầu (thẻ lớn), PIN_HOT chen vào sau mục đầu của danh sách; luôn áp dụng kể cả khi CMS đặt danh sách riêng
+  const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
   const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
 
