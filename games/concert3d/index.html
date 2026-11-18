@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Concert 3D – VIBEVERSE Neon Arena</title>
+<meta property="og:title" content="Concert 3D"><meta property="og:image" content="https://huyenit2016.github.io/gamevui/img/cover-concert3d.webp"><meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Concert 3D – sân khấu neon, hologram, khán đài và đám đông 3D.">
+<style>
+:root{--bg:#060813;--pn:rgba(10,14,36,.84);--line:#2a3470;--tx:#eaf4ff;--mut:#9fb0d8;--cy:#22e6ff;--mg:#ff3ddc;--vi:#8a5cff;--ok:#3dffa8;--warn:#ffd54a;--err:#ff6b8a;--font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--glow:0 0 16px rgba(34,230,255,.5)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px}
+.hud{position:fixed;z-index:3;background:var(--pn);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(6px);box-shadow:0 0 22px rgba(138,92,255,.25)}
+button,select,input{font:inherit;color:var(--tx)}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #fff;outline-offset:2px}
+/* top bar */
+#top{left:12px;right:12px;top:10px;height:48px;display:flex;align-items:center;gap:16px;padding:0 14px}
+.lg{font-weight:900;letter-spacing:.14em;background:linear-gradient(90deg,var(--cy),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+.st{display:flex;align-items:center;gap:6px;white-space:nowrap}.st b{font-variant-numeric:tabular-nums}
+.st .l{color:var(--mut)}
+.sp{flex:1}
+.pill{border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:12px;color:var(--mut)}
+.pill.role{color:var(--warn);border-color:var(--warn)}
+#top select,#top button.sm{background:#0a0f26;border:1px solid var(--line);border-radius:8px;min-height:32px;padding:0 8px}
+#vol{width:80px;accent-color:var(--cy)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--err)}
+/* chat */
+#chat{left:12px;bottom:12px;width:350px;height:310px;display:flex;flex-direction:column}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tab{flex:1;min-height:40px;background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);font-weight:700}
+.tab[aria-selected=true]{color:var(--cy);border-color:var(--cy)}
+.tab i{font-style:normal;background:var(--mg);color:#fff;border-radius:9px;padding:0 6px;font-size:11px;margin-left:4px}
+#msgs{flex:1;overflow:auto;padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.m{line-height:1.4;word-break:break-word}.m b{color:var(--cy)}.m.me b{color:var(--mg)}.m.sys{color:var(--warn);font-style:italic}
+.empty{margin:auto;text-align:center;color:var(--mut);padding:10px}
+#cst{min-height:18px;font-size:12px;padding:0 10px;color:var(--warn)}
+#cf{display:flex;gap:6px;padding:6px 8px 8px;position:relative}
+#ci{flex:1;background:#0a0f26;border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 10px}
+#ci:disabled{opacity:.5}
+#cn{position:absolute;right:76px;top:14px;font-size:11px;color:var(--mut)}
+#cs{min-width:60px;border:0;border-radius:8px;background:linear-gradient(90deg,var(--cy),var(--mg));color:#04101c;font-weight:800}
+#cs:disabled{filter:grayscale(1) brightness(.5)}
+/* emotes */
+#emotes{left:50%;transform:translateX(-50%);bottom:12px;display:flex;gap:8px;padding:8px 10px}
+.em{position:relative;width:64px;height:64px;border-radius:12px;background:#0a0f26;border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden}
+.em .ic{font-size:24px;line-height:1}.em .nm{font-size:11px;color:var(--mut)}
+.em kbd{position:absolute;top:3px;left:5px;font:700 11px var(--font);color:var(--cy)}
+.em:hover{border-color:var(--cy)}.em[aria-pressed=true]{border-color:var(--ok);box-shadow:0 0 14px rgba(61,255,168,.5)}
+.em::after{content:"";position:absolute;inset:0;background:rgba(6,8,19,.7);transform-origin:bottom;transform:scaleY(0)}
+.em.cd::after{animation:cd 1s linear forwards}
+@keyframes cd{from{transform:scaleY(1)}to{transform:scaleY(0)}}
+/* minimap */
+#mm{right:12px;bottom:12px;padding:8px;width:176px}
+#mm canvas{width:158px;height:158px;display:block}
+#mm div{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
+/* host */
+#host{right:12px;top:68px;width:310px;max-height:calc(100vh - 290px);overflow:auto;padding:12px}
+#host[hidden]{display:none}
+#host h3{margin:0 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mg)}
+#host .r{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+#host select,#host input[type=text]{flex:1;min-width:0;background:#0a0f26;border:1px solid var(--line);border-radius:8px;min-height:36px;padding:0 8px}
+.b{min-height:38px;padding:0 12px;border-radius:9px;border:1px solid var(--cy);background:rgba(34,230,255,.12);font-weight:700}
+.b.p{background:linear-gradient(90deg,var(--cy),var(--mg));color:#04101c;border:0}
+.b.d{border-color:var(--err);background:rgba(255,107,138,.12)}
+.b:disabled{opacity:.45;cursor:not-allowed}
+.b.f{flex:1}
+#sst{font-size:12px;color:var(--mut);margin:0 0 10px}
+.pl{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #1a2252;font-size:13px}
+.pl span{flex:1;overflow:hidden;text-overflow:ellipsis}.pl .b{min-height:30px;padding:0 8px;font-size:12px}
+#log{font-size:11px;color:var(--mut);max-height:70px;overflow:auto;margin-top:6px}
+/* misc */
+#demo{left:12px;top:68px;z-index:6;font-size:12px;padding:8px 10px}
+#demo summary{cursor:pointer;color:var(--mut)}#demo button{margin:6px 4px 0 0;min-height:30px;padding:0 8px;border-radius:8px;border:1px solid var(--line);background:#0a0f26}
+#toasts{position:fixed;z-index:8;top:70px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.t{background:rgba(6,8,19,.94);border:1px solid var(--cy);border-radius:10px;padding:8px 14px;box-shadow:var(--glow);animation:ti .25s}
+@keyframes ti{from{opacity:0;transform:translateY(-8px)}}
+.fx{position:fixed;z-index:2;font-size:30px;pointer-events:none;animation:fl 1.7s ease-out forwards;filter:drop-shadow(0 0 8px var(--mg))}
+@keyframes fl{to{transform:translate(var(--dx),-170px) scale(1.5);opacity:0}}
+#rec{position:fixed;z-index:7;top:64px;left:50%;transform:translateX(-50%);background:rgba(255,213,74,.15);border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:8px 16px}
+#rec[hidden]{display:none}
+#ov{position:fixed;inset:0;z-index:20;background:rgba(4,6,16,.94);display:flex;align-items:center;justify-content:center;text-align:center}
+#ov[hidden]{display:none}
+#ov .bx{max-width:420px;padding:30px;border:1px solid var(--line);border-radius:18px;background:var(--pn);box-shadow:0 0 40px rgba(138,92,255,.35)}
+#ov h2{margin:0 0 10px}#ov .bar{height:8px;border-radius:9px;background:#1a2252;overflow:hidden;margin:14px 0 8px}
+#ov .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--mg));transition:width .3s}
+#mute{position:fixed;z-index:4;left:12px;bottom:332px;width:350px;padding:8px 12px;border-radius:10px;border:1px solid var(--err);background:rgba(255,107,138,.14);color:var(--err)}
+#mute[hidden]{display:none}
+#small{display:none;position:fixed;z-index:30;inset:0;background:var(--bg);align-items:center;justify-content:center;text-align:center;padding:30px}
+@media (max-width:1023px){#small{display:flex}}
+@media (max-width:1279px){#chat{width:300px;height:260px}#mute{width:300px;bottom:282px}.em{width:56px;height:56px}#host{width:270px}}
+@media (prefers-reduced-motion:reduce){.fx,.t{animation-duration:.01s}}
+</style>
+<style>
+/* ===== Bổ sung cho bản 3D ===== */
+#app{position:fixed;inset:0;z-index:0}
+#app canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#app canvas:active{cursor:grabbing}
+#labels{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.nl{position:absolute;left:0;top:0;will-change:transform;display:none;flex-direction:column;align-items:center;gap:3px;white-space:nowrap}
+.nl .n{font:700 13px var(--font);background:rgba(6,8,19,.85);border:1px solid var(--line);border-radius:8px;padding:2px 8px;color:#fff}
+.nl.me .n{border-color:var(--mg);color:#fff;box-shadow:0 0 12px rgba(255,61,220,.5)}
+.nl .bb{font:13px var(--font);background:#eaf4ff;color:#060813;border-radius:10px;padding:3px 9px;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.nl .bb[hidden]{display:none}
+#top .lk{gap:4px;font-size:12px;color:var(--mut);cursor:pointer}
+#top .lk input{accent-color:var(--cy);width:16px;height:16px}
+#tierb{color:var(--cy);border-color:var(--cy)}
+#top{gap:11px}#top .st.vl .l{display:none}#top button,#top .pill,#top .lk{white-space:nowrap;flex:none}#top{overflow:hidden}#camb{min-width:0}
+#demo{max-width:300px}
+#demo .seg button[aria-pressed=true]{border-color:var(--cy);color:var(--cy)}
+#bud{margin-top:8px;font-size:11px;color:var(--mut);font-variant-numeric:tabular-nums;line-height:1.5}
+#hint{position:fixed;z-index:3;left:50%;transform:translateX(-50%);bottom:86px;font-size:12px;color:var(--mut);background:rgba(6,8,19,.7);border:1px solid var(--line);border-radius:99px;padding:3px 12px;pointer-events:none;white-space:nowrap}
+#fallback{position:fixed;inset:0;z-index:50;display:none;place-items:center;text-align:center;padding:24px;background:var(--bg)}
+#fallback .bx{max-width:460px;padding:28px;border:1px solid var(--line);border-radius:18px;background:var(--pn)}
+#fallback a{color:var(--cy);font-weight:700}
+#toasts{top:104px}
+#srcb{position:fixed;z-index:4;top:62px;left:50%;transform:translateX(-50%);font-size:12px;padding:4px 14px;border-radius:99px;white-space:nowrap;pointer-events:none}
+#srcb[hidden]{display:none}
+#srcb.live{background:rgba(255,40,70,.18);border:1px solid #ff6b8a;color:#ffb3c2}
+#srcb.play{background:rgba(34,230,255,.14);border:1px solid var(--cy);color:var(--cy)}
+#srcb.err{background:rgba(255,213,74,.14);border:1px solid var(--warn);color:var(--warn)}
+.r[hidden]{display:none!important}
+#srcBox h3{margin:12px 0 8px}
+#srcBox label.ck{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mut)}
+#liveb{background:#ff2846;color:#fff;font-weight:800;font-size:11px;border-radius:6px;padding:2px 8px;letter-spacing:.04em;animation:lb 1.2s infinite}
+#liveb[hidden]{display:none}@keyframes lb{50%{opacity:.55}}
+#pv{display:block;width:176px;height:99px;object-fit:cover;background:#000;border:1px solid var(--line);border-radius:8px;margin:0 0 8px}
+#pv[hidden]{display:none}
+#srcSt{font-size:12px;color:var(--mut);margin:0 0 8px;min-height:16px}#srcSt.err{color:var(--err)}#srcSt.ok{color:var(--ok)}
+#ytwrap{position:fixed;left:0;top:0;width:1280px;height:720px;z-index:1;transform-origin:0 0;display:none;background:#000}
+#ytwrap iframe{width:100%;height:100%;border:0;display:block}
+@media (prefers-reduced-motion:reduce){#liveb{animation:none}}
+@media (max-width:1279px){
+ #top{gap:8px;padding:0 8px}#top .l{display:none}#vol{width:50px}#top .st.vl{display:none}#top .pill{padding:3px 7px}#top .st.vl .l{display:none}
+ #hint{display:none}
+}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<div id="app" role="img" aria-label="Cảnh Neon Arena 3D (mockup Three.js): sân khấu tròn, hologram, khán đài, đám đông"></div>
+<div id="labels" aria-hidden="true"></div>
+
+<header id="top" class="hud">
+ <span class="lg">VIBEVERSE</span>
+ <span class="st"><span class="l">Phòng</span><b id="room">Neon Arena #1</b><span class="pill" id="inst">Instance A</span></span>
+ <span class="st"><span class="l">Người</span><b id="pc">742/1000</b></span>
+ <span class="st"><span class="l">Ping</span><b id="ping" class="ok">42 ms</b></span>
+ <span class="st"><span class="l">FPS</span><b id="fps" class="ok">–</b></span>
+ <span class="sp"></span>
+ <label class="st vl"><span class="l">Âm lượng</span><input id="vol" type="range" min="0" max="100" value="50" aria-label="Âm lượng show"></label>
+ <label class="st"><span class="l">Chất lượng</span><select id="q" aria-label="Mức chất lượng"><option value="auto">Tự động</option><option value="High">Cao</option><option value="Medium">Trung bình</option><option value="Low">Thấp</option></select></label>
+ <span class="pill" id="tierb" title="Tier đang dùng">High</span>
+ <label class="st lk" title="Khoá tier: governor không tự đổi (dùng khi đo FPS)"><input type="checkbox" id="lock" aria-label="Khoá tier chất lượng">Khoá</label>
+ <button class="sm" id="camb" type="button" aria-label="Chế độ camera (phím C)">Camera: Tự động</button>
+ <span class="pill role" id="rolep">Fan</span>
+ <button class="sm" id="htog" type="button" aria-controls="host" aria-expanded="false" hidden>Host <kbd>H</kbd></button>
+</header>
+
+<details id="demo" class="hud"><summary>Mô phỏng (chỉ mockup)</summary>
+ <div>Vai trò:</div><button data-role="fan">Fan</button><button data-role="host">Host</button><button data-role="admin">Admin</button>
+ <div style="margin-top:6px">Trạng thái:</div>
+ <button id="dMute">Bị mute</button><button id="dKick">Bị kick</button><button id="dDis">Mất mạng ngắn</button><button id="dExp">Mất mạng &gt;10s</button><button id="dFps">FPS thấp</button><button id="dClr">Xoá chat</button>
+ <div style="margin-top:6px">Số avatar 3D:</div>
+ <div class="seg"><button data-n="300" aria-pressed="false">300</button><button data-n="600" aria-pressed="true">600</button><button data-n="1000" aria-pressed="false">1000</button></div>
+ <div id="bud" aria-live="off">Ngân sách: đang đo…</div>
+</details>
+
+<aside id="host" class="hud" hidden aria-label="Bảng điều khiển Host">
+ <h3>Điều khiển show (FR06)</h3>
+ <div class="r"><select id="lib" aria-label="Nội dung show"><option>Neon Pulse – Opening (3:20)</option><option>Cyber Tunes Mix (4:05)</option><option>Finale Fireworks (2:48)</option></select></div>
+ <div id="srcBox"><h3>Nguồn hologram</h3>
+  <div class="r"><select id="src" aria-label="Nguồn hologram"><option value="canvas">Mặc định (hologram động)</option><option value="cam">Camera trực tiếp</option><option value="screen">Chia sẻ màn hình</option><option value="yt">YouTube (URL/ID)</option><option value="url">Video URL (MP4/WebM)</option><option value="hls">Stream HLS (.m3u8)</option></select></div>
+  <div class="r" id="rCam" hidden><select id="camSel" aria-label="Chọn camera"><option value="">Camera mặc định</option></select></div>
+  <div class="r" id="rUrl" hidden><input id="srcUrl" type="text" placeholder="URL hoặc ID" aria-label="URL nguồn"></div>
+  <div class="r" id="rPre" hidden><select id="preset" aria-label="URL demo công khai"><option value="">URL demo…</option></select></div>
+  <div class="r"><button class="b p f" id="srcGo" type="button">Bắt đầu nguồn</button><button class="b d" id="srcStop" type="button">Dừng</button></div>
+  <div class="r"><label class="ck"><input type="checkbox" id="srcSnd"> Bật tiếng (mặc định tắt)</label><span id="liveb" hidden>● ĐANG LIVE</span></div>
+  <video id="pv" muted playsinline hidden aria-label="Xem trước camera"></video>
+  <p id="srcSt" role="status">Nguồn: mặc định.</p>
+  <div class="r"><button class="b" id="ytPlay" type="button" hidden>Phát YouTube</button></div>
+ </div>
+ <div class="r"><button class="b p f" id="play" type="button">Phát</button><button class="b" id="fail" type="button" title="Mô phỏng AC-06.3.02">Lỗi nguồn</button></div>
+ <p id="sst" role="status">Chưa phát. Hologram đang ở màn hình chờ.</p>
+ <div class="r"><select id="cue" aria-label="Màu cue ánh sáng"><option value="0">Cyan</option><option value="1">Magenta</option><option value="2">Cầu vồng</option></select><button class="b" id="light" type="button">Ánh sáng</button><button class="b" id="conf" type="button">Confetti</button></div>
+ <div id="adm"><h3 style="margin-top:14px">Kiểm duyệt (FR08)</h3>
+  <div class="r"><input id="ps" type="text" placeholder="Tìm người chơi…" aria-label="Tìm người chơi"><select id="dur" aria-label="Thời lượng mute"><option value="300">5 phút</option><option value="1800">30 phút</option><option value="0">Hết phiên</option></select></div>
+  <div class="r"><input id="why" type="text" maxlength="100" placeholder="Lý do (≤100 ký tự)" aria-label="Lý do"></div>
+  <div id="pls"></div><div id="log" aria-label="Nhật ký hành động"></div></div>
+</aside>
+
+<section id="chat" class="hud" aria-label="Chat">
+ <div class="tabs" role="tablist"><button class="tab" role="tab" id="t0" aria-selected="true">Khu vực<i hidden></i></button><button class="tab" role="tab" id="t1" aria-selected="false">Toàn phòng<i hidden></i></button></div>
+ <div id="msgs" role="log" aria-live="polite" tabindex="0"></div>
+ <div id="cst" role="status"></div>
+ <form id="cf" autocomplete="off"><input id="ci" maxlength="200" placeholder="Nhấn Enter để chat…" aria-label="Nội dung tin nhắn"><span id="cn">0/200</span><button id="cs" type="submit">Gửi</button></form>
+</section>
+<div id="srcb" class="hud" hidden role="status"></div>
+<div id="ytwrap" aria-label="YouTube trên màn hình hologram"></div>
+<div id="mute" class="hud" role="alert" hidden></div>
+
+<nav id="emotes" class="hud" aria-label="Emote, lightstick và reaction"></nav>
+<div id="hint">WASD di chuyển · kéo chuột xoay · cuộn zoom · Q/E xoay · C camera tự động</div>
+<div id="mm" class="hud"><canvas id="mmc" width="316" height="316" aria-label="Mini-map"></canvas><div>Mini-map · vòng nét đứt = AOI</div></div>
+
+<div id="toasts" aria-live="polite"></div>
+<div id="rec" role="alert" hidden></div>
+<div id="ov"><div class="bx"><h2 id="ovt">Đang dựng Neon Arena…</h2><div id="ovp">Tải tài nguyên cảnh</div><div class="bar"><i id="ovb"></i></div><div id="ovb2"></div></div></div>
+<div id="small"><div><h2>Màn hình quá nhỏ</h2><p>VIBEVERSE hỗ trợ desktop có chiều rộng tối thiểu 1024 px.</p></div></div>
+<div id="fallback" role="alert"><div class="bx"><h2>Không dựng được cảnh 3D</h2><p id="fbmsg">Trình duyệt không hỗ trợ WebGL hoặc không tải được Three.js.</p><p><a href="../../index.html">Về OmniHub</a></p></div></div>
+
+<script>
+  // Fallback nếu module không chạy được (CDN lỗi / importmap lỗi)
+  window.__started = false;
+  setTimeout(() => { if (!window.__started) document.getElementById('fallback').style.display = 'grid'; }, 8000);
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+window.__started = true;
+document.getElementById('fallback').style.display = 'none';
+const $ = id => document.getElementById(id), R = Math.random;
+const params = new URLSearchParams(location.search);
+let seed = Number(params.get('seed') || 1);
+const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const C = { cyan: new THREE.Color('#22e6ff'), magenta: new THREE.Color('#ff3ddc'), violet: new THREE.Color('#8a5cff'), ok: new THREE.Color('#3dffa8'), warn: new THREE.Color('#ffd54a') };
+const glow = (c, k = 2.5) => new THREE.Color(c).multiplyScalar(k);
+
+function showFallback(msg) { if (msg) $('fbmsg').textContent = msg; $('fallback').style.display = 'grid'; }
+
+// ---------- Người dùng / trạng thái (dùng lại logic bản 2D) ----------
+const AV = ['#22e6ff', '#ff9a3d', '#8a5cff', '#e8f4ff', '#ff3ddc', '#3dffa8', '#ffd54a', '#4d8bff'];
+let me = { name: 'NeoFan', av: 0, room: 1 };
+try { Object.assign(me, JSON.parse(sessionStorage.getItem('vv') || '{}')); } catch (e) {}
+if (/room=2/.test(location.search)) me.room = 2;
+$('room').textContent = 'Neon Arena #' + me.room; $('inst').textContent = 'Instance ' + 'AB'[me.room - 1];
+const mc = AV[me.av % 8];
+let role = 'fan', muted = 0, kicked = false, fakeFps = 0;
+const show = { on: false, at: 0, err: false, title: '' };
+const fxs = { light: 0, conf: 0, cue: 0 };
+const act = { arm: 0, jump: 0, clap: 0, stick: false, boost: 0, jboost: 0, pat: 0 };
+const cd = {};
+const keys = {};
+let bubble = null;
+const SRC_NAMES = { canvas: 'Mặc định', cam: 'Camera trực tiếp', screen: 'Chia sẻ màn hình', yt: 'YouTube', url: 'Video URL', hls: 'Stream HLS' };
+const media = { kind: 'canvas', status: 'idle', msg: '', video: null, stream: null, tex: null, hls: null, iframe: null, ytId: '', showByMedia: false, ytState: -2 };
+
+// ---------- Renderer ----------
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: devicePixelRatio < 1.5, powerPreference: 'high-performance' });
+} catch (e) { showFallback('Trình duyệt không hỗ trợ WebGL.'); throw e; }
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.info.autoReset = false;
+$('app').appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#05060f');
+scene.fog = new THREE.FogExp2('#070a1c', 0.0068);
+const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
+
+// ---------- Tier chất lượng ----------
+const TIERS = {
+  Low:    { scale: 0.7,  bloom: 0,   bloomRes: 0,   pts: 2500, conf: 350,  holoFps: 10, beams: 5,  stride: 2, labels: 0, side: false },
+  Medium: { scale: 0.85, bloom: 0.38, bloomRes: 0.5, pts: 5500, conf: 800,  holoFps: 20, beams: 8,  stride: 1, labels: 2, side: true },
+  High:   { scale: 1,    bloom: 0.5, bloomRes: 1,   pts: 9000, conf: 1500, holoFps: 30, beams: 10, stride: 1, labels: 4, side: true }
+};
+let tierName = 'High', T = TIERS.High, useComposer = true;
+
+// ---------- Helpers canvas ----------
+function mk(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
+function tex(c, aniso = 4) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t; }
+
+// ---------- Hình học dùng chung ----------
+const STEP_R = [45, 52.5, 60, 67.5, 75], STEP_H = [3, 7.5, 12, 16.5, 21], STEP_W = 7.5;
+const neonParts = [];
+function neon(geom, color, k = 2.4, m) {
+  if (m) geom.applyMatrix4(m);
+  const col = glow(color, k), n = geom.attributes.position.count, a = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { a[i * 3] = col.r; a[i * 3 + 1] = col.g; a[i * 3 + 2] = col.b; }
+  geom.setAttribute('color', new THREE.BufferAttribute(a, 3)); neonParts.push(geom);
+}
+const darkParts = [];
+const M4 = (x, y, z, rx = 0, ry = 0, rz = 0) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(1, 1, 1));
+const torusFlat = (r, tube, y, color, k, seg = 128) => neon(new THREE.TorusGeometry(r, tube, 6, seg), color, k, M4(0, y, 0, Math.PI / 2));
+
+// ---------- Dữ liệu đám đông ----------
+const MAXP = 1000;
+const PX = new Float32Array(MAXP), PY = new Float32Array(MAXP), PZ = new Float32Array(MAXP), PYC = new Float32Array(MAXP), PYS = new Float32Array(MAXP),
+  PPH = new Float32Array(MAXP), PSC = new Float32Array(MAXP), PARM = new Float32Array(MAXP), PJ = new Float32Array(MAXP), PR = new Float32Array(MAXP), PSTK = new Int16Array(MAXP);
+const stickPrefix = new Int16Array(MAXP + 1);
+const NAMES = ['Luna#2210', 'Kai#0912', 'Mika#7745', 'Zed#3301', 'Pixel#1188', 'Nova#6620', 'Rex#4012'];
+const palette = ['#22e6ff', '#ff3ddc', '#8a5cff', '#3dffa8', '#ffd54a', '#ff9a3d', '#4d8bff', '#e8f4ff'];
+const personCol = [], stickCol = [], skinCol = [];
+(function genCrowd() {
+  let rank = 0;
+  for (let i = 0; i < MAXP; i++) {
+    let x, z, y;
+    if (rand() < 0.5) { const a = rand() * TAU, r = Math.sqrt(15 * 15 + rand() * (43 * 43 - 15 * 15)); x = Math.cos(a) * r; z = Math.sin(a) * r; y = 0; }
+    else { const k = Math.min(4, Math.floor(rand() * rand() * 5 + rand() * 2.2)), a = rand() * TAU, r = STEP_R[k] + 1.3 + rand() * (STEP_W - 2.6); x = Math.cos(a) * r; z = Math.sin(a) * r; y = STEP_H[k]; }
+    PX[i] = x; PY[i] = y; PZ[i] = z; PR[i] = Math.hypot(x, z);
+    const yaw = Math.atan2(-x, -z); PYC[i] = Math.cos(yaw); PYS[i] = Math.sin(yaw);
+    PPH[i] = rand() * TAU; PSC[i] = 0.92 + rand() * 0.2; PARM[i] = rand() < 0.45 ? 0.55 + rand() * 0.4 : rand() * 0.25; PJ[i] = 0.5 + rand() * 0.8;
+    const base = new THREE.Color(palette[(rand() * 8) | 0]).offsetHSL((rand() - 0.5) * 0.05, 0, (rand() - 0.5) * 0.12).multiplyScalar(0.78);
+    personCol.push(base);
+    skinCol.push(new THREE.Color().setHSL(0.05 + rand() * 0.05, 0.4 + rand() * 0.3, 0.35 + rand() * 0.3));
+    if (rand() < 0.38) { PSTK[i] = rank++; stickCol.push(new THREE.Color(palette[(rand() * 7) | 0])); } else PSTK[i] = -1;
+    stickPrefix[i + 1] = rank;
+  }
+})();
+
+// ---------- Đối tượng cảnh (khởi tạo ở bước dựng) ----------
+let bodyMesh, headMesh, armsMesh, stickMesh, neonMesh, neonMat, beams = [], holoCtx, holoTex, sideCtx, sideTex, holoMats = [], stageTopMat, glowDisc, glowDiscMat, stagePerf, perfData = [], starPts, starMat, confPts, lightC, lightM, lightS, floorMat;
+let player, playerArms, playerStick, playerGroup, playerRing;
+let visibleN = Math.min(1000, Number(params.get('n') || 600));
+let bodyArr, headArr, armsArr, stickArr;
+
+function buildEnvironment() {
+  scene.add(new THREE.HemisphereLight('#8fa4ff', '#1a0630', 1.25));
+  lightC = new THREE.PointLight(C.cyan, 1800, 130, 2); lightC.position.set(-24, 24, 22); scene.add(lightC);
+  lightM = new THREE.PointLight(C.magenta, 1800, 130, 2); lightM.position.set(24, 24, 22); scene.add(lightM);
+  lightS = new THREE.PointLight(C.violet, 900, 70, 2); lightS.position.set(0, 14, 0); scene.add(lightS);
+
+  // Sàn lưới + vòng neon
+  const [fc, fx] = mk(1024, 1024);
+  fx.fillStyle = '#04060e'; fx.fillRect(0, 0, 1024, 1024);
+  const rg = fx.createRadialGradient(512, 512, 0, 512, 512, 512);
+  rg.addColorStop(0, 'rgba(70,35,150,.6)'); rg.addColorStop(.45, 'rgba(20,24,80,.35)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+  fx.fillStyle = rg; fx.fillRect(0, 0, 1024, 1024);
+  fx.strokeStyle = 'rgba(34,230,255,.17)'; fx.lineWidth = 1.2;
+  for (let i = 0; i <= 1024; i += 32) { fx.beginPath(); fx.moveTo(i, 0); fx.lineTo(i, 1024); fx.moveTo(0, i); fx.lineTo(1024, i); fx.stroke(); }
+  fx.strokeStyle = 'rgba(255,61,220,.14)';
+  for (let a = 0; a < 48; a++) { const an = a / 48 * TAU; fx.beginPath(); fx.moveTo(512 + Math.cos(an) * 13 * 5.69, 512 + Math.sin(an) * 13 * 5.69); fx.lineTo(512 + Math.cos(an) * 45 * 5.69, 512 + Math.sin(an) * 45 * 5.69); fx.stroke(); }
+  [[13.8, '#ff3ddc'], [22, '#22e6ff'], [32, '#8a5cff'], [43, '#22e6ff']].forEach(([r, c]) => { fx.strokeStyle = c; fx.shadowColor = c; fx.shadowBlur = 12; fx.lineWidth = 3; fx.globalAlpha = .75; fx.beginPath(); fx.arc(512, 512, r * 5.69, 0, TAU); fx.stroke(); });
+  fx.globalAlpha = 1; fx.shadowBlur = 0;
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(90, 96), floorMat = new THREE.MeshBasicMaterial({ map: tex(fc, 8) }));
+  floor.rotation.x = -Math.PI / 2; scene.add(floor);
+
+  // Vầng sáng dưới sân khấu (thay shadow)
+  const [gc, gx] = mk(256, 256); const gg = gx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gg.addColorStop(0, 'rgba(120,230,255,.9)'); gg.addColorStop(.35, 'rgba(90,70,255,.45)'); gg.addColorStop(1, 'rgba(0,0,0,0)'); gx.fillStyle = gg; gx.fillRect(0, 0, 256, 256);
+  glowDisc = new THREE.Mesh(new THREE.CircleGeometry(30, 48), glowDiscMat = new THREE.MeshBasicMaterial({ map: tex(gc), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  glowDisc.rotation.x = -Math.PI / 2; glowDisc.position.y = 0.06; scene.add(glowDisc);
+
+  // Sân khấu tròn
+  const stage = new THREE.Mesh(new THREE.CylinderGeometry(10.2, 11, 1.4, 64), new THREE.MeshLambertMaterial({ color: '#0e1440', emissive: '#080c28' }));
+  stage.position.y = 0.7; scene.add(stage);
+  const [sc, sx] = mk(512, 512);
+  const sg = sx.createRadialGradient(256, 256, 0, 256, 256, 256);
+  sg.addColorStop(0, '#d8fbff'); sg.addColorStop(.25, '#5ab8ff'); sg.addColorStop(.6, '#2a2a9a'); sg.addColorStop(1, '#0a0e30'); sx.fillStyle = sg; sx.fillRect(0, 0, 512, 512);
+  sx.lineWidth = 4;
+  [[60, '#ffffff'], [120, '#22e6ff'], [180, '#ff3ddc'], [236, '#22e6ff']].forEach(([r, c]) => { sx.strokeStyle = c; sx.shadowColor = c; sx.shadowBlur = 14; sx.beginPath(); sx.arc(256, 256, r, 0, TAU); sx.stroke(); });
+  sx.shadowBlur = 0; sx.strokeStyle = 'rgba(255,255,255,.35)'; sx.lineWidth = 2;
+  for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; sx.beginPath(); sx.moveTo(256 + Math.cos(a) * 60, 256 + Math.sin(a) * 60); sx.lineTo(256 + Math.cos(a) * 236, 256 + Math.sin(a) * 236); sx.stroke(); }
+  const stTop = new THREE.Mesh(new THREE.CircleGeometry(10, 64), stageTopMat = new THREE.MeshBasicMaterial({ map: tex(sc) }));
+  stTop.rotation.x = -Math.PI / 2; stTop.position.y = 1.42; scene.add(stTop);
+  torusFlat(10.5, 0.2, 1.45, C.cyan, 3.2); torusFlat(13.8, 0.16, 0.3, C.magenta, 2.6); torusFlat(11.4, 0.08, 0.2, C.violet, 2.4);
+
+  // Khán đài nhiều tầng (LatheGeometry, 1 draw call) + viền neon từng tầng
+  const prof = [new THREE.Vector2(44.9, 0)];
+  for (let k = 0; k < 5; k++) { prof.push(new THREE.Vector2(STEP_R[k], STEP_H[k]), new THREE.Vector2(STEP_R[k] + STEP_W, STEP_H[k])); }
+  prof.push(new THREE.Vector2(82.5, 40), new THREE.Vector2(92, 40));
+  const stands = new THREE.Mesh(new THREE.LatheGeometry(prof, 96), new THREE.MeshLambertMaterial({ color: '#141a4a', emissive: '#080b26', side: THREE.DoubleSide }));
+  scene.add(stands);
+  for (let k = 0; k < 5; k++) { torusFlat(STEP_R[k] + 0.05, 0.17, STEP_H[k] + 0.08, k % 2 ? C.magenta : C.cyan, 2.8, 160); }
+  torusFlat(82.3, 0.35, 38, C.cyan, 2.6, 160); torusFlat(82.3, 0.25, 30, C.magenta, 2.2, 160);
+
+  // Truss + vòng treo + loa line-array (khối tối gộp 1 mesh)
+  darkParts.push(new THREE.TorusGeometry(17.5, 0.8, 6, 96).applyMatrix4(M4(0, 38, 0, Math.PI / 2)));
+  darkParts.push(new THREE.TorusGeometry(30, 1.1, 6, 128).applyMatrix4(M4(0, 42, 0, Math.PI / 2)));
+  torusFlat(17.5, 0.3, 37.1, C.cyan, 3.2, 96); torusFlat(30, 0.4, 40.9, C.magenta, 2.8, 128); torusFlat(29.3, 0.25, 41.2, C.cyan, 3, 128);
+  for (const sgn of [-1, 1]) {
+    for (const zz of [-6]) {
+      darkParts.push(new THREE.BoxGeometry(3.4, 26, 3.4).applyMatrix4(M4(sgn * 34, 24, zz)));
+      neon(new THREE.BoxGeometry(0.35, 24, 0.35), sgn > 0 ? C.magenta : C.cyan, 2.8, M4(sgn * 32.1, 24, zz + 1.8));
+    }
+    // cáp treo hologram
+    darkParts.push(new THREE.CylinderGeometry(0.12, 0.12, 6, 5).applyMatrix4(M4(sgn * 17, 34.9, 0)));
+  }
+  // Khung màn hologram chính (34 x 17 tại y=24)
+  const HW = 34, HH = 17, HY = 24;
+  neon(new THREE.BoxGeometry(HW + 0.6, 0.35, 0.35), C.cyan, 3, M4(0, HY + HH / 2, 0)); neon(new THREE.BoxGeometry(HW + 0.6, 0.35, 0.35), C.magenta, 3, M4(0, HY - HH / 2, 0));
+  neon(new THREE.BoxGeometry(0.35, HH, 0.35), C.cyan, 3, M4(-HW / 2, HY, 0)); neon(new THREE.BoxGeometry(0.35, HH, 0.35), C.magenta, 3, M4(HW / 2, HY, 0));
+
+  // Màn hình hologram: CanvasTexture động, hai mặt (mặt sau lật để chữ đọc đúng)
+  const [hc, hx] = mk(1024, 512); holoCtx = hx; holoTex = tex(hc);
+  const hmat = () => new THREE.MeshBasicMaterial({ map: holoTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: true, fog: false });
+  const hf = new THREE.Mesh(new THREE.PlaneGeometry(HW, HH), hmat()); hf.position.set(0, HY, -0.05); scene.add(hf);
+  const hb = new THREE.Mesh(new THREE.PlaneGeometry(HW, HH), hmat()); hb.position.set(0, HY, 0.05); hb.rotation.y = Math.PI; scene.add(hb);
+  holoMats.push(hf.material, hb.material); window.__holoMeshes = [hf, hb]; hf.material.color.setScalar(.8); hb.material.color.setScalar(.8);
+  // Hai màn phụ
+  const [scc, scx] = mk(256, 512); sideCtx = scx; sideTex = tex(scc);
+  for (const sgn of [-1, 1]) {
+    const sp = new THREE.Mesh(new THREE.PlaneGeometry(9, 18), new THREE.MeshBasicMaterial({ map: sideTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
+    sp.position.set(sgn * 25, 22, 2); sp.rotation.y = -sgn * 0.4; sp.userData.side = true; scene.add(sp);
+    neon(new THREE.BoxGeometry(9.3, 0.25, 0.25), sgn > 0 ? C.magenta : C.cyan, 2.6, new THREE.Matrix4().compose(new THREE.Vector3(sgn * 25, 31.1, 2), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -sgn * 0.4, 0)), new THREE.Vector3(1, 1, 1)));
+  }
+
+  // Biển hiệu hư cấu
+  const signs = [['ZENITH-PULSE', '#22e6ff', -128, 47, 11.5, 0], ['AERO-VOLT', '#ff3ddc', 128, 47, 11.5, 1], ['NOVA·BREW', '#8a5cff', -160, 62, 17, 2], ['KAI-WAVE', '#3dffa8', 160, 62, 17, 3]];
+  for (const [txt, col, deg, r, y, gi] of signs) {
+    const [bc, bx] = mk(512, 160);
+    bx.fillStyle = 'rgba(6,10,30,.9)'; bx.beginPath(); bx.roundRect(6, 6, 500, 148, 18); bx.fill();
+    bx.strokeStyle = col; bx.lineWidth = 6; bx.shadowColor = col; bx.shadowBlur = 18; bx.stroke();
+    bx.fillStyle = col; bx.save(); bx.translate(78, 80); bx.beginPath();
+    if (gi === 0) { for (let i = 0; i < 6; i++) { const a = i / 6 * TAU - Math.PI / 2; bx.lineTo(Math.cos(a) * 44, Math.sin(a) * 44); } bx.closePath(); bx.lineWidth = 8; bx.stroke(); bx.beginPath(); bx.moveTo(-14, 16); bx.lineTo(0, -22); bx.lineTo(14, 16); bx.stroke(); }
+    else if (gi === 1) { bx.moveTo(-40, -30); bx.lineTo(40, -30); bx.lineTo(0, 40); bx.closePath(); bx.lineWidth = 8; bx.stroke(); }
+    else if (gi === 2) { bx.arc(0, 0, 38, 0, TAU); bx.lineWidth = 8; bx.stroke(); bx.beginPath(); bx.arc(0, 0, 16, 0, TAU); bx.fill(); }
+    else { bx.moveTo(-42, 20); bx.quadraticCurveTo(-20, -50, 0, 0); bx.quadraticCurveTo(20, 50, 42, -20); bx.lineWidth = 9; bx.stroke(); }
+    bx.restore();
+    bx.shadowBlur = 14; bx.fillStyle = '#fff'; bx.font = '800 50px system-ui,Arial'; bx.textAlign = 'center'; bx.textBaseline = 'middle';
+    const fs = txt.length > 10 ? 44 : 54; bx.font = `800 ${fs}px system-ui,Arial`; bx.fillText(txt, 300, 82);
+    const sm = new THREE.Mesh(new THREE.PlaneGeometry(17, 5.3), new THREE.MeshBasicMaterial({ map: tex(bc), transparent: true, fog: false }));
+    const a = deg * Math.PI / 180; sm.position.set(Math.sin(a) * r, y, Math.cos(a) * r); sm.lookAt(0, y, 0); scene.add(sm);
+  }
+}
+
+function buildStatics() {
+  scene.add(new THREE.Mesh(mergeGeometries(darkParts.map(g => { g.deleteAttribute('uv'); return g; })), new THREE.MeshLambertMaterial({ color: '#10153a', emissive: '#070a22' })));
+  const ng = mergeGeometries(neonParts.map(g => { return g; }));
+  neonMat = new THREE.MeshBasicMaterial({ vertexColors: true });
+  neonMesh = new THREE.Mesh(ng, neonMat); scene.add(neonMesh);
+
+  // Beam ánh sáng: cone additive
+  const baseGeo = new THREE.ConeGeometry(1, 1, 14, 1, true); baseGeo.translate(0, -0.5, 0); baseGeo.rotateX(Math.PI); // đỉnh tại gốc, hướng +y, dài 1
+  for (let i = 0; i < 10; i++) {
+    const up = i % 2 === 0;
+    const mat = new THREE.MeshBasicMaterial({ color: i % 4 < 2 ? C.cyan : C.magenta, transparent: true, opacity: 0.1, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false });
+    const m = new THREE.Mesh(baseGeo, mat); m.frustumCulled = false;
+    const ang = i / 10 * TAU;
+    beams.push({ m, up, a0: ang, sp: 0.15 + (i % 5) * 0.05, R: up ? 26 + (i % 3) * 8 : 6 + (i % 4) * 5, apex: up ? new THREE.Vector3(Math.cos(ang) * 9, 1.6, Math.sin(ang) * 9) : new THREE.Vector3(Math.cos(ang) * 29, 41, Math.sin(ang) * 29), w: up ? 1.6 : 2.4 });
+    scene.add(m);
+  }
+
+  // Người biểu diễn trên sân khấu: 5 capsule phát sáng
+  const pg = mergeGeometries([new THREE.CapsuleGeometry(0.4, 1.2, 3, 8).translate(0, 1, 0), new THREE.SphereGeometry(0.36, 8, 6).translate(0, 2.25, 0)]);
+  stagePerf = new THREE.InstancedMesh(pg, new THREE.MeshBasicMaterial({ color: 0xffffff }), 5); stagePerf.frustumCulled = false;
+  const pc = ['#ff3ddc', '#ffd54a', '#e8fbff', '#3dffa8', '#4d8bff'];
+  for (let i = 0; i < 5; i++) { stagePerf.setColorAt(i, glow(pc[i], i === 2 ? 1.9 : 1.5)); perfData.push({ a: (i - 2) * 0.5, r: i === 2 ? 1.5 : 5.2, ph: i * 1.3, big: i === 2 }); }
+  scene.add(stagePerf);
+
+  // Khán giả xa: Points shader (rẻ), một phần là lightstick nhấp nháy
+  const PTS = 9000, pos = new Float32Array(PTS * 3), col = new Float32Array(PTS * 3), ph = new Float32Array(PTS);
+  for (let i = 0; i < PTS; i++) {
+    let x, y, z;
+    if (rand() < 0.22) { const a = rand() * TAU, r = Math.sqrt(15 * 15 + rand() * (44 * 44 - 15 * 15)); x = Math.cos(a) * r; z = Math.sin(a) * r; y = 1.5 + rand() * 0.3; }
+    else { const k = Math.min(4, Math.floor(rand() * rand() * 5 + rand() * 2.4)), a = rand() * TAU, r = STEP_R[k] + 0.7 + rand() * (STEP_W - 1.2); x = Math.cos(a) * r; z = Math.sin(a) * r; y = STEP_H[k] + 1.5 + rand() * 0.3; }
+    pos.set([x, y, z], i * 3);
+    const c = new THREE.Color(palette[(rand() * 8) | 0]).offsetHSL(0, 0, (rand() - 0.5) * 0.15); col.set([c.r, c.g, c.b], i * 3); ph[i] = rand();
+  }
+  const pgm = new THREE.BufferGeometry(); pgm.setAttribute('position', new THREE.BufferAttribute(pos, 3)); pgm.setAttribute('aCol', new THREE.BufferAttribute(col, 3)); pgm.setAttribute('aPh', new THREE.BufferAttribute(ph, 1));
+  starMat = new THREE.ShaderMaterial({
+    uniforms: { uT: { value: 0 }, uBeat: { value: 0 }, uScale: { value: 600 }, uShow: { value: 0.4 }, uJump: { value: 1 }, uPat: { value: 0 } },
+    vertexShader: `attribute vec3 aCol; attribute float aPh; uniform float uT,uBeat,uScale,uShow,uJump,uPat; varying vec3 vC;
+void main(){ vec3 p=position; float jb=abs(sin(uT*3.1+aPh*40.0)); p.y+=jb*0.22*uJump*step(0.4,fract(aPh*3.7));
+ vec4 mv=modelViewMatrix*vec4(p,1.0); gl_Position=projectionMatrix*mv; gl_PointSize=clamp(uScale*0.9/(-mv.z),1.0,14.0);
+ float st=step(0.72,fract(aPh*7.31)); float wv=0.5+0.5*sin(uT*4.0-length(p.xz)*0.18+uPat*aPh*6.0);
+ vec3 stick=aCol*(1.0+2.2*mix(uBeat,wv,step(0.5,uPat)))*uShow*1.6; vC=aCol*0.48+stick*st; }`,
+    fragmentShader: `varying vec3 vC; void main(){ float d=length(gl_PointCoord-0.5); if(d>0.5) discard; gl_FragColor=vec4(vC*(1.0-d*0.8),1.0);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`
+  });
+  starPts = new THREE.Points(pgm, starMat); starPts.frustumCulled = false; scene.add(starPts);
+
+  // Confetti
+  const CF = 1500; confPts = { n: CF, pos: new Float32Array(CF * 3), vel: new Float32Array(CF * 3), alive: new Uint8Array(CF), cur: 0, max: CF };
+  const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(confPts.pos, 3).setUsage(THREE.DynamicDrawUsage));
+  const cc = new Float32Array(CF * 3); const cpal = [C.cyan, C.magenta, C.warn, C.ok, C.violet];
+  for (let i = 0; i < CF; i++) { const c = cpal[i % 5].clone().multiplyScalar(2.2); cc.set([c.r, c.g, c.b], i * 3); confPts.pos[i * 3 + 1] = -999; }
+  cg.setAttribute('color', new THREE.BufferAttribute(cc, 3));
+  confPts.geo = cg; confPts.obj = new THREE.Points(cg, new THREE.PointsMaterial({ size: 0.55, vertexColors: true, sizeAttenuation: true, depthWrite: false, fog: false })); confPts.obj.frustumCulled = false; scene.add(confPts.obj);
+}
+
+function buildCrowd() {
+  const body = new THREE.CapsuleGeometry(0.3, 0.8, 2, 6); body.translate(0, 0.7, 0);
+  const head = new THREE.SphereGeometry(0.27, 6, 5); head.translate(0, 1.66, 0);
+  const arm = (sx) => { const a = new THREE.CapsuleGeometry(0.09, 0.6, 2, 5); a.translate(0, -0.39, 0); a.rotateZ(sx * 0.22); a.translate(sx * 0.38, 0, 0); return a; };
+  const arms = mergeGeometries([arm(-1), arm(1)]);
+  const stick = new THREE.CylinderGeometry(0.05, 0.05, 1.0, 5); stick.translate(0, 0.35, 0);
+  const lamb = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  bodyMesh = new THREE.InstancedMesh(body, lamb, MAXP); headMesh = new THREE.InstancedMesh(head, new THREE.MeshLambertMaterial({ color: 0xffffff }), MAXP);
+  armsMesh = new THREE.InstancedMesh(arms, lamb, MAXP);
+  stickMesh = new THREE.InstancedMesh(stick, new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }), Math.max(1, stickCol.length));
+  for (let i = 0; i < MAXP; i++) { bodyMesh.setColorAt(i, personCol[i]); armsMesh.setColorAt(i, personCol[i]); headMesh.setColorAt(i, skinCol[i]); }
+  for (let k = 0; k < stickCol.length; k++) stickMesh.setColorAt(k, glow(stickCol[k], 1.6));
+  [bodyMesh, headMesh, armsMesh, stickMesh].forEach(m => { m.frustumCulled = false; m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(m); });
+  bodyArr = bodyMesh.instanceMatrix.array; headArr = headMesh.instanceMatrix.array; armsArr = armsMesh.instanceMatrix.array; stickArr = stickMesh.instanceMatrix.array;
+  setCrowd(visibleN);
+
+  // Người chơi
+  playerGroup = new THREE.Group();
+  const col = new THREE.Color(mc);
+  const pb = new THREE.Mesh(body, new THREE.MeshLambertMaterial({ color: col, emissive: col.clone().multiplyScalar(0.5) }));
+  const ph = new THREE.Mesh(head, new THREE.MeshLambertMaterial({ color: '#f0c8a8', emissive: '#40281a' }));
+  playerArms = new THREE.Mesh(arms, new THREE.MeshLambertMaterial({ color: col, emissive: col.clone().multiplyScalar(0.5) })); playerArms.position.y = 1.25;
+  playerStick = new THREE.Mesh(stick, new THREE.MeshBasicMaterial({ color: glow('#ff3ddc', 2.6), fog: false })); playerStick.visible = false;
+  playerStick.position.set(0.55, 0.4, 0);
+  playerArms.add(playerStick); playerStick.position.set(0.56, -0.78, 0);
+  playerRing = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.05, 6, 40), new THREE.MeshBasicMaterial({ color: glow(col, 2.2), fog: false })); playerRing.rotation.x = Math.PI / 2; playerRing.position.y = 0.05;
+  playerGroup.add(pb, ph, playerArms, playerRing); playerGroup.scale.setScalar(1.25); scene.add(playerGroup);
+}
+function setCrowd(n) {
+  visibleN = n; bodyMesh.count = headMesh.count = armsMesh.count = n; stickMesh.count = Math.max(1, stickPrefix[n]);
+  bodyMesh.instanceColor.needsUpdate = headMesh.instanceColor.needsUpdate = armsMesh.instanceColor.needsUpdate = stickMesh.instanceColor.needsUpdate = true;
+  forceFull = true; npcDirty = 0;
+  document.querySelectorAll('#demo [data-n]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.n === n));
+}
+let forceFull = true;
+
+// ---------- Hologram canvas (động) ----------
+function drawHolo(t, pulse) {
+  const c = holoCtx, W = 1024, H = 512;
+  c.globalAlpha = 1; c.shadowBlur = 0; c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
+  const mErr = media.status === 'error', live = show.on && !show.err && !mErr && media.kind === 'canvas';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  if (media.kind === 'yt' && !mErr && !show.err) {
+    c.fillStyle = 'rgba(40,10,20,.5)'; c.fillRect(0, 0, W, H); c.shadowColor = '#ff6b8a'; c.shadowBlur = 24; c.fillStyle = '#fff'; c.font = '800 64px system-ui,Arial';
+    c.fillText('▶ YOUTUBE', W / 2, H / 2 - 20); c.shadowBlur = 0; c.font = '600 28px system-ui,Arial'; c.fillStyle = '#ffd0da'; c.fillText(media.status === 'loading' ? 'Đang tải video…' : 'Video hiển thị ở lớp DOM (không có bloom). Quay về mặt trước màn hình.', W / 2, H / 2 + 50);
+  } else if (media.status === 'loading' && !show.err) {
+    c.shadowColor = '#22e6ff'; c.shadowBlur = 20; c.fillStyle = '#e8fbff'; c.font = '800 56px system-ui,Arial'; c.fillText('Đang tải nguồn…', W / 2, H / 2 - 10);
+    c.shadowBlur = 0; c.font = '600 28px system-ui,Arial'; c.fillStyle = '#9fe9ff'; c.fillText(SRC_NAMES[media.kind] || '', W / 2, H / 2 + 50);
+  } else if (live) {
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, 'rgba(255,61,220,.42)'); g.addColorStop(.5, 'rgba(70,50,190,.34)'); g.addColorStop(1, 'rgba(34,230,255,.46)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    const rg = c.createRadialGradient(W / 2, 250, 10, W / 2, 250, 300); rg.addColorStop(0, 'rgba(255,255,255,.35)'); rg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = rg; c.fillRect(0, 0, W, H);
+    // Ca sĩ cách điệu
+    const sw = Math.sin(t * 2.4) * 14;
+    c.save(); c.translate(W / 2, 0); c.shadowColor = '#22e6ff'; c.shadowBlur = 28; c.fillStyle = '#eaffff'; c.strokeStyle = '#eaffff'; c.lineCap = 'round';
+    c.beginPath(); c.arc(0, 128, 44, 0, TAU); c.fill();
+    c.beginPath(); c.moveTo(-40, 112); c.quadraticCurveTo(-8, 70 + sw * .3, 46, 100); c.lineTo(52, 124); c.quadraticCurveTo(0, 94, -46, 128); c.fill();
+    c.beginPath(); c.roundRect(-50, 178, 100, 150, 26); c.fill();
+    c.lineWidth = 26; c.beginPath(); c.moveTo(-46, 200); c.lineTo(-120 - sw, 100 + sw); c.moveTo(46, 205); c.lineTo(108, 142 + sw * .6); c.stroke();
+    c.fillStyle = '#ff3ddc'; c.beginPath(); c.arc(112, 134 + sw * .6, 12, 0, TAU); c.fill();
+    c.lineWidth = 30; c.beginPath(); c.moveTo(-20, 320); c.lineTo(-34, 470); c.moveTo(20, 320); c.lineTo(38, 470); c.stroke();
+    c.restore();
+    // Sóng nhạc
+    for (let i = 0; i < 48; i++) { const bh = (Math.abs(Math.sin(t * 4 + i * .55)) * .6 + .12 + pulse * .25) * 110, bw = (W - 80) / 48; c.fillStyle = i % 2 ? '#ff3ddc' : '#22e6ff'; c.fillRect(40 + i * bw, H - 22 - bh, bw - 4, bh); }
+    c.shadowBlur = 12; c.shadowColor = '#fff'; c.fillStyle = '#fff'; c.font = '700 30px system-ui,Arial'; c.textAlign = 'left'; c.fillText('♪ ' + (show.title || 'Neon Pulse – Opening'), 36, 40);
+    c.fillStyle = '#ff6b8a'; c.textAlign = 'right'; c.fillText('● LIVE', W - 36, 40);
+    c.fillStyle = 'rgba(255,255,255,.7)'; c.font = '600 22px system-ui,Arial'; c.fillText('124 BPM', W - 36, 76);
+  } else {
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, 'rgba(40,30,120,.35)'); g.addColorStop(1, 'rgba(10,80,120,.35)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    for (let r = 60; r < 330; r += 60) { c.strokeStyle = `rgba(34,230,255,${0.22 - r / 2000})`; c.lineWidth = 3; c.beginPath(); c.arc(W / 2, H / 2, r + ((t * 20) % 60), 0, TAU); c.stroke(); }
+    const bad = show.err || mErr; c.shadowColor = bad ? '#ff6b8a' : '#22e6ff'; c.shadowBlur = 26; c.fillStyle = bad ? '#ff6b8a' : '#e8fbff';
+    c.font = '900 ' + (show.err ? 56 : mErr ? 70 : 92) + 'px system-ui,Arial'; c.fillText(show.err ? 'KHÔNG TẢI ĐƯỢC NỘI DUNG' : mErr ? 'LỖI NGUỒN' : 'VIBEVERSE', W / 2, H / 2 - 20);
+    c.shadowBlur = 8; c.font = '600 34px system-ui,Arial'; c.fillStyle = bad ? '#ffd0da' : '#9fe9ff'; c.fillText(show.err ? 'Đang dùng màn hình chờ mặc định' : mErr ? (media.msg || '').slice(0, 56) : 'Show sắp bắt đầu…', W / 2, H / 2 + 56);
+  }
+  // scanline + vạch quét + khung
+  c.shadowBlur = 0; c.fillStyle = 'rgba(0,0,0,.28)'; for (let y = 0; y < H; y += 4) c.fillRect(0, y, W, 1.5);
+  c.fillStyle = 'rgba(170,245,255,.28)'; c.fillRect(0, (t * 110) % H, W, 4);
+  if (live && !reduceMotion && Math.sin(t * 3.1) > 0.97) { c.drawImage(holoCtx.canvas, 0, 200, W, 40, 14, 200, W, 40); }
+  c.strokeStyle = 'rgba(34,230,255,.9)'; c.lineWidth = 6; c.strokeRect(5, 5, W - 10, H - 10);
+  holoTex.needsUpdate = true;
+}
+function drawSide(t, pulse) {
+  const c = sideCtx; c.fillStyle = '#000'; c.fillRect(0, 0, 256, 512);
+  const g = c.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, 'rgba(34,230,255,.28)'); g.addColorStop(1, 'rgba(138,92,255,.3)'); c.fillStyle = g; c.fillRect(0, 0, 256, 512);
+  c.lineWidth = 6; c.shadowBlur = 14;
+  for (let k = 0; k < 3; k++) { const col = k % 2 ? '#ff3ddc' : '#22e6ff'; c.strokeStyle = col; c.shadowColor = col; c.setLineDash([30, 14]); c.lineDashOffset = -t * 40 * (k % 2 ? -1 : 1); c.beginPath(); c.arc(128, 150 + k * 6, 100 - k * 26, 0, TAU); c.stroke(); }
+  c.setLineDash([]); c.shadowBlur = 0;
+  for (let i = 0; i < 10; i++) { const h = (Math.abs(Math.sin(t * 3 + i)) * .8 + .15 + pulse * .1) * 120; c.fillStyle = i % 2 ? '#ff3ddc' : '#22e6ff'; c.fillRect(14 + i * 23, 500 - h, 17, h); }
+  c.fillStyle = '#fff'; c.font = '700 28px system-ui,Arial'; c.textAlign = 'center'; c.fillText(show.on ? 'LIVE FEED' : 'STANDBY', 128, 330);
+  c.fillStyle = 'rgba(0,0,0,.28)'; for (let y = 0; y < 512; y += 4) c.fillRect(0, y, 256, 1.5);
+  c.strokeStyle = 'rgba(255,61,220,.9)'; c.lineWidth = 6; c.strokeRect(4, 4, 248, 504); sideTex.needsUpdate = true;
+}
+
+// ---------- Hậu kỳ ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 1.0);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+function resize() {
+  const w = innerWidth, h = innerHeight, pr = T.scale * Math.min(devicePixelRatio, 2);
+  renderer.setPixelRatio(pr); renderer.setSize(w, h); composer.setPixelRatio(pr); composer.setSize(w, h);
+  if (T.bloomRes) bloom.setSize(w * pr * T.bloomRes, h * pr * T.bloomRes);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  if (starMat) starMat.uniforms.uScale.value = h * pr / (2 * Math.tan(camera.fov * Math.PI / 360));
+}
+addEventListener('resize', resize);
+
+// ---------- Governor chất lượng ----------
+let locked = false, settle = 3;
+function applyTier(name) {
+  tierName = name; T = TIERS[name]; useComposer = T.bloom > 0; bloom.enabled = useComposer; bloom.strength = T.bloom;
+  if (starPts) starPts.geometry.setDrawRange(0, T.pts);
+  if (confPts) confPts.max = T.conf;
+  beams.forEach((b, i) => { b.m.visible = i < T.beams; });
+  $('tierb').textContent = name; settle = 3; resize(); forceFull = true;
+  [...document.querySelectorAll('.nl:not(.me)')].forEach((e, i) => { if (i >= T.labels) e.style.display = 'none'; });
+}
+$('q').onchange = e => { const v = e.target.value; if (v === 'auto') { locked = false; $('lock').checked = false; } else { locked = true; $('lock').checked = true; applyTier(v); toast('Chất lượng: ' + e.target.selectedOptions[0].text + ' (đã khoá)'); } };
+$('lock').onchange = e => { locked = e.target.checked; toast(locked ? 'Đã khoá tier ' + tierName : 'Đã mở khoá, governor tự điều chỉnh'); };
+document.querySelectorAll('#demo [data-n]').forEach(b => b.onclick = () => { setCrowd(+b.dataset.n); toast('Đám đông: ' + b.dataset.n + ' avatar'); });
+
+// ---------- Camera rig (tự động / người chơi) ----------
+let camMode = params.get('auto') === '0' ? 'player' : 'auto';
+const user = { yaw: 0, pitch: 0.2, dist: 10 };
+const rig = { fx: 0, fy: 15.5, fz: 0, dist: 44, yaw: 0, pitch: 0.11 };
+const pl = { x: 0, z: 28, yaw: Math.PI, y: 0 };
+function setCam(m) { camMode = m; $('camb').textContent = 'Camera: ' + (m === 'auto' ? 'Tự động' : 'Người chơi'); if (m === 'player') { user.yaw = rig.yaw; } }
+function userInput() { if (camMode === 'auto') setCam('player'); }
+$('camb').onclick = () => setCam(camMode === 'auto' ? 'player' : 'auto');
+const cv = renderer.domElement; let drag = null;
+cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag = { x: e.clientX, y: e.clientY }; if (Math.abs(dx) + Math.abs(dy) > 0) { userInput(); user.yaw -= dx * 0.005; user.pitch = clamp(user.pitch + dy * 0.004, 0.03, 1.2); } });
+cv.addEventListener('pointerup', () => (drag = null)); cv.addEventListener('pointercancel', () => (drag = null));
+cv.addEventListener('wheel', e => { e.preventDefault(); userInput(); user.dist = clamp(user.dist * (1 + Math.sign(e.deltaY) * 0.08), 4, 30); }, { passive: false });
+
+function updateCamera(dt, t) {
+  let tg;
+  if (camMode === 'auto') {
+    const yaw = reduceMotion ? 0.12 : Math.sin(t * 0.09) * 0.5;
+    tg = { fx: 0, fy: 15.5, fz: 0, dist: 44, yaw, pitch: 0.11 + (reduceMotion ? 0 : Math.sin(t * 0.13) * 0.03) };
+  } else tg = { fx: pl.x, fy: 2.4, fz: pl.z, dist: user.dist, yaw: user.yaw, pitch: user.pitch };
+  const k = 1 - Math.exp(-(camMode === 'auto' ? 1.6 : 6) * dt);
+  for (const key in tg) rig[key] += (tg[key] - rig[key]) * k;
+  const cp = Math.cos(rig.pitch);
+  camera.position.set(rig.fx + Math.sin(rig.yaw) * cp * rig.dist, Math.max(0.8, rig.fy + Math.sin(rig.pitch) * rig.dist), rig.fz + Math.cos(rig.yaw) * cp * rig.dist);
+  camera.lookAt(rig.fx, rig.fy, rig.fz);
+}
+
+// ---------- Người chơi: di chuyển ----------
+function movePlayer(dt) {
+  if (kicked || document.activeElement === $('ci')) return 0;
+  const f = (keys.w || keys.ArrowUp ? 1 : 0) - (keys.s || keys.ArrowDown ? 1 : 0), r = (keys.d || keys.ArrowRight ? 1 : 0) - (keys.a || keys.ArrowLeft ? 1 : 0);
+  if (keys.q) { userInput(); user.yaw += dt * 1.6; } if (keys.e) { userInput(); user.yaw -= dt * 1.6; }
+  if (!f && !r) return 0;
+  userInput();
+  const yw = camMode === 'auto' ? rig.yaw : user.yaw, fx = -Math.sin(yw), fz = -Math.cos(yw), rx = -fz, rz = fx;
+  let dx = fx * f + rx * r, dz = fz * f + rz * r; const l = Math.hypot(dx, dz); dx /= l; dz /= l;
+  const sp = 9 * dt; pl.x += dx * sp; pl.z += dz * sp;
+  const rr = Math.hypot(pl.x, pl.z); if (rr > 43) { pl.x *= 43 / rr; pl.z *= 43 / rr; } if (rr < 14.8) { pl.x *= 14.8 / (rr || 1); pl.z *= 14.8 / (rr || 1); }
+  let ty = Math.atan2(dx, dz), d = ty - pl.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); pl.yaw += d * Math.min(1, dt * 10);
+  return 1;
+}
+
+// ---------- Emote 3D (sprite bay lên) ----------
+const EM = [['Giơ tay', '🙌'], ['Vỗ tay', '👏'], ['Nhảy', '🕺'], ['Lightstick', '✨'], ['Tim', '💖'], ['Pháo sáng', '🎆']];
+const emoTex = EM.map(e => { const [c, x] = mk(128, 128); x.font = '96px "Noto Color Emoji","Segoe UI Emoji","Apple Color Emoji",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(e[1], 64, 70); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; });
+const sprites = [];
+for (let i = 0; i < 30; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false, toneMapped: false, fog: false })); s.visible = false; s.userData = { life: 0 }; scene.add(s); sprites.push(s); }
+let spCur = 0;
+function spawnSprite(ti, x, y, z, vx, vz) { const s = sprites[spCur++ % sprites.length]; s.material.map = emoTex[ti]; s.material.opacity = 1; s.material.needsUpdate = true; s.position.set(x, y, z); s.userData = { life: reduceMotion ? 1.1 : 1.8, max: reduceMotion ? 1.1 : 1.8, vx, vz }; s.scale.setScalar(1.6); s.visible = true; }
+function updateSprites(dt) { for (const s of sprites) { if (!s.visible) continue; const u = s.userData; u.life -= dt; if (u.life <= 0) { s.visible = false; continue; } s.position.x += u.vx * dt; s.position.z += u.vz * dt; s.position.y += (reduceMotion ? 1.2 : 2.6) * dt; const p = 1 - u.life / u.max; s.scale.setScalar(1.6 + p * 1.2); s.material.opacity = p > 0.6 ? 1 - (p - 0.6) / 0.4 : 1; } }
+let flare = { until: 0, x: 0, z: 0 };
+
+function emote(i) {
+  if (kicked) return; const b = $('em' + i), now = performance.now(); if (cd.t > now) return; cd.t = now + 1000;
+  document.querySelectorAll('.em').forEach(x => { x.classList.remove('cd'); void x.offsetWidth; x.classList.add('cd'); });
+  const px = pl.x, pz = pl.z;
+  if (i === 0) { act.arm = now + 1800; act.boost = now + 3000; }
+  if (i === 1) act.clap = now + 1800;
+  if (i === 2) { act.jump = now + 1500; act.jboost = now + 3000; }
+  if (i === 3) { act.stick = !act.stick; b.setAttribute('aria-pressed', act.stick); act.pat = act.stick ? (act.pat + 1) % 3 : act.pat; playerStick.visible = act.stick; starMat.uniforms.uPat.value = act.pat ? 1 : 0; toast('Lightstick ' + (act.stick ? 'bật · nhịp ' + ['đồng bộ', 'sóng', 'chuyển màu'][act.pat] : 'tắt')); }
+  const n = i === 3 ? 4 : i >= 4 ? 7 : 3;
+  for (let k = 0; k < n; k++) setTimeout(() => spawnSprite(i, px + (Math.random() - .5) * 2.2, 4 + Math.random() * 0.8, pz + (Math.random() - .5) * 2.2, (Math.random() - .5) * 1.4, (Math.random() - .5) * 1.4), k * 90);
+  if (i === 5) { flare.until = now + 1400; flare.x = px; flare.z = pz; confBurst(px, 3, pz, reduceMotion ? 20 : 80); }
+  if (i === 4) act.boost = now + 2500;
+}
+EM.forEach((e, i) => { const b = document.createElement('button'); b.className = 'em'; b.type = 'button'; b.id = 'em' + i; b.setAttribute('aria-label', `${e[0]} (phím ${i + 1})`); if (i === 3) b.setAttribute('aria-pressed', 'false'); b.innerHTML = `<kbd>${i + 1}</kbd><span class="ic">${e[1]}</span><span class="nm">${e[0]}</span>`; b.onclick = () => emote(i); $('emotes').append(b); });
+
+// ---------- Confetti ----------
+const CPAL = [C.cyan, C.magenta, C.warn, C.ok, C.violet];
+function spawnConf(x, y, z, vx, vy, vz) { const c = confPts; for (let t = 0; t < 40; t++) { const i = (c.cur++) % c.max; if (!c.alive[i]) { c.alive[i] = 1; c.pos.set([x, y, z], i * 3); c.vel.set([vx, vy, vz], i * 3); return; } } }
+function confBurst(x, y, z, n) { for (let i = 0; i < n; i++) spawnConf(x, y, z, (Math.random() - .5) * 9, 5 + Math.random() * 8, (Math.random() - .5) * 9); }
+function updateConf(dt, now, t) {
+  const c = confPts; let any = false;
+  if (now < fxs.conf) { const nn = Math.floor((reduceMotion ? 90 : 320) * dt + Math.random()); for (let k = 0; k < nn; k++) { const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * 38; spawnConf(Math.cos(a) * r, 34 + Math.random() * 10, Math.sin(a) * r, (Math.random() - .5) * 2, -3 - Math.random() * 3, (Math.random() - .5) * 2); } }
+  for (let i = 0; i < c.n; i++) { if (!c.alive[i]) continue; any = true; const j = i * 3; c.vel[j + 1] = Math.max(c.vel[j + 1] - 14 * dt, -4.5); c.vel[j] *= 1 - 0.8 * dt; c.vel[j + 2] *= 1 - 0.8 * dt; c.pos[j] += (c.vel[j] + Math.sin(t * 3 + i) * 0.8) * dt; c.pos[j + 1] += c.vel[j + 1] * dt; c.pos[j + 2] += (c.vel[j + 2] + Math.cos(t * 3 + i) * 0.8) * dt; if (c.pos[j + 1] < 0) { c.alive[i] = 0; c.pos[j + 1] = -999; } }
+  if (any || c.dirty) { c.geo.attributes.position.needsUpdate = true; c.dirty = any; }
+}
+
+// ---------- Nhãn tên (HTML) ----------
+const labelsEl = $('labels'), labs = [];
+for (let i = 0; i < 5; i++) { const d = document.createElement('div'); d.className = 'nl' + (i === 0 ? ' me' : ''); d.innerHTML = '<div class="bb" hidden></div><div class="n"></div>'; labelsEl.append(d); labs.push({ el: d, n: d.querySelector('.n'), bb: d.querySelector('.bb'), idx: -1, until: 0 }); }
+labs[0].n.textContent = me.name;
+let npcDirty = 0; const _v = new THREE.Vector3();
+function pickNpc(now) {
+  const cx = camera.position.x, cz = camera.position.z, cand = [];
+  for (let i = 0; i < visibleN; i++) { if (PY[i] > 0) continue; const d = Math.hypot(PX[i] - cx, PZ[i] - cz); if (d > 6 && d < 40) cand.push([d, i]); }
+  cand.sort((a, b) => a[0] - b[0]);
+  for (let k = 1; k < 5; k++) { const L = labs[k]; if (k <= T.labels && cand[(k - 1) * 3]) { L.idx = cand[(k - 1) * 3][1]; L.n.textContent = NAMES[L.idx % NAMES.length]; } else L.idx = -1; }
+}
+function updateLabels(now) {
+  const w = innerWidth, h = innerHeight;
+  for (let k = 0; k < 5; k++) {
+    const L = labs[k]; let x, y, z;
+    if (k === 0) { x = pl.x; y = 3.9; z = pl.z; } else { if (L.idx < 0) { L.el.style.display = 'none'; continue; } x = PX[L.idx]; y = PY[L.idx] + 2.5; z = PZ[L.idx]; }
+    _v.set(x, y, z).project(camera);
+    if (_v.z > 1 || Math.abs(_v.x) > 1.1 || Math.abs(_v.y) > 1.1) { L.el.style.display = 'none'; continue; }
+    L.el.style.display = 'flex'; L.el.style.transform = `translate(${((_v.x * .5 + .5) * w).toFixed(1)}px,${((-_v.y * .5 + .5) * h).toFixed(1)}px) translate(-50%,-100%)`;
+    const b = k === 0 ? bubble : (L.until > now ? { t: L.bt, until: L.until } : null);
+    if (b && b.until > now) { L.bb.hidden = false; L.bb.textContent = b.t.slice(0, 32); } else L.bb.hidden = true;
+  }
+}
+
+// ---------- Mini-map ----------
+const mm = $('mmc').getContext('2d'), MK = 145 / 84;
+function minimap(now) {
+  mm.clearRect(0, 0, 316, 316); mm.fillStyle = 'rgba(10,15,38,.9)'; mm.fillRect(0, 0, 316, 316); mm.strokeStyle = '#22e6ff'; mm.lineWidth = 3; mm.beginPath(); mm.arc(158, 158, 148, 0, 7); mm.stroke();
+  mm.lineWidth = 2; mm.strokeStyle = '#8a5cff'; [45, 60, 75].forEach(r => { mm.beginPath(); mm.arc(158, 158, r * MK, 0, 7); mm.stroke(); });
+  mm.strokeStyle = '#ff3ddc'; mm.lineWidth = 3; mm.beginPath(); mm.arc(158, 158, 10 * MK, 0, 7); mm.stroke();
+  for (let i = 0; i < Math.min(visibleN, 300); i++) { mm.fillStyle = palette[i % 8]; mm.globalAlpha = .7; mm.fillRect(158 + PX[i] * MK - 1.5, 158 + PZ[i] * MK - 1.5, 3, 3); } mm.globalAlpha = 1;
+  const mx = 158 + pl.x * MK, my = 158 + pl.z * MK;
+  mm.setLineDash([6, 6]); mm.strokeStyle = '#ffd54a'; mm.lineWidth = 2; mm.beginPath(); mm.arc(mx, my, 22 * MK, 0, 7); mm.stroke(); mm.setLineDash([]);
+  mm.fillStyle = mc; mm.shadowColor = mc; mm.shadowBlur = 14; mm.beginPath(); mm.arc(mx, my, 7 + (now / 300 % 2 < 1 ? 1 : 0), 0, 7); mm.fill(); mm.shadowBlur = 0;
+  const cy = rig.yaw; mm.strokeStyle = '#fff'; mm.lineWidth = 2; mm.beginPath(); mm.moveTo(158 + camera.position.x * MK, 158 + camera.position.z * MK); mm.lineTo(158 + (camera.position.x - Math.sin(cy) * 14) * MK, 158 + (camera.position.z - Math.cos(cy) * 14) * MK); mm.stroke();
+}
+
+// ---------- Hoạt hình đám đông (ghi trực tiếp vào instanceMatrix) ----------
+let bt = 0;
+function animCrowd(t, now, frameNo) {
+  const n = visibleN, stride = T.stride, rm = reduceMotion ? 0.35 : 1;
+  const energy = (show.on && !show.err ? 0.75 : 0.35) + (act.boost > now ? 0.3 : 0);
+  const jumpAmp = ((0.1 + 0.28 * energy) + (act.jboost > now ? 0.22 : 0)) * rm;
+  const armB = act.boost > now ? 0.45 : 0, clap = act.clap > now;
+  const stickStep = 1;
+  for (let i = 0; i < n; i++) {
+    if (!forceFull && stride > 1 && (i % stride) !== (frameNo % stride)) continue;
+    const ph = PPH[i], wave = Math.sin(bt - PR[i] * 0.11), jb = Math.abs(Math.sin(bt * 0.5 + ph));
+    const sc = PSC[i], c = PYC[i], s = PYS[i], x = PX[i], z = PZ[i], y = PY[i] + jumpAmp * PJ[i] * jb * (0.6 + 0.4 * wave), o = i * 16;
+    bodyArr[o] = c * sc; bodyArr[o + 1] = 0; bodyArr[o + 2] = -s * sc; bodyArr[o + 3] = 0; bodyArr[o + 4] = 0; bodyArr[o + 5] = sc; bodyArr[o + 6] = 0; bodyArr[o + 7] = 0;
+    bodyArr[o + 8] = s * sc; bodyArr[o + 9] = 0; bodyArr[o + 10] = c * sc; bodyArr[o + 11] = 0; bodyArr[o + 12] = x; bodyArr[o + 13] = y; bodyArr[o + 14] = z; bodyArr[o + 15] = 1;
+    for (let q = 0; q < 16; q++) headArr[o + q] = bodyArr[o + q];
+    let up = clamp(PARM[i] + armB + 0.25 * wave * rm, 0, 1), ang = 0.16 + up * 2.8;
+    if (clap) ang = 1.15 + 0.35 * Math.sin(t * 16 + ph * 0.3);
+    const sp = Math.sin(-ang), cp = Math.cos(-ang), sy = y + 1.25 * sc;
+    armsArr[o] = c * sc; armsArr[o + 1] = 0; armsArr[o + 2] = -s * sc; armsArr[o + 3] = 0;
+    armsArr[o + 4] = s * sp * sc; armsArr[o + 5] = cp * sc; armsArr[o + 6] = c * sp * sc; armsArr[o + 7] = 0;
+    armsArr[o + 8] = s * cp * sc; armsArr[o + 9] = -sp * sc; armsArr[o + 10] = c * cp * sc; armsArr[o + 11] = 0;
+    armsArr[o + 12] = x; armsArr[o + 13] = sy; armsArr[o + 14] = z; armsArr[o + 15] = 1;
+    const k = PSTK[i];
+    if (k >= 0) {
+      // đầu tay phải (cục bộ 0.56, -0.8, 0) rồi dựng que thẳng đứng, nghiêng nhẹ theo nhịp
+      const tx = x + (c * 0.56 + s * sp * -0.8) * sc, ty = sy + (cp * -0.8) * sc, tz = z + (-s * 0.56 + c * sp * -0.8) * sc, ko = k * 16, sw = Math.sin(bt + ph) * 0.25 * rm, cs = Math.cos(sw), sn = Math.sin(sw);
+      stickArr[ko] = c * cs * sc; stickArr[ko + 1] = sn * sc; stickArr[ko + 2] = -s * cs * sc; stickArr[ko + 3] = 0;
+      stickArr[ko + 4] = -c * sn * sc; stickArr[ko + 5] = cs * sc; stickArr[ko + 6] = s * sn * sc; stickArr[ko + 7] = 0;
+      stickArr[ko + 8] = s * sc; stickArr[ko + 9] = 0; stickArr[ko + 10] = c * sc; stickArr[ko + 11] = 0;
+      stickArr[ko + 12] = tx; stickArr[ko + 13] = ty; stickArr[ko + 14] = tz; stickArr[ko + 15] = 1;
+    }
+  }
+  bodyMesh.instanceMatrix.needsUpdate = headMesh.instanceMatrix.needsUpdate = armsMesh.instanceMatrix.needsUpdate = stickMesh.instanceMatrix.needsUpdate = true;
+  forceFull = false;
+}
+const _col = new THREE.Color();
+function updateStickColors(t, pulse, pat) {
+  const arr = stickMesh.instanceColor.array, n = stickPrefix[visibleN];
+  for (let k = 0, i = 0; k < n; k++) {
+    while (PSTK[i] !== k) i++;
+    if (pat === 1) { const w = 0.5 + 0.5 * Math.sin(t * 4 - PR[i] * 0.18); _col.copy(C.cyan).lerp(C.magenta, w).multiplyScalar(1.9); }
+    else if (pat === 2) { _col.setHSL((t * 0.3 + PR[i] * 0.02) % 1, 1, 0.55).multiplyScalar(1.9); }
+    else { _col.copy(stickCol[k]).multiplyScalar(1.6); }
+    arr[k * 3] = _col.r; arr[k * 3 + 1] = _col.g; arr[k * 3 + 2] = _col.b;
+  }
+  stickMesh.instanceColor.needsUpdate = true;
+}
+
+
+// ================= Nguồn hologram: camera / màn hình / YouTube / URL / HLS =================
+const HOLO_Y = 24, HOLO_H = 17, VID_W = HOLO_H * 16 / 9;
+const PRESETS = [['Video CC0 – hoa (MDN, WebM)', 'url', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm'], ['HLS test – Big Buck Bunny (Mux test stream)', 'hls', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8']];
+const ytWrap = $('ytwrap');
+function setStatus(status, msg, cls) {
+  media.status = status; media.msg = msg || '';
+  const el = $('srcSt'); el.textContent = msg || ''; el.className = cls || (status === 'error' ? 'err' : status === 'live' ? 'ok' : '');
+  const b = $('srcb'), live = status === 'live', k = media.kind;
+  $('liveb').hidden = !(live && (k === 'cam' || k === 'screen' || k === 'hls'));
+  if (k === 'canvas' || status === 'idle' || status === 'stopped') b.hidden = true;
+  else { b.hidden = false; b.className = 'hud ' + (status === 'error' ? 'err' : live && (k === 'cam' || k === 'screen') ? 'live' : 'play'); b.textContent = status === 'loading' ? `Đang tải: ${SRC_NAMES[k]}…` : status === 'error' ? `Lỗi nguồn ${SRC_NAMES[k]}: ${msg}` : `${k === 'cam' || k === 'screen' ? '● LIVE · ' : '▶ Đang phát · '}${SRC_NAMES[k]}`; }
+  $('srcGo').disabled = status === 'loading';
+  holoDirty = true; if (typeof applyHoloMap === 'function' && window.__holoMeshes) applyHoloMap();
+}
+let holoDirty = true;
+function applyHoloMap() {
+  const useVid = media.tex && media.status === 'live' && !show.err && media.kind !== 'yt';
+  const meshes = window.__holoMeshes || [];
+  for (const m of meshes) {
+    const mat = m.material;
+    if (useVid) { mat.map = media.tex; mat.blending = THREE.NormalBlending; mat.transparent = false; mat.depthWrite = true; mat.color.setScalar(.8); }
+    else { mat.map = holoTex; mat.blending = THREE.AdditiveBlending; mat.transparent = true; mat.depthWrite = false; mat.color.setScalar(.8); }
+    mat.needsUpdate = true;
+  }
+}
+function cleanupMedia() {
+  if (media.stream) { media.stream.getTracks().forEach(t => { t.onended = null; t.stop(); }); media.stream = null; }
+  if (media.hls) { try { media.hls.destroy(); } catch (e) {} media.hls = null; }
+  if (media.video) { const v = media.video; v.onerror = v.onloadeddata = null; try { v.pause(); } catch (e) {} v.srcObject = null; v.removeAttribute('src'); try { v.load(); } catch (e) {} if (v !== $('pv')) v.remove(); media.video = null; }
+  const pv = $('pv'); pv.srcObject = null; pv.hidden = true;
+  if (media.tex) { media.tex.dispose(); media.tex = null; }
+  if (media.iframe) { media.iframe.remove(); media.iframe = null; } ytWrap.style.display = 'none'; ytWrap.replaceChildren(); $('ytPlay').hidden = true;
+  clearTimeout(media.timer); media.ytState = -2; media.ytId = '';
+}
+function stopMedia(msg) {
+  const was = media.kind; cleanupMedia(); media.kind = 'canvas';
+  if (media.showByMedia) { show.on = false; media.showByMedia = false; }
+  applyHoloMap(); setStatus('idle', msg || (was === 'canvas' ? 'Nguồn: mặc định.' : 'Đã dừng. Hologram về mặc định.'), '');
+}
+function mediaFail(kind, msg) { cleanupMedia(); media.kind = kind; applyHoloMap(); setStatus('error', msg); }
+function mediaLive(kind, title) {
+  media.kind = kind; if (!show.on) { show.on = true; media.showByMedia = true; } show.title = title; show.at = performance.now(); applyHoloMap();
+}
+function makeVideoTex(v) {
+  const t = new THREE.VideoTexture(v); t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
+  const va = (v.videoWidth || 1280) / (v.videoHeight || 720), pa = 2; // mặt phẳng 34x17 (tỷ lệ 2:1): cắt "cover"
+  if (va < pa) { t.repeat.set(1, va / pa); t.offset.set(0, (1 - va / pa) / 2); } else { t.repeat.set(pa / va, 1); t.offset.set((1 - pa / va) / 2, 0); }
+  return t;
+}
+function newVideoEl() { const v = document.createElement('video'); v.muted = !$('srcSnd').checked; v.playsInline = true; v.setAttribute('playsinline', ''); v.crossOrigin = 'anonymous'; v.loop = true; return v; }
+const camErr = e => {
+  const n = e && e.name;
+  if (n === 'NotAllowedError' || n === 'PermissionDeniedError') return 'Bạn đã từ chối quyền camera/màn hình. Hãy cấp quyền trong trình duyệt rồi thử lại.';
+  if (n === 'NotFoundError' || n === 'DevicesNotFoundError' || n === 'OverconstrainedError') return 'Không tìm thấy camera phù hợp.';
+  if (n === 'NotReadableError' || n === 'TrackStartError' || n === 'AbortError') return 'Camera đang bận (ứng dụng khác đang dùng) hoặc không đọc được.';
+  if (n === 'SecurityError') return 'Trình duyệt chặn camera (cần HTTPS hoặc localhost).';
+  return 'Không mở được nguồn: ' + (n || 'lỗi không rõ');
+};
+async function listCams() {
+  try { const d = (await navigator.mediaDevices.enumerateDevices()).filter(x => x.kind === 'videoinput'), sel = $('camSel'), cur = sel.value; sel.innerHTML = '<option value="">Camera mặc định</option>';
+    d.forEach((x, i) => { const o = document.createElement('option'); o.value = x.deviceId; o.textContent = x.label || 'Camera ' + (i + 1); sel.append(o); }); sel.value = cur; } catch (e) {}
+}
+async function startStream(kind) {
+  cleanupMedia(); media.kind = kind; setStatus('loading', kind === 'cam' ? 'Đang xin quyền camera…' : 'Đang chờ chọn màn hình…');
+  if (!window.isSecureContext || !navigator.mediaDevices || !(kind === 'cam' ? navigator.mediaDevices.getUserMedia : navigator.mediaDevices.getDisplayMedia)) return mediaFail(kind, 'Trang không ở secure context (cần HTTPS hoặc localhost) hoặc trình duyệt không hỗ trợ.');
+  let stream;
+  try {
+    const id = $('camSel').value;
+    stream = kind === 'cam' ? await navigator.mediaDevices.getUserMedia({ video: Object.assign({ width: 1280, height: 720 }, id ? { deviceId: { exact: id } } : {}), audio: false }) : await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+  } catch (e) { return mediaFail(kind, camErr(e)); }
+  if (media.kind !== kind || media.status !== 'loading') { stream.getTracks().forEach(t => t.stop()); return; } // người dùng đã đổi nguồn/dừng trong lúc chờ quyền
+  media.stream = stream;
+  const v = newVideoEl(); v.muted = true; v.loop = false; v.srcObject = stream; media.video = v;
+  stream.getVideoTracks()[0].onended = () => { if (media.stream === stream) stopMedia('Nguồn đã kết thúc (thiết bị bị ngắt hoặc người dùng dừng chia sẻ).'); };
+  try { await v.play(); } catch (e) { return mediaFail(kind, 'Không phát được luồng: ' + (e.name || 'lỗi')); }
+  media.tex = makeVideoTex(v); const pv = $('pv'); pv.srcObject = stream; pv.hidden = false; pv.play().catch(() => {});
+  mediaLive(kind, SRC_NAMES[kind]); setStatus('live', kind === 'cam' ? 'Camera đang bật – người xem thấy hình của bạn.' : 'Đang chia sẻ màn hình lên hologram.');
+  if (kind === 'cam') listCams();
+}
+function parseYt(s) {
+  s = (s || '').trim(); if (/^[\w-]{11}$/.test(s)) return s;
+  try { const u = new URL(/^https?:/i.test(s) ? s : 'https://' + s); const h = u.hostname.replace(/^www\.|^m\./, ''); let id = '';
+    if (h === 'youtu.be') id = u.pathname.slice(1).split('/')[0]; else if (/(^|\.)youtube(-nocookie)?\.com$/.test(h)) { if (u.pathname === '/watch') id = u.searchParams.get('v') || ''; else { const m = u.pathname.match(/^\/(?:live|embed|shorts|v)\/([\w-]{11})/); id = m ? m[1] : ''; } }
+    return /^[\w-]{11}$/.test(id) ? id : ''; } catch (e) { return ''; }
+}
+function startYt() {
+  const id = parseYt($('srcUrl').value); cleanupMedia(); media.kind = 'yt';
+  if (!id) return mediaFail('yt', 'URL/ID YouTube không hợp lệ (hỗ trợ watch?v=, youtu.be/, /live/, /embed/ hoặc ID 11 ký tự).');
+  if (!navigator.onLine) return mediaFail('yt', 'Không có kết nối mạng.');
+  media.ytId = id; setStatus('loading', 'Đang tải YouTube…');
+  const f = document.createElement('iframe'); f.title = 'YouTube trên màn hình hologram'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.referrerPolicy = 'strict-origin-when-cross-origin';
+  f.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+  f.onload = () => { try { f.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); } catch (e) {} };
+  ytWrap.replaceChildren(f); media.iframe = f; ytWrap.style.display = 'none';
+  media.timer = setTimeout(() => { if (media.kind === 'yt' && media.status === 'loading') { mediaFail('yt', 'Không tải được YouTube (mất mạng, bị chặn hoặc video không khả dụng).'); } }, 15000);
+  mediaLive('yt', 'YouTube'); media.status = 'loading'; setStatus('loading', 'Đang tải YouTube…');
+}
+const ytCmd = fn => { try { media.iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: fn, args: [] }), '*'); } catch (e) {} };
+addEventListener('message', e => {
+  if (!media.iframe || e.source !== media.iframe.contentWindow || !/youtube/.test(e.origin)) return;
+  let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (x) { return; }
+  if (!d) return;
+  if (d.event === 'onError') { const c = d.info; mediaFail('yt', c === 101 || c === 150 ? 'Video này cấm nhúng (lỗi ' + c + ').' : c === 100 ? 'Video không tồn tại hoặc ở chế độ riêng tư (lỗi 100).' : c === 2 ? 'ID video không hợp lệ (lỗi 2).' : 'Lỗi YouTube ' + c + '.'); return; }
+  const st = d.event === 'onStateChange' ? d.info : d.event === 'infoDelivery' && d.info && d.info.playerState !== undefined ? d.info.playerState : null;
+  if (st === null) return; media.ytState = st;
+  if (st === 1) { clearTimeout(media.timer); $('ytPlay').hidden = true; if (media.status !== 'live') setStatus('live', 'YouTube đang phát (tắt tiếng; bật tiếng bằng ô "Bật tiếng").'); }
+  else if (st === -1 || st === 5 || st === 2) { clearTimeout(media.timer); media.timer = setTimeout(() => { if (media.kind === 'yt' && media.ytState !== 1 && media.status !== 'error') { setStatus('live', 'Tự phát bị chặn – bấm "Phát YouTube" hoặc Play trong khung.', 'err'); $('ytPlay').hidden = false; } }, 5000); }
+});
+$('ytPlay').onclick = () => { ytCmd('playVideo'); $('ytPlay').hidden = true; };
+async function startUrl(kind) {
+  const url = $('srcUrl').value.trim(); cleanupMedia(); media.kind = kind;
+  if (!/^https?:\/\//i.test(url)) return mediaFail(kind, 'Nhập URL http(s) hợp lệ' + (kind === 'hls' ? ' (.m3u8).' : ' (MP4/WebM).'));
+  setStatus('loading', 'Đang tải video…');
+  const v = newVideoEl(); media.video = v; let done = false;
+  const ok = () => { if (done || media.video !== v) return; done = true; clearTimeout(media.timer); media.tex = makeVideoTex(v); v.play().then(() => { mediaLive(kind, SRC_NAMES[kind]); setStatus('live', kind === 'hls' ? 'Stream HLS đang phát.' : 'Video đang phát (lặp lại, tắt tiếng).'); }).catch(() => { mediaLive(kind, SRC_NAMES[kind]); setStatus('live', 'Tự phát bị chặn – bấm "Phát YouTube/Nguồn" lại hoặc bật tiếng.', 'err'); }); };
+  const bad = m => { if (done || media.video !== v) return; done = true; mediaFail(kind, m); };
+  v.onloadeddata = ok; v.onerror = () => bad('Không tải được video (URL sai, định dạng không hỗ trợ, thiếu CORS hoặc mất mạng).');
+  media.timer = setTimeout(() => bad('Hết thời gian tải video (10 giây).'), 10000);
+  if (kind === 'url') { v.src = url; return; }
+  if (!params.get('hlsjs') && v.canPlayType('application/vnd.apple.mpegurl')) { v.src = url; return; } // Safari: HLS native
+  try {
+    if (!window.Hls) await new Promise((res, rej) => { const s = document.createElement('script'); s.src = '../../vendor/hls.min.js'; s.onload = res; s.onerror = () => rej(new Error('cdn')); document.head.append(s); });
+  } catch (e) { return bad('Không tải được thư viện hls.js.'); }
+  if (!window.Hls || !window.Hls.isSupported()) return bad('Trình duyệt không hỗ trợ HLS (MSE).');
+  const hls = new window.Hls({ enableWorker: true, lowLatencyMode: true }); media.hls = hls;
+  hls.on(window.Hls.Events.ERROR, (ev, d) => { if (d.fatal) bad('Lỗi stream HLS: ' + (d.details || d.type)); });
+  hls.loadSource(url); hls.attachMedia(v);
+}
+function startSource() {
+  const k = $('src').value;
+  try { localStorage.setItem('vv3d.src', JSON.stringify({ k, u: $('srcUrl').value })); } catch (e) {}
+  if (k === 'canvas') return stopMedia();
+  if (k === 'cam' || k === 'screen') return startStream(k);
+  if (k === 'yt') return startYt();
+  return startUrl(k);
+}
+function syncSrcUi() {
+  const k = $('src').value; $('rCam').hidden = k !== 'cam'; $('rUrl').hidden = !(k === 'yt' || k === 'url' || k === 'hls'); $('rPre').hidden = !(k === 'url' || k === 'hls');
+  $('srcUrl').placeholder = k === 'yt' ? 'URL YouTube hoặc ID 11 ký tự' : k === 'hls' ? 'https://…/stream.m3u8' : 'https://…/video.mp4';
+  const p = $('preset'); p.innerHTML = '<option value="">URL demo công khai…</option>'; PRESETS.filter(x => x[1] === k).forEach(x => { const o = document.createElement('option'); o.value = x[2]; o.textContent = x[0]; p.append(o); });
+  $('srcGo').textContent = k === 'canvas' ? 'Về mặc định' : 'Bắt đầu nguồn';
+}
+$('src').onchange = () => { syncSrcUi(); if (media.kind !== 'canvas' && $('src').value !== media.kind) { /* giữ nguồn cũ tới khi bấm Bắt đầu */ } };
+$('preset').onchange = e => { if (e.target.value) $('srcUrl').value = e.target.value; };
+$('srcGo').onclick = startSource;
+$('srcStop').onclick = () => stopMedia();
+$('srcSnd').onchange = e => { const on = e.target.checked; if (media.video && media.kind !== 'cam' && media.kind !== 'screen') media.video.muted = !on; if (media.kind === 'yt') ytCmd(on ? 'unMute' : 'mute'); };
+try { const sv = JSON.parse(localStorage.getItem('vv3d.src') || 'null'); if (sv && $('src').querySelector(`[value="${sv.k}"]`)) { $('src').value = sv.k; $('srcUrl').value = sv.u || ''; } } catch (e) {} // chỉ nhớ lựa chọn, KHÔNG tự bật
+syncSrcUi();
+
+// iframe YouTube ép vào mặt phẳng hologram bằng matrix3d (homography 4 góc)
+const _c4 = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+const YT_CORNERS = [[-VID_W / 2, HOLO_Y + HOLO_H / 2], [VID_W / 2, HOLO_Y + HOLO_H / 2], [VID_W / 2, HOLO_Y - HOLO_H / 2], [-VID_W / 2, HOLO_Y - HOLO_H / 2]];
+let ytShown = false;
+function updateYtQuad() {
+  const want = media.iframe && media.kind === 'yt' && media.status !== 'error' && !show.err && camera.position.z > 1;
+  let vis = !!want, pts;
+  if (vis) {
+    const w = innerWidth, h = innerHeight; pts = [];
+    for (let i = 0; i < 4; i++) { _c4[i].set(YT_CORNERS[i][0], YT_CORNERS[i][1], 0.06).project(camera); if (_c4[i].z > 1 || _c4[i].z < -1) { vis = false; break; } pts.push([(_c4[i].x * .5 + .5) * w, (-_c4[i].y * .5 + .5) * h]); }
+    if (vis) { const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]); if (Math.max(...xs) < 0 || Math.min(...xs) > w || Math.max(...ys) < 0 || Math.min(...ys) > h) vis = false; }
+  }
+  if (!vis) { if (ytShown) { ytWrap.style.display = 'none'; ytShown = false; holoDirty = true; } return; }
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = pts, W = 1280, H = 720;
+  const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+  const den = dx1 * dy2 - dx2 * dy1, g = (dx3 * dy2 - dx2 * dy3) / den, hh = (dx1 * dy3 - dx3 * dy1) / den;
+  const a = x1 - x0 + g * x1, b = x3 - x0 + hh * x3, d = y1 - y0 + g * y1, e = y3 - y0 + hh * y3;
+  if (!isFinite(a + b + d + e + g + hh)) return;
+  ytWrap.style.transform = `matrix3d(${a / W},${d / W},0,${g / W},${b / H},${e / H},0,${hh / H},0,0,1,0,${x0},${y0},0,1)`;
+  if (!ytShown) { ytWrap.style.display = 'block'; ytShown = true; }
+}
+
+// ---------- Toast ----------
+function toast(m) { const d = document.createElement('div'); d.className = 't'; d.textContent = m; $('toasts').append(d); setTimeout(() => d.remove(), 3200); }
+
+// ---------- Chat ----------
+const TXT = ['Show đỉnh quá!', 'Ai đứng gần sân khấu không?', 'Hello cả phòng 👋', 'Lightstick đẹp ghê', 'Bài này nghe hay thật', 'Cho xin vị trí hàng đầu với', 'Ping mình ổn nè', 'Confetti kìa!'];
+const msgs = [[], []]; let tab = 0, unread = [0, 0], sent = [];
+const hh = () => new Date().toTimeString().slice(0, 5);
+function add(ch, n, txt, cls = '') { msgs[ch].push({ n, txt, cls, t: hh() }); if (msgs[ch].length > 100) msgs[ch].shift(); if (ch === tab) draw(); else { unread[ch]++; badge(); } }
+function badge() { [0, 1].forEach(i => { const e = $('t' + i).querySelector('i'); e.hidden = !unread[i]; e.textContent = unread[i]; }); }
+function draw() { const m = $('msgs'); m.innerHTML = ''; if (!msgs[tab].length) { m.innerHTML = `<div class="empty">Chưa có tin nhắn ở kênh ${tab ? 'Toàn phòng' : 'Khu vực'}.<br>Nhấn Enter và chào mọi người!</div>`; return; }
+  msgs[tab].forEach(x => { const d = document.createElement('div'); d.className = 'm ' + x.cls; if (x.cls === 'sys') d.textContent = x.txt; else { const b = document.createElement('b'); b.textContent = x.n; d.append(b, document.createTextNode(` ${x.txt} `)); const s = document.createElement('small'); s.style.color = '#7686b5'; s.textContent = x.t; d.append(s); } m.append(d); }); m.scrollTop = m.scrollHeight; }
+[0, 1].forEach(i => $('t' + i).onclick = () => { tab = i; unread[i] = 0; badge(); [0, 1].forEach(k => $('t' + k).setAttribute('aria-selected', k === i)); draw(); });
+setInterval(() => { if (kicked) return; const ch = R() < .4 ? 0 : 1; let who = NAMES[R() * 7 | 0]; const txt = TXT[R() * 8 | 0];
+  if (ch === 0) { const L = labs.slice(1).filter(l => l.idx >= 0 && l.el.style.display !== 'none'); if (L.length) { const l = L[R() * L.length | 0]; who = l.n.textContent; l.bt = txt; l.until = performance.now() + 4000; } }
+  add(ch, who, txt); }, 2600);
+$('ci').oninput = e => $('cn').textContent = e.target.value.length + '/200';
+$('cf').onsubmit = e => { e.preventDefault(); const v = $('ci').value.trim(), now = Date.now(); if (!v || muted > now) return;
+  sent = sent.filter(x => now - x < 10000); if (sent.length >= 5) { const s = Math.ceil((10000 - (now - sent[0])) / 1000); $('cst').textContent = `Bạn gửi quá nhanh, thử lại sau ${s} giây.`; return; }
+  sent.push(now); $('cst').textContent = ''; const clean = v.replace(/badword|xxx/gi, '***'); if (clean !== v) $('cst').textContent = 'Một số từ bị che do vi phạm quy định.';
+  add(tab, me.name, clean, 'me'); if (tab === 0) bubble = { t: clean, until: performance.now() + 4000 }; $('ci').value = ''; $('cn').textContent = '0/200'; };
+function muteUI() { const left = muted - Date.now(), on = left > 0; $('mute').hidden = !on; $('ci').disabled = $('cs').disabled = on; $('ci').placeholder = on ? 'Bạn đang bị tắt chat' : 'Nhấn Enter để chat…';
+  if (on) $('mute').textContent = 'Bạn đang bị tắt chat' + (isFinite(left) ? ` – còn ${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}` : ' đến hết phiên') + '. Bạn vẫn di chuyển và emote được.'; }
+setInterval(muteUI, 500);
+
+// ---------- Host / Admin ----------
+const PL = [['Luna#2210', 0], ['Kai#0912', 0], ['Mika#7745', 0], ['Zed#3301', 0], ['Pixel#1188', 0], ['Mod_Sun#0001', 1]].map(([n, a]) => ({ n, a, m: false }));
+function pls() { const q = $('ps').value.toLowerCase(); $('pls').innerHTML = ''; PL.filter(p => p.n.toLowerCase().includes(q)).forEach(p => { const d = document.createElement('div'); d.className = 'pl'; d.innerHTML = `<span>${p.n}${p.a ? ' (Admin)' : ''}${p.m ? ' · mute' : ''}</span>`;
+  [['Mute', 'b'], ['Kick', 'b d']].forEach(([l, c]) => { const b = document.createElement('button'); b.className = c; b.type = 'button'; b.textContent = l; b.disabled = !!p.a; b.title = p.a ? 'Không thể xử lý Admin khác (BR08.04)' : ''; b.setAttribute('aria-label', `${l} ${p.n}`); b.onclick = () => modAct(p, l); d.append(b); }); $('pls').append(d); }); }
+function modAct(p, l) { const dur = $('dur').selectedOptions[0].text, w = $('why').value || '—'; if (l === 'Kick') PL.splice(PL.indexOf(p), 1); else p.m = true;
+  $('log').insertAdjacentHTML('afterbegin', `<div>${hh()} Admin → ${p.n}: ${l}${l === 'Mute' ? ' ' + dur : ''} · lý do: ${w.replace(/</g, '&lt;')}</div>`); toast(`${l} ${p.n} thành công`); pls(); }
+$('ps').oninput = pls;
+function showSt() { const el = $('sst'), b = $('play'); b.textContent = show.on ? 'Dừng' : 'Phát'; $('conf').disabled = performance.now() < fxs.conf; $('light').disabled = performance.now() < fxs.light;
+  el.textContent = show.err && false ? '' : show.err ? 'Cảnh báo: không tải được nguồn sau 10 giây. Người xem đang thấy màn hình chờ.' : show.on ? `Đang phát · ${show.title} · ${Math.floor((performance.now() - show.at) / 1000)} giây · lệch tối đa 0.4 s` : 'Chưa phát. Hologram đang ở màn hình chờ.'; }
+$('play').onclick = () => { if (show.on && media.kind !== 'canvas' || (show.on && media.showByMedia)) { stopMedia('Show đã dừng, nguồn đã tắt.'); toast('Show đã dừng'); return; } show.on = !show.on; show.err = false; applyHoloMap(); show.at = performance.now(); show.title = $('lib').value.split(' (')[0]; toast(show.on ? 'Show bắt đầu cho cả phòng' : 'Show đã dừng'); };
+$('fail').onclick = () => { show.on = true; show.err = true; show.at = performance.now(); applyHoloMap(); showSt(); };
+$('light').onclick = () => { fxs.light = performance.now() + 6000; fxs.cue = +$('cue').value; };
+$('conf').onclick = () => { fxs.conf = performance.now() + 5000; };
+setInterval(showSt, 500);
+function setRole(r) { role = r; $('rolep').textContent = { fan: 'Fan', host: 'Host/MC', admin: 'Admin' }[r]; $('htog').hidden = r === 'fan'; $('host').hidden = r === 'fan'; $('htog').setAttribute('aria-expanded', r !== 'fan'); $('adm').hidden = r !== 'admin'; pls(); }
+function togHost() { if (role === 'fan') return; const h = $('host').hidden = !$('host').hidden; $('htog').setAttribute('aria-expanded', !h); }
+$('htog').onclick = togHost;
+document.querySelectorAll('[data-role]').forEach(b => b.onclick = () => setRole(b.dataset.role));
+
+// ---------- Trạng thái mô phỏng ----------
+$('dMute').onclick = () => { muted = Date.now() + 300000; muteUI(); };
+$('dFps').onclick = () => { fakeFps = 21; toast('Mô phỏng FPS < 25…'); };
+$('dClr').onclick = () => { msgs[0] = []; msgs[1] = []; draw(); };
+function ov(t, p, btn) { $('ov').hidden = false; $('ovt').textContent = t; $('ovp').textContent = p; $('ovb').parentNode.hidden = true; $('ovb2').innerHTML = btn || ''; }
+$('dKick').onclick = () => { kicked = true; ov('Bạn đã bị kick khỏi phòng', 'Lý do: Spam chat. Bạn có thể vào lại sau 10 phút.', '<p><a href="index.html" style="color:#22e6ff">Về trang vào</a></p>'); };
+function dis(long) { let s = 10; $('rec').hidden = false; const iv = setInterval(() => { $('rec').textContent = `Mất kết nối – đang kết nối lại… (${s}s)`; if (--s < 0) { clearInterval(iv); $('rec').hidden = true; ov('Phiên đã hết hạn', 'Mất kết nối quá 10 giây. Vui lòng vào lại arena.', '<p><a href="index.html" style="color:#22e6ff">Vào lại</a></p>'); } if (s === 5 && !long) { clearInterval(iv); $('rec').textContent = 'Đã kết nối lại – giữ nguyên vị trí.'; setTimeout(() => $('rec').hidden = true, 2000); } }, 1000); }
+$('dDis').onclick = () => dis(0); $('dExp').onclick = () => dis(1);
+
+// ---------- Phím ----------
+addEventListener('keydown', e => { const inp = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName);
+  if (e.key === 'Escape') { document.activeElement.blur(); return; }
+  if (inp) return;
+  if (e.key === 'Enter') { $('ci').focus(); e.preventDefault(); return; }
+  if (/^[1-6]$/.test(e.key)) { emote(+e.key - 1); return; }
+  if (e.key === 'h' || e.key === 'H') { togHost(); return; }
+  if (e.key === 'c' || e.key === 'C') { setCam(camMode === 'auto' ? 'player' : 'auto'); return; }
+  if (e.key.startsWith('Arrow')) e.preventDefault();
+  keys[e.key.length === 1 ? e.key.toLowerCase() : e.key] = 1; });
+addEventListener('keyup', e => delete keys[e.key.length === 1 ? e.key.toLowerCase() : e.key]);
+addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
+setInterval(() => { const p = 38 + R() * 26 | 0; $('ping').textContent = p + ' ms'; $('ping').className = p < 80 ? 'ok' : 'warn'; $('pc').textContent = Math.min(1000, 742 + (R() * 14 - 7 | 0)) + '/1000'; }, 1500);
+
+// ---------- Vòng lặp ----------
+let tt = 0, lastNow = performance.now(), frames = 0, acc = 0, goodFor = 0, lastHolo = 0, lastSide = 0, lastStick = 0, frameNo = 0, lastBud = 0, fpsHist = 0;
+window.__vv = { fps: 0, frames: 0 };
+const _up = new THREE.Vector3(0, 1, 0), _dir = new THREE.Vector3(), _tg = new THREE.Vector3();
+function loop() {
+  const now = performance.now(), dt = clamp((now - lastNow) / 1000, 0.0005, 0.1), realDt = (now - lastNow) / 1000; lastNow = now; tt += dt; const t = tt; frameNo++;
+  // nhịp
+  const bpm = show.on && !show.err ? 124 : 100; bt += dt * bpm / 60 * TAU;
+  const rm = reduceMotion ? 0.4 : 1, pulse = Math.exp(-((bt / TAU) % 1) * 3.5) * rm;
+  const lt = now < fxs.light, cue = fxs.cue;
+  // người chơi
+  const moving = movePlayer(dt);
+  const jp = act.jump > now ? Math.abs(Math.sin((act.jump - now) / 160)) * 1.0 * (reduceMotion ? .3 : 1) : 0;
+  playerGroup.position.set(pl.x, jp + (moving ? Math.abs(Math.sin(t * 12)) * 0.08 : 0), pl.z); playerGroup.rotation.y = pl.yaw;
+  const up = act.arm > now, clp = act.clap > now; playerArms.rotation.x = -(clp ? 1.15 + 0.35 * Math.sin(now / 60) : up ? 2.9 : act.stick ? 2.6 : 0.16);
+  playerRing.material.color.copy(new THREE.Color(mc)).multiplyScalar(1.8 + pulse * 1.5);
+  // đám đông
+  animCrowd(t, now, frameNo);
+  if (now - lastStick > (T.stride > 1 ? 120 : 70)) { lastStick = now; updateStickColors(t, pulse, act.pat); }
+  // biểu diễn
+  for (let i = 0; i < 5; i++) { const d = perfData[i]; const a = d.a + Math.sin(t * .6 + d.ph) * .25 + Math.PI * 0; const x = Math.sin(a) * d.r * (d.big ? 0 : 1) + Math.sin(t * .8 + d.ph) * (d.big ? 1.4 : .5), z = Math.cos(a) * d.r * (d.big ? 0 : 1) + (d.big ? 0 : 0.3);
+    dummyM(stagePerf, i, i === 2 ? x : Math.sin(d.a * 1.6) * 6.2, 1.4 + Math.abs(Math.sin(bt * .5 + d.ph)) * (0.3 + (show.on ? .5 : 0)) * rm, i === 2 ? 1 : Math.cos(d.a * 1.6) * 4.2 - 1, i === 2 ? 1.25 : 1); }
+  stagePerf.instanceMatrix.needsUpdate = true;
+  // ánh sáng theo nhịp
+  const cc = cue === 1 ? C.magenta : C.cyan;
+  const hue = (t * 0.1) % 1;
+  lightC.color.copy(lt ? (cue === 2 ? _col.setHSL(hue, 1, .55) : cc) : C.cyan); lightM.color.copy(lt ? (cue === 2 ? _col.setHSL((hue + .5) % 1, 1, .55) : (cue === 1 ? C.magenta : C.cyan)) : C.magenta);
+  const li = 1500 + (show.on ? 500 : 0) + pulse * 1100 + (lt ? 1200 : 0); lightC.intensity = li * (0.8 + 0.2 * Math.sin(t * 1.3)); lightM.intensity = li * (0.8 + 0.2 * Math.cos(t * 1.1)); lightS.intensity = 600 + pulse * 700;
+  lightS.color.copy(C.violet).lerp(C.magenta, 0.5 + 0.5 * Math.sin(t * 2));
+  neonMat.color.setScalar(1 + pulse * 0.35 + (lt ? 0.3 : 0));
+  stageTopMat.color.setScalar(1.15 + pulse * 0.9); glowDiscMat.opacity = 0.35 + pulse * 0.3 + (show.on ? 0.1 : 0);
+  starMat.uniforms.uT.value = t; starMat.uniforms.uBeat.value = pulse; starMat.uniforms.uShow.value = show.on && !show.err ? 1 : 0.4; starMat.uniforms.uJump.value = (act.jboost > now ? 2 : 1) * rm;
+  // beams
+  const nb = T.beams;
+  for (let i = 0; i < beams.length; i++) { const b = beams[i]; if (i >= nb) continue; const sw = reduceMotion ? 0 : (lt ? 1.6 : 1);
+    const a = b.a0 + Math.sin(t * b.sp * sw + i) * (lt ? 1.0 : 0.6) + (b.up ? 0 : t * 0.1 * sw);
+    if (b.up) _tg.set(Math.cos(a) * b.R, 48, Math.sin(a) * b.R); else _tg.set(Math.cos(a * 1.3 + t * 0.1) * b.R, 0, Math.sin(a * 1.3) * b.R);
+    _dir.subVectors(_tg, b.apex); const len = _dir.length(); _dir.divideScalar(len); b.m.position.copy(b.apex); b.m.quaternion.setFromUnitVectors(_up, _dir); b.m.scale.set(b.w * (lt ? 1.5 : 1), len, b.w * (lt ? 1.5 : 1));
+    const bm = b.m.material; bm.opacity = (show.on ? 0.07 : 0.045) + pulse * 0.05 * rm + (lt ? 0.14 : 0);
+    if (lt) { if (cue === 2) bm.color.setHSL((hue * 3 + i / 10) % 1, 1, .55); else bm.color.copy(cue === 1 ? C.magenta : C.cyan); } else bm.color.copy(i % 4 < 2 ? C.cyan : C.magenta);
+  }
+  // pháo sáng (flare)
+  if (flare.until > now) { /* dùng beam 0 sáng thêm */ beams[0].m.material.opacity = 0.35; }
+  // hologram
+  if (holoDirty || (media.tex && media.status === 'live' && media.kind !== 'yt' ? false : now - lastHolo > 1000 / T.holoFps)) { holoDirty = false; lastHolo = now; drawHolo(t, pulse); }
+  if (T.side && now - lastSide > 1000 / 12) { lastSide = now; drawSide(t, pulse); }
+  updateSprites(dt); updateConf(dt, now, t);
+  updateCamera(dt, t); updateYtQuad();
+  if (frameNo % 3 === 0) updateLabels(now);
+  if (now - npcDirty > 900) { npcDirty = now; pickNpc(now); }
+  minimapT += dt; if (minimapT > 0.1) { minimapT = 0; minimap(now); }
+  bloom.strength = T.bloom * (1 + (lt ? 0.35 : 0) + pulse * 0.15);
+  // render
+  renderer.info.reset();
+  if (useComposer) composer.render(); else renderer.render(scene, camera);
+  // FPS thật (thời gian thực, không dùng dt đã chặn trần)
+  frames++; acc += realDt;
+  if (acc >= 1) {
+    const real = frames / acc, fps = fakeFps || real; frames = 0; acc = 0; window.__vv.fps = real;
+    $('fps').textContent = fps.toFixed(0); $('fps').className = fps >= 30 ? 'ok' : fps >= 25 ? 'warn' : 'bad';
+    if (settle > 0) { settle -= 1; goodFor = 0; }
+    else if (!locked) {
+      fpsHist = fpsHist * 0.5 + fps * 0.5; const order = ['Low', 'Medium', 'High'], idx = order.indexOf(tierName);
+      if ((fakeFps ? fps : fpsHist) < 28 && idx > 0) { applyTier(order[idx - 1]); goodFor = 0; toast(`FPS thấp: tự giảm chất lượng xuống ${order[idx - 1]} (${visibleN} avatar giữ nguyên)`); fakeFps = 0; fpsHist = 60; }
+      else if (fps > 55 && idx < 2 && (goodFor += 1) >= 5) { applyTier(order[idx + 1]); goodFor = 0; }
+      else if (fps <= 55) goodFor = 0;
+    }
+    if (fakeFps && locked) { fakeFps = 0; }
+    const info = renderer.info.render; $('bud').textContent = `Ngân sách (đã gồm hậu kỳ): ${info.calls} draw call · ${(info.triangles / 1000).toFixed(0)}k tam giác · ${visibleN} avatar · tier ${tierName} · ${renderer.domElement.width}×${renderer.domElement.height}px`;
+    window.__vv.calls = info.calls; window.__vv.tris = info.triangles;
+  }
+}
+let minimapT = 0;
+const _m = new THREE.Matrix4(), _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3(), _e = new THREE.Euler();
+function dummyM(mesh, i, x, y, z, sc) { _p.set(x, y, z); _q.identity(); _s.setScalar(sc); _m.compose(_p, _q, _s); mesh.setMatrixAt(i, _m); }
+
+document.addEventListener('visibilitychange', () => { if (document.hidden) renderer.setAnimationLoop(null); else { lastNow = performance.now(); frames = 0; acc = 0; settle = 2; renderer.setAnimationLoop(loop); } });
+addEventListener('pagehide', () => { cleanupMedia(); renderer.setAnimationLoop(null); renderer.dispose(); });
+
+// debug/đo đạc (chỉ mockup)
+window.__vv.api = {
+  setTier: n => { locked = true; $('lock').checked = true; $('q').value = n; applyTier(n); }, setN: n => setCrowd(n), setShow: v => { show.on = v; show.title = 'Neon Pulse – Opening'; },
+  scene: () => { renderer.info.reset(); renderer.render(scene, camera); return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles }; },
+  media, startSource, stopMedia, parseYt, cue: () => { fxs.light = performance.now() + 6000; }, conf: () => { fxs.conf = performance.now() + 5000; }, setCam, emote, T: () => tierName, N: () => visibleN, mode: () => camMode
+};
+
+// ---------- Khởi động (có tiến trình thật) ----------
+const tick = () => new Promise(r => setTimeout(r, 0));
+async function boot() {
+  const st = ['Tải tài nguyên cảnh', 'Dựng arena & sân khấu', 'Tạo đám đông', 'Kết nối phòng']; const step = k => { $('ovp').textContent = st[k]; $('ovb').style.width = ((k + 1) / st.length * 100) + '%'; return tick(); };
+  await step(0); buildEnvironment();
+  await step(1); buildStatics();
+  await step(2); buildCrowd();
+  await step(3);
+  const qt = params.get('tier'); if (qt && TIERS[qt]) { locked = true; $('lock').checked = true; $('q').value = qt; applyTier(qt); } else applyTier('High');
+  if (params.get('show') === '1') { show.on = true; show.title = 'Neon Pulse – Opening'; }
+  if (params.get('role')) setRole(params.get('role')); else setRole('fan');
+  setCam(camMode); resize();
+  add(0, '', `Bạn đã vào ${$('room').textContent}. WASD để di chuyển, phím 1–6 để emote, Enter để chat.`, 'sys');
+  $('ov').hidden = params.get('ov') === '0' ? true : false;
+  setTimeout(() => { $('ov').hidden = true; toast('Bạn đã vào ' + $('room').textContent + ' với tên ' + me.name); }, params.get('ov') === '0' ? 0 : 300);
+  lastNow = performance.now(); renderer.setAnimationLoop(loop);
+}
+boot().catch(e => { console.error(e); showFallback('Lỗi dựng cảnh 3D: ' + e.message); });
+</script>
+</body>
+</html>
