@@ -71,7 +71,8 @@
   const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
   const DEF_NEW = ['cangden3d', 'saltline-classic', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
   const PIN_FIRST = ['saltline-classic'], PIN_HOT = ['concert3d', 'vibeverse', 'crypto-analytics']; // ghim "Đang hot": PIN_FIRST đứng đầu (thẻ lớn), PIN_HOT chen vào sau mục đầu của danh sách; luôn áp dụng kể cả khi CMS đặt danh sách riêng
-  const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
+  const NOHOT = ['avatarfarm']; // bỏ khỏi "Đang hot" (vẫn có ở danh sách game), kể cả khi CMS đặt danh sách hot riêng
+  const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id) && !NOHOT.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
   const HIDE = ['cangden3d', 'cangden']; // ẩn cố định trong mã (Saltline 3D 2.2, Cảng Đen); admin vẫn thấy để xem trước, bỏ id khỏi mảng để hiện lại
   const visible = i => !(GV.cfg.off.includes(i.id) || HIDE.includes(i.id)) || isAdmin();
