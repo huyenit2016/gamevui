@@ -73,7 +73,7 @@
   const PIN_FIRST = ['saltline-classic'], PIN_HOT = ['concert3d', 'vibeverse', 'crypto-analytics']; // ghim "Đang hot": PIN_FIRST đứng đầu (thẻ lớn), PIN_HOT chen vào sau mục đầu của danh sách; luôn áp dụng kể cả khi CMS đặt danh sách riêng
   const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
-  const HIDE = ['cangden3d']; // ẩn cố định trong mã (Saltline 3D 2.2); admin vẫn thấy để xem trước, bỏ id khỏi mảng để hiện lại
+  const HIDE = ['cangden3d', 'cangden']; // ẩn cố định trong mã (Saltline 3D 2.2, Cảng Đen); admin vẫn thấy để xem trước, bỏ id khỏi mảng để hiện lại
   const visible = i => !(GV.cfg.off.includes(i.id) || HIDE.includes(i.id)) || isAdmin();
 
   const tagOf = i => i.cat === 'Nhiều người' ? 'Online' : i.cat === 'Học tập' ? 'Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích';
