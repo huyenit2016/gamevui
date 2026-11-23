@@ -74,7 +74,7 @@
   const NOHOT = ['avatarfarm']; // bỏ khỏi "Đang hot" (vẫn có ở danh sách game), kể cả khi CMS đặt danh sách hot riêng
   const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id) && !NOHOT.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
-  const HIDE = ['cangden3d', 'cangden']; // ẩn cố định trong mã (Saltline 3D 2.2, Cảng Đen); admin vẫn thấy để xem trước, bỏ id khỏi mảng để hiện lại
+  const HIDE = ['cangden3d', 'cangden', 'avatarfarm']; // ẩn cố định trong mã (Saltline 3D 2.2, Cảng Đen, Làng Nông Vui); admin vẫn thấy để xem trước, bỏ id khỏi mảng để hiện lại
   const visible = i => !(GV.cfg.off.includes(i.id) || HIDE.includes(i.id)) || isAdmin();
 
   const tagOf = i => i.cat === 'Nhiều người' ? 'Online' : i.cat === 'Học tập' ? 'Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích';
