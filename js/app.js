@@ -70,10 +70,11 @@
   const G3D = ['cangden3d', 'saltline-classic', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'lenchua', 'blocks'], C3D = '3D', catLabel = c => c === C3D ? '🔥 Game 3D' : c || 'Mọi thể loại';
   const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
   const DEF_NEW = ['cangden3d', 'saltline-classic', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
-  const PIN_FIRST = ['cangden3d'], PIN_HOT = ['concert3d', 'vibeverse', 'crypto-analytics']; // ghim "Đang hot": PIN_FIRST đứng đầu (thẻ lớn), PIN_HOT chen vào sau mục đầu của danh sách; luôn áp dụng kể cả khi CMS đặt danh sách riêng
+  const PIN_FIRST = ['saltline-classic'], PIN_HOT = ['concert3d', 'vibeverse', 'crypto-analytics']; // ghim "Đang hot": PIN_FIRST đứng đầu (thẻ lớn), PIN_HOT chen vào sau mục đầu của danh sách; luôn áp dụng kể cả khi CMS đặt danh sách riêng
   const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
-  const visible = i => !GV.cfg.off.includes(i.id) || isAdmin();
+  const HIDE = ['cangden3d']; // ẩn cố định trong mã (Saltline 3D 2.2); admin vẫn thấy để xem trước, bỏ id khỏi mảng để hiện lại
+  const visible = i => !(GV.cfg.off.includes(i.id) || HIDE.includes(i.id)) || isAdmin();
 
   const tagOf = i => i.cat === 'Nhiều người' ? 'Online' : i.cat === 'Học tập' ? 'Học tập' : i.type === 'game' ? 'Game' : 'Tiện ích';
   // nhãn nút theo loại: game -> Chơi · học tập -> Học · tiện ích -> Dùng thử
@@ -111,7 +112,7 @@
     // thẻ số liệu kiểu dashboard (dữ liệu thật của người chơi, lưu trên máy)
     const mxEl = $('#metrics');
     if (mxEl) {
-      const fv = favs().length, rc = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean), learnN = GV.items.filter(i => i.cat === 'Học tập').length;
+      const fv = favs().length, rc = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i)), learnN = GV.items.filter(i => i.cat === 'Học tập').length;
       const M = [['gamepad', GV.t('mx.lib'), ng, GV.t('mx.lib.s', { n: online }), 'c'], ['wrench', GV.t('mx.tool'), GV.items.length - ng, GV.t('mx.tool.s', { n: learnN }), 'p'], ['star', GV.t('mx.fav'), fv, GV.t(fv ? 'mx.fav.s1' : 'mx.fav.s0'), 'g'], ['clock', GV.t('mx.rec'), rc.length, rc[0] ? GV.esc(rc[0].name) : GV.t('mx.rec.s0'), 'a']];
       mxEl.innerHTML = M.map(([ic, l, v, sub, c]) => `<div class="tilt mxc ${c}"><div><small>${l}</small><b>${v}</b><span>${sub}</span></div><i class="mxi">${GV.ic(ic, 26)}</i></div>`).join('');
     }
@@ -133,7 +134,7 @@
     // khu nổi bật (chỉ hiện ở màn hình chính, chưa lọc)
     const hot = HOT().map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i));
     $('#hotwrap').hidden = !showcase; $('#hot').innerHTML = hot.slice(0, 9).map((i, k) => cardHTML(i, f, k === 0 ? 'feat' : '')).join('');
-    const rec = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(Boolean).slice(0, 8);
+    const rec = store.get('recent', []).map(id => GV.items.find(i => i.id === id)).filter(i => i && visible(i)).slice(0, 8);
     $('#recentwrap').hidden = !showcase || !rec.length; $('#recent').innerHTML = rec.map(recentHTML).join('');
     $('.ticker').hidden = true;
     const ha = $('#heroart'); if (ha) ha.innerHTML = (hot.length ? hot : GV.items).slice(0, 4).map((i, k) => `<a class="ht t${k}" style="--h:${hue(i.cat)}" href="#/${i.type}/${i.id}" tabindex="-1"><span>${i.icon}</span><b>${GV.esc(i.name)}</b></a>`).join('');
