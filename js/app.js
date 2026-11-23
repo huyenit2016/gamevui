@@ -67,9 +67,9 @@
   const hue = c => { let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
 
   // Danh mục ảo "Game 3D": chip lọc riêng + khu riêng trên trang chủ, mọi game trong đây gắn nhãn HOT
-  const G3D = ['cangden3d', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'lenchua', 'blocks'], C3D = '3D', catLabel = c => c === C3D ? '🔥 Game 3D' : c || 'Mọi thể loại';
+  const G3D = ['cangden3d', 'saltline-classic', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'lenchua', 'blocks'], C3D = '3D', catLabel = c => c === C3D ? '🔥 Game 3D' : c || 'Mọi thể loại';
   const DEF_HOT = ['avatarfarm', 'aitutor', 'lang', 'translator', 'lotoonline', 'masoi', 'uno', 'tienlen', 'chess', 'cotuong', 'loto16', 'snake', 'tetris'];
-  const DEF_NEW = ['cangden3d', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
+  const DEF_NEW = ['cangden3d', 'saltline-classic', 'concert3d', 'vibeverse', 'cangden', 'dalat3d', 'saigon3d', 'avatarfarm', 'cotyphu', 'aitutor', 'lang', 'coursemaker', 'translator', 'meeting', 'classroom', 'chess', 'cotuong', 'masoi', 'uno', 'tienlen', 'lotoonline', 'splitbill', 'teams', 'scoreboard'];
   const PIN_FIRST = ['cangden3d'], PIN_HOT = ['concert3d', 'vibeverse', 'crypto-analytics']; // ghim "Đang hot": PIN_FIRST đứng đầu (thẻ lớn), PIN_HOT chen vào sau mục đầu của danh sách; luôn áp dụng kể cả khi CMS đặt danh sách riêng
   const HOT = () => { const l = (GV.cfg.hot || DEF_HOT).filter(id => !PIN_HOT.includes(id) && !PIN_FIRST.includes(id)); return PIN_FIRST.concat(l.slice(0, 1), PIN_HOT, l.slice(1)); }, NEW = () => GV.cfg.nw || DEF_NEW;
   const isAdmin = () => !!(GV.account && GV.account.isAdmin);
