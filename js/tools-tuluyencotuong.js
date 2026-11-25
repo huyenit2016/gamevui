@@ -2,6 +2,7 @@
 (function () {
   GV.register({
     id: 'tuluyencotuong', type: 'tool', cat: 'Học tập', name: 'Tu Luyện Cờ Tướng', icon: '♟️',
+    cover: 'img/cover-tuluyencotuong.webp', coverS: 'img/cover-tuluyencotuong-s.webp',
     desc: 'Luyện cờ tướng mỗi ngày: bài học, thế cờ tàn theo cấp độ, đấu với máy, quét và phân tích ván đã chơi, nhiệm vụ ngày, cấp bậc và chuỗi ngày luyện tập. Dữ liệu chỉ lưu trên máy bạn. Mở ở trang riêng.',
     mount(el) {
       const url = 'app/tuluyencotuong/';
