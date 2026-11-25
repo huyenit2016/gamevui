@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tu Luyện Cờ Tướng</title>
+<meta name="description" content="Tu Luyện Cờ Tướng: bài học, thế cờ tàn, đấu với máy, phân tích ván, cấp bậc và chuỗi ngày luyện tập. Dữ liệu lưu trên máy bạn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@600;700&family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F6EFE2;--card:#FBF6EA;--line:#E3D6BA;--ink:#1B1A17;--mute:#4A4439;--red:#B3261E;--reddk:#8A1C16;--wood:#EFE3C8;--gold:#C8901A;--green:#2E6B3F;--blue:#2F5D8A}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:16px;line-height:1.55;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:'Noto Serif',serif;line-height:1.2;margin:0}
+button{font:inherit;cursor:pointer;color:inherit}
+.app{display:flex;min-height:100vh}
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.nav button{flex:1;min-height:60px;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--mute)}
+.nav button svg{width:24px;height:24px}
+.nav button[aria-current="page"]{color:var(--red)}
+.brand{display:none}
+main{flex:1;min-width:0;padding:16px 16px 96px;max-width:1040px;margin:0 auto;width:100%}
+@media(min-width:900px){
+ .nav{position:sticky;top:0;height:100vh;width:230px;flex:0 0 230px;flex-direction:column;justify-content:flex-start;gap:6px;padding:20px 14px;border-top:0;border-right:1px solid var(--line)}
+ .nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:16px}
+ .nav button[aria-current="page"]{background:#F3DEDA}
+ .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;font-family:'Noto Serif',serif;font-weight:700;font-size:16px;line-height:1.25}
+ main{padding:28px 32px 48px}
+}
+.logo{width:36px;height:36px;border-radius:50%;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:700;color:var(--red);font-size:18px;flex:0 0 auto}
+.page{display:none}.page.on{display:block}
+.ph{margin-bottom:18px}.ph h2{font-size:28px}.ph p{margin:4px 0 0;color:var(--mute)}
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 0 var(--line)}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{margin:0 0 8px}.card p:last-child{margin-bottom:0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}
+.gp{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
+.span2{grid-column:1/-1}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.sbox{background:#fff8;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sbox .n{font-family:'Noto Serif',serif;font-weight:700;font-size:22px;line-height:1.1}
+.sbox .l{font-size:12px;color:var(--mute)}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.acts.two{grid-template-columns:repeat(2,1fr)}
+.acts .btn{padding:0 2px;font-size:13px;width:100%;white-space:nowrap}
+.bhead{margin-bottom:12px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.tip{font-size:14px;color:var(--mute)}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--wood);font-size:13px;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.sp{justify-content:space-between}
+/* buttons */
+.btn{min-height:46px;padding:0 18px;border-radius:12px;border:2px solid var(--ink);background:var(--card);font-weight:600;font-size:15px;box-shadow:0 3px 0 var(--ink);transition:transform .05s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.pri{background:var(--red);border-color:var(--reddk);color:#fff;box-shadow:0 3px 0 var(--reddk)}
+.btn.gold{background:#F3D98B;border-color:#8A6410;box-shadow:0 3px 0 #8A6410}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:40px;padding:0 14px;font-size:14px}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg button{min-height:40px;padding:0 14px;border:0;background:var(--card);font-weight:600;font-size:14px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+/* rank */
+.rank{display:flex;gap:16px;align-items:center}
+.badge{width:84px;height:84px;border-radius:50%;flex:0 0 auto;background:radial-gradient(circle at 35% 30%,#FFF6DC,#F0D58A);border:4px solid var(--gold);box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:700;font-size:44px;color:var(--red)}
+.badge.sm{width:52px;height:52px;font-size:26px;border-width:3px;box-shadow:none}
+.bar{height:14px;border-radius:999px;background:#E3D6BA;overflow:hidden;position:relative}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--red),#D9573F);border-radius:999px;transition:width .5s}
+.stat{display:flex;align-items:center;gap:12px}
+.stat .n{font-family:'Noto Serif',serif;font-weight:700;font-size:26px;line-height:1}
+.stat .l{font-size:13px;color:var(--mute)}
+.stat svg{width:30px;height:30px;flex:0 0 auto}
+.week{display:flex;gap:8px;margin-top:12px}
+.week div{flex:1;text-align:center;font-size:12px;color:var(--mute)}
+.week i{display:block;width:100%;aspect-ratio:1;max-width:36px;margin:0 auto 4px;border-radius:50%;border:2px solid var(--line);background:#fff8}
+.week i.on{background:var(--red);border-color:var(--reddk)}
+.week i.today{outline:2px solid var(--gold);outline-offset:2px}
+.quest{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.quest:first-of-type{border-top:0}
+.quest .t{flex:1;min-width:0}
+.quest .bar{height:8px;margin-top:6px}
+/* board */
+.boardhost{width:100%;max-width:470px;touch-action:none;user-select:none;-webkit-user-select:none}
+.boardhost svg{display:block;width:100%;height:auto}
+.mini svg{display:block;width:100%;height:auto}
+.play{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.play .bcol{flex:1 1 380px;min-width:0;max-width:470px}
+.play .scol{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.status{padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-weight:500;min-height:50px}
+.status.ok{background:#E8F1E6;border-color:var(--green);color:#1E4A2B}
+.status.bad{background:#F8E7E4;border-color:var(--red);color:#7A1A14}
+.status.info{background:#E6EEF6;border-color:var(--blue);color:#1E3B5A}
+.moves{max-height:210px;overflow:auto;display:grid;grid-template-columns:34px 1fr 1fr;gap:4px;font-size:14px}
+.moves .no{color:var(--mute);align-self:center}
+.moves button{min-height:36px;border:1px solid var(--line);border-radius:8px;background:#fff9;text-align:left;padding:0 8px;font-size:13px}
+.moves button[aria-current="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+/* train */
+.pzcard{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);min-height:84px;box-shadow:0 2px 0 var(--line)}
+.pzcard.done{border-color:#B9D4B9;background:#F0F6EC}
+.pzcard:hover{border-color:var(--red)}
+.stars{display:inline-flex;gap:2px}.stars svg{width:20px;height:20px}
+.timer{font-family:'Noto Serif',serif;font-weight:700;font-size:26px;font-variant-numeric:tabular-nums}
+/* ai */
+.evbar{height:26px;border-radius:8px;overflow:hidden;display:flex;border:2px solid var(--ink)}
+.evbar .r{background:var(--red);transition:width .4s}.evbar .b{background:var(--ink);flex:1}
+.cand{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:flex-start}
+.cand:first-of-type{border-top:0}
+.cand .sc{min-width:58px;text-align:center;font-weight:700;border-radius:8px;padding:2px 6px;background:var(--wood)}
+.cand.best .sc{background:#CFE6CF}
+.mist{border-left:0;padding:12px;border-radius:12px;background:#fff9;border:1px solid var(--line);margin-top:10px}
+/* profile */
+.ach{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.ach.off{opacity:.5}
+.ach .ic{width:44px;height:44px;border-radius:50%;background:#F3D98B;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-family:'Noto Serif SC',serif;font-weight:700;color:var(--reddk);font-size:22px;border:2px solid #8A6410}
+.ach.off .ic{background:#ddd;border-color:#aaa;color:#777}
+table{width:100%;border-collapse:collapse}
+td,th{padding:10px 8px;text-align:left;border-top:1px solid var(--line);font-size:15px}
+tr.me td{background:#F3DEDA;font-weight:700}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;opacity:0;transition:.25s;z-index:50;max-width:90vw;font-weight:500;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+@media(min-width:900px){.toast{bottom:28px}}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid #1F5FBF;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="nav" id="nav" aria-label="Điều hướng chính">
+<div class="brand"><div class="logo" aria-hidden="true">帥</div>Tu Luyện Cờ Tướng</div>
+<button data-p="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Trang chủ</button>
+<button data-p="board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/></svg>Bàn cờ</button>
+<button data-p="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Bài tập</button>
+<button data-p="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></svg>Phân tích</button>
+<button data-p="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Hồ sơ</button>
+</nav>
+
+<main>
+<!-- A. TRANG CHỦ -->
+<section class="page on" id="p-home">
+<div class="ph"><h2>Hôm nay luyện gì?</h2><p id="greet"></p></div>
+<div class="grid g2">
+<div class="card" id="rankcard"></div>
+<div class="card" id="lessoncard"></div>
+<div class="card" id="streakcard"></div>
+<div class="card" id="questcard"></div>
+</div>
+</section>
+
+<!-- B. BÀN CỜ -->
+<section class="page" id="p-board">
+<div class="ph"><h2>Bàn cờ luyện tập</h2><p>Bạn cầm quân Đỏ, đi trước. Kéo thả quân hoặc chạm để chọn rồi chạm ô đến.</p></div>
+<div class="status bhead" id="bstatus" role="status" aria-live="polite"></div>
+<div class="play">
+<div class="bcol"><div class="boardhost" id="bh"></div>
+<div class="acts"><button class="btn sm" id="bhint">Gợi ý</button><button class="btn sm" id="bundo">Hoàn tác</button><button class="btn sm" id="bnew">Ván mới</button><button class="btn sm" id="bres">Đầu hàng</button></div></div>
+<div class="scol">
+<div class="row"><span class="tip">Đối thủ:</span><div class="seg" id="lvl"><button data-l="easy">Dễ</button><button data-l="mid">Vừa</button><button data-l="hard">Khó</button></div></div>
+<div class="card"><h3>Xem lại biến</h3>
+<div class="row" style="margin-bottom:10px"><button class="btn sm" id="rv0" aria-label="Về đầu ván">⏮</button><button class="btn sm" id="rv1" aria-label="Lùi một nước">◀</button><button class="btn sm" id="rv2" aria-label="Tiến một nước">▶</button><button class="btn sm" id="rv3" aria-label="Đến cuối ván">⏭</button></div>
+<div class="moves" id="mlist"></div>
+<div class="row" style="margin-top:10px"><button class="btn sm gold" id="rvplay" hidden>Chơi tiếp từ thế này</button><button class="btn sm" id="rvai" hidden>Phân tích thế này</button></div>
+</div>
+</div></div>
+</section>
+
+<!-- C. BÀI TẬP -->
+<section class="page" id="p-train">
+<div id="tlist">
+<div class="ph"><h2>Trung tâm bài tập</h2><p>Chiếu hết trong 1 hoặc 2 nước. Càng nhanh và ít gợi ý, càng nhiều sao.</p></div>
+<div id="tgroups"></div>
+</div>
+<div id="tplay" hidden>
+<div class="row sp" style="margin-bottom:12px"><button class="btn sm" id="tback">← Danh sách</button><div class="timer" id="ttimer">0:00</div></div>
+<div class="status bhead" id="tstatus" role="status" aria-live="polite"></div>
+<div class="play">
+<div class="bcol"><div class="boardhost" id="th"></div>
+<div class="acts two"><button class="btn sm" id="thint">Gợi ý (−25 điểm)</button><button class="btn sm" id="treset">Làm lại</button></div></div>
+<div class="scol">
+<div class="card" id="tresult" hidden></div>
+</div></div>
+</div>
+</section>
+
+<!-- D. PHÂN TÍCH -->
+<section class="page" id="p-ai">
+<div class="ph"><h2>Phân tích AI</h2><p>Phân tích thế cờ đang mở trên bàn luyện tập. Engine nhỏ chạy ngay trên máy bạn, tìm sâu khoảng 3 nước.</p></div>
+<div class="play">
+<div class="bcol"><div class="mini boardhost" id="ah" style="touch-action:auto"></div>
+<div class="row" style="margin-top:12px"><button class="btn pri" id="arun">Phân tích thế này</button><button class="btn" id="ascan">Quét sai lầm cả ván</button></div></div>
+<div class="scol" id="aout"><div class="card"><p>Bấm “Phân tích thế này” để xem đánh giá, nước đi tốt nhất và so sánh các phương án.</p></div></div>
+</div>
+</section>
+
+<!-- E. HỒ SƠ -->
+<section class="page" id="p-profile">
+<div class="ph"><h2>Hồ sơ kỳ thủ</h2></div>
+<div class="grid g2" id="prof"></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const COLS=9,ROWS=10;
+function inB(c,r){return c>=0&&c<COLS&&r>=0&&r<ROWS}
+function mk(){return Array.from({length:ROWS},()=>Array(COLS).fill(null))}
+function inPalace(c,r,s){return c>=3&&c<=5&&(s==='b'?r<=2:r>=7)}
+function ownSide(r,s){return s==='b'?r<=4:r>=5}
+// pseudo moves; returns [[c,r],...]
+function pseudo(B,c,r){
+  const p=B[r][c]; if(!p) return [];
+  const s=p.s,out=[];
+  const add=(x,y)=>{if(!inB(x,y))return false;const q=B[y][x];if(q&&q.s===s)return false;out.push([x,y]);return true};
+  const D4=[[1,0],[-1,0],[0,1],[0,-1]];
+  switch(p.t){
+    case 'K':for(const[d,e]of D4){const x=c+d,y=r+e;if(inPalace(x,y,s))add(x,y)}break;
+    case 'A':for(const[d,e]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const x=c+d,y=r+e;if(inPalace(x,y,s))add(x,y)}break;
+    case 'E':for(const[d,e]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const x=c+2*d,y=r+2*e;if(inB(x,y)&&ownSide(y,s)&&!B[r+e][c+d])add(x,y)}break;
+    case 'R':for(const[d,e]of D4){let x=c+d,y=r+e;while(inB(x,y)){const q=B[y][x];if(q){if(q.s!==s)out.push([x,y]);break}out.push([x,y]);x+=d;y+=e}}break;
+    case 'C':for(const[d,e]of D4){let x=c+d,y=r+e;while(inB(x,y)&&!B[y][x]){out.push([x,y]);x+=d;y+=e}
+      x+=d;y+=e;while(inB(x,y)){const q=B[y][x];if(q){if(q.s!==s)out.push([x,y]);break}x+=d;y+=e}}break;
+    case 'H':for(const[d,e]of D4){if(!inB(c+d,r+e)||B[r+e][c+d])continue;
+      const t=d===0?[[1,2*e],[-1,2*e]]:[[2*d,1],[2*d,-1]];for(const[a,b]of t)add(c+a,r+b)}break;
+    case 'P':{const f=s==='r'?-1:1;add(c,r+f);if(!ownSide(r,s)){add(c+1,r);add(c-1,r)}}break;
+  }
+  return out;
+}
+function findK(B,s){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const p=B[r][c];if(p&&p.t==='K'&&p.s===s)return[c,r]}return null}
+function inCheck(B,s){
+  const k=findK(B,s);if(!k)return true;
+  const o=s==='r'?'b':'r';
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const p=B[r][c];if(p&&p.s===o){for(const[x,y]of pseudo(B,c,r))if(x===k[0]&&y===k[1])return true}}
+  const k2=findK(B,o);
+  if(k2&&k2[0]===k[0]){let clear=true;for(let y=Math.min(k[1],k2[1])+1;y<Math.max(k[1],k2[1]);y++)if(B[y][k[0]]){clear=false;break}if(clear)return true}
+  return false;
+}
+function applyMove(B,c,r,x,y){const N=B.map(row=>row.slice());N[y][x]=N[r][c];N[r][c]=null;return N}
+function legal(B,c,r){const p=B[r][c];if(!p)return[];return pseudo(B,c,r).filter(([x,y])=>!inCheck(applyMove(B,c,r,x,y),p.s))}
+function allLegal(B,s){const m=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const p=B[r][c];if(p&&p.s===s)for(const[x,y]of legal(B,c,r))m.push([c,r,x,y])}return m}
+function isMate(B,s){return inCheck(B,s)&&allLegal(B,s).length===0}
+
+var PUZ={"easy": [{"g": ". . . a . a . . R/. . . . . . . . ./. . . k . . . . ./. . . . . . . . ./C . . . . . . . . ./. . . . R . . . ./. . . . . . . . ./. . . . K . . . ./. . . . . . . . ./. . . . . . . . .", "m": [4, 5, 3, 5]}, {"g": ". . . . . . . . ./. . . . . . . . ./. . . a e k . . ./. . . . . C . . ./. . . . . . . . ./. . C . . . . . ./. . . . . . . . ./. . . . K . . . ./. . . . . . . . ./. . . . . . . . .", "m": [2, 5, 5, 5]}, {"g": ". . . . . . . . ./. . . . H . . . ./. . . k . a e . ./. . . . . . . . ./. . . . . . . . ./. . . . . . . . ./. . . C . . . . ./. . . . . . . . ./. . . . . . . . ./. . . . K . . . .", "m": [4, 1, 3, 3]}, {"g": ". . . . . . . . ./. . . . . R . . ./. P . k . . . . ./. . . . . . . . ./. . . . . . . . e/. . . . . . . . ./. . . . . . . . ./. . . . R K . . ./. . . . . . . . ./. . . . . . . . c", "m": [1, 2, 2, 2]}, {"g": ". . . . a . . . ./. . . . . a . . ./. . . . e k . . ./. . . . . . . . ./. . . . e . . R ./. . . . . . . . ./. . C . . . . . h/. . . K . . . . ./. . . . . . . . ./. . . C . . . . .", "m": [7, 4, 5, 4]}, {"g": ". . R . . . . . ./. . . k . . . . ./e . . . . . . . ./. p . . . . . . ./R . . . . . . . ./. . . . . . . . ./. . . . . . . . ./. . . . . . . . ./. . . . K . . . ./. . . . . . . . .", "m": [0, 4, 3, 4]}], "mid": [{"g": ". . e k H . p . ./. . . . . R C . ./. . . . . . . . ./. . R . . . . . ./. . . . . . . . e/. . . . . . . . ./. . . . . . . . p/. p . . . K . . R/. . . . . . . . ./. . . . . . . . .", "m": [2, 3, 2, 0]}, {"g": ". . e R . . e . ./. . . . . . . R ./. . . . k . . . ./. . . . . . . . ./. C . . . . . . ./. . . . . . r R ./. . . . . . . . ./. . . K . . . . ./. . . . . p . . ./r . . . . . . r .", "m": [3, 0, 3, 2]}, {"g": ". . . . . . . . ./. . . . . a . . C/e . p . . k . . ./. . . . . . . . ./. r . . . r . . R/. C . . . . . . ./. . . . . . . . ./. R . . . . . . ./. . . c . . R . ./. . . . K . . . .", "m": [8, 4, 8, 2]}, {"g": ". R e . C . . . ./. . . . . . . . ./. . . k e . . . ./. . . . . . . . ./. . . . . . . . ./. c . C . . H . ./. . . . . . . . ./. . C . . . . . ./. . . . . . . . ./h . . . K . . . .", "m": [2, 7, 3, 7]}], "hard": [{"g": ". . . . . . . . ./. . . k . . . . ./. . . . R . . . ./. . . . . . . . ./. . . . . P . . ./. . . . c . . . ./. . . . . . . . ./. . . . . R . . ./. . C . . c . . ./C . . . K . . . .", "m": [5, 7, 3, 7]}, {"g": ". C . . . . . . ./. . . . k a . . ./. . . . e . c . ./. . . . . . . . ./. . . . . . . C ./. . . . . . . . ./. . . . . C . . ./. . . . . . . . ./. . . K . . R . ./. . . . . . . . .", "m": [7, 4, 4, 4]}, {"g": ". . . . . . . . ./. . . P . . . . ./. . . k . p . . ./. . h . . . . . ./. . . . . . . . ./. . . . . R . R ./. . . . . . . . ./. . . . K . . . ./C . . . . . . . ./. . . . . . . . .", "m": [5, 5, 3, 5]}, {"g": "H . . . a . . . ./. R C . . k . . H/. p . . e . e . ./. . . . . . . . ./R . . . . . . . ./. . . . . . . . ./. . . . . . . . ./. . . K . . . . ./. . . c . . . . ./. . . . . . . . .", "m": [0, 4, 5, 4]}]};
+var NAME={K:['Tướng','帥','將'],A:['Sĩ','仕','士'],E:['Tượng','相','象'],R:['Xe','俥','車'],C:['Pháo','炮','砲'],H:['Mã','傌','馬'],P:['Tốt','兵','卒']};
+var VAL={K:0,R:900,C:470,H:420,A:120,E:120,P:100};
+var X0=36,Y0=36,CELL=48;
+function px(c){return X0+c*CELL}function py(r){return Y0+r*CELL}
+function $(id){return document.getElementById(id)}
+function cl(B){return B.map(function(r){return r.slice()})}
+function parse(g){var B=mk();g.split('/').forEach(function(row,r){row.trim().split(/\s+/).forEach(function(ch,c){if(ch==='.')return;B[r][c]={t:ch.toUpperCase(),s:ch===ch.toUpperCase()?'r':'b'}})});return B}
+function startPos(){return parse('r h e a k a e h r/. . . . . . . . ./. c . . . . . c ./p . p . p . p . p/. . . . . . . . ./. . . . . . . . ./P . P . P . P . P/. C . . . . . C ./. . . . . . . . ./R H E A K A E H R')}
+function sq(c,r){return 'abcdefghi'[c]+(10-r)}
+function notate(B,m){var p=B[m[1]][m[0]];return NAME[p.t][0]+' '+sq(m[0],m[1])+'→'+sq(m[2],m[3])}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+
+/* ===== State ===== */
+var KEY='tlct.v2';
+var ST={xp:0,elo:1000,streak:0,best:0,lastDay:'',days:{},quest:{day:'',solved:0,moves:0,ai:0,claimed:[0,0,0]},hist:[],ach:{},pz:{},stats:{games:0,wins:0,solved:0}};
+try{var sv=localStorage.getItem(KEY);if(sv){var o=JSON.parse(sv);for(var k in o)ST[k]=o[k]}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}}
+function dstr(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function today(){return dstr(new Date())}
+function ensureQuest(){if(ST.quest.day!==today())ST.quest={day:today(),solved:0,moves:0,ai:0,claimed:[0,0,0]}}
+function touch(){var t=today();if(ST.lastDay!==t){var y=dstr(new Date(Date.now()-864e5));ST.streak=ST.lastDay===y?ST.streak+1:1;ST.lastDay=t;if(ST.streak>ST.best)ST.best=ST.streak}ST.days[t]=1;save()}
+var RANKS=[{n:'Tốt',t:'兵',x:0},{n:'Sĩ',t:'仕',x:150},{n:'Tượng',t:'相',x:400},{n:'Mã',t:'傌',x:800},{n:'Pháo',t:'炮',x:1400},{n:'Xe',t:'俥',x:2200},{n:'Tướng',t:'帥',x:3200}];
+function rankOf(xp){var i=0;RANKS.forEach(function(r,k){if(xp>=r.x)i=k});return i}
+var toastT;function toast(t){var e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){e.classList.remove('on')},2600)}
+function addXP(n,why){if(n<=0)return;var a=rankOf(ST.xp);ST.xp+=n;var b=rankOf(ST.xp);ST.hist.unshift({ts:Date.now(),txt:why,xp:n});ST.hist=ST.hist.slice(0,40);save();toast('+'+n+' XP · '+why+(b>a?' · Lên hạng '+RANKS[b].n+'!':''))}
+var ACH=[
+{id:'win',t:'Thắng ván đầu tiên',c:'勝',f:function(){return ST.stats.wins>=1}},
+{id:'mate',t:'Nhát chiếu đầu tiên',c:'將',f:function(){return ST.stats.solved>=1}},
+{id:'s10',t:'Giải 10 thế cờ',c:'十',f:function(){return ST.stats.solved>=10}},
+{id:'hard',t:'Chinh phục thế khó',c:'難',f:function(){return Object.keys(ST.pz).some(function(k){return k.indexOf('hard')===0})}},
+{id:'star3',t:'Một thế 3 sao',c:'星',f:function(){return Object.keys(ST.pz).some(function(k){return ST.pz[k].stars===3})}},
+{id:'st3',t:'Chuỗi 3 ngày',c:'火',f:function(){return ST.best>=3}},
+{id:'clean',t:'Thắng không gợi ý, không hoàn tác',c:'淨',f:function(){return !!ST.cleanWin}}];
+function checkAch(){ACH.forEach(function(a){if(!ST.ach[a.id]&&a.f()){ST.ach[a.id]=Date.now();save();toast('Thành tích mới: '+a.t)}})}
+
+/* ===== Vẽ bàn cờ ===== */
+var STAR='<path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.2 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/>';
+function stars(n){var s='<span class="stars" aria-label="'+n+' sao">';for(var i=0;i<3;i++)s+='<svg viewBox="0 0 24 24" fill="'+(i<n?'#C8901A':'#E3D6BA')+'" stroke="'+(i<n?'#8A6410':'#C9BB9A')+'" stroke-width="1" aria-hidden="true">'+STAR+'</svg>';return s+'</span>'}
+function boardSVG(B,o){
+  o=o||{};var s='<svg viewBox="0 0 456 504" xmlns="http://www.w3.org/2000/svg">';
+  s+='<rect x="4" y="4" width="448" height="496" rx="12" fill="#EFE3C8"/>';
+  s+='<g stroke="#5B4A2E" stroke-width="1.6" fill="none">';
+  for(var r=0;r<10;r++)s+='<line x1="'+px(0)+'" y1="'+py(r)+'" x2="'+px(8)+'" y2="'+py(r)+'"/>';
+  for(var c=0;c<9;c++){if(c==0||c==8)s+='<line x1="'+px(c)+'" y1="'+py(0)+'" x2="'+px(c)+'" y2="'+py(9)+'"/>';else s+='<line x1="'+px(c)+'" y1="'+py(0)+'" x2="'+px(c)+'" y2="'+py(4)+'"/><line x1="'+px(c)+'" y1="'+py(5)+'" x2="'+px(c)+'" y2="'+py(9)+'"/>'}
+  s+='<line x1="'+px(3)+'" y1="'+py(0)+'" x2="'+px(5)+'" y2="'+py(2)+'"/><line x1="'+px(5)+'" y1="'+py(0)+'" x2="'+px(3)+'" y2="'+py(2)+'"/><line x1="'+px(3)+'" y1="'+py(7)+'" x2="'+px(5)+'" y2="'+py(9)+'"/><line x1="'+px(5)+'" y1="'+py(7)+'" x2="'+px(3)+'" y2="'+py(9)+'"/></g>';
+  var my=(py(4)+py(5))/2+8;
+  s+='<text x="'+((px(0)+px(4))/2)+'" y="'+my+'" text-anchor="middle" font-size="22" fill="#5B4A2E" font-family="Noto Serif SC,serif" letter-spacing="8">楚河</text><text x="'+((px(4)+px(8))/2)+'" y="'+my+'" text-anchor="middle" font-size="22" fill="#5B4A2E" font-family="Noto Serif SC,serif" letter-spacing="8">漢界</text>';
+  for(var f=0;f<9;f++)s+='<text x="'+px(f)+'" y="498" text-anchor="middle" font-size="11" fill="#7A6A4A" font-family="Be Vietnam Pro,sans-serif">'+'abcdefghi'[f]+'</text>';
+  (o.marks||[]).forEach(function(m){var x=px(m[0]),y=py(m[1]);
+    if(m[2]==='last')s+='<rect x="'+(x-24)+'" y="'+(y-24)+'" width="48" height="48" rx="8" fill="rgba(47,93,138,.14)" stroke="#2F5D8A" stroke-width="2"/>';
+    if(m[2]==='hint')s+='<circle cx="'+x+'" cy="'+y+'" r="27" fill="rgba(200,144,26,.2)" stroke="#C8901A" stroke-width="3.5" stroke-dasharray="6 4"/>'});
+  if(o.check)s+='<circle cx="'+px(o.check[0])+'" cy="'+py(o.check[1])+'" r="29" fill="rgba(179,38,30,.22)" stroke="#B3261E" stroke-width="3"/>';
+  (o.targets||[]).forEach(function(t){if(B[t[1]][t[0]])s+='<circle cx="'+px(t[0])+'" cy="'+py(t[1])+'" r="27" fill="none" stroke="#B3261E" stroke-width="3" stroke-dasharray="5 4"/>';else s+='<circle cx="'+px(t[0])+'" cy="'+py(t[1])+'" r="8" fill="rgba(179,38,30,.6)"/>'});
+  for(var r2=0;r2<10;r2++)for(var c2=0;c2<9;c2++){var p=B[r2][c2];if(!p)continue;var col=p.s==='r'?'#B3261E':'#1B1A17';
+    s+='<g data-pc="'+c2+','+r2+'"><circle cx="'+px(c2)+'" cy="'+py(r2)+'" r="21" fill="#FBF6EA" stroke="'+col+'" stroke-width="2.6"/><circle cx="'+px(c2)+'" cy="'+py(r2)+'" r="17" fill="none" stroke="'+col+'" stroke-width="1"/><text x="'+px(c2)+'" y="'+(py(r2)+8)+'" text-anchor="middle" font-size="24" font-weight="700" fill="'+col+'" font-family="Noto Serif SC,serif">'+NAME[p.t][p.s==='r'?1:2]+'</text></g>'}
+  if(o.sel)s+='<circle cx="'+px(o.sel[0])+'" cy="'+py(o.sel[1])+'" r="26" fill="none" stroke="#C8901A" stroke-width="4"/>';
+  return s+'</svg>';
+}
+/* Bàn cờ tương tác: kéo thả + chạm */
+function Board(host,cfg){
+  var self={sel:null},drag=null;
+  function get(){return cfg.get()}
+  self.render=function(){
+    var B=get();var o={marks:cfg.marks?cfg.marks():[],check:cfg.check?cfg.check():null,sel:self.sel,targets:self.sel?cfg.targets(self.sel[0],self.sel[1]):[]};
+    host.innerHTML=boardSVG(B,o);
+  };
+  function cell(e,loose){var svg=host.querySelector('svg');if(!svg)return null;var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;var m=svg.getScreenCTM();if(!m)return null;var q=pt.matrixTransform(m.inverse());
+    var fc=(q.x-X0)/CELL,fr=(q.y-Y0)/CELL,c=Math.round(fc),r=Math.round(fr);if(c<0||c>8||r<0||r>9)return null;if(!loose&&(Math.abs(fc-c)>.55||Math.abs(fr-r)>.55))return null;return{c:c,r:r,x:q.x,y:q.y}}
+  function isT(c,r){return self.sel&&cfg.targets(self.sel[0],self.sel[1]).some(function(t){return t[0]===c&&t[1]===r})}
+  function doMove(c,r){var f=self.sel;self.sel=null;cfg.onMove(f,[c,r])}
+  host.addEventListener('pointerdown',function(e){
+    if(cfg.locked&&cfg.locked())return;var p=cell(e);if(!p)return;var B=get(),pc=B[p.r][p.c];
+    if(self.sel&&isT(p.c,p.r)){doMove(p.c,p.r);return}
+    if(pc&&cfg.canPick(p.c,p.r)){var was=self.sel&&self.sel[0]===p.c&&self.sel[1]===p.r;self.sel=[p.c,p.r];drag={from:[p.c,p.r],sx:e.clientX,sy:e.clientY,moved:false,was:was,id:e.pointerId};try{host.setPointerCapture(e.pointerId)}catch(x){};self.render()}
+    else{self.sel=null;self.render()}
+  });
+  host.addEventListener('pointermove',function(e){
+    if(!drag)return;if(!drag.moved&&Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy)<8)return;drag.moved=true;
+    var svg=host.querySelector('svg');if(!svg)return;var p=cell(e,true);var B=get();var pc=B[drag.from[1]][drag.from[0]];if(!p&&!pc)return;
+    var q=p||{x:px(drag.from[0]),y:py(drag.from[1])};
+    var orig=svg.querySelector('[data-pc="'+drag.from[0]+','+drag.from[1]+'"]');if(orig)orig.setAttribute('opacity','.3');
+    var g=svg.querySelector('#ghost');if(!g){g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('id','ghost');g.setAttribute('pointer-events','none');g.innerHTML='<circle r="25" fill="#FBF6EA" stroke="#B3261E" stroke-width="3"/><text y="9" text-anchor="middle" font-size="28" font-weight="700" fill="#B3261E" font-family="Noto Serif SC,serif">'+NAME[pc.t][1]+'</text>';svg.appendChild(g)}
+    g.setAttribute('transform','translate('+q.x+','+q.y+')');
+  });
+  function end(e,cancel){
+    if(!drag)return;var d=drag;drag=null;try{host.releasePointerCapture(d.id)}catch(x){}
+    if(d.moved&&!cancel){var p=cell(e,false);if(p&&isT(p.c,p.r)){doMove(p.c,p.r);return}self.sel=null;self.render();return}
+    if(d.moved&&cancel){self.render();return}
+    if(d.was){self.sel=null;self.render()}
+  }
+  host.addEventListener('pointerup',function(e){end(e,false)});
+  host.addEventListener('pointercancel',function(e){end(e,true)});
+  return self;
+}
+
+/* ===== Engine tìm nước ===== */
+function evalPos(B){var s=0;for(var r=0;r<10;r++)for(var c=0;c<9;c++){var p=B[r][c];if(!p)continue;var v=VAL[p.t],sg=p.s==='r'?1:-1;
+  if(p.t==='P'){var cr=p.s==='r'?r<=4:r>=5;if(cr){v+=100;var adv=p.s==='r'?4-r:r-5;v+=adv*6;v-=Math.abs(c-4)*3}else v+=0}
+  else if(p.t==='R'||p.t==='C'||p.t==='H')v-=Math.abs(c-4)*3;
+  s+=sg*v}return s}
+function genAll(B,side){var ms=[];for(var r=0;r<10;r++)for(var c=0;c<9;c++){var p=B[r][c];if(!p||p.s!==side)continue;var t=pseudo(B,c,r);
+  if(p.t==='K'){for(var y=r+(side==='r'?-1:1);y>=0&&y<10;y+=(side==='r'?-1:1)){var q=B[y][c];if(q){if(q.t==='K'&&q.s!==side)t.push([c,y]);break}}}
+  for(var i=0;i<t.length;i++){var cap=B[t[i][1]][t[i][0]];ms.push([c,r,t[i][0],t[i][1],cap?VAL[cap.t]+(cap.t==='K'?20000:0)-VAL[p.t]/10:-1000])}}
+  ms.sort(function(a,b){return b[4]-a[4]});return ms}
+function qsearch(B,side,a,b,qd){var st=(side==='r'?1:-1)*evalPos(B);if(qd===0||st>=b)return st;if(st>a)a=st;var ms=genAll(B,side),opp=side==='r'?'b':'r';
+  for(var i=0;i<ms.length;i++){var m=ms[i];if(m[4]<=-1000)break;var cp=B[m[3]][m[2]];if(cp&&cp.t==='K')return 10000;var sc=-qsearch(applyMove(B,m[0],m[1],m[2],m[3]),opp,-b,-a,qd-1);if(sc>=b)return sc;if(sc>a)a=sc}
+  return a}
+function negamax(B,side,d,a,b){
+  if(d===0)return qsearch(B,side,a,b,4);
+  var ms=genAll(B,side);if(!ms.length)return -9000;var best=-1e9,opp=side==='r'?'b':'r';
+  for(var i=0;i<ms.length;i++){var m=ms[i],cp=B[m[3]][m[2]];if(cp&&cp.t==='K')return 10000+d;
+    var N=applyMove(B,m[0],m[1],m[2],m[3]);var sc=-negamax(N,opp,d-1,-b,-a);if(sc>best)best=sc;if(best>a)a=best;if(a>=b)break}
+  return best}
+function rootScores(B,side,depth){var opp=side==='r'?'b':'r',ms=allLegal(B,side),out=[];
+  ms.forEach(function(m){var N=applyMove(B,m[0],m[1],m[2],m[3]);var sc;
+    if(allLegal(N,opp).length===0)sc=inCheck(N,opp)?20000:15000;else sc=-negamax(N,opp,depth-1,-1e9,1e9);
+    out.push({m:m,sc:sc})});
+  out.sort(function(a,b){return b.sc-a.sc});return out}
+function aiPick(B,level){var d=level==='hard'?3:level==='mid'?2:1;var rs=rootScores(B,'b',d);if(!rs.length)return null;
+  if(level==='easy'){var top=rs.slice(0,4);if(rs[0].sc>=15000)return rs[0].m;return(Math.random()<.35?rs[Math.floor(Math.random()*rs.length)]:top[Math.floor(Math.random()*top.length)]).m}
+  var best=rs[0].sc,ties=rs.filter(function(x){return x.sc>=best-(level==='mid'?15:3)});return ties[Math.floor(Math.random()*ties.length)].m}
+function scoreTxt(sc){if(sc>=15000)return'Chiếu hết';if(sc<=-15000)return'Bị chiếu hết';var v=sc/100;return(v>=0?'+':'')+v.toFixed(1)}
+function describe(B,m,side){var p=B[m[1]][m[0]],cap=B[m[3]][m[2]],opp=side==='r'?'b':'r',N=applyMove(B,m[0],m[1],m[2],m[3]),out=[];
+  if(allLegal(N,opp).length===0)out.push(inCheck(N,opp)?'chiếu hết, thắng ngay':'khiến đối phương hết nước đi');
+  else{if(cap)out.push('ăn '+NAME[cap.t][0]+' đối phương');if(inCheck(N,opp))out.push('chiếu Tướng, buộc đối phương phải đỡ');
+    var th=pseudo(N,m[2],m[3]).filter(function(t){var q=N[t[1]][t[0]];return q&&q.s!==side&&q.t!=='K'&&VAL[q.t]>=VAL[p.t]});
+    if(th.length)out.push('đe dọa ăn '+th.map(function(t){return NAME[N[t[1]][t[0]].t][0]}).filter(function(v,i,a){return a.indexOf(v)===i}).join(', '));
+    if(p.t==='P'&&((side==='r'&&m[3]===4)||(side==='b'&&m[3]===5)))out.push('đưa Tốt qua sông, Tốt mạnh hơn nhiều');
+    var back=genAll(N,opp).filter(function(x){return x[2]===m[2]&&x[3]===m[3]});if(back.length&&!cap&&VAL[p.t]>=400)out.push('lưu ý: quân vừa đi có thể bị tấn công, cần tính kỹ')}
+  if(!out.length)out.push('cải thiện vị trí và giữ thế trận chắc chắn');
+  return out.join('; ')}
+
+/* ===== Điều hướng ===== */
+var PAGES=['home','board','train','ai','profile'];
+function show(p){PAGES.forEach(function(k){$('p-'+k).classList.toggle('on',k===p)});[].forEach.call($('nav').querySelectorAll('button'),function(b){if(b.dataset.p===p)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  if(p==='home')renderHome();if(p==='board'){boardUI()}if(p==='train')renderTrain();if(p==='ai')renderAI();if(p==='profile')renderProfile();
+  if(location.hash!=='#'+p)try{history.replaceState(null,'','#'+p)}catch(e){}window.scrollTo(0,0);if(p!=='train')stopTimer()}
+[].forEach.call($('nav').querySelectorAll('button'),function(b){b.addEventListener('click',function(){show(b.dataset.p)})});
+
+/* ===== A. Trang chủ ===== */
+var LESSONS=[
+{t:'Pháo cần ngòi',d:'Pháo chỉ ăn được khi nhảy qua đúng một quân. Giải các thế chiếu hết bằng Pháo.',go:'train'},
+{t:'Xe khống chế cột',d:'Một Xe đặt đúng cột có thể khóa mọi đường thoát của Tướng.',go:'train'},
+{t:'Đánh với máy ở mức Dễ',d:'Thực hành đi quân, thử kéo thả và dùng gợi ý khi bí.',go:'board'},
+{t:'Tướng không được đối mặt',d:'Luật này giúp chiếu hết: Tướng đối phương không thể bước vào cột của Tướng bạn.',go:'train'},
+{t:'Xem lại sai lầm',d:'Chơi một ván rồi quét sai lầm để biết mình hỏng ở nước nào.',go:'ai'},
+{t:'Chiếu hết trong hai nước',d:'Thử thách khó hơn: một nước chiếu ép, một nước kết liễu.',go:'train'},
+{t:'Mã bị cản chân',d:'Quan sát quân cản và tìm đường nhảy Mã để chiếu.',go:'train'}];
+function qdefs(){return[{k:'solved',g:3,t:'Giải 3 thế cờ'},{k:'moves',g:10,t:'Đi 10 nước trên bàn luyện tập'},{k:'ai',g:1,t:'Xem 1 phân tích AI'}]}
+function renderHome(){ensureQuest();var ri=rankOf(ST.xp),R=RANKS[ri],N=RANKS[ri+1];
+  $('greet').textContent=ST.streak>0?('Chuỗi luyện tập '+ST.streak+' ngày. Giữ lửa nhé.'):'Luyện một thế cờ hôm nay để bắt đầu chuỗi ngày.';
+  var pct=N?Math.round((ST.xp-R.x)/(N.x-R.x)*100):100;
+  var sb='<div class="stats3"><div class="sbox"><div class="n">'+ST.elo+'</div><div class="l">Elo</div></div><div class="sbox"><div class="n">'+ST.stats.solved+'</div><div class="l">thế đã giải</div></div><div class="sbox"><div class="n">'+ST.stats.wins+'/'+ST.stats.games+'</div><div class="l">thắng / ván</div></div></div>';
+  $('rankcard').innerHTML='<div class="rank"><div class="badge" aria-hidden="true">'+R.t+'</div><div style="flex:1;min-width:0"><div class="tip">Cấp bậc kỳ thủ</div><h3 style="font-size:24px;margin:0">Hạng '+R.n+'</h3><div class="bar" style="margin:10px 0 6px"><i style="width:'+pct+'%"></i></div><div class="tip">'+(N?ST.xp+' / '+N.x+' XP · còn '+(N.x-ST.xp)+' XP để lên hạng '+N.n:ST.xp+' XP · hạng cao nhất')+'</div></div></div>'+sb;
+  var names=['CN','T2','T3','T4','T5','T6','T7'],wk='';for(var i=6;i>=0;i--){var d=new Date(Date.now()-i*864e5),k=dstr(d);wk+='<div><i class="'+(ST.days[k]?'on':'')+(i===0?' today':'')+'"></i>'+names[d.getDay()]+'</div>'}
+  $('streakcard').innerHTML='<h3>Chuỗi ngày luyện tập</h3><div class="row" style="gap:24px"><div class="stat"><svg viewBox="0 0 24 24" fill="#B3261E" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg><div><div class="n">'+ST.streak+'</div><div class="l">ngày liên tiếp</div></div></div><div class="stat"><div><div class="n">'+ST.best+'</div><div class="l">kỷ lục</div></div></div></div><div class="week" aria-label="7 ngày gần nhất">'+wk+'</div>';
+  var L=LESSONS[Math.floor(Date.now()/864e5)%LESSONS.length],lab={train:'Vào bài tập',board:'Ra bàn cờ',ai:'Mở phân tích'};
+  $('lessoncard').innerHTML='<div class="chip" style="margin-bottom:8px">Bài học hôm nay</div><h3>'+L.t+'</h3><p>'+L.d+'</p><button class="btn pri" id="lgo" style="margin-top:6px">'+lab[L.go]+'</button>';
+  $('lgo').onclick=function(){show(L.go)};
+  var h='<h3>Nhiệm vụ hàng ngày</h3>';qdefs().forEach(function(q,i){var v=Math.min(ST.quest[q.k],q.g),done=v>=q.g,cl2=ST.quest.claimed[i];
+    h+='<div class="quest"><div class="t"><div style="font-weight:600">'+q.t+'</div><div class="bar"><i style="width:'+(v/q.g*100)+'%"></i></div><div class="tip">'+v+' / '+q.g+'</div></div>'+(cl2?'<span class="chip">Đã nhận</span>':'<button class="btn sm gold" data-q="'+i+'" '+(done?'':'disabled')+'>+40 XP</button>')+'</div>'});
+  $('questcard').innerHTML=h;[].forEach.call($('questcard').querySelectorAll('[data-q]'),function(b){b.onclick=function(){var i=+b.dataset.q;ST.quest.claimed[i]=1;addXP(40,'Hoàn thành nhiệm vụ');renderHome()}})}
+
+/* ===== B. Bàn cờ luyện tập ===== */
+var G={pos:[startPos()],mv:[],level:'mid',view:0,over:null,hints:0,undos:0,thinking:false,hint:null};
+function last(){return G.pos.length-1}
+function turnOf(i){return i%2===0?'r':'b'}
+var gb=null;
+function gcheck(){var B=G.pos[G.view],t=turnOf(G.view);return inCheck(B,t)?findK(B,t):null}
+function gmarks(){var m=[];if(G.view>0){var x=G.mv[G.view-1];m.push([x.f[0],x.f[1],'last'],[x.t[0],x.t[1],'last'])}if(G.hint&&G.view===last()){m.push([G.hint[0],G.hint[1],'hint'],[G.hint[2],G.hint[3],'hint'])}return m}
+function bstat(t,cls){var e=$('bstatus');e.textContent=t;e.className='status'+(cls?' '+cls:'')}
+function boardUI(){
+  if(!gb){gb=Board($('bh'),{get:function(){return G.pos[G.view]},marks:gmarks,check:gcheck,
+    locked:function(){return G.over||G.thinking||G.view!==last()||turnOf(last())!=='r'},
+    canPick:function(c,r){var p=G.pos[G.view][r][c];return p&&p.s==='r'},
+    targets:function(c,r){return legal(G.pos[G.view],c,r)},
+    onMove:function(f,t){humanMove(f,t)}})}
+  [].forEach.call($('lvl').querySelectorAll('button'),function(b){b.setAttribute('aria-pressed',b.dataset.l===G.level)});
+  refreshBoard()}
+function refreshBoard(){gb.sel=null;gb.render();renderMoves();
+  var atEnd=G.view===last();$('rvplay').hidden=atEnd||!!G.over&&false;$('rvplay').hidden=atEnd;$('rvai').hidden=false;
+  $('rv0').disabled=$('rv1').disabled=G.view===0;$('rv2').disabled=$('rv3').disabled=atEnd;
+  $('bundo').disabled=G.thinking||G.over||G.pos.length<2||!atEnd;$('bhint').disabled=G.thinking||G.over||!atEnd||turnOf(last())!=='r';$('bres').disabled=!!G.over||G.thinking;
+  if(G.over)bstat(G.over.txt,G.over.winner==='r'?'ok':'bad');
+  else if(!atEnd)bstat('Đang xem lại nước thứ '+G.view+'. Bấm “Chơi tiếp từ thế này” để đi nhánh mới.','info');
+  else if(G.thinking)bstat('Máy đang nghĩ…','info');
+  else bstat(gcheck()?'Tướng của bạn đang bị chiếu! Hãy hóa giải.':'Lượt của bạn (Đỏ).',gcheck()?'bad':'')}
+function renderMoves(){var h='';for(var i=0;i<G.mv.length;i+=2){h+='<span class="no">'+(i/2+1)+'.</span>';for(var k=i;k<i+2;k++){if(k<G.mv.length)h+='<button data-i="'+(k+1)+'" '+(G.view===k+1?'aria-current="true"':'')+'>'+esc(G.mv[k].n)+'</button>';else h+='<span></span>'}}
+  if(!h)h='<span class="tip" style="grid-column:1/-1">Chưa có nước đi.</span>';$('mlist').innerHTML=h;
+  [].forEach.call($('mlist').querySelectorAll('[data-i]'),function(b){b.onclick=function(){G.view=+b.dataset.i;G.hint=null;refreshBoard()}})}
+function humanMove(f,t){var B=G.pos[last()];var n=notate(B,[f[0],f[1],t[0],t[1]]);var N=applyMove(B,f[0],f[1],t[0],t[1]);
+  G.pos.push(N);G.mv.push({f:f,t:t,n:n,s:'r'});G.view=last();G.hint=null;ensureQuest();ST.quest.moves++;touch();save();
+  if(allLegal(N,'b').length===0){return endGame('r',inCheck(N,'b')?'Chiếu hết! Bạn thắng.':'Đen hết nước đi. Bạn thắng.')}
+  refreshBoard();aiTurn()}
+function aiTurn(){G.thinking=true;refreshBoard();var token=G.pos.length;setTimeout(function(){
+  if(G.pos.length!==token||G.over){G.thinking=false;refreshBoard();return}
+  var B=G.pos[last()],m=aiPick(B,G.level);G.thinking=false;if(!m){return endGame('r','Đen hết nước đi. Bạn thắng.')}
+  var n=notate(B,m),N=applyMove(B,m[0],m[1],m[2],m[3]);G.pos.push(N);G.mv.push({f:[m[0],m[1]],t:[m[2],m[3]],n:n,s:'b'});G.view=last();
+  if(allLegal(N,'r').length===0)return endGame('b',inCheck(N,'r')?'Bạn bị chiếu hết. Thử lại nhé.':'Bạn hết nước đi.');
+  refreshBoard()},350)}
+var AIELO={easy:800,mid:1100,hard:1400};
+function endGame(w,txt){G.over={winner:w,txt:txt};G.thinking=false;ST.stats.games++;var ea=1/(1+Math.pow(10,(AIELO[G.level]-ST.elo)/400)),sc=w==='r'?1:0,d=Math.round(32*(sc-ea));ST.elo+=d;
+  if(w==='r'){ST.stats.wins++;if(!G.hints&&!G.undos)ST.cleanWin=1;addXP({easy:40,mid:70,hard:110}[G.level],'Thắng ván với máy')}else addXP(10,'Hoàn thành một ván');
+  ST.hist.unshift({ts:Date.now(),txt:(w==='r'?'Thắng':'Thua')+' máy mức '+{easy:'Dễ',mid:'Vừa',hard:'Khó'}[G.level]+' ('+(d>=0?'+':'')+d+' Elo)',xp:0});save();checkAch();refreshBoard();G.over.txt=txt+' ('+(d>=0?'+':'')+d+' Elo)';bstat(G.over.txt,w==='r'?'ok':'bad')}
+function newGame(){G={pos:[startPos()],mv:[],level:G.level,view:0,over:null,hints:0,undos:0,thinking:false,hint:null};boardUI()}
+[].forEach.call($('lvl').querySelectorAll('button'),function(b){b.onclick=function(){if(G.mv.length&&!G.over&&!confirm('Đổi mức sẽ bắt đầu ván mới. Tiếp tục?'))return;G.level=b.dataset.l;newGame()}});
+$('bnew').onclick=newGame;
+$('bres').onclick=function(){if(G.over)return;endGame('b','Bạn đã đầu hàng.')};
+$('bundo').onclick=function(){if(G.thinking||G.over||G.pos.length<2)return;var n=turnOf(last())==='r'?2:1;n=Math.min(n,G.pos.length-1);for(var i=0;i<n;i++){G.pos.pop();G.mv.pop()}G.view=last();G.undos++;G.hint=null;refreshBoard()};
+$('bhint').onclick=function(){if(G.thinking||G.over)return;bstat('Đang tìm nước đi tốt…','info');setTimeout(function(){var rs=rootScores(G.pos[last()],'r',3);if(!rs.length)return;var m=rs[0].m;G.hint=m;G.hints++;gb.render();bstat('Gợi ý: '+notate(G.pos[last()],m)+' — '+describe(G.pos[last()],m,'r')+'.','info')},30)};
+$('rv0').onclick=function(){G.view=0;G.hint=null;refreshBoard()};$('rv1').onclick=function(){G.view=Math.max(0,G.view-1);G.hint=null;refreshBoard()};
+$('rv2').onclick=function(){G.view=Math.min(last(),G.view+1);refreshBoard()};$('rv3').onclick=function(){G.view=last();refreshBoard()};
+$('rvplay').onclick=function(){G.pos=G.pos.slice(0,G.view+1);G.mv=G.mv.slice(0,G.view);G.over=null;G.hint=null;refreshBoard();if(turnOf(last())==='b')aiTurn()};
+$('rvai').onclick=function(){show('ai');runAnalysis()};
+
+/* ===== C. Bài tập ===== */
+var DIFF={easy:{t:'Dễ',par:45,xp:30,d:'Chiếu hết trong 1 nước, ít quân'},mid:{t:'Vừa',par:75,xp:50,d:'Chiếu hết trong 1 nước, nhiều quân gây nhiễu'},hard:{t:'Khó',par:120,xp:80,d:'Chiếu hết trong 2 nước'}};
+var P=null,tb=null,tTimer=null;
+function stopTimer(){clearInterval(tTimer);tTimer=null}
+function renderTrain(){$('tlist').hidden=false;$('tplay').hidden=true;stopTimer();var h='';
+  ['easy','mid','hard'].forEach(function(d){var ps=PUZ[d],done=ps.filter(function(_,i){return ST.pz[d+i]}).length;
+    h+='<div style="margin-bottom:24px"><div class="row sp" style="margin-bottom:10px"><div><h3>'+DIFF[d].t+'</h3><div class="tip">'+DIFF[d].d+' · +'+DIFF[d].xp+' XP tối đa</div></div><span class="chip">'+done+'/'+ps.length+'</span></div><div class="grid gp">';
+    ps.forEach(function(p,i){var r=ST.pz[d+i];h+='<button class="pzcard'+(r?' done':'')+'" data-d="'+d+'" data-i="'+i+'"><b>Thế '+(i+1)+'</b><span class="tip">'+(d==='hard'?'Chiếu hết 2 nước':'Chiếu hết 1 nước')+'</span>'+stars(r?r.stars:0)+'</button>'});
+    h+='</div></div>'});
+  $('tgroups').innerHTML=h;[].forEach.call($('tgroups').querySelectorAll('.pzcard'),function(b){b.onclick=function(){openPuzzle(b.dataset.d,+b.dataset.i)}})}
+function tstat(t,c){var e=$('tstatus');e.textContent=t;e.className='status'+(c?' '+c:'')}
+function openPuzzle(d,i){var def=PUZ[d][i];P={d:d,i:i,def:def,B:parse(def.g),phase:'r1',t0:Date.now(),hints:0,wrong:0,done:false,hint:null,mv:null};
+  $('tlist').hidden=true;$('tplay').hidden=false;$('tresult').hidden=true;
+  if(!tb)tb=Board($('th'),{get:function(){return P.B},marks:function(){var m=[];if(P.mv)m.push([P.mv[0],P.mv[1],'last'],[P.mv[2],P.mv[3],'last']);if(P.hint)m.push([P.hint[0],P.hint[1],'hint']);return m},check:function(){return P.done?findK(P.B,'b'):null},
+    locked:function(){return P.done||P.phase==='wait'},canPick:function(c,r){var p=P.B[r][c];return p&&p.s==='r'},targets:function(c,r){return legal(P.B,c,r)},onMove:puzzleMove});
+  tb.sel=null;tb.render();tstat(d==='hard'?'Đỏ đi trước. Tìm nước chiếu ép để chiếu hết trong 2 nước.':'Đỏ đi trước. Chiếu hết Tướng Đen trong 1 nước.');
+  stopTimer();tTimer=setInterval(tick,500);tick()}
+function tick(){var s=Math.floor((Date.now()-P.t0)/1000);$('ttimer').textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2)+' / par '+DIFF[P.d].par+'s'}
+function mateMoves(B){return allLegal(B,'r').filter(function(m){return isMate(applyMove(B,m[0],m[1],m[2],m[3]),'b')})}
+function forced2(N){var reps=allLegal(N,'b');if(!reps.length)return null;var best=null,bc=1e9;
+  for(var i=0;i<reps.length;i++){var r=reps[i],N2=applyMove(N,r[0],r[1],r[2],r[3]),c=mateMoves(N2).length;if(c===0)return null;if(c<bc){bc=c;best=r}}return best}
+function puzzleMove(f,t){var B=P.B,mv=[f[0],f[1],t[0],t[1]],N=applyMove(B,mv[0],mv[1],mv[2],mv[3]),pre=B;P.hint=null;
+  if(isMate(N,'b'))return solved(pre,mv,N);
+  if(P.d==='hard'&&P.phase==='r1'&&inCheck(N,'b')){var rep=forced2(N);if(rep){P.mv=mv;P.B=N;P.phase='wait';tb.sel=null;tb.render();tstat('Đen buộc phải đỡ…','info');
+      setTimeout(function(){var N2=applyMove(N,rep[0],rep[1],rep[2],rep[3]);P.B=N2;P.mv=[rep[0],rep[1],rep[2],rep[3]];P.phase='r2';P.first=mv;P.base=pre;tb.render();tstat('Đen đã đỡ. Giờ chiếu hết!')},650);return}}
+  P.wrong++;tb.sel=null;tb.render();
+  if(P.phase==='r2')tstat('Chưa chiếu hết. Thử nước khác (−10 điểm).','bad');
+  else tstat(inCheck(N,'b')?'Có chiếu, nhưng Đen vẫn thoát được. Thử nước khác (−10 điểm).':(P.d==='hard'?'Nước này chưa ép được chiếu hết trong 2 nước (−10 điểm).':'Chưa chiếu được Tướng Đen (−10 điểm).'),'bad')}
+function explainMate(pre,mv,N){var p=pre[mv[1]][mv[0]],k=findK(N,'b'),atk=[];
+  for(var r=0;r<10;r++)for(var c=0;c<9;c++){var q=N[r][c];if(q&&q.s==='r'&&q.t!=='K'&&pseudo(N,c,r).some(function(t){return t[0]===k[0]&&t[1]===k[1]}))atk.push(NAME[q.t][0])}
+  var face=false,rk=findK(N,'r');if(rk&&rk[0]===k[0]){face=true;for(var y=Math.min(k[1],rk[1])+1;y<Math.max(k[1],rk[1]);y++)if(N[y][k[0]])face=false}
+  var kt=pseudo(N,k[0],k[1]),esc2=0,fa=0;kt.forEach(function(t){var M=applyMove(N,k[0],k[1],t[0],t[1]);if(inCheck(M,'b')){esc2++;var ok=findK(M,'r');if(ok&&ok[0]===t[0]){var cl2=true;for(var y=Math.min(t[1],ok[1])+1;y<Math.max(t[1],ok[1]);y++)if(M[y][t[0]])cl2=false;if(cl2)fa++}}});
+  var s=notate(pre,mv)+'. Tướng Đen bị chiếu'+(atk.length?' bởi '+atk.filter(function(v,i,a){return a.indexOf(v)===i}).join(' và '):'')+'. ';
+  s+=kt.length?('Tướng có '+kt.length+' ô để bước nhưng đều bị chặn'+(fa?' (trong đó '+fa+' ô bị cấm vì hai Tướng đối mặt)':'')+', ') :'Tướng không còn ô nào để bước, ';
+  return s+'và không quân nào chặn hoặc ăn được quân chiếu.'}
+function solved(pre,mv,N){P.done=true;P.B=N;P.mv=mv;stopTimer();tb.sel=null;tb.render();
+  var t=Math.floor((Date.now()-P.t0)/1000),par=DIFF[P.d].par,score=Math.max(20,100-P.hints*25-P.wrong*10-Math.max(0,t-par)),st=score>=85?3:score>=55?2:1;
+  var key=P.d+P.i,prev=ST.pz[key],prevStars=prev?prev.stars:0,base=DIFF[P.d].xp,gain=Math.round(base*st/3)-Math.round(base*prevStars/3);
+  if(!prev||score>prev.score)ST.pz[key]={stars:Math.max(st,prevStars),score:Math.max(score,prev?prev.score:0),time:t};
+  ensureQuest();ST.quest.solved++;touch();if(!prev){ST.stats.solved++}save();if(gain>0)addXP(gain,'Giải thế '+DIFF[P.d].t+' '+(P.i+1));ST.hist.unshift({ts:Date.now(),txt:'Giải thế '+DIFF[P.d].t+' '+(P.i+1)+': '+st+' sao, '+score+' điểm',xp:0});save();checkAch();
+  var first=P.first?'Nước 1: '+notate(P.base,P.first)+' ép Đen phải đỡ. Nước 2: ':'';
+  var ex=explainMate(pre,mv,N);tstat('Chính xác! Chiếu hết.','ok');
+  var r=$('tresult');r.hidden=false;setTimeout(function(){try{r.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}},50);var more=P.i<PUZ[P.d].length-1;
+  r.innerHTML='<div class="row sp"><h3>Hoàn thành</h3>'+stars(st)+'</div><p><b>'+score+' điểm</b> · '+t+' giây · '+P.hints+' gợi ý · '+P.wrong+' lần sai'+(gain>0?' · +'+gain+' XP':'')+'</p><p class="tip" style="color:var(--ink);font-size:15px"><b>Giải thích.</b> '+esc(first+ex)+'</p><div class="row" style="margin-top:10px">'+(more?'<button class="btn pri" id="tnext">Thế tiếp theo</button>':'')+'<button class="btn" id="tlistb">Chọn thế khác</button></div>';
+  if(more)$('tnext').onclick=function(){openPuzzle(P.d,P.i+1)};$('tlistb').onclick=renderTrain}
+$('tback').onclick=renderTrain;$('treset').onclick=function(){openPuzzle(P.d,P.i)};
+$('thint').onclick=function(){if(P.done||P.phase==='wait')return;var m;
+  if(P.phase==='r1'&&P.d==='hard')m=P.def.m;else{var ms=mateMoves(P.B);m=ms[0]}
+  if(!m)return;P.hint=m;P.hints++;tb.render();tstat('Gợi ý: hãy dùng '+NAME[P.B[m[1]][m[0]].t][0]+' ở ô '+sq(m[0],m[1])+' (−25 điểm).','info')};
+
+/* ===== D. Phân tích AI ===== */
+function renderAI(){var B=G.pos[G.view];$('ah').innerHTML=boardSVG(B,{marks:gmarks(),check:gcheck()})}
+var busy=false;
+function runAnalysis(){if(busy)return;busy=true;renderAI();var B=G.pos[G.view],side=turnOf(G.view);$('aout').innerHTML='<div class="card"><p>Đang phân tích…</p></div>';
+  setTimeout(function(){var ev=evalPos(B)/100,rs=rootScores(B,side,3);busy=false;ensureQuest();ST.quest.ai++;touch();save();
+    var pct=Math.max(5,Math.min(95,50+ev*8)),verdict=Math.abs(ev)<.6?'Thế trận cân bằng':(ev>0?'Đỏ':'Đen')+(Math.abs(ev)<2?' hơn nhẹ':Math.abs(ev)<4?' hơn rõ':' đang áp đảo');
+    var cnt={r:0,b:0};B.forEach(function(row){row.forEach(function(p){if(p)cnt[p.s]++})});
+    var h='<div class="card"><h3>Đánh giá thế trận</h3><div class="evbar" aria-label="Thanh lợi thế"><div class="r" style="width:'+pct+'%"></div><div class="b"></div></div><p style="margin-top:10px"><b>'+verdict+'</b> ('+(ev>=0?'+':'')+ev.toFixed(1)+' điểm quân). Đỏ còn '+cnt.r+' quân, Đen còn '+cnt.b+' quân. Bên đi: '+(side==='r'?'Đỏ':'Đen')+'.</p></div>';
+    if(!rs.length){h+='<div class="card"><p>Bên đi không còn nước hợp lệ.</p></div>'}
+    else{h+='<div class="card"><h3>Nước đi tốt nhất và so sánh phương án</h3>';rs.slice(0,3).forEach(function(x,i){h+='<div class="cand '+(i===0?'best':'')+'"><div class="sc">'+scoreTxt(x.sc)+'</div><div><b>'+esc(notate(B,x.m))+'</b>'+(i===0?' <span class="chip">Tốt nhất</span>':'')+'<div class="tip" style="color:var(--mute)">'+esc(describe(B,x.m,side))+'.</div></div></div>'});
+      var d=rs[0].sc-(rs[1]?rs[1].sc:rs[0].sc);h+='<p class="tip" style="margin-top:8px">'+(rs.length<2?'Chỉ còn một nước đi.':d>150?'Nước tốt nhất hơn hẳn phương án thứ hai, các nước còn lại dễ gây thiệt hại.':d<30?'Ba phương án gần ngang nhau, bạn có thể chọn theo ý đồ của mình.':'Nước tốt nhất nhỉnh hơn phương án thứ hai một chút.')+'</p></div>';
+      var b0=rs[0];h+='<div class="card"><h3>Giải thích chiến thuật</h3><p>Nên đi <b>'+esc(notate(B,b0.m))+'</b>: '+esc(describe(B,b0.m,side))+'.</p><p class="tip">Nhận xét dựa trên việc đếm quân, chiếu, đe dọa và tìm sâu khoảng 3 nước. Engine này nhỏ, hợp để luyện tập, chưa phải kỳ thủ chuyên nghiệp.</p></div>'}
+    $('aout').innerHTML=h},40)}
+function scanGame(){if(busy)return;if(!G.mv.length){$('aout').innerHTML='<div class="card"><p>Chưa có nước đi nào. Hãy chơi một ván ở tab Bàn cờ trước.</p></div>';return}
+  busy=true;$('aout').innerHTML='<div class="card"><p>Đang quét ván…</p></div>';
+  setTimeout(function(){var list=[];G.mv.forEach(function(mv,i){if(mv.s!=='r')return;var B=G.pos[i],rs=rootScores(B,'r',2);if(!rs.length)return;var pl=rs.filter(function(x){return x.m[0]===mv.f[0]&&x.m[1]===mv.f[1]&&x.m[2]===mv.t[0]&&x.m[3]===mv.t[1]})[0];if(!pl)return;
+    var loss=Math.min(rs[0].sc,2000)-Math.min(pl.sc,2000);if(loss<50)return;
+    var N=applyMove(B,mv.f[0],mv.f[1],mv.t[0],mv.t[1]),rep=rootScores(N,'b',1)[0],why='';if(rep){var cap=N[rep.m[3]][rep.m[2]];why=cap?'Đen có thể đáp trả '+notate(N,rep.m)+' và ăn '+NAME[cap.t][0]+' của bạn.':'Đen có phương án đáp trả tốt hơn so với dự tính.'}
+    list.push({i:i,loss:loss,mv:mv,best:rs[0],why:why,B:B})});
+    busy=false;ensureQuest();ST.quest.ai++;touch();save();var h='<div class="card"><h3>Phân tích sai lầm</h3>';
+    if(!list.length)h+='<p>Không phát hiện sai lầm đáng kể trong các nước của bạn (tìm sâu 2 nước). Làm tốt lắm!</p>';
+    else{h+='<p class="tip">Tìm thấy '+list.length+' nước đáng xem lại.</p>';list.forEach(function(x){var lv=x.loss>=300?'Sai lầm nặng':x.loss>=120?'Sai lầm':'Chưa chính xác';h+='<div class="mist"><div class="row sp"><b>Nước '+(Math.floor(x.i/2)+1)+': '+esc(x.mv.n)+'</b><span class="chip">'+lv+' (−'+(x.loss/100).toFixed(1)+')</span></div><p style="margin:6px 0">'+esc(x.why)+'</p><p style="margin:0">Nên đi: <b>'+esc(notate(x.B,x.best.m))+'</b> — '+esc(describe(x.B,x.best.m,'r'))+'.</p><button class="btn sm" data-v="'+x.i+'" style="margin-top:8px">Xem thế trước nước này</button></div>'})}
+    $('aout').innerHTML=h+'</div>';[].forEach.call($('aout').querySelectorAll('[data-v]'),function(b){b.onclick=function(){G.view=+b.dataset.v;G.hint=null;show('board')}})},40)}
+$('arun').onclick=runAnalysis;$('ascan').onclick=scanGame;
+
+/* ===== E. Hồ sơ ===== */
+function fmt(ts){var d=new Date(ts);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' '+('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)}
+var SAMPLE=[['Pháo Giữa 99',1680],['Mã Đỡ Pháo',1510],['Tượng Bay',1390],['Xe Một Mình',1260],['Tốt Qua Sông',1130],['Sĩ Cung',990],['Tân Binh 01',880]];
+function renderProfile(){var ri=rankOf(ST.xp),R=RANKS[ri],N=RANKS[ri+1],pct=N?Math.round((ST.xp-R.x)/(N.x-R.x)*100):100;
+  var h='<div class="card span2"><div class="rank"><div class="badge" aria-hidden="true">'+R.t+'</div><div style="flex:1"><div class="tip">Cấp bậc</div><h3 style="font-size:24px;margin:0">Hạng '+R.n+'</h3><div class="bar" style="margin:8px 0 4px"><i style="width:'+pct+'%"></i></div><div class="tip">'+ST.xp+' XP</div></div></div>'
+   +'<div class="stats3"><div class="sbox"><div class="n">'+ST.elo+'</div><div class="l">Elo</div></div><div class="sbox"><div class="n">'+ST.stats.wins+'/'+ST.stats.games+'</div><div class="l">thắng / ván</div></div><div class="sbox"><div class="n">'+ST.stats.solved+'</div><div class="l">thế đã giải</div></div></div></div>';
+  h+='<div class="card"><h3>Thành tích</h3><div class="grid" style="gap:10px">';ACH.forEach(function(a){h+='<div class="ach '+(ST.ach[a.id]?'':'off')+'"><div class="ic" aria-hidden="true">'+a.c+'</div><div><b>'+a.t+'</b><div class="tip">'+(ST.ach[a.id]?'Đã đạt':'Chưa đạt')+'</div></div></div>'});h+='</div></div>';
+  var rows=SAMPLE.map(function(s){return{n:s[0],e:s[1],me:0}});rows.push({n:'Bạn',e:ST.elo,me:1});rows.sort(function(a,b){return b.e-a.e});
+  h+='<div class="card"><h3>Bảng xếp hạng</h3><table><tr><th>#</th><th>Kỳ thủ</th><th>Elo</th></tr>'+rows.map(function(r,i){return'<tr class="'+(r.me?'me':'')+'"><td>'+(i+1)+'</td><td>'+r.n+'</td><td>'+r.e+'</td></tr>'}).join('')+'</table><p class="tip" style="margin-top:8px">Các kỳ thủ khác là dữ liệu mẫu để minh họa. Bản thật cần máy chủ để so Elo giữa người chơi.</p></div>';
+  h+='<div class="card"><h3>Lịch sử luyện tập</h3>'+(ST.hist.length?ST.hist.slice(0,12).map(function(x){return'<div class="quest"><div class="t">'+esc(x.txt)+'<div class="tip">'+fmt(x.ts)+'</div></div>'+(x.xp?'<span class="chip">+'+x.xp+' XP</span>':'')+'</div>'}).join(''):'<p class="tip">Chưa có hoạt động. Giải một thế cờ để bắt đầu.</p>')+'</div>';
+  $('prof').innerHTML=h}
+
+/* khởi động */
+(function(){ensureQuest();var h=(location.hash||'').slice(1);show(PAGES.indexOf(h)>=0?h:'home')})();
+</script>
+</body>
+</html>
