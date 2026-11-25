@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Character Lab 3D – Hệ thống nhân vật PBR</title>
+<meta name="description" content="Character Lab 3D: nạp nhân vật GLB/GLTF chất lượng sản xuất (MetaHuman, Character Creator, Blender, Maya), hiển thị PBR, tán xạ dưới da, hoạt ảnh xương, biểu cảm, nhép môi, LOD và kiểm định hiệu năng ngay trên trình duyệt.">
+<meta name="theme-color" content="#0b0d10">
+<style>
+:root{--bg:#0b0d10;--pn:rgba(14,17,22,.82);--ln:rgba(255,255,255,.1);--tx:#e9edf2;--mut:#8f9aa8;--ac:#f0b35a;--ok:#5fd38d;--warn:#f0c15a;--bad:#ff6b6b;--f:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font:14px/1.45 var(--f)}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+button,select,input{font:inherit;color:inherit}button{cursor:pointer}
+.pn{background:var(--pn);border:1px solid var(--ln);border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#top{position:fixed;left:12px;right:12px;top:10px;display:flex;gap:8px;align-items:center;padding:8px 10px;z-index:5;flex-wrap:wrap}
+#top b{letter-spacing:.06em;margin-right:6px}#top b i{font-style:normal;color:var(--ac)}
+.btn{background:rgba(255,255,255,.06);border:1px solid var(--ln);border-radius:9px;padding:6px 11px;min-height:34px}
+.btn:hover{background:rgba(255,255,255,.12)}.btn.pri{background:var(--ac);color:#1a1206;border-color:transparent;font-weight:700}
+.btn[aria-pressed=true]{border-color:var(--ac);color:var(--ac)}
+select{background:#151a21;border:1px solid var(--ln);border-radius:9px;padding:6px 8px;min-height:34px}
+.sp{flex:1}
+#side{position:fixed;right:12px;top:66px;bottom:12px;width:min(380px,calc(100vw - 24px));display:flex;flex-direction:column;z-index:4}
+#side.hide{display:none}
+.tabs{display:flex;border-bottom:1px solid var(--ln)}.tabs button{flex:1;background:none;border:0;padding:10px 4px;color:var(--mut);font-weight:600;border-bottom:2px solid transparent}
+.tabs button[aria-selected=true]{color:var(--ac);border-color:var(--ac)}
+.tb{flex:1;overflow:auto;padding:12px}.tb[hidden]{display:none}
+h3{margin:14px 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}h3:first-child{margin-top:0}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.row label{display:flex;gap:6px;align-items:center}
+.ck{display:grid;grid-template-columns:20px 1fr auto;gap:6px;padding:7px 0;border-bottom:1px solid var(--ln);align-items:start}
+.ck .i{font-weight:800}.ck.pass .i{color:var(--ok)}.ck.warn .i{color:var(--warn)}.ck.fail .i{color:var(--bad)}
+.ck small{display:block;color:var(--mut)}.ck .v{font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;font-variant-numeric:tabular-nums}.kv span:nth-child(even){text-align:right;overflow-wrap:anywhere}.kv span:nth-child(odd){color:var(--mut)}
+.bar{height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.wl{display:grid;grid-template-columns:52px 1fr 40px;gap:6px;align-items:center;margin:4px 0;font-size:12px}
+input[type=range]{accent-color:var(--ac);width:100%}
+input[type=text]{background:#151a21;border:1px solid var(--ln);border-radius:9px;padding:6px 8px;min-height:34px;flex:1;min-width:0}
+#hud{position:fixed;left:12px;bottom:12px;padding:8px 10px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;z-index:4;min-width:220px}
+#hud b{color:var(--ac)}
+#hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);color:var(--mut);font-size:12px;z-index:3;text-align:center;pointer-events:none}
+#intake{position:fixed;inset:0;display:grid;place-items:center;z-index:6;background:radial-gradient(ellipse at 50% 30%,#1a2029,#0b0d10 70%);padding:16px;overflow:auto}
+#intake[hidden]{display:none}
+#intake .bx{max-width:720px;width:100%;padding:24px}
+#intake h1{margin:0 0 6px;font-size:28px}#intake p{color:var(--mut);margin:6px 0}
+#drop{margin:16px 0;border:2px dashed rgba(240,179,90,.5);border-radius:14px;padding:28px;text-align:center}
+#drop.on{background:rgba(240,179,90,.08)}
+code,pre{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:rgba(255,255,255,.06);border-radius:6px}
+pre{padding:10px;overflow:auto;white-space:pre-wrap}code{padding:1px 5px}
+#load{position:fixed;inset:0;display:grid;place-items:center;z-index:7;background:rgba(11,13,16,.7)}#load[hidden]{display:none}
+#load .pn{padding:18px 22px;min-width:260px;text-align:center}
+.cb{position:fixed;left:0;right:0;height:9vh;background:#000;z-index:2;transition:transform .6s;pointer-events:none}
+.cb.t{top:0;transform:translateY(-100%)}.cb.b{bottom:0;transform:translateY(100%)}body.cine .cb{transform:none}
+body.cine #side,body.cine #hud{opacity:.15}body.cine #side:hover,body.cine #hud:hover{opacity:1}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);padding:8px 14px;z-index:8;display:none}
+#joy{position:fixed;left:24px;bottom:110px;width:120px;height:120px;border-radius:50%;border:1px solid var(--ln);background:rgba(255,255,255,.04);z-index:3;display:none;touch-action:none}
+#joy i{position:absolute;left:40px;top:40px;width:40px;height:40px;border-radius:50%;background:rgba(240,179,90,.6)}
+@media (pointer:coarse){#joy{display:block}}
+@media (max-width:760px){#side{top:auto;height:46vh;bottom:8px}#hud{bottom:auto;top:66px;left:12px;font-size:11px}#hint{display:none}}
+</style>
+<script type="importmap">
+{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/"}}
+</script>
+</head>
+<body>
+<canvas id="c" aria-label="Khung hiển thị 3D nhân vật"></canvas>
+<div class="cb t"></div><div class="cb b"></div>
+
+<header id="top" class="pn">
+  <a class="btn" href="../../index.html" title="Về OmniHub">‹</a>
+  <b>CHARACTER <i>LAB</i> 3D</b>
+  <button class="btn pri" id="bOpen">Nhập nhân vật</button>
+  <button class="btn" id="bAnim" title="Nạp thêm GLB chỉ chứa hoạt ảnh (Mixamo, mocap…)">+ Hoạt ảnh</button>
+  <button class="btn" id="bHdr" title="Ánh sáng môi trường HDR (.hdr)">HDR</button>
+  <span class="sp"></span>
+  <button class="btn" data-mode="play" aria-pressed="true">Điều khiển</button>
+  <button class="btn" data-mode="studio">Studio</button>
+  <button class="btn" data-mode="cine">Điện ảnh</button>
+  <select id="sQ" aria-label="Chất lượng đồ hoạ"><option value="auto">Tự động</option><option value="low">Thấp</option><option value="mid">Vừa</option><option value="high">Cao</option><option value="ultra">Siêu</option></select>
+  <button class="btn" id="bSide" aria-pressed="true">Bảng</button>
+</header>
+
+<aside id="side" class="pn">
+  <div class="tabs" role="tablist">
+    <button role="tab" data-t="val" aria-selected="true">Kiểm định</button><button role="tab" data-t="anim">Hoạt ảnh</button><button role="tab" data-t="face">Khuôn mặt</button><button role="tab" data-t="ren">Hiển thị</button>
+  </div>
+  <div class="tb" id="t-val"></div>
+  <div class="tb" id="t-anim" hidden></div>
+  <div class="tb" id="t-face" hidden></div>
+  <div class="tb" id="t-ren" hidden></div>
+</aside>
+
+<div id="hud" class="pn"></div>
+<div id="hint">WASD/phím mũi tên: đi · Shift: chạy · kéo chuột: xoay máy quay · cuộn: thu phóng · C: đổi chế độ</div>
+<div id="joy"><i></i></div>
+<div id="toast" class="pn"></div>
+
+<section id="intake" hidden>
+  <div class="bx pn">
+    <h1>Character Lab 3D</h1>
+    <p>Hệ thống hiển thị nhân vật PBR cho game trình duyệt. Nạp <b>một</b> nhân vật GLB/GLTF chất lượng sản xuất để kiểm định hiển thị, vật liệu, hoạt ảnh và hiệu năng trước khi làm NPC.</p>
+    <div id="drop">Kéo thả tệp <code>.glb</code> / <code>.gltf</code> vào đây<br><br><button class="btn pri" id="bOpen2">Chọn tệp nhân vật</button></div>
+    <p><b>Nguồn hỗ trợ:</b> MetaHuman (qua Blender/Maya), Character Creator 4 (xuất GLB + ARKit blendshape), Blender, Maya. Nhận Draco, Meshopt, KTX2 (Basis), khung xương, morph target, nhiều clip hoạt ảnh.</p>
+    <p><b>Khuyến nghị đóng gói</b> (chạy trên máy bạn):</p>
+<pre>npx gltfpack -i hero.glb -o hero_lod0.glb -cc -kn -km
+npx gltfpack -i hero.glb -o hero_lod1.glb -cc -si 0.35 -kn -km
+npx @gltf-transform/cli uastc hero_lod0.glb hero.glb --slots "{normalTexture,occlusionTexture}"
+npx @gltf-transform/cli etc1s hero.glb hero.glb --slots "{baseColorTexture}"</pre>
+    <p>Đặt tên vật liệu chứa <code>skin</code>, <code>eye</code>/<code>cornea</code>, <code>teeth</code>, <code>hair</code>/<code>brow</code>/<code>lash</code>, <code>cloth</code>… để áp shader đúng; mesh LOD đặt hậu tố <code>_LOD0</code>, <code>_LOD1</code>…; hoạt ảnh đặt tên chứa <code>idle</code>, <code>walk</code>, <code>run</code>. Muốn nhân vật hiện sẵn cho mọi người: đặt tệp vào <code>games/character-lab/assets/hero.glb</code> (và khai báo trong <code>assets/hero.json</code>).</p>
+    <p style="color:var(--mut);font-size:12px">Tệp chỉ được đọc trong trình duyệt của bạn, không tải lên máy chủ nào.</p>
+  </div>
+</section>
+<div id="load"><div class="pn"><div id="lt">Đang khởi động…</div><div class="bar" style="margin-top:10px"><i id="lb" style="width:5%"></i></div></div></div>
+<input type="file" id="fModel" accept=".glb,.gltf" hidden>
+<input type="file" id="fAnim" accept=".glb,.gltf" multiple hidden>
+<input type="file" id="fHdr" accept=".hdr" hidden>
+<input type="file" id="fAudio" accept="audio/*" hidden>
+<script type="module" src="main.js"></script>
+</body>
+</html>

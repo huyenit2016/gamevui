@@ -1,0 +1,8 @@
+{
+  "title": "Character Lab 3D",
+  "type": "tool",
+  "category": "Sáng tạo",
+  "description": "Hệ thống hiển thị nhân vật 3D PBR cho trình duyệt: nạp GLB/GLTF (Draco, Meshopt, KTX2), da tán xạ dưới da, hoạt ảnh trộn, biểu cảm ARKit, nhép môi, LOD, kiểm định hiệu năng.",
+  "author": "Huyen",
+  "color": "#f0b35a"
+}
