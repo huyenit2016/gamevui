@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Phố Đêm 3D – Thế giới mở</title>
+<meta name="description" content="Phố Đêm 3D: thành phố mở bằng 3D trên trình duyệt. Đi bộ, lái xe, drift, làm nhiệm vụ giao hàng – taxi – đua phố, né cảnh sát và kiếm tiền. Chơi bằng bàn phím hoặc cảm ứng.">
+<meta property="og:title" content="Phố Đêm 3D"><meta property="og:image" content="https://huyenit2016.github.io/gamevui/img/cover-phodem3d.webp"><meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0d14">
+<style>
+:root{--ac:#ffb347;--cy:#35e3ff;--mg:#ff4fd8;--bad:#ff5a5a;--ok:#5fe39a;--bg:#0a0d14;--pn:rgba(10,13,20,.72);--ln:rgba(255,255,255,.14);--f:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:#fff;font:14px/1.4 var(--f);user-select:none;-webkit-user-select:none;touch-action:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+.pn{background:var(--pn);border:1px solid var(--ln);border-radius:12px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:3}
+#money{position:absolute;left:16px;top:14px;font:800 26px/1 var(--f);letter-spacing:.02em;color:#9dff9d;text-shadow:0 2px 8px #000}
+#clock{position:absolute;left:16px;top:46px;color:#cfd8e3;text-shadow:0 1px 6px #000;font-weight:600}
+#stars{position:absolute;left:16px;top:72px;font-size:26px;letter-spacing:4px;text-shadow:0 2px 8px #000;color:#555;white-space:nowrap}
+#stars b{color:#ffd23f;font-weight:400}
+#stars.flash b{animation:fl .5s infinite alternate}@keyframes fl{to{color:#4d9bff}}
+#obj{position:absolute;left:16px;top:112px;max-width:min(360px,60vw);padding:10px 12px;display:none}
+#obj b{display:block;color:var(--ac);font-size:13px;letter-spacing:.06em;text-transform:uppercase}#obj .t{font:800 22px/1.1 var(--f);margin-top:4px}
+#mini{position:absolute;right:14px;top:14px;width:176px;height:176px;border-radius:50%;border:3px solid rgba(255,255,255,.4);box-shadow:0 4px 18px #000a;background:#10151d}
+#speed{position:absolute;right:20px;bottom:18px;text-align:right;font:900 44px/1 var(--f);text-shadow:0 2px 10px #000;display:none}#speed small{display:block;font:600 12px var(--f);letter-spacing:.14em;color:#cfd8e3}
+#radio{position:absolute;right:20px;bottom:76px;color:var(--cy);font-weight:700;text-shadow:0 1px 6px #000;display:none;text-align:right}
+#prompt{position:absolute;left:50%;bottom:112px;transform:translateX(-50%);padding:8px 14px;display:none;font-weight:700;white-space:nowrap}
+body.touch #prompt{bottom:auto;top:56%;left:38%;font-size:13px}
+#prompt kbd{background:#fff;color:#111;border-radius:5px;padding:1px 7px;margin-right:6px}
+#msg{position:absolute;left:50%;top:22%;transform:translateX(-50%);font:800 28px/1.15 var(--f);text-align:center;text-shadow:0 3px 12px #000;opacity:0;transition:opacity .35s;max-width:90vw}
+#msg.on{opacity:1}
+#keys{position:absolute;left:16px;bottom:14px;color:#aeb8c6;font-size:12px;text-shadow:0 1px 6px #000;line-height:1.6}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .5s;z-index:5}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.45))}
+#menu{position:fixed;inset:0;z-index:8;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 30%,#1b2433,#07090e 75%);padding:16px;overflow:auto}
+#menu[hidden]{display:none}
+.card{max-width:640px;width:100%;padding:24px}
+h1{margin:0;font:900 40px/1 var(--f);letter-spacing:.04em;background:linear-gradient(90deg,var(--ac),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#9fb0c4;margin:6px 0 16px}
+table{border-collapse:collapse;width:100%;margin:10px 0}td{padding:4px 8px;border-bottom:1px solid var(--ln);color:#d3dbe6}td:first-child{white-space:nowrap}kbd{background:#e9edf3;color:#10141b;border-radius:5px;padding:0 6px;font:700 12px var(--f)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button,select{font:inherit;color:inherit}
+.btn{background:rgba(255,255,255,.08);border:1px solid var(--ln);border-radius:10px;padding:10px 16px;cursor:pointer;min-height:44px}
+.btn.pri{background:linear-gradient(90deg,var(--ac),#ff7a3d);color:#1b1206;font-weight:800;border:0}
+select{background:#151b26;border:1px solid var(--ln);border-radius:10px;padding:10px;min-height:44px}
+.note{color:#8191a5;font-size:12px;margin-top:12px}
+#touch{position:fixed;inset:0;z-index:4;pointer-events:none;display:none}
+body.touch #touch{display:block}body.touch #keys{display:none}
+#joy{position:absolute;left:22px;bottom:26px;width:132px;height:132px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);pointer-events:auto;touch-action:none}
+#joy i{position:absolute;left:46px;top:46px;width:40px;height:40px;border-radius:50%;background:rgba(255,179,71,.75)}
+.tb{position:absolute;pointer-events:auto;width:62px;height:62px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(10,13,20,.55);color:#fff;font:800 13px var(--f);display:grid;place-items:center;touch-action:none}
+.tb:active,.tb.on{background:rgba(255,179,71,.6)}
+#tF{right:22px;bottom:110px;width:74px;height:74px;font-size:16px;background:rgba(255,179,71,.35)}#tE{right:110px;bottom:96px}#tH{right:20px;bottom:196px}#tJ{right:100px;bottom:178px}#tR{right:22px;bottom:276px;width:52px;height:52px}#tP{right:90px;bottom:262px;width:52px;height:52px}
+@media (max-width:760px){#mini{width:120px;height:120px}#money{font-size:20px}#clock{top:38px}#stars{top:60px;font-size:20px}#obj{top:94px}#speed{bottom:auto;top:140px;right:16px;font-size:30px}#radio{display:none!important}}
+</style>
+<script type="importmap">
+{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/"}}
+</script>
+</head>
+<body>
+<canvas id="c" aria-label="Thành phố 3D"></canvas>
+<div id="vig"></div>
+<div id="hud">
+  <div id="money">$0</div><div id="clock">19:00</div><div id="stars">☆☆☆☆☆</div>
+  <div id="obj" class="pn"><b id="oT">Nhiệm vụ</b><div class="t" id="oD"></div></div>
+  <canvas id="mini" width="352" height="352"></canvas>
+  <div id="speed"><span id="spv">0</span><small>KM/H</small></div><div id="radio"></div>
+  <div id="prompt" class="pn"></div><div id="msg"></div>
+  <div id="keys">WASD: đi/lái · Shift: chạy · Space: nhảy/phanh tay · F: lên/xuống xe · E: nhận việc · H: còi · R: radio · T: tua giờ · Esc: menu</div>
+</div>
+<div id="fade"></div>
+<div id="touch">
+  <div id="joy"><i></i></div>
+  <button class="tb" id="tF">F<br>Xe</button><button class="tb" id="tE">E<br>Việc</button><button class="tb" id="tH">Còi</button><button class="tb" id="tJ">Nhảy<br>/Phanh</button><button class="tb" id="tR">Radio</button><button class="tb" id="tP">Menu</button>
+</div>
+<section id="menu">
+  <div class="card pn">
+    <h1>PHỐ ĐÊM 3D</h1>
+    <p class="sub">Thành phố mở về đêm. Đi bộ, cướp quyền lái những chiếc xe đậu bên đường, làm nhiệm vụ kiếm tiền và đừng để cảnh sát bắt kịp.</p>
+    <table>
+      <tr><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / mũi tên</td><td>Đi bộ · lái xe (lên ga, phanh/lùi, đánh lái)</td></tr>
+      <tr><td><kbd>Shift</kbd> · <kbd>Space</kbd></td><td>Chạy · nhảy / phanh tay (drift)</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Lên / xuống xe gần nhất</td></tr>
+      <tr><td><kbd>E</kbd></td><td>Nhận việc khi đứng trong vòng tròn màu</td></tr>
+      <tr><td>Kéo chuột · cuộn</td><td>Xoay / zoom máy quay</td></tr>
+      <tr><td><kbd>H</kbd> <kbd>R</kbd> <kbd>T</kbd> <kbd>M</kbd></td><td>Còi · đổi đài radio · tua 3 giờ · bật/tắt âm</td></tr>
+    </table>
+    <p class="note">Nhiệm vụ: 📦 Giao hàng (đi bộ hoặc lái), 🚕 Taxi và 🏁 Đua phố (cần xe). Gây tai nạn hoặc đâm xe sẽ bị cảnh sát truy đuổi: thoát khỏi tầm nhìn đủ lâu để mất sao. Nếu bị vây quanh sẽ bị bắt và mất một phần tiền. Không có máu me, người đi bộ chỉ bị hất ngã.</p>
+    <div class="row"><button class="btn pri" id="bStart">Bắt đầu</button><label>Đồ hoạ <select id="sQ"><option value="auto">Tự động</option><option value="low">Thấp</option><option value="mid">Vừa</option><option value="high">Cao (bloom)</option></select></label><button class="btn" id="bBack">‹ OmniHub</button><button class="btn" id="bReset">Xoá tiến trình</button></div>
+    <p class="note" id="saveInfo"></p>
+  </div>
+</section>
+<script type="module" src="main.js"></script>
+</body>
+</html>
