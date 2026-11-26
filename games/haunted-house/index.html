@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>The Haunted House – Căn Nhà Cuối Hẻm</title>
 <meta name="description" content="The Haunted House – Căn Nhà Cuối Hẻm: game kinh dị sinh tồn góc nhìn thứ nhất trong căn nhà ma kiểu Việt Nam. Giải đố, trốn, tránh hồn ma có AI nghe – nhìn – truy đuổi.">
 <meta name="author" content="Huyen"><meta name="copyright" content="© 2026 Huyen. Bảo lưu mọi quyền.">
@@ -68,6 +68,23 @@ select,input[type=range]{background:#151515;color:inherit;border:1px solid var(-
 #death{background:rgba(30,0,0,.9)}#win{background:radial-gradient(ellipse at center,#202418,#050605)}
 #loading{background:#000;z-index:40;color:#9a948a;font:italic 18px var(--f)}
 #pause{background:rgba(0,0,0,.6)}
+#touch{position:fixed;inset:0;z-index:5;display:none;pointer-events:none}
+body.touch #touch{display:block}body.touch #keys{display:none}
+body{touch-action:none;-webkit-touch-callout:none}
+#look{position:absolute;right:0;top:0;width:62%;height:100%;pointer-events:auto;touch-action:none}
+#joy{position:absolute;left:3vw;bottom:5vh;width:136px;height:136px;border-radius:50%;border:2px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);pointer-events:auto;touch-action:none}
+#joy i{position:absolute;left:46px;top:46px;width:44px;height:44px;border-radius:50%;background:rgba(232,194,122,.7)}
+.tb{position:absolute;pointer-events:auto;touch-action:none;width:58px;height:58px;border-radius:50%;border:2px solid rgba(255,255,255,.32);background:rgba(10,11,13,.55);color:#fff;font:700 12px var(--s);display:grid;place-items:center;text-align:center;line-height:1.1;user-select:none}
+.tb.on,.tb:active{background:rgba(200,55,45,.65)}
+#tE{right:4vw;bottom:8vh;width:76px;height:76px;font-size:18px;background:rgba(200,55,45,.5)}
+#tF{right:calc(4vw + 92px);bottom:6vh}#tR{right:calc(4vw + 92px);bottom:calc(6vh + 66px)}
+#tRun{right:4vw;bottom:calc(8vh + 90px)}#tC{right:calc(4vw + 70px);bottom:calc(8vh + 90px + 12px);width:50px;height:50px}
+#tI{right:3vw;top:12px;width:46px;height:46px}#tP{right:calc(3vw + 56px);top:12px;width:46px;height:46px}
+body.touch #bars{bottom:auto;top:84px;width:120px}body.touch #room{display:none}body.touch #sub{bottom:24%;font-size:16px}
+body.touch #obj{max-width:55vw}body.touch #obj div{font-size:14px}
+body.touch #prompt{top:auto;bottom:34%;pointer-events:auto}
+#rot{position:fixed;inset:0;z-index:35;background:#000;color:#e9e4da;display:none;place-items:center;text-align:center;font:italic 20px var(--f);padding:20px}
+@media (orientation:portrait){body.touch #rot{display:grid}}
 @media (max-width:760px){#invBox{grid-template-columns:1fr}#keys{display:none}}
 </style>
 <script type="importmap">
@@ -86,6 +103,10 @@ select,input[type=range]{background:#151515;color:inherit;border:1px solid var(-
   <div id="keys"><kbd>WASD</kbd> đi · <kbd>Shift</kbd> chạy · <kbd>Ctrl</kbd> cúi · <kbd>E</kbd> tương tác<br><kbd>F</kbd> đèn pin · <kbd>R</kbd> thay pin · <kbd>I</kbd> túi đồ · <kbd>Esc</kbd> tạm dừng</div>
 </div>
 <div class="ov" id="fade"></div>
+<div id="touch"><div id="look"></div><div id="joy"><i></i></div>
+<button class="tb" id="tE">E<br>Tương tác</button><button class="tb" id="tF">🔦<br>Đèn</button><button class="tb" id="tR">🔋<br>Pin</button>
+<button class="tb" id="tRun">Chạy<br>(giữ)</button><button class="tb" id="tC">Cúi</button><button class="tb" id="tI">🎒</button><button class="tb" id="tP">❚❚</button></div>
+<div id="rot">Hãy xoay ngang điện thoại để chơi 📱↻</div>
 
 <section class="scr on" id="menu"><div class="card">
   <h1>THE HAUNTED HOUSE<span>CĂN NHÀ CUỐI HẺM</span></h1>
@@ -97,7 +118,7 @@ select,input[type=range]{background:#151515;color:inherit;border:1px solid var(-
     <button class="btn" id="bSet">Cài đặt</button>
     <button class="btn" id="bBack">‹ Về OmniHub</button>
   </div>
-  <p class="note">Nên dùng tai nghe, phòng tối, bàn phím + chuột. Game có cảnh doạ giật mình. Yêu cầu trình duyệt máy tính hỗ trợ WebGL2.</p>
+  <p class="note">Nên dùng tai nghe, phòng tối. Chơi bằng bàn phím + chuột, hoặc cảm ứng trên điện thoại (xoay ngang). Game có cảnh doạ giật mình. Cần trình duyệt hỗ trợ WebGL2.</p>
 </div></section>
 
 <section class="scr" id="help"><div class="card">
@@ -110,7 +131,7 @@ select,input[type=range]{background:#151515;color:inherit;border:1px solid var(-
    <tr><td><kbd>I</kbd></td><td>Túi đồ: xem, dùng, ghép vật phẩm</td></tr>
    <tr><td><kbd>Esc</kbd></td><td>Tạm dừng · lưu game</td></tr>
   </table>
-  <p class="note">Hồn ma <b>nghe</b> tiếng bước chân, cửa, vật rơi và <b>nhìn</b> thấy bạn trong tầm mắt (đèn pin làm bạn dễ bị thấy hơn). Chạy làm ồn hơn đi bộ; cúi gần như im lặng. Khi bị đuổi, hãy khuất tầm nhìn rồi trốn vào tủ — nhưng nó vẫn có thể lục soát.<br>Mục tiêu: tìm manh mối, mở các phòng, thu thập 3 vật phẩm nghi lễ, xuống hầm giải thoát linh hồn rồi thoát khỏi căn nhà.</p>
+  <p class="note"><b>Cảm ứng:</b> cần trái để đi (đẩy hết cỡ = chạy), vuốt nửa phải màn hình để nhìn, nút E tương tác (hoặc chạm dòng gợi ý), 🔦 đèn pin, 🔋 thay pin, 🎒 túi đồ, ❚❚ tạm dừng.</p><p class="note">Hồn ma <b>nghe</b> tiếng bước chân, cửa, vật rơi và <b>nhìn</b> thấy bạn trong tầm mắt (đèn pin làm bạn dễ bị thấy hơn). Chạy làm ồn hơn đi bộ; cúi gần như im lặng. Khi bị đuổi, hãy khuất tầm nhìn rồi trốn vào tủ — nhưng nó vẫn có thể lục soát.<br>Mục tiêu: tìm manh mối, mở các phòng, thu thập 3 vật phẩm nghi lễ, xuống hầm giải thoát linh hồn rồi thoát khỏi căn nhà.</p>
   <div class="row"><button class="btn" data-close="help">Đóng</button></div>
 </div></section>
 
@@ -131,7 +152,7 @@ select,input[type=range]{background:#151515;color:inherit;border:1px solid var(-
 
 <section class="scr" id="inv"><div class="card">
   <h2>Túi đồ <small style="font:12px var(--s);color:#8a857b">(I hoặc Esc để đóng)</small></h2>
-  <div id="invBox"><div id="invList"></div><div id="invDet"><p>Chọn một vật phẩm.</p></div></div>
+  <div id="invBox"><div id="invList"></div><div id="invDet"><p>Chọn một vật phẩm.</p></div></div><div class="row"><button class="btn" id="invX">Đóng</button></div>
 </div></section>
 
 <section class="scr" id="reader"><div class="paper"><h3 id="rT"></h3><p id="rB"></p><div class="row"><button class="btn" id="rX" style="background:#2a2318;color:#e9e4da">Đóng</button></div></div></section>
@@ -619,7 +640,7 @@ const G={mode:'menu',t:0,flash:0,flick:0,evT:0,ev:{},bolt:R(15,35),beat:0,seq:nu
 const P={x:2.5,z:9.4,yaw:0,pitch:0,hp:100,sta:100,bat:100,light:false,hasLight:false,hidden:null,crouch:false,bob:0,stepD:0,noiseV:0,danger:0,staLock:false,staT:0,moving:false,sprint:false};
 const DOOR=id=>DOORS.find(d=>d.id===id);
 const say=(t,ms=3800)=>{const s=$('sub');s.textContent=t;s.classList.add('on');G.sayT=ms/1000};
-const keys=new Set();
+const keys=new Set();const TI={x:0,z:0,run:false,run2:false};const IS_TOUCH=matchMedia('(pointer:coarse)').matches||('ontouchstart' in window)||qs.has('touch');
 function give(id){INV.push(id);if(id==='flashlight')P.hasLight=true;if(ITEMS[id].rd)openReader(id);else say('Nhặt được: '+ITEMS[id].n)}
 
 /* ---- tiếng ồn ---- */
@@ -841,11 +862,11 @@ function step(dt){
  if(G.seq)ritualStep(dt);
  // --- người chơi ---
  const inF=keys.has('KeyW')||keys.has('ArrowUp'),inB=keys.has('KeyS')||keys.has('ArrowDown'),inL=keys.has('KeyA')||keys.has('ArrowLeft'),inR=keys.has('KeyD')||keys.has('ArrowRight');
- let mx=(inR?1:0)-(inL?1:0),mz=(inF?1:0)-(inB?1:0);const mv=!P.hidden&&!G.tp&&(mx||mz);
+ let mx=(inR?1:0)-(inL?1:0)+TI.x,mz=(inF?1:0)-(inB?1:0)+TI.z;const mv=!P.hidden&&!G.tp&&(mx||mz);
  P.crouch=keys.has('ControlLeft')||keys.has('KeyC')||P.crouchT;
- P.sprint=!!(mv&&(keys.has('ShiftLeft')||keys.has('ShiftRight'))&&!P.crouch&&P.sta>0&&!P.staLock&&mz>0);
+ P.sprint=!!(mv&&(keys.has('ShiftLeft')||keys.has('ShiftRight')||TI.run||TI.run2)&&!P.crouch&&P.sta>0&&!P.staLock&&mz>0);
  const sp=P.crouch?1.1:P.sprint?3.9:2.1;
- if(mv){const l=Math.hypot(mx,mz);mx/=l;mz/=l;const s=Math.sin(P.yaw),c=Math.cos(P.yaw);
+ if(mv){const l=Math.max(1,Math.hypot(mx,mz));mx/=l;mz/=l;const s=Math.sin(P.yaw),c=Math.cos(P.yaw);
   const vx=(-s*mz+c*mx)*sp*dt,vz=(-c*mz-s*mx)*sp*dt;let[nx,nz]=collide(P.x+vx,P.z,.3);[nx,nz]=collide(nx,P.z+vz,.3);
   P.stepD+=Math.hypot(nx-P.x,nz-P.z);P.x=nx;P.z=nz;P.bob+=dt*sp*2.6;
   const stride=P.sprint?1.5:P.crouch?1.1:1.2;if(P.stepD>stride){P.stepD=0;const v=P.sprint?1:P.crouch?.15:.5,r=P.sprint?13:P.crouch?2.5:7;AU.step(v,null);noise(P.x,P.z,r)}}
@@ -919,7 +940,7 @@ function setupFX(){if(Q==='low')return;
  composer.addPass(grade);composer.addPass(new OutputPass())}
 function render(){if(composer){grade.uniforms.time.value=perfT%10;grade.uniforms.danger.value=P.danger;grade.uniforms.dmg.value=Math.min(1,G.hitT);composer.render()}else renderer.render(scene,camera)}
 let last=performance.now();
-function frame(now){requestAnimationFrame(frame);const dt=clamp((now-last)/1000,0,.05);last=now;if(G.mode==='play')step(dt);render()}
+function frame(now){requestAnimationFrame(frame);const dt=clamp((now-last)/1000,0,.05);last=now;if(G.mode==='play')step(dt);else{TI.x=TI.z=0;TI.run=false}render()}
 addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();composer&&composer.setSize(innerWidth,innerHeight)});
 
 /* ================= ĐIỀU KHIỂN / MENU ================= */
@@ -941,7 +962,28 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>keys.clear());
 
-function startGame(mode){AU.init();$('loading').classList.add('on');
+if(IS_TOUCH){document.body.classList.add('touch');
+ const joy=$('joy'),knob=joy.firstElementChild;let jid=null,jc=null;
+ const jm=e=>{if(e.pointerId!==jid)return;let dx=(e.clientX-jc.x)/52,dy=(e.clientY-jc.y)/52;const raw=Math.hypot(dx,dy);let l=raw;if(l>1){dx/=l;dy/=l;l=1}
+  knob.style.transform=`translate(${dx*44}px,${dy*44}px)`;if(raw<.18){TI.x=TI.z=0}else{TI.x=dx;TI.z=-dy}TI.run=raw>1.25};
+ const jr=e=>{if(e.pointerId!==jid)return;jid=null;TI.x=TI.z=0;TI.run=false;knob.style.transform=''};
+ joy.addEventListener('pointerdown',e=>{jid=e.pointerId;const r=joy.getBoundingClientRect();jc={x:r.left+r.width/2,y:r.top+r.height/2};try{joy.setPointerCapture(jid)}catch(_){}jm(e);e.preventDefault()});
+ joy.addEventListener('pointermove',jm);joy.addEventListener('pointerup',jr);joy.addEventListener('pointercancel',jr);
+ const lk=$('look');let lid=null,lx=0,ly=0;
+ lk.addEventListener('pointerdown',e=>{if(G.mode!=='play')return;lid=e.pointerId;try{lk.setPointerCapture(lid)}catch(_){}lx=e.clientX;ly=e.clientY;e.preventDefault()});
+ lk.addEventListener('pointermove',e=>{if(e.pointerId!==lid||G.mode!=='play')return;const k=.0045*CFG.sens;P.yaw-=(e.clientX-lx)*k;P.pitch=clamp(P.pitch-(e.clientY-ly)*k,-1.4,1.4);lx=e.clientX;ly=e.clientY;
+  if(P.hidden){P.yaw=clamp(P.yaw,P.hidden.yaw-.7,P.hidden.yaw+.7);P.pitch=clamp(P.pitch,-.4,.4)}});
+ const le=e=>{if(e.pointerId===lid)lid=null};lk.addEventListener('pointerup',le);lk.addEventListener('pointercancel',le);
+ const btn=(id,fn)=>$(id).addEventListener('pointerdown',e=>{e.preventDefault();if(G.mode==='play'){AU.init();fn()}});
+ btn('tE',interact);btn('tF',toggleLight);btn('tR',reload);btn('tI',openInv);btn('tP',openPause);btn('tC',()=>{P.crouchT=!P.crouchT;$('tC').classList.toggle('on',!!P.crouchT)});
+ const rn=$('tRun');rn.addEventListener('pointerdown',e=>{e.preventDefault();try{rn.setPointerCapture(e.pointerId)}catch(_){}TI.run2=true;rn.classList.add('on')});
+ const ru=()=>{TI.run2=false;rn.classList.remove('on')};rn.addEventListener('pointerup',ru);rn.addEventListener('pointercancel',ru);
+ $('prompt').addEventListener('pointerdown',e=>{e.preventDefault();if(G.mode==='play')interact()});
+ document.addEventListener('contextmenu',e=>e.preventDefault());
+}
+$('invX').onclick=closeAll;
+function startGame(mode){if(IS_TOUCH){try{document.documentElement.requestFullscreen?.().catch(()=>{});screen.orientation?.lock?.('landscape').catch(()=>{})}catch(e){}}
+ AU.init();$('loading').classList.add('on');
  setTimeout(async()=>{
   let sv=null;if(mode==='load')sv=await DB.get();
   if(sv&&validSave(sv)){applySave(sv)}else{resetWorld();if(mode!=='load'||!sv){DB.clear()}}
@@ -975,7 +1017,7 @@ refreshCont();$('loading').classList.remove('on');
 requestAnimationFrame(frame);
 
 // tay cầm kiểm thử
-window.HH={G,P,GH,INV,WS,DOORS,NODES,PICKS,HIDES,INT,COL,AI,THREE,camera,scene,
+window.HH={TI,G,P,GH,INV,WS,DOORS,NODES,PICKS,HIDES,INT,COL,AI,THREE,camera,scene,
  advance(s){const n=Math.round(s*30);for(let i=0;i<n&&G.mode==='play';i++)step(1/30)},
  start(m){startGame(m||'new')},tp(x,z,yaw){P.x=x;P.z=z;if(yaw!=null)P.yaw=yaw},give:id=>{INV.push(id);if(id==='flashlight')P.hasLight=true},
  snap:snapshot,find:findPath,seg:segHits,noise,interact,hoverDef:()=>hover,roomAt,objective,die,save:()=>DB.put(snapshot()),load:DB.get.bind(DB),applySave,
