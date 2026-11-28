@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NihonPath – Học tiếng Nhật mỗi ngày</title>
+<meta name="description" content="NihonPath: bảng học tiếng Nhật mỗi ngày phong cách sổ tay giấy – điểm danh, bảng chữ cái hiragana/katakana, gõ câu, từ vựng N5, ngữ pháp, đọc & dịch, phát âm, dictation và từ điển nhỏ. Dữ liệu lưu trên máy bạn.">
+<meta name="author" content="Huyen"><meta name="copyright" content="© 2026 Huyen. Bảo lưu mọi quyền."><meta name="theme-color" content="#e9e3d6">
+<style>
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url(../../css/fonts/baloo-2-vietnamese-wght-normal.woff2) format("woff2-variations");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url(../../css/fonts/baloo-2-latin-ext-wght-normal.woff2) format("woff2-variations");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB}
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url(../../css/fonts/baloo-2-latin-wght-normal.woff2) format("woff2-variations");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122}
+@font-face{font-family:"Patrick Hand";font-display:swap;src:url(../../css/fonts/patrick-hand-vietnamese-400-normal.woff2) format("woff2");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:"Patrick Hand";font-display:swap;src:url(../../css/fonts/patrick-hand-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+2000-206F}
+:root{--bg:#e9e3d6;--card:#f6f0e3;--ln:#e3d9c3;--ink:#2b2418;--mut:#7c715c;--brown:#5a4423;--tan:#efdcb8;--red:#e0553f;--f:"Baloo 2","Hiragino Sans","Yu Gothic UI","Noto Sans JP","Meiryo",system-ui,sans-serif;--h:"Patrick Hand","Baloo 2",cursive}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:var(--f);color:var(--ink);background:var(--bg) radial-gradient(circle at 20% 10%,rgba(255,255,255,.55),transparent 40%),radial-gradient(circle at 90% 80%,rgba(255,255,255,.35),transparent 45%);font-size:16px;line-height:1.35}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.app{display:grid;grid-template-columns:320px 1fr;gap:18px;padding:16px;max-width:1700px;margin:auto;align-items:start}
+.card{background:var(--card);border:1.5px solid var(--ln);border-radius:30px;box-shadow:0 1px 0 #fff inset,0 8px 22px rgba(110,90,50,.13)}
+/* sidebar */
+.side{position:sticky;top:16px;height:calc(100vh - 32px);padding:20px 16px;display:flex;flex-direction:column;overflow:auto}
+.rings{display:flex;gap:46px;padding-left:28px;margin:-8px 0 8px}.rings i{width:14px;height:14px;border-radius:50%;background:#d8cfba;box-shadow:inset 0 2px 3px rgba(0,0,0,.2)}
+.logo{display:flex;align-items:center;gap:10px;padding:6px 10px 16px;font-weight:800;font-size:30px;letter-spacing:-.02em}
+.logo b{background:linear-gradient(90deg,#2d87e0,#e0553f,#f0a830);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo span{font:600 14px var(--f);letter-spacing:.2em;color:#4b6b8a;border-left:2px solid #b8c7d6;padding-left:10px}
+.nav{display:flex;flex-direction:column;gap:6px}
+.nav a{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:18px;text-decoration:none;color:var(--ink);font-weight:600;font-size:17px;border:2px solid transparent}
+.nav a:hover{background:rgba(255,255,255,.55)}
+.nav a.on{background:#f2e6c9;border-color:#d9c79a;box-shadow:0 3px 0 #d9c79a;font-weight:800}
+.ico{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:22px;flex:none;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.sep{height:2px;background:var(--ln);margin:10px 12px}
+.me{margin-top:auto;border:1.5px solid var(--ln);border-radius:22px;padding:12px;background:#f2ecde}
+.me .top{display:flex;align-items:center;gap:10px}.me .av{width:46px;height:46px;border-radius:50%;background:#d6e8c8;display:grid;place-items:center;font-size:26px;border:2px solid #fff}
+.me b{display:block;font-size:17px;cursor:pointer}.me small{color:var(--mut)}
+.me .st{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:10px}.me .st div{background:#fbf7ee;border:1.5px solid var(--ln);border-radius:14px;padding:6px 10px;text-align:center;font-size:13px;color:var(--mut)}.me .st b{color:var(--red);font-size:20px;cursor:default}
+/* main */
+.main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.head{padding:18px 26px;position:relative;overflow:hidden}
+.head h1{margin:0 0 12px;font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-.02em}
+.row1{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.date{width:150px;border-radius:16px;overflow:hidden;background:#fff;border:1.5px solid var(--ln);display:flex;flex-direction:column;text-align:center}
+.date i{background:#f3a08e;color:#fff;font-style:normal;font-weight:700;font-size:13px;padding:1px}
+.date b{font-size:24px;padding:2px 8px}.date b small{font-size:16px;margin-left:6px}
+.strip{flex:1;min-width:360px;display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--ln);border-radius:20px;padding:8px 16px;flex-wrap:wrap}
+.fire{display:flex;align-items:center;gap:8px;padding-right:14px;border-right:2px solid var(--ln)}.fire span{width:44px;height:44px;border-radius:14px;background:#fbd9cf;display:grid;place-items:center;font-size:26px}.fire b{font-size:20px;line-height:1}.fire small{display:block;color:var(--mut);font-size:13px}
+.days{display:flex;gap:10px;flex:1;justify-content:space-around}.day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;font-weight:700;color:var(--mut);padding:4px 8px;border-radius:12px}
+.day.today{background:#fbd9cf;color:var(--brown)}.dot{width:20px;height:20px;border-radius:50%;border:2px solid #b9b09b;display:grid;place-items:center;font-size:12px;line-height:1}.dot.ok{background:var(--red);border-color:var(--red);color:#fff}.dot.f{border:0;background:#cfc7b4;width:7px;height:7px;margin:6.5px}
+.week{font-size:14px;color:var(--mut)}.week b{display:block;color:var(--ink);font-size:17px}
+.ck{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--red);border-radius:20px;padding:6px 14px;border:2px solid var(--red)}.ck.go{background:var(--red);color:#fff;box-shadow:0 3px 0 #a93a28}.ck.go:hover{filter:brightness(1.08)}
+.mascot{position:absolute;right:26px;top:14px;width:78px;height:78px;border-radius:50%;background:#fff;border:3px solid #f1e9d6;display:grid;place-items:center;font-size:46px;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+h2.t{display:flex;align-items:baseline;gap:18px;margin:6px 4px -6px;font-size:34px;font-weight:800;flex-wrap:wrap}h2.t small{font:400 26px var(--h);color:var(--mut)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:12px}
+.sc{position:relative;border-radius:26px;padding:22px 18px 16px;min-height:280px;text-align:left;border:1.5px solid rgba(0,0,0,.05);box-shadow:0 8px 18px rgba(80,60,30,.13);transition:transform .15s;display:flex;flex-direction:column;background-image:radial-gradient(rgba(255,255,255,.55) 1.4px,transparent 1.6px);background-size:14px 14px;overflow:hidden}
+.sc:hover{transform:translateY(-4px) rotate(-.4deg)}
+.sc::before{content:"";position:absolute;top:-4px;left:50%;width:62px;height:18px;transform:translateX(-50%);background:repeating-linear-gradient(90deg,rgba(255,255,255,.7) 0 5px,rgba(0,0,0,.08) 5px 7px);border-radius:3px}
+.sc .bd{align-self:flex-start;background:rgba(255,255,255,.75);border-radius:14px;padding:3px 12px;font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.sc h3{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}.sc p{margin:6px 0 0;font-size:15.5px;color:rgba(40,30,20,.72);font-weight:500;max-width:15em}
+.sc .il{margin-top:auto;align-self:flex-end;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.4);display:grid;place-items:center;font-size:54px;margin-right:-6px;margin-bottom:-6px}
+.c1{background-color:#c9def6}.c2{background-color:#dacdf3}.c3{background-color:#f8d6bf}.c4{background-color:#c8e9d3}.c5{background-color:#f6cbd9}.c6{background-color:#ebd7ae}.c7{background-color:#c6dcf4}
+.bot{display:grid;grid-template-columns:1.55fr 1fr;gap:20px}
+.plan{background:var(--tan);padding:24px 26px;border-color:#dcc89a}
+.ph{display:flex;align-items:center;gap:14px;margin-bottom:16px}.ph .ib{width:52px;height:52px;border-radius:16px;background:#fff8e6;display:grid;place-items:center;font-size:28px}.ph h2{margin:0;font-size:30px;flex:1}
+.ring{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;text-align:center;font-weight:800;line-height:1;font-size:22px;background:conic-gradient(#8a6a2e var(--p),#fbf3dd 0);position:relative}.ring::before{content:"";position:absolute;inset:6px;background:#f3e6c4;border-radius:50%}.ring span{position:relative}.ring small{display:block;font-size:13px;font-weight:600}
+.task{display:flex;align-items:center;gap:14px;background:#faf5e8;border:2px solid transparent;border-radius:20px;padding:11px 16px;margin-bottom:10px}
+.task.next{border-color:#7a5d2c;background:#fffaf0}
+.task .tic{width:44px;height:44px;border-radius:12px;background:#fff;border:1.5px solid var(--ln);display:grid;place-items:center;font-size:22px;flex:none}
+.task .tx{flex:1;min-width:0}.task small{color:var(--mut);font-size:14px}.task b{display:block;font-size:18px;line-height:1.2;cursor:pointer}
+.stamp{border:2.5px dashed #5b9b78;color:#4a8a68;font-weight:800;letter-spacing:.12em;border-radius:8px;padding:2px 14px;transform:rotate(-1.5deg);font-size:14px}
+.go2{background:#5a4423;color:#fff;border-radius:18px;padding:7px 18px;font-weight:700}.tm{color:var(--mut);font-size:14px;white-space:nowrap}.mn{font-size:22px;color:var(--mut);padding:0 6px}
+.road{padding:22px 24px}
+.road .rh{display:flex;align-items:center;gap:10px}.road h2{margin:0;font-size:28px;flex:1}.road .op{font-weight:800}
+.pct{font-size:56px;font-weight:800;line-height:1.1;margin-top:6px}
+.bar{height:10px;border-radius:6px;background:#e1d8c4;margin:8px 0 6px;position:relative}.bar i{display:block;height:100%;border-radius:6px;background:var(--brown);min-width:10px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.mini div{background:#faf6ec;border:1.5px solid var(--ln);border-radius:16px;padding:8px 14px;color:var(--mut);font-size:14px}.mini b{display:block;color:var(--ink);font-size:20px}
+.ch{border-radius:16px;padding:8px 14px;margin-bottom:8px;background:#fff;border:1.5px solid var(--ln);cursor:pointer;font-size:15px}.ch.on{background:var(--brown);color:#fff;border-color:var(--brown)}.ch div{display:flex;justify-content:space-between;font-size:14px}.ch b{font-size:16px;font-weight:700}
+/* modules */
+.mod{padding:26px 28px;min-height:70vh}
+.mod h1{margin:0 0 4px;font-size:34px}.mod .sub{color:var(--mut);margin-bottom:18px}
+.back{display:inline-block;margin-bottom:12px;padding:6px 16px;border-radius:16px;background:#fff;border:1.5px solid var(--ln);font-weight:700;text-decoration:none;color:var(--ink)}
+.q{font-size:26px;font-weight:700;margin:10px 0}.vi{font:400 26px var(--h);color:var(--mut);margin:6px 0 14px}
+.in{width:100%;font:600 22px var(--f);padding:12px 16px;border-radius:18px;border:2px solid var(--ln);background:#fff;outline:0}.in:focus{border-color:#8a6a2e}
+.btn{background:var(--brown);color:#fff;border-radius:18px;padding:9px 22px;font-weight:700;margin:12px 8px 0 0}.btn.l{background:#fff;color:var(--ink);border:2px solid var(--ln)}
+.fb{margin-top:14px;padding:12px 16px;border-radius:16px;font-size:19px}.fb.ok{background:#d6edd9}.fb.no{background:#f8d9d2}
+.w-ok{color:#2c7a46;font-weight:700}.w-no{color:#c0392b;font-weight:700;text-decoration:underline wavy}
+.flash{perspective:900px;max-width:520px;margin:10px auto}.fc{background:#fff;border:2px solid var(--ln);border-radius:28px;padding:34px 26px;text-align:center;min-height:240px;cursor:pointer;box-shadow:0 8px 0 #e3d9c3}
+.fc .w{font-size:46px;font-weight:800}.fc .p{color:var(--mut);font-size:22px}.fc .m{font-size:30px;font-weight:700;color:#8a4b1c;margin-top:10px}.fc .e{font:italic 18px var(--f);color:var(--mut);margin-top:10px}
+.opts{display:grid;gap:10px;margin-top:12px}.opt{background:#fff;border:2px solid var(--ln);border-radius:16px;padding:12px 18px;text-align:left;font-size:19px;font-weight:600}.opt:hover{border-color:#8a6a2e}.opt.ok{background:#d6edd9;border-color:#4a8a68}.opt.no{background:#f8d9d2;border-color:#c0392b}
+.rs{margin:14px 0;font-size:21px}.rs i{display:block;font-style:normal;color:var(--mut);font-size:17px;margin-top:2px}.rs.sh i{display:block}
+.prog{height:8px;background:#e1d8c4;border-radius:6px;margin:10px 0}.prog i{display:block;height:100%;background:#8a6a2e;border-radius:6px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}.sb{background:#fff;border:1.5px solid var(--ln);border-radius:20px;padding:16px;text-align:center}.sb b{display:block;font-size:34px;color:var(--red)}
+textarea.in{min-height:140px;font-size:18px}
+@media (max-width:980px){.app{grid-template-columns:1fr}.side{position:static;height:auto}.nav{flex-direction:row;overflow:auto;padding-bottom:6px}.nav a{white-space:nowrap}.me{display:none}.sep{display:none}.rings{display:none}.bot{grid-template-columns:1fr}.mascot{display:none}}
+.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px;margin-top:16px}
+.kc{background:#fff;border:2px solid var(--ln);border-radius:18px;padding:12px 6px;text-align:center;box-shadow:0 3px 0 var(--ln)}.kc:hover{border-color:#8a6a2e}
+.kc b{display:block;font-size:34px;font-weight:700;line-height:1.2;font-family:"Hiragino Sans","Yu Gothic UI","Noto Sans JP","Meiryo",system-ui,sans-serif}.kc small{color:var(--mut);font-size:14px}
+input[lang=ja],textarea[lang=ja],.q,.rs,.vi,.w{font-family:"Hiragino Sans","Yu Gothic UI","Noto Sans JP","Meiryo",system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="app">
+ <aside class="card side">
+  <div class="rings"><i></i><i></i><i></i><i></i></div>
+  <div class="logo"><b>NihonPath</b><span>日本語</span></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="me" id="me"></div>
+ </aside>
+ <main class="main" id="main"></main>
+</div>
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const dkey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>dkey(new Date());
+const def={name:'Bạn',checkins:{},xp:0,xpm:{},typing:[],dict:[],read:[],gram:[],known:[],kana:{},tasks:{},fb:''};
+let S=Object.assign({},def);
+try{Object.assign(S,JSON.parse(localStorage.getItem('jp_state')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('jp_state',JSON.stringify(S))}catch(e){}};
+const addXp=n=>{S.xp+=n;const m=today().slice(0,7);S.xpm[m]=(S.xpm[m]||0)+n;save()};
+
+/* ===== dữ liệu học (tự biên soạn, mức JLPT N5) ===== */
+// [tiếng Nhật, hiragana/katakana, romaji, tiếng Việt]
+const SENT=[
+ ['私は学生です。','わたしはがくせいです。','watashi wa gakusei desu.','Tôi là học sinh.'],['はじめまして、よろしくお願いします。','はじめまして、よろしくおねがいします。','hajimemashite, yoroshiku onegaishimasu.','Rất vui được gặp, mong được giúp đỡ.'],['お名前は何ですか。','おなまえはなんですか。','onamae wa nan desu ka.','Tên bạn là gì?'],
+ ['毎朝六時に起きます。','まいあさろくじにおきます。','maiasa rokuji ni okimasu.','Mỗi sáng tôi dậy lúc 6 giờ.'],['昨日、友達と映画を見ました。','きのう、ともだちとえいがをみました。','kinou, tomodachi to eiga o mimashita.','Hôm qua tôi xem phim với bạn.'],['日本語を勉強しています。','にほんごをべんきょうしています。','nihongo o benkyou shite imasu.','Tôi đang học tiếng Nhật.'],
+ ['これはいくらですか。','これはいくらですか。','kore wa ikura desu ka.','Cái này bao nhiêu tiền?'],['水をください。','みずをください。','mizu o kudasai.','Cho tôi nước.'],['ラーメンが好きです。','ラーメンがすきです。','raamen ga suki desu.','Tôi thích mì ramen.'],
+ ['駅はどこですか。','えきはどこですか。','eki wa doko desu ka.','Ga ở đâu?'],['明日、東京へ行きます。','あした、とうきょうへいきます。','ashita, toukyou e ikimasu.','Ngày mai tôi đi Tokyo.'],['電車で会社に行きます。','でんしゃでかいしゃにいきます。','densha de kaisha ni ikimasu.','Tôi đi làm bằng tàu điện.']];
+const CHAP=[['Chào hỏi & giới thiệu',0],['Sinh hoạt hằng ngày',3],['Mua sắm & ăn uống',6],['Đi lại & hỏi đường',9]];
+// [kanji/từ, kana, romaji, nghĩa, ví dụ]
+const VOC=[['学生','がくせい','gakusei','học sinh, sinh viên','私は学生です。'],['先生','せんせい','sensei','giáo viên','田中先生は優しいです。'],['友達','ともだち','tomodachi','bạn bè','友達と遊びます。'],['水','みず','mizu','nước','水を飲みます。'],['食べる','たべる','taberu','ăn','パンを食べます。'],['飲む','のむ','nomu','uống','お茶を飲みます。'],['行く','いく','iku','đi','学校へ行きます。'],['来る','くる','kuru','đến','友達が来ます。'],['見る','みる','miru','xem, nhìn','テレビを見ます。'],['本','ほん','hon','sách','本を読みます。'],['学校','がっこう','gakkou','trường học','学校は大きいです。'],['会社','かいしゃ','kaisha','công ty','会社で働きます。'],['駅','えき','eki','nhà ga','駅は近いです。'],['電車','でんしゃ','densha','tàu điện','電車に乗ります。'],['今日','きょう','kyou','hôm nay','今日は暑いです。'],['明日','あした','ashita','ngày mai','明日は休みです。'],['昨日','きのう','kinou','hôm qua','昨日は雨でした。'],['大きい','おおきい','ookii','to, lớn','大きい犬です。'],['小さい','ちいさい','chiisai','nhỏ','小さい猫です。'],['新しい','あたらしい','atarashii','mới','新しい車です。'],['高い','たかい','takai','cao; đắt','この本は高いです。'],['好き','すき','suki','thích','音楽が好きです。'],['勉強','べんきょう','benkyou','học tập','毎日勉強します。'],['家族','かぞく','kazoku','gia đình','家族は四人です。']];
+const GRAM=[
+ ['私＿＿学生です。',['は','が','を','に'],0,'「は」(đọc là wa) đánh dấu chủ đề của câu: 私は学生です。'],
+ ['水＿＿飲みます。',['を','は','で','へ'],0,'「を」(đọc là o) đứng sau tân ngữ của động từ.'],
+ ['学校＿＿行きます。',['へ','を','が','と'],0,'「へ」(đọc là e) chỉ hướng di chuyển: đi đến đâu.'],
+ ['友達＿＿映画を見ました。',['と','を','が','で'],0,'「と」nghĩa là "cùng với": 友達と = cùng bạn.'],
+ ['電車＿＿会社に行きます。',['で','を','は','が'],0,'「で」chỉ phương tiện hoặc nơi diễn ra hành động.'],
+ ['昨日、ラーメンを＿＿。',['食べます','食べました','食べません','食べる'],1,'Có 昨日 (hôm qua) → quá khứ lịch sự: 〜ました.'],
+ ['これは本＿＿。',['です','ます','いる','ある'],0,'Câu danh từ lịch sự kết thúc bằng です.'],
+ ['日本語を勉強＿＿います。',['して','する','した','しない'],0,'〜ている (〜ています) diễn tả hành động đang diễn ra: 勉強して + います.'],
+ ['水を＿＿。',['ください','ありがとう','おはよう','すみません'],0,'〜をください = làm ơn cho tôi 〜.'],
+ ['本を＿＿ます。',['読み','読む','読んで','読んだ'],0,'Trước ます dùng thể liên dụng (thân ます): 読み + ます.']];
+const READ=[
+ ['私の朝',[['私は毎朝六時に起きます。','Mỗi sáng tôi dậy lúc 6 giờ.'],['朝ごはんにパンを食べます。','Bữa sáng tôi ăn bánh mì.'],['それから、電車で会社に行きます。','Sau đó tôi đi làm bằng tàu điện.']]],
+ ['日本語の勉強',[['私は日本語を勉強しています。','Tôi đang học tiếng Nhật.'],['毎日、少しずつ漢字を覚えます。','Mỗi ngày tôi nhớ dần từng chữ Hán.'],['間違えても大丈夫です。','Mắc lỗi cũng không sao.']]],
+ ['休みの日',[['日曜日は友達と出かけます。','Chủ nhật tôi đi chơi với bạn.'],['映画を見て、ラーメンを食べます。','Chúng tôi xem phim rồi ăn ramen.'],['とても楽しい一日です。','Đó là một ngày rất vui.']]]];
+const HIRA=[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o'],['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko'],['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so'],['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to'],['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no'],['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho'],['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo'],['や','ya'],['ゆ','yu'],['よ','yo'],['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro'],['わ','wa'],['を','o'],['ん','n']];
+const kata=h=>String.fromCharCode(h.charCodeAt(0)+0x60);
+const TASKS=[{id:'t1',cat:'Ngữ pháp',t:'Trợ từ は・を・へ • Bài hướng dẫn',r:'gram',min:6,ic:'📝'},{id:'t2',cat:'Ngữ pháp',t:'Trợ từ と・で • Bài hướng dẫn',r:'gram',min:6,ic:'📝'},{id:'t3',cat:'Gõ câu',t:'Chào hỏi & giới thiệu • Bài 1',r:'typing',min:10,ic:'⌨️'},{id:'t4',cat:'Từ vựng',t:'JLPT N5 • 10 từ mới',r:'vocab',min:5,ic:'🃏'}];
+const TOTAL=SENT.length*2+GRAM.length+READ.length;
+const learned=()=>S.typing.length+S.dict.length+S.gram.length+S.read.length;
+
+/* ===== tiện ích ===== */
+const tk=()=>S.tasks[today()]||(S.tasks[today()]={});
+function doneRoute(r){const t=TASKS.find(x=>x.r===r&&!tk()[x.id]);if(t){tk()[t.id]=1;save()}}
+function streak(){let n=0;const d=new Date();if(!S.checkins[dkey(d)])d.setDate(d.getDate()-1);while(S.checkins[dkey(d)]){n++;d.setDate(d.getDate()-1)}return n}
+const nj=s=>String(s).normalize('NFKC').toLowerCase().replace(/[\s。、．，.,!?！？「」'’]/g,'');
+// so sánh với tiếng Nhật, kana hoặc romaji: đúng nếu khớp một trong ba dạng
+function jdiff(ans,it){
+ const a=nj(ans);const forms=[it[0],it[1],it[2]];
+ for(const f of forms)if(a&&a===nj(f))return{exact:true,html:colorize(it[0],it[0]),ok:1,total:1};
+ let best=null;
+ for(const f of forms){const t=nj(f);let ok=0;for(let i=0;i<t.length;i++)if(a[i]===t[i])ok++;if(!best||ok/t.length>best.r)best={f,r:ok/t.length,ok,total:t.length}}
+ return{exact:false,html:colorize(best.f,ans),ok:best.ok,total:best.total}}
+function colorize(target,ans){const a=nj(ans);let i=0;return [...target].map(ch=>{if(/[\s。、，.,!?！？]/.test(ch))return esc(ch);const g=a[i]===nj(ch)[0];i++;return `<span class="${g?'w-ok':'w-no'}">${esc(ch)}</span>`}).join('')}
+function speak(text,rate=.85){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ja-JP';u.rate=rate;speechSynthesis.speak(u)}catch(e){}}
+const NAV=[['home','Trang chủ','🏠','#f8d9c0'],['typing','Học qua gõ câu','⌨️','#c9def6'],['kana','Bảng chữ cái','あ','#f6cbd9'],['vocab','Luyện từ vựng','🃏','#dacdf3'],['gram','Luyện ngữ pháp','📝','#f8d6bf'],['read','Luyện đọc & dịch','📰','#c8e9d3'],['pron','Luyện phát âm','🎤','#c6eadf'],['dict','Dictation & Shadowing','🎧','#f6cbd9'],['dic','Từ điển','📖','#ebd7ae'],['road','Lộ trình học','🗺️','#c6dcf4'],'-',['prog','Tiến độ','🏆','#f6cfc4'],['req','Yêu cầu tính năng','💡','#efd9a0']];
+function paintSide(route){
+ $('#nav').innerHTML=NAV.map(n=>n==='-'?'<div class="sep"></div>':`<a href="#/${n[0]}" class="${n[0]===route?'on':''}"><span class="ico" style="background:${n[3]}">${n[2]}</span>${n[1]}</a>`).join('');
+ const m=today().slice(0,7);
+ $('#me').innerHTML=`<div class="top"><div class="av">🦊</div><div><b id="nm" title="Bấm để đổi tên">${esc(S.name)}</b><small>Trình độ N5 → N4</small></div></div><div class="st"><div><b>${streak()}</b><br>ngày liền</div><div><b>${S.xpm[m]||0}</b><br>XP tháng</div></div>`;
+ $('#nm').onclick=()=>{const v=prompt('Tên của bạn?',S.name);if(v&&v.trim()){S.name=v.trim().slice(0,24);save();route2()}};
+}
+function weekRow(){const now=new Date(),dow=(now.getDay()+6)%7,mon=new Date(now);mon.setDate(now.getDate()-dow);const L=['T2','T3','T4','T5','T6','T7','CN'];let c=0;
+ const h=L.map((l,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);const k=dkey(d),ok=S.checkins[k];if(ok)c++;const t=i===dow;return `<div class="day${t?' today':''}">${l}<span class="dot ${ok?'ok':i>dow?'f':''}">${ok?'✓':''}</span></div>`}).join('');return{h,c}}
+
+/* ===== trang chủ ===== */
+const CARDS=[['typing','c1',SENT.length+' câu','Gõ câu','Gõ lại câu mẫu bằng kana, kanji hoặc romaji','⌨️'],['kana','c5','92 chữ','Bảng chữ cái','Hiragana & Katakana, nghe và kiểm tra','あ'],['vocab','c2',VOC.length+' thẻ','Từ vựng','Từ N5 kèm kana và romaji','🃏'],['gram','c3',GRAM.length+' câu','Ngữ pháp','Trợ từ và mẫu câu cơ bản','📝'],['read','c4',READ.length+' bài','Đọc & dịch','Đoạn ngắn có bản dịch tiếng Việt','📰'],['dic','c6','Tra nhanh','Từ điển','Kanji, kana, romaji, nghĩa','📖'],['road','c7',CHAP.length+' chương','Lộ trình','Từ N5 lên N4, theo từng chương','🗺️']];
+function home(){
+ const d=new Date(),wk=weekRow(),done=S.checkins[today()],tks=tk(),nx=TASKS.find(t=>!tks[t.id]),dn=TASKS.filter(t=>tks[t.id]).length,pc=Math.round(learned()/TOTAL*100);
+ const DN=['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+ $('#main').innerHTML=`
+ <section class="card head"><h1>こんにちは, ${esc(S.name)}! Học tiếp nhé.</h1><div class="mascot">🦊</div>
+  <div class="row1"><div class="date"><i>Tháng ${d.getMonth()+1}</i><b>${d.getDate()}<small>${DN[d.getDay()]}</small></b></div>
+  <div class="strip"><div class="fire"><span>🔥</span><div><b>${streak()} ngày</b><small>Chuỗi điểm danh</small></div></div><div class="days">${wk.h}</div><div class="week">Tuần này<b>${wk.c}/7 ngày</b></div>
+  ${done?'<div class="ck">✔ Đã điểm danh</div>':'<button class="ck go" id="ck">Điểm danh</button>'}</div></div></section>
+ <h2 class="t">Hôm nay học gì? <small>— 少しずつ、毎日。Mỗi ngày một chút.</small></h2>
+ <section class="cards">${CARDS.map(c=>`<a class="sc ${c[1]}" href="#/${c[0]}" style="text-decoration:none;color:inherit"><span class="bd">${c[2]}</span><h3>${c[3]}</h3><p>${c[4]}</p><div class="il">${c[5]}</div></a>`).join('')}</section>
+ <section class="bot"><div class="card plan"><div class="ph"><div class="ib">📋</div><h2>Kế hoạch hôm nay.</h2><div class="ring" style="--p:${dn/TASKS.length*100}%"><span>${dn}/${TASKS.length}<small>bài</small></span></div></div>
+  ${TASKS.map(t=>{const dd=tks[t.id],nn=nx&&nx.id===t.id;return `<div class="task${nn?' next':''}"><div class="tic">${t.ic}</div><div class="tx"><small>${t.cat}</small><b data-go="${t.r}">${t.t}</b></div>${dd?'<span class="stamp">ĐÃ XONG</span>':nn?`<button class="go2" data-go="${t.r}">Tiếp theo</button>`:`<span class="tm">⏱ ~${t.min} phút</span>`}<button class="mn" data-tg="${t.id}" title="Đánh dấu xong / bỏ">⋯</button></div>`}).join('')}</div>
+  <div class="card road"><div class="rh"><span style="font-size:34px">🗺️</span><h2>Lộ trình.</h2><a class="op" href="#/road" style="color:inherit;text-decoration:none">Mở →</a></div><div class="pct">${pc}%</div><div style="font-size:19px;font-weight:600">chặng đường tới JLPT N4</div><div class="bar"><i style="width:${pc}%"></i></div>
+  <div class="mini"><div>Bài đã học<b>${learned()}/${TOTAL}</b></div><div>Từ đã học, đã biết<b>${S.known.length}/${VOC.length}</b></div></div>${chapters()}</div></section>`;
+ const ck=$('#ck');if(ck)ck.onclick=()=>{S.checkins[today()]=1;addXp(5);route2()};
+ document.querySelectorAll('[data-go]').forEach(e=>e.onclick=()=>location.hash='#/'+e.dataset.go);
+ document.querySelectorAll('[data-tg]').forEach(e=>e.onclick=()=>{const k=e.dataset.tg,t=tk();t[k]?delete t[k]:t[k]=1;save();route2()});
+}
+function chapters(){return CHAP.map((c,i)=>{const n=[0,1,2].filter(k=>S.typing.includes(c[1]+k)).length;return `<div class="ch${n>0&&n<3||(i===0&&n===0)?' on':''}" onclick="location.hash='#/typing'"><div><b>Chương ${i+1}</b><span>${n}/3</span></div>${c[0]}</div>`}).join('')}
+
+/* ===== module ===== */
+const wrap=(t,sub,body)=>`<section class="card mod"><a class="back" href="#/home">← Trang chủ</a><h1>${t}</h1><div class="sub">${sub}</div>${body}</section>`;
+let ses={};
+function typing(){
+ const idx=ses.ti!=null?ses.ti:(SENT.findIndex((_,i)=>!S.typing.includes(i)));const i=idx<0?0:idx;ses.ti=i;const s=SENT[i];
+ $('#main').innerHTML=wrap('Học qua gõ câu',`Đã hoàn thành ${S.typing.length}/${SENT.length} câu · gõ bằng kanji/kana (bộ gõ tiếng Nhật) hoặc romaji đều được`,`<div class="prog"><i style="width:${S.typing.length/SENT.length*100}%"></i></div><div class="vi">${s[3]}</div><input class="in" id="ans" autocomplete="off" lang="ja" placeholder="Gõ câu tiếng Nhật…"><div><button class="btn" id="chk">Kiểm tra</button><button class="btn l" id="hint">Gợi ý</button><button class="btn l" id="spk">🔊 Nghe</button><button class="btn l" id="nxt">Câu khác ›</button></div><div id="fb"></div>`);
+ const a=$('#ans');a.focus();const check=()=>{const r=jdiff(a.value,s);$('#fb').innerHTML=`<div class="fb ${r.exact?'ok':'no'}">${r.exact?'🎉 Chính xác! +10 XP':'Chưa đúng ('+r.ok+'/'+r.total+' ký tự). Đáp án:'}<div class="rs">${r.html}<i>${esc(s[1])}<br>${esc(s[2])}</i></div></div>`;
+  if(r.exact&&!S.typing.includes(i)){S.typing.push(i);addXp(10);doneRoute('typing');paintSide('typing')}};
+ $('#chk').onclick=check;a.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing)check()};
+ $('#hint').onclick=()=>{$('#fb').innerHTML=`<div class="fb no">Cách đọc: ${esc(s[2])}</div>`};
+ $('#spk').onclick=()=>speak(s[0]);$('#nxt').onclick=()=>{ses.ti=(i+1)%SENT.length;typing()};
+}
+function kana(){
+ const mode=ses.km||'h';const conv=h=>mode==='k'?kata(h):h;const nm=mode==='k'?'Katakana':'Hiragana';
+ if(ses.kq){const q=ses.kq;if(q.i>=10){const sc=q.ok;$('#main').innerHTML=wrap('Kiểm tra '+nm,'Hoàn thành',`<div class="q">Bạn đúng ${sc}/10 chữ.</div><button class="btn" id="again">Làm lại</button><button class="btn l" id="bk">Về bảng chữ</button>`);if(!q.paid){q.paid=1;addXp(sc*2)}$('#again').onclick=()=>{ses.kq={i:0,ok:0,k:newKQ()};kana()};$('#bk').onclick=()=>{ses.kq=null;kana()};return}
+  const c=HIRA[q.k[q.i]];const opts=[c[1]];while(opts.length<4){const r=HIRA[Math.floor(Math.random()*HIRA.length)][1];if(!opts.includes(r))opts.push(r)}opts.sort(()=>Math.random()-.5);
+  $('#main').innerHTML=wrap('Kiểm tra '+nm,`Câu ${q.i+1}/10`,`<div class="q" style="font-size:96px;text-align:center">${conv(c[0])}</div><div class="opts" style="grid-template-columns:repeat(2,1fr)">${opts.map(o=>`<button class="opt" data-o="${o}">${o}</button>`).join('')}</div><div style="text-align:center"><button class="btn l" id="sp">🔊 Nghe</button></div>`);
+  $('#sp').onclick=()=>speak(conv(c[0]),.7);
+  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(ses.lock)return;ses.lock=1;const ok=b.dataset.o===c[1];b.classList.add(ok?'ok':'no');const k=conv(c[0]);S.kana[k]=(S.kana[k]||0)+(ok?1:0);if(ok)q.ok++;else document.querySelectorAll('.opt').forEach(x=>{if(x.dataset.o===c[1])x.classList.add('ok')});save();setTimeout(()=>{ses.lock=0;q.i++;kana()},700)});return}
+ $('#main').innerHTML=wrap('Bảng chữ cái','Bấm vào một chữ để nghe phát âm',`<div><button class="btn${mode==='h'?'':' l'}" id="mh">Hiragana ひらがな</button><button class="btn${mode==='k'?'':' l'}" id="mk">Katakana カタカナ</button><button class="btn l" id="qz">🎯 Kiểm tra nhanh (10 chữ)</button></div><div class="kg">${HIRA.map(c=>`<button class="kc" data-c="${conv(c[0])}"><b>${conv(c[0])}</b><small>${c[1]}</small></button>`).join('')}</div>`);
+ $('#mh').onclick=()=>{ses.km='h';kana()};$('#mk').onclick=()=>{ses.km='k';kana()};$('#qz').onclick=()=>{ses.kq={i:0,ok:0,k:newKQ()};kana()};
+ document.querySelectorAll('.kc').forEach(b=>b.onclick=()=>speak(b.dataset.c,.7));
+}
+const newKQ=()=>HIRA.map((_,i)=>i).sort(()=>Math.random()-.5).slice(0,10);
+function vocab(){
+ const pool=VOC.map((_,k)=>k).filter(k=>!S.known.includes(k));
+ if(!pool.length){$('#main').innerHTML=wrap('Từ vựng','Bạn đã biết hết bộ từ này 🎉',`<button class="btn" id="rs">Học lại từ đầu</button>`);$('#rs').onclick=()=>{S.known=[];save();vocab()};return}
+ const k=ses.vk!=null&&pool.includes(ses.vk)?ses.vk:pool[Math.floor(Math.random()*pool.length)];ses.vk=k;const w=VOC[k];
+ $('#main').innerHTML=wrap('Luyện từ vựng',`Đã biết ${S.known.length}/${VOC.length} từ · phiên này: ${ses.vn||0}/10`,`<div class="flash"><div class="fc" id="fc"><div class="w">${w[0]}</div><div class="p">${w[1]} · ${w[2]}</div><div id="bk" style="display:none"><div class="m">${w[3]}</div><div class="e">${esc(w[4])}</div></div><div class="note" id="hn" style="color:#9a8f78;margin-top:18px">Chạm thẻ để xem nghĩa</div></div></div><div style="text-align:center"><button class="btn l" id="sp">🔊 Nghe</button><button class="btn" id="kn">✔ Đã biết</button><button class="btn l" id="rv">↻ Ôn lại</button></div>`);
+ $('#fc').onclick=()=>{$('#bk').style.display='block';$('#hn').style.display='none'};$('#sp').onclick=()=>speak(w[1],.7);
+ const nextCard=known=>{if(known&&!S.known.includes(k)){S.known.push(k);addXp(3)}ses.vn=(ses.vn||0)+1;ses.vk=null;if(ses.vn>=10){doneRoute('vocab');ses.vn=0}save();paintSide('vocab');vocab()};
+ $('#kn').onclick=()=>nextCard(true);$('#rv').onclick=()=>nextCard(false);
+}
+function gram(){
+ const qi=ses.gi||0;if(qi>=GRAM.length){$('#main').innerHTML=wrap('Ngữ pháp','Hoàn thành bộ câu hỏi',`<div class="q">Bạn đã làm đúng tổng cộng ${S.gram.length}/${GRAM.length} câu.</div><button class="btn" id="rs">Làm lại</button>`);doneRoute('gram');$('#rs').onclick=()=>{ses.gi=0;gram()};return}
+ const g=GRAM[qi];$('#main').innerHTML=wrap('Luyện ngữ pháp',`Câu ${qi+1}/${GRAM.length}`,`<div class="prog"><i style="width:${qi/GRAM.length*100}%"></i></div><div class="q">${esc(g[0])}</div><div class="opts">${g[1].map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}</div><div id="fb"></div>`);
+ document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(ses.lock)return;ses.lock=1;const i=+b.dataset.i,ok=i===g[2];b.classList.add(ok?'ok':'no');if(!ok)document.querySelectorAll('.opt')[g[2]].classList.add('ok');
+  if(ok&&!S.gram.includes(qi)){S.gram.push(qi);addXp(8)}save();paintSide('gram');$('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}">${ok?'✔ Đúng rồi!':'✘ Chưa đúng.'} ${esc(g[3])}</div><button class="btn" id="nx">Tiếp ›</button>`;$('#nx').onclick=()=>{ses.lock=0;ses.gi=qi+1;gram()}});
+}
+function read(){
+ const pi=ses.ri||0,p=READ[pi];$('#main').innerHTML=wrap('Luyện đọc & dịch',`Bài ${pi+1}/${READ.length}: ${p[0]} ${S.read.includes(pi)?'· ✔ đã học':''}`,`${p[1].map((s,i)=>`<div class="rs">${esc(s[0])} <button class="btn l" style="margin:0 0 0 6px;padding:2px 10px" data-sp="${i}">🔊</button><i data-v="${i}" style="display:none">${esc(s[1])}</i></div>`).join('')}<button class="btn l" id="tr">Hiện bản dịch</button><button class="btn" id="dn">Hoàn thành bài</button><button class="btn l" id="nx">Bài khác ›</button>`);
+ $('#tr').onclick=()=>document.querySelectorAll('[data-v]').forEach(e=>e.style.display='block');
+ document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>speak(p[1][+b.dataset.sp][0]));
+ $('#dn').onclick=()=>{if(!S.read.includes(pi)){S.read.push(pi);addXp(15)}save();paintSide('read');read()};$('#nx').onclick=()=>{ses.ri=(pi+1)%READ.length;read()};
+}
+function pron(){
+ const i=ses.pi||0,s=SENT[i],SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ $('#main').innerHTML=wrap('Luyện phát âm','Nghe mẫu rồi đọc to câu bên dưới',`<div class="q">${esc(s[0])}</div><div class="vi">${esc(s[1])} · ${esc(s[2])}<br>${s[3]}</div><button class="btn" id="ls">🔊 Nghe mẫu</button><button class="btn" id="sl">🐢 Nghe chậm</button>${SR?'<button class="btn" id="mic">🎤 Bấm để nói</button>':''}<button class="btn l" id="nx">Câu khác ›</button><div id="fb">${SR?'':'<div class="fb no">Trình duyệt này chưa hỗ trợ nhận giọng nói (thử Chrome). Bạn vẫn có thể nghe mẫu và nhại theo (shadowing).</div>'}</div>`);
+ $('#ls').onclick=()=>speak(s[0]);$('#sl').onclick=()=>speak(s[0],.5);$('#nx').onclick=()=>{ses.pi=(i+1)%SENT.length;pron()};
+ if(SR)$('#mic').onclick=()=>{const r=new SR();r.lang='ja-JP';r.onresult=e=>{const t=e.results[0][0].transcript,d=jdiff(t,s),sc=Math.round(d.ok/d.total*100);$('#fb').innerHTML=`<div class="fb ${sc>=80?'ok':'no'}">Bạn nói: “${esc(t)}” — điểm ${sc}/100<div class="rs">${d.html}</div></div>`;if(sc>=80)addXp(5)};r.onerror=()=>{$('#fb').innerHTML='<div class="fb no">Không nghe được, hãy cấp quyền micro và thử lại.</div>'};r.start();$('#fb').innerHTML='<div class="fb">🎧 Đang nghe…</div>'};
+}
+function dict(){
+ const i=ses.di!=null?ses.di:Math.max(0,SENT.findIndex((_,k)=>!S.dict.includes(k)));ses.di=i;const s=SENT[i];
+ $('#main').innerHTML=wrap('Dictation & Shadowing',`Nghe và gõ lại (kanji, kana hoặc romaji) · hoàn thành ${S.dict.length}/${SENT.length}`,`<button class="btn" id="pl">▶ Nghe câu</button><button class="btn l" id="sl">🐢 Chậm</button><input class="in" id="ans" lang="ja" style="margin-top:14px" autocomplete="off" placeholder="Gõ những gì bạn nghe được…"><button class="btn" id="chk">Kiểm tra</button><button class="btn l" id="nx">Câu khác ›</button><div id="fb"></div>`);
+ setTimeout(()=>speak(s[0]),300);$('#pl').onclick=()=>speak(s[0]);$('#sl').onclick=()=>speak(s[0],.5);
+ const check=()=>{const r=jdiff($('#ans').value,s);$('#fb').innerHTML=`<div class="fb ${r.exact?'ok':'no'}">${r.exact?'🎉 Chính xác! +10 XP':'Đáp án:'}<div class="rs">${r.html}<i>${esc(s[1])} · ${esc(s[2])}<br>${s[3]}</i></div></div>`;if(r.exact&&!S.dict.includes(i)){S.dict.push(i);addXp(10);save();paintSide('dict')}};
+ $('#chk').onclick=check;$('#ans').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing)check()};$('#nx').onclick=()=>{ses.di=(i+1)%SENT.length;dict()};
+}
+function dic(){
+ $('#main').innerHTML=wrap('Từ điển','Tra trong bộ từ của NihonPath (kanji, kana, romaji hoặc tiếng Việt)',`<input class="in" id="q" lang="ja" placeholder="Nhập từ cần tra…" autofocus><div id="res" style="margin-top:14px"></div>`);
+ const draw=()=>{const q=nj($('#q').value);const r=VOC.filter(w=>!q||nj(w[0]).includes(q)||nj(w[1]).includes(q)||nj(w[2]).includes(q)||w[3].toLowerCase().includes(q));$('#res').innerHTML=r.length?r.map(w=>`<div class="rs"><b>${w[0]}</b> ${w[1]} · ${w[2]} — ${w[3]} <button class="btn l" style="margin:0;padding:1px 10px" data-s="${w[1]}">🔊</button><i>${esc(w[4])}</i></div>`).join(''):'<div class="fb no">Chưa có từ này trong bộ từ điển nhỏ.</div>';document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>speak(b.dataset.s,.7))};
+ $('#q').oninput=draw;draw();
+}
+function road(){
+ $('#main').innerHTML=wrap('Lộ trình học',`Tiến độ ${Math.round(learned()/TOTAL*100)}% · mục tiêu JLPT N4`,CHAP.map((c,i)=>{const n=[0,1,2].filter(k=>S.typing.includes(c[1]+k)).length;return `<div class="ch" onclick="location.hash='#/typing'"><div><b>Chương ${i+1}</b><span>${n}/3 câu</span></div>${c[0]}</div>`}).join('')+'<div class="note" style="color:var(--mut)">Các chương N4 và kanji sẽ được bổ sung dần.</div>');
+}
+function prog(){
+ const m=today().slice(0,7);
+ $('#main').innerHTML=wrap('Tiến độ','Số liệu lưu trên máy bạn',`<div class="grid2"><div class="sb"><b>${streak()}</b>ngày liên tiếp</div><div class="sb"><b>${Object.keys(S.checkins).length}</b>ngày đã điểm danh</div><div class="sb"><b>${S.xp}</b>tổng XP</div><div class="sb"><b>${S.xpm[m]||0}</b>XP tháng này</div><div class="sb"><b>${learned()}/${TOTAL}</b>bài đã học</div><div class="sb"><b>${S.known.length}</b>từ đã biết</div></div><p class="sub" style="margin-top:18px">Dữ liệu của bạn chỉ nằm ở trình duyệt này.</p><button class="btn l" id="rs">Xoá toàn bộ tiến độ</button>`);
+ $('#rs').onclick=()=>{if(confirm('Xoá toàn bộ tiến độ học?')){S=Object.assign({},def,{checkins:{},xpm:{},typing:[],dict:[],read:[],gram:[],known:[],kana:{},tasks:{}});save();route2()}};
+}
+function req(){
+ $('#main').innerHTML=wrap('Yêu cầu tính năng','Ghi lại điều bạn muốn có (lưu trên máy)',`<textarea class="in" id="t" placeholder="Ví dụ: thêm kanji N5, bài nghe…">${esc(S.fb)}</textarea><button class="btn" id="sv">Lưu ghi chú</button><span id="ok"></span>`);
+ $('#sv').onclick=()=>{S.fb=$('#t').value.slice(0,2000);save();$('#ok').textContent='✔ Đã lưu'};
+}
+const ROUTES={home,typing,kana,vocab,gram,read,pron,dict,dic,road,prog,req};
+function route2(){const r=(location.hash.replace('#/','')||'home').split('/')[0];const f=ROUTES[r]||home;paintSide(r);f();window.scrollTo(0,0)}
+addEventListener('hashchange',()=>{ses={};route2()});
+route2();
+
+</script>
+</body>
+</html>
